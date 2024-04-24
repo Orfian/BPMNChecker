@@ -1,35 +1,4 @@
 
-def print_attrs(out, attrs):
-    out.write('attrs:')
-    if len(attrs) == 0:
-        out.write(" <None>").nl()
-    else:
-        out.nl()
-        out.inc()
-        for name, val in attrs:
-            out.write(repr(name) + " ==> " + repr(val)).nl()
-        out.dec()
-
-
-def print_array(out, name, arr):
-    out.write(name + " = [")
-    if len(arr) == 0:
-        out.write("]").nl()
-    else:
-        out.nl().nl()
-        out.inc()
-        first = True
-        for x in arr:
-            if first:
-                first = False
-            else:
-                out.nl()
-            x.print(out)
-        out.dec()
-        out.write("]").nl()
-
-
-
 
 class CMOF_top_node (object):
 
@@ -44,16 +13,21 @@ class CMOF_top_node (object):
         self.package = package
         self.tags = tags
 
-    def print (self, out):
-        out.write("XMI {").nl()
-        out.inc()
-        out.write("xmi:version: " + repr(self.version)).nl()
-        out.nl()
-        self.package.print(out)
-        out.nl()
-        print_array(out, "tags", self.tags)
-        out.dec()
-        out.write("}").nl()
+
+class CMOF_Tag (object):
+
+    __slots__ = [
+        'xmi_id',
+        'name',
+        'value',
+        'element',
+    ]
+
+    def __init__(self, id, name, value, element):
+        self.xmi_id = id
+        self.name = name
+        self.value = value
+        self.element = element
 
 
 class CMOF_Package (object):
@@ -62,7 +36,6 @@ class CMOF_Package (object):
         'xmi_id',
         'name',
         'uri',
-        'attrs',
         'imports',
         'members'
     ]
@@ -73,22 +46,6 @@ class CMOF_Package (object):
         self.uri = uri
         self.imports = imports
         self.members = members
-
-    def print (self, out):
-        out.write("Package " + repr(self.name) + " " +
-            "(xmi:id = " + repr(self.xmi_id) + ") {").nl()
-        out.inc()
-
-        out.nl()
-        out.write('uri: ' + repr(self.uri)).nl()
-        if len(self.imports) > 0:
-            out.nl()
-            print_array(out, "imports", self.imports)
-        out.nl()
-        print_array(out, "members", self.members)
-
-        out.dec()
-        out.write("}").nl()
 
 
 
@@ -103,7 +60,7 @@ class CMOF_Object (object):
 
 
 
-class CMOF_packageImport (CMOF_Object):
+class CMOF_PackageImport (CMOF_Object):
 
     __slots__ = [
         'xmi_id',
@@ -113,21 +70,10 @@ class CMOF_packageImport (CMOF_Object):
 
     def __init__(self, xmi_type, xmi_id, importingNamespace, importedPackage):
         super().__init__(xmi_type)
-        assert xmi_type == 'cmof:PackageImport'
+        assert self.xmi_type == 'cmof:PackageImport'
         self.xmi_id = xmi_id
         self.importingNamespace = importingNamespace
         self.importedPackage = importedPackage
-
-    def print (self, out):
-        out.write("PackageImport (id = " + repr(self.xmi_id) + ") {").nl()
-        out.inc()
-        # out.write("xmi:type: " + repr(self.xmi_type)).nl()
-        out.write("importingNamespace: " + repr(self.importingNamespace)).nl()
-        out.nl()
-        self.importedPackage.print(out)
-        out.dec()
-        out.write("}").nl()
-
 
 
 class CMOF_NamedObject (CMOF_Object):
@@ -179,27 +125,8 @@ class CMOF_Class (CMOF_Member):
         self.attributes = attributes
         self.superClass2 = superClass2
 
-    def print(self, out):
-        out.write("Class " + self.name_id_str() + " {").nl()
-        out.inc()
-        if self.isAbstract is not None:
-            out.write("isAbstract: " + repr(self.isAbstract)).nl()
-        if self.superClass is not None:
-            out.write("superClass: " + repr(self.superClass)).nl()
-
-        if self.superClass2 is not None:
-            out.nl()
-            self.superClass2.print(out)
-
-        out.nl()
-        print_array(out, "attributes", self.attributes)
-
-        if (len(self.rules) > 0):
-            out.nl()
-            print_array(out, "rules", self.rules)
-
-        out.dec()
-        out.write("}").nl()
+    def visit(self, v):
+        v.visit_Class(self)
 
 
 class CMOF_DataType (CMOF_Member):
@@ -214,19 +141,9 @@ class CMOF_DataType (CMOF_Member):
         self.rules = rules
         self.attributes = attributes
 
-    def print(self, out):
-        out.write("DataType " + self.name_id_str() + " {").nl()
-        out.inc()
+    def visit(self, v):
+        v.visit_DataType(self)
 
-        if (len(self.rules) > 0):
-            out.nl()
-            print_array(out, "rules", self.rules)
-
-        out.nl()
-        print_array(out, "attributes", self.attributes)
-
-        out.dec()
-        out.write("}").nl()
 
 
 class CMOF_PrimitiveType (CMOF_Member):
@@ -236,8 +153,8 @@ class CMOF_PrimitiveType (CMOF_Member):
     def __init__(self, tin):
         super().__init__(tin)
 
-    def print(self, out):
-        out.write("PrimitiveType " + self.name_id_str() + " {}").nl()
+    def visit(self, v):
+        v.visit_PrimitiveType(self)
 
 
 
@@ -251,14 +168,8 @@ class CMOF_Enumeration (CMOF_Member):
         super().__init__(tin)
         self.literals = literals
 
-    def print(self, out):
-        out.write("Enumeration " + self.name_id_str() + " {").nl()
-        out.inc()
-
-        print_array(out, "literals", self.literals)
-
-        out.dec()
-        out.write("}").nl()
+    def visit(self, v):
+        v.visit_Enumeration(self)
 
 
 class CMOF_Literal (CMOF_NamedObject):
@@ -270,19 +181,10 @@ class CMOF_Literal (CMOF_NamedObject):
 
     def __init__(self, tin, classifier, enumeration):
         super().__init__(tin)
-        xtype = tin[0]
-        assert xtype == 'cmof:EnumerationLiteral'
+        assert self.xmi_type == 'cmof:EnumerationLiteral'
         assert classifier == enumeration
         self.classifier = classifier
         self.enumeration = enumeration
-
-    def print (self, out):
-        out.write("Literal " + self.name_id_str() + " {").nl()
-        out.inc()
-        out.write("classifier: " + repr(self.classifier)).nl()
-        out.write("enumeration: " + repr(self.enumeration)).nl()
-        out.dec()
-        out.write("}").nl()
 
 
 
@@ -298,18 +200,8 @@ class CMOF_Association (CMOF_Member):
         self.attrs = attrs
         self.end = end
 
-    def print(self, out):
-        out.write("Association " + self.name_id_str() + " {").nl()
-        out.inc()
-
-        print_attrs(out, self.attrs)
-
-        if self.end is not None:
-            out.nl()
-            self.end.print(out)
-
-        out.dec()
-        out.write("}").nl()
+    def visit(self, v):
+        v.visit_Association(self)
 
 
 
@@ -323,25 +215,10 @@ class CMOF_Attribute (CMOF_NamedObject):
 
     def __init__(self, tin, attrs, type, properties):
         super().__init__(tin)
-        xtype = tin[0]
-        assert xtype == "cmof:Property"
+        assert self.xmi_type == "cmof:Property"
         self.attrs = attrs
         self.type = type
         self.properties = properties
-
-    def print (self, out):
-        out.write("Attribute " + self.name_id_str() + " {").nl()
-        out.inc()
-        print_attrs(out, self.attrs)
-
-        if self.type is not None:
-            out.nl()
-            self.type.print(out)
-
-        print_properties(out, self.properties)
-
-        out.dec()
-        out.write("}").nl()
 
 
 class CMOF_End (CMOF_NamedObject):
@@ -356,125 +233,49 @@ class CMOF_End (CMOF_NamedObject):
         self.attrs = attrs
         self.properties = properties
 
-    def print (self, out):
-        out.write("End " + self.name_id_str() + " {").nl()
-        out.inc()
-        print_attrs(out, self.attrs)
 
-        print_properties(out, self.properties)
+class CMOF_HRef_Object (CMOF_Object):
 
-        out.dec()
-        out.write("}").nl()
-
-
-def print_properties(out, properties):
-    redefinedProperty, subsettedProperty = properties
-    if redefinedProperty is not None:
-        out.nl()
-        redefinedProperty.print(out)
-
-    if subsettedProperty is not None:
-        out.nl()
-        subsettedProperty.print(out)
-
-
-
-class CMOF_ImportedPackage (object):
-
-    __slots__ = [
-        'xmi_type',
-        'href'
-    ]
+    __slots__ = [ 'href' ]
 
     def __init__(self, xtype, href):
-        self.xmi_type = xtype
-        assert xtype == 'cmof:Package'
+        super().__init__(xtype)
         self.href = href
 
-    def print (self, out):
-        out.write("ImportedPackage {").nl()
-        out.inc()
-        # out.write("xmi:type: " + repr(self.xmi_type)).nl()
-        out.write("href: " + repr(self.href)).nl()
-        out.dec()
-        out.write("}").nl()
 
-
-
-class CMOF_type (object):
-    
-    __slots__ = [
-        'xmi_type', 
-        'href'
-    ]
+class CMOF_ImportedPackage (CMOF_HRef_Object):
 
     def __init__(self, xtype, href):
-        self.xmi_type = xtype
-        # assert xtype == 'cmof:Class'
-        self.href = href
-
-    def print (self, out):
-        out.write("type {").nl()
-        out.inc()
-        out.write("xmi:type: " + repr(self.xmi_type)).nl()
-        out.write("href: " + repr(self.href)).nl()
-        out.dec()
-        out.write("}").nl()
+        super().__init__(xtype, href)
+        assert self.xmi_type == 'cmof:Package'
 
 
-class CMOF_superClass (object):
+class CMOF_superClass (CMOF_HRef_Object):
     
-    __slots__ = [
-        'xmi_type', 
-        'href'
-    ]
-
     def __init__(self, xtype, href):
-        self.xmi_type = xtype
+        super().__init__(xtype, href)
         assert xtype == 'cmof:Class'
-        self.href = href
-
-    def print (self, out):
-        out.write("superClass {").nl()
-        out.inc()
-        # out.write("xmi:type: " + repr(self.xmi_type)).nl()
-        out.write("href: " + repr(self.href)).nl()
-        out.dec()
-        out.write("}").nl()
 
 
-class CMOF_redefinedProperty (object):
+class CMOF_redefinedProperty (CMOF_HRef_Object):
     
-    __slots__ = [
-        'attrs'
-    ]
-
-    def __init__(self, attrs):
-        self.attrs = attrs
-
-    def print (self, out):
-        out.write("redefinedProperty {").nl()
-        out.inc()
-        print_attrs(out, self.attrs)
-        out.dec()
-        out.write("}").nl()
+    def __init__(self, xtype, href):
+        super().__init__(xtype, href)
+        assert xtype == 'cmof:Property'
 
 
-class CMOF_subsettedProperty (object):
+class CMOF_subsettedProperty (CMOF_HRef_Object):
     
-    __slots__ = [
-        'attrs'
-    ]
+    def __init__(self, xtype, href):
+        super().__init__(xtype, href)
+        assert xtype == 'cmof:Property'
 
-    def __init__(self, attrs):
-        self.attrs = attrs
 
-    def print (self, out):
-        out.write("subsettedProperty {").nl()
-        out.inc()
-        print_attrs(out, self.attrs)
-        out.dec()
-        out.write("}").nl()
+class CMOF_type (CMOF_HRef_Object):
+
+    def __init__(self, xtype, href):
+        super().__init__(xtype, href)
+        # assert xtype == 'cmof:Class'
 
 
 class CMOF_Rule (object):
@@ -486,37 +287,4 @@ class CMOF_Rule (object):
     def __init__(self, attrs):
         self.attrs = attrs
 
-    def print (self, out):
-        out.write("Rule {").nl()
-        out.inc()
-        print_attrs(out, self.attrs)
-        out.dec()
-        out.write("}").nl()
 
-
-
-
-
-class CMOF_Tag (object):
-
-    __slots__ = [
-        'xmi_id',
-        'name',
-        'value',
-        'element',
-    ]
-
-    def __init__(self, id, name, value, element):
-        self.xmi_id = id
-        self.name = name
-        self.value = value
-        self.element = element
-
-    def print (self, out):
-        out.write("Tag (xmi:id = " + repr(self.xmi_id) + ") {").nl()
-        out.inc()
-        out.write("   name: " + repr(self.name)).nl()
-        out.write("  value: " + repr(self.value)).nl()
-        out.write("element: " + repr(self.element)).nl()
-        out.dec()
-        out.write("}").nl()

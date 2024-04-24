@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from cmof_parser import parse_cmof
+import cmof_print_all
 
 import sys
 import xml.etree.ElementTree as ET
@@ -24,7 +25,7 @@ def main():
         print_tree_raw(tree)
     else:
         t = parse_cmof(tree, err)
-        t.print(out)
+        cmof_print_all.print_all(out, t)
 
     print ('')
     print ("O.K.")

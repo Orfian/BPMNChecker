@@ -108,7 +108,7 @@ def parse_packageImport(p):
     p.pop()
 
     p.check_end()
-    return CMOF_packageImport(xtype, xid, importingNamespace, importedPackage)
+    return CMOF_PackageImport(xtype, xid, importingNamespace, importedPackage)
 
 
 def parse_Member(p):
@@ -173,7 +173,7 @@ def parse_rules(p):
 
     while p.tag == 'ownedRule':
         p.push()
-        rule = parse_ownedRule(p)
+        rule = parse_Rule(p)
         p.pop()
         rules.append(rule)
 
@@ -293,15 +293,15 @@ def parse_properties(p):
     return (redefinedProperty, subsettedProperty)
 
 
-def parse_ownedRule(p):
+def parse_Rule(p):
     p.check_cur_tag('ownedRule')
 
     attrs = p.get_attrs()
 
-    print ("parse_ownedRule(1): " + repr(p.tag) + ", " + repr(p.has_next()))
+    # print ("parse_Rule(1): " + repr(p.tag) + ", " + repr(p.has_next()))
     while p.has_next():
         p.next()
-        print ("  parse_ownedRule(2): " + repr(p.tag) + ", " + repr(p.has_next()))
+        # print ("  parse_Rule(2): " + repr(p.tag) + ", " + repr(p.has_next()))
 
     p.check_end()
     return CMOF_Rule(attrs)
@@ -344,19 +344,23 @@ def parse_superClass(p):
 def parse_redefinedProperty(p):
     p.check_cur_tag('redefinedProperty')
 
-    attrs = p.get_attrs()
+    xtype, href = read_type_href(p)
+    check_xmi_type(p, xtype, 'cmof:Property', 'redefinedProperty')
+    p.check_attrs_end()
 
     p.check_end()
-    return CMOF_redefinedProperty(attrs)
+    return CMOF_redefinedProperty(xtype, href)
 
 
 def parse_subsettedProperty(p):
     p.check_cur_tag('subsettedProperty')
 
-    attrs = p.get_attrs()
+    xtype, href = read_type_href(p)
+    check_xmi_type(p, xtype, 'cmof:Property', 'subsettedProperty')
+    p.check_attrs_end()
 
     p.check_end()
-    return CMOF_subsettedProperty(attrs)
+    return CMOF_subsettedProperty(xtype, href)
 
 
 
