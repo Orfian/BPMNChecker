@@ -230,7 +230,8 @@ def parse_Literal(p):
 
 
 def parse_Association(p, tin):
-    attrs = p.get_attrs()
+    memberEnd = p.get_attr_required('memberEnd')
+    visibility = read_visibility_required(p)
     p.check_attrs_end()
 
     end = None
@@ -240,7 +241,7 @@ def parse_Association(p, tin):
         p.pop()
 
     p.check_end()
-    return CMOF_Association(tin, attrs, end)
+    return CMOF_Association(tin, memberEnd, visibility, end)
 
 
 
@@ -250,18 +251,24 @@ def parse_Attribute(p):
     tin = read_type_id_name(p)
     xtype = tin[0]
     check_xmi_type(p, xtype, "cmof:Property", "ownedAttribute")
+    type = p.get_attr_opt('type')
+    cardinality = read_cardinality(p)
+    visibility = read_visibility_opt(p)
+    isComposite = p.get_attr_opt('isComposite')
+    association = p.get_attr_opt('association')
     attrs = p.get_attrs()
 
-    type = None
+    type_href = None
     if p.tag == 'type':
         p.push()
-        type = parse_type(p)
+        type_href = parse_type(p)
         p.pop()
 
     propeties = parse_properties(p)
 
     p.check_end()
-    return CMOF_Attribute(tin, attrs, type, propeties)
+    return CMOF_Attribute(tin, type, cardinality, visibility, isComposite, association,
+           attrs, type_href, propeties)
     
 
 def parse_End(p):
@@ -269,12 +276,18 @@ def parse_End(p):
 
     tin = read_type_id_name(p)
     xtype = tin[0]
+    type = p.get_attr_required('type')
+    cardinality = read_cardinality(p)
+    visibility = read_visibility_opt(p)
+
+    owningAssociation = p.get_attr_required('owningAssociation')
+    association = p.get_attr_required('association')
     attrs = p.get_attrs()
     
     propeties = parse_properties(p)
 
     p.check_end()
-    return CMOF_End(tin, attrs, propeties)
+    return CMOF_End(tin, type, cardinality, visibility, owningAssociation, association, attrs, propeties)
 
 
 def parse_properties(p):
@@ -296,16 +309,25 @@ def parse_properties(p):
 def parse_Rule(p):
     p.check_cur_tag('ownedRule')
 
-    attrs = p.get_attrs()
+    tin = read_type_id_name(p)
+    xtype = tin[0]
+    check_xmi_type(p, xtype, "cmof:Constraint", "ownedRule")
+    constrainedElement = p.get_attr_required('constrainedElement')
+    namespace = p.get_attr_required('namespace')
+    p.check_attrs_end()
 
-    # print ("parse_Rule(1): " + repr(p.tag) + ", " + repr(p.has_next()))
-    while p.has_next():
-        p.next()
-        # print ("  parse_Rule(2): " + repr(p.tag) + ", " + repr(p.has_next()))
+    p.check_tag('specification')
+    p.push()
+    specification = parse_rule_specification(p)
+    p.pop()
 
     p.check_end()
-    return CMOF_Rule(attrs)
+    return CMOF_Rule(tin, constrainedElement, namespace, specification)
 
+
+def parse_rule_specification(p):
+    p.check_cur_tag('specification')
+    return None
 
 
 def parse_importedPackage(p):
@@ -375,4 +397,19 @@ def parse_Tag(p):
     return CMOF_Tag(id, name, value, element)
 
 
+def read_cardinality(p):
+    lower = p.get_attr_opt('lower')
+    upper = p.get_attr_opt('upper')
+    if lower is None and upper is None:
+        return None
+    return (lower, upper)
 
+def read_visibility_required(p):
+    visibility = read_visibility_opt(p)
+    if p is None:
+        p.error("Required attribute 'visibility' is missing")
+    return visibility
+
+def read_visibility_opt(p):
+    visibility = p.get_attr_opt('visibility')
+    return visibility

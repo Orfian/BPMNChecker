@@ -94,19 +94,22 @@ class Member_Visitor (object):
 
 def print_Class(out, c):
     assert isinstance(c, CMOF_Class)
-    out.write("Class " + c.name_id_str() + " {").nl()
+    out.write("Class " + c.name_id_str())
+    if c.superClass is not None:
+        out.write(" extends " + repr(c.superClass))
+    out.write(" {").nl()
+    out.inc()
     out.inc()
     if c.isAbstract is not None:
         out.write("isAbstract: " + repr(c.isAbstract)).nl()
-    if c.superClass is not None:
-        out.write("superClass: " + repr(c.superClass)).nl()
 
     if c.superClass2 is not None:
         out.nl()
         print_superClass(out, c.superClass2)
 
-    print_attributes_and_rules(out, c.attributes, c.rules)
+    print_attributes_and_rules(out, c.attributes, c.rules, c.xmi_id)
 
+    out.dec()
     out.dec()
     out.write("}").nl()
 
@@ -115,20 +118,20 @@ def print_DataType(out, c):
     assert isinstance(c, CMOF_DataType)
     out.write("DataType " + c.name_id_str() + " {").nl()
     out.inc()
+    out.inc()
 
-    print_attributes_and_rules(out, c.attributes, c.rules)
+    print_attributes_and_rules(out, c.attributes, c.rules, c.xmi_id)
 
+    out.dec()
     out.dec()
     out.write("}").nl()
 
 
-def print_attributes_and_rules(out, attributes, rules):
-    out.nl()
-    print_array(out, "attributes", attributes, print_Attribute)
+def print_attributes_and_rules(out, attributes, rules, par):
+    print_array_raw_par(out, attributes, print_Attribute, par)
 
     if (len(rules) > 0):
-        out.nl()
-        print_array(out, "rules", rules, print_Rule)
+        print_array_raw_par(out, rules, print_Rule, par)
 
 
 
@@ -142,20 +145,24 @@ def print_Enumeration(out, c):
     out.write("Enumeration " + c.name_id_str() + " {").nl()
     out.inc()
 
-    print_array(out, "literals", c.literals, print_Literal)
+    print_array_raw_par(out, c.literals, print_Literal, c.xmi_id)
 
     out.dec()
     out.write("}").nl()
 
 
-def print_Literal (out, c):
+def print_Literal (out, c, par):
     assert isinstance(c, CMOF_Literal)
-    out.write("Literal " + c.name_id_str() + " {").nl()
-    out.inc()
-    out.write("classifier: " + repr(c.classifier)).nl()
-    out.write("enumeration: " + repr(c.enumeration)).nl()
-    out.dec()
-    out.write("}").nl()
+    out.write("Literal " + c.name_id_str_par(par))
+    if c.classifier == par and c.enumeration == par:
+        out.nl()
+    else:
+        out.write(" {").nl()
+        out.inc()
+        out.write("classifier: " + repr(c.classifier)).nl()
+        out.write("enumeration: " + repr(c.enumeration)).nl()
+        out.dec()
+        out.write("}").nl()
 
 
 
@@ -164,26 +171,39 @@ def print_Association(out, c):
     out.write("Association " + c.name_id_str() + " {").nl()
     out.inc()
 
-    print_attrs(out, c.attrs)
+    out.write("visibility ==> " + repr(c.visibility)).nl()
+    out.write("memberEnd ==> " + repr(c.memberEnd)).nl()
 
     if c.end is not None:
         out.nl()
-        print_End(out, c.end)
+        print_End(out, c.end, c.xmi_id)
 
     out.dec()
     out.write("}").nl()
 
 
 
-def print_Attribute (out, c):
+def print_Attribute (out, c, par):
     assert isinstance(c, CMOF_Attribute)
-    out.write("Attribute " + c.name_id_str() + " {").nl()
-    out.inc()
-    print_attrs(out, c.attrs)
-
+    out.write("Attribute " + c.name_id_str_par(par))
     if c.type is not None:
-        out.nl()
-        print_type(out, c.type)
+        out.write(" : " + repr(c.type))
+        if c.cardinality is not None:
+            out.write(" " + cardinality_to_str(c.cardinality))
+    out.write(" {").nl()
+    out.inc()
+    if c.type_href is not None:
+        print_type(out, c.type_href)
+    if c.type is None and c.cardinality is not None:
+        out.write("cardinality ==> " + cardinality_to_str(c.cardinality)).nl()
+    if c.visibility is not None:
+        out.write("visibility ==> " + repr(c.visibility)).nl()
+    if c.isComposite is not None:
+        out.write("isComposite ==> " + repr(c.isComposite)).nl()
+    if c.association is not None:
+        out.write("association ==> " + repr(c.association)).nl()
+    if len(c.attrs) > 0:
+        print_attrs(out, c.attrs)
 
     print_properties(out, c.properties)
 
@@ -191,11 +211,27 @@ def print_Attribute (out, c):
     out.write("}").nl()
 
 
-def print_End (out, c):
+def print_End (out, c, par):
     assert isinstance(c, CMOF_End)
-    out.write("End " + c.name_id_str() + " {").nl()
+    out.write("End " + c.name_id_str_par(par) + " {").nl()
     out.inc()
-    print_attrs(out, c.attrs)
+    out.write("type: " + repr(c.type))
+    if c.cardinality is not None:
+        out.write(" " + cardinality_to_str(c.cardinality))
+    out.nl()
+    if c.association != par:
+        if (c.owningAssociation == c.association):
+            out.write("association (= owningAssociation): " + repr(c.association)).nl()
+        else:
+            out.write("owningAssociation: " + repr(c.owningAssociation)).nl()
+            out.write("      association: " + repr(c.association)).nl()
+
+    if c.visibility is not None:
+        out.write("visibility ==> " + repr(c.visibility)).nl()
+
+    assert len(c.attrs) >= 0
+    if (len(c.attrs) > 0):
+        print_attrs(out, c.attrs)
 
     print_properties(out, c.properties)
 
@@ -244,29 +280,47 @@ def print_superClass (out, c):
 
 def print_type (out, c):
     assert isinstance(c, CMOF_type)
-    out.write("type {").nl()
+    out.write("type_href (" + repr(c.xmi_type) + ") {").nl()
     out.inc()
-    out.write("xmi:type: " + repr(c.xmi_type)).nl()
     out.write("href: " + repr(c.href)).nl()
     out.dec()
     out.write("}").nl()
 
 
 
-def print_Rule (out, c):
+def print_Rule (out, c, par):
     assert isinstance(c, CMOF_Rule)
-    out.write("Rule {").nl()
+    out.write("Rule " + c.name_id_str_par(par) + " {").nl()
     out.inc()
-    print_attrs(out, c.attrs)
+    out.write("constrainedElement: " + repr(c.constrainedElement)).nl()
+    out.write("         namespace: " + repr(c.namespace)).nl()
     out.dec()
     out.write("}").nl()
+
+
+def cardinality_to_str(c):
+    lower, upper = c
+    s = "["
+    if lower is None:
+        s += '_'
+    else:
+        s += lower
+    s += ' .. '
+    if upper is None:
+        s += '_'
+    else:
+        s += upper
+    s += ']'
+    return s
+
+
 
 
 
 def print_attrs(out, attrs):
     out.write('attrs:')
     if len(attrs) == 0:
-        out.write(" <None>").nl()
+        out.write(" ---").nl()
     else:
         out.nl()
         out.inc()
@@ -280,16 +334,25 @@ def print_array(out, name, arr, pr):
     if len(arr) == 0:
         out.write("]").nl()
     else:
-        out.nl().nl()
+        out.nl()
         out.inc()
-        first = True
-        for x in arr:
-            if first:
-                first = False
-            else:
-                out.nl()
-            pr(out, x)
+        print_array_raw(out, arr, pr)
         out.dec()
         out.write("]").nl()
 
+
+def print_array_raw(out, arr, pr):
+    if len(arr) == 0:
+        return
+    for x in arr:
+        out.nl()
+        pr(out, x)
+
+
+def print_array_raw_par(out, arr, pr, par):
+    if len(arr) == 0:
+        return
+    for x in arr:
+        out.nl()
+        pr(out, x, par)
 

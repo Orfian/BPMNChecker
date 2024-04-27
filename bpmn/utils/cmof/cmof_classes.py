@@ -96,6 +96,15 @@ class CMOF_NamedObject (CMOF_Object):
         else:
             return repr(name) + " (id=" + repr(id) + ")"
 
+    def name_id_str_par(self, par):
+        name = self.name
+        id = self.xmi_id
+        s = par + '-' + name
+        if id == s:
+            return repr(name)
+        else:
+            return repr(name) + " (id=" + repr(id) + ")"
+
 
 
 class CMOF_Member (CMOF_NamedObject):
@@ -191,13 +200,15 @@ class CMOF_Literal (CMOF_NamedObject):
 class CMOF_Association (CMOF_Member):
 
     __slots__ = [
-        'attrs',
+        'memberEnd',
+        'visibility',
         'end'
     ]
 
-    def __init__(self, tin, attrs, end):
+    def __init__(self, tin, memberEnd, visibility, end):
         super().__init__(tin)
-        self.attrs = attrs
+        self.memberEnd = memberEnd
+        self.visibility = visibility
         self.end = end
 
     def visit(self, v):
@@ -208,30 +219,69 @@ class CMOF_Association (CMOF_Member):
 class CMOF_Attribute (CMOF_NamedObject):
     
     __slots__ = [
-        'attrs',
         'type',
+        'cardinality',
+        'visibility',
+        'isComposite',
+        'association',
+        'attrs',
+        'type_href',
         'properties'
     ]
 
-    def __init__(self, tin, attrs, type, properties):
+    def __init__(self, tin, type, cardinality, visibility, isComposite, association,
+                 attrs, type_href, properties):
         super().__init__(tin)
         assert self.xmi_type == "cmof:Property"
-        self.attrs = attrs
         self.type = type
+        self.cardinality = cardinality
+        self.visibility = visibility
+        self.isComposite = isComposite
+        self.association = association
+        self.attrs = attrs
+        self.type_href = type_href
         self.properties = properties
 
 
 class CMOF_End (CMOF_NamedObject):
     
     __slots__ = [
+        'type',
+        'cardinality',
+        'visibility',
+        'owningAssociation',
+        'association',
         'attrs',
         'properties'
     ]
 
-    def __init__(self, tin, attrs, properties):
+    def __init__(self, tin, type, cardinality, visibility, owningAssociation, association, attrs, properties):
         super().__init__(tin)
+        self.type = type
+        self.cardinality = cardinality
+        self.visibility = visibility
+        self.owningAssociation = owningAssociation
+        self.association = association
         self.attrs = attrs
         self.properties = properties
+
+
+
+class CMOF_Rule (CMOF_NamedObject):
+
+    __slots__ = [
+        'constrainedElement',
+        'namespace',
+        'specification'
+    ]
+
+    def __init__(self, tin, constrainedElement, namespace, specification):
+        super().__init__(tin)
+        assert self.xmi_type == "cmof:Constraint"
+        self.constrainedElement = constrainedElement
+        self.namespace = namespace
+        self.specification = specification
+
 
 
 class CMOF_HRef_Object (CMOF_Object):
@@ -276,15 +326,5 @@ class CMOF_type (CMOF_HRef_Object):
     def __init__(self, xtype, href):
         super().__init__(xtype, href)
         # assert xtype == 'cmof:Class'
-
-
-class CMOF_Rule (object):
-    
-    __slots__ = [
-        'attrs'
-    ]
-
-    def __init__(self, attrs):
-        self.attrs = attrs
 
 
