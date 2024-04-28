@@ -146,7 +146,7 @@ def parse_Class(p, tin):
     p.check_attrs_end()
 
     rules = parse_rules(p)
-    attributes = parse_attributes(p)
+    attributes = parse_class_attributes(p)
 
     superClass2 = None
     if p.tag == 'superClass':
@@ -162,7 +162,7 @@ def parse_DataType(p, tin):
     p.check_attrs_end()
 
     rules = parse_rules(p)
-    attributes = parse_attributes(p)
+    attributes = parse_datatype_attributes(p)
 
     p.check_end()
     return CMOF_DataType(tin, rules, attributes)
@@ -180,7 +180,7 @@ def parse_rules(p):
     return rules
 
 
-def parse_attributes(p):
+def parse_class_attributes(p):
     attributes = []
 
     while p.tag == 'ownedAttribute':
@@ -188,7 +188,19 @@ def parse_attributes(p):
         attribute = parse_Attribute(p)
         p.pop()
         attributes.append(attribute)
-    
+
+    return attributes
+
+
+def parse_datatype_attributes(p):
+    attributes = []
+
+    while p.tag == 'ownedAttribute':
+        p.push()
+        attribute = parse_DataType_Attribute(p)
+        p.pop()
+        attributes.append(attribute)
+
     return attributes
 
 
@@ -244,6 +256,28 @@ def parse_Association(p, tin):
     return CMOF_Association(tin, memberEnd, visibility, end)
 
 
+def read_type_card_vis (p):
+    type = p.get_attr_opt('type')
+    cardinality = read_cardinality(p)
+    visibility = read_visibility_opt(p)
+    return (type, cardinality, visibility)
+
+
+def parse_DataType_Attribute(p):
+    p.check_cur_tag('ownedAttribute')
+
+    tin = read_type_id_name(p)
+    xtype = tin[0]
+    check_xmi_type(p, xtype, "cmof:Property", "ownedAttribute")
+    tcv = read_type_card_vis(p)
+    default = p.get_attr_opt('default')
+    datatype = p.get_attr_required('datatype')
+    p.check_attrs_end()
+
+    p.check_end()
+    return CMOF_DataType_Attribute(tin, tcv, datatype, default)
+
+
 
 def parse_Attribute(p):
     p.check_cur_tag('ownedAttribute')
@@ -251,12 +285,12 @@ def parse_Attribute(p):
     tin = read_type_id_name(p)
     xtype = tin[0]
     check_xmi_type(p, xtype, "cmof:Property", "ownedAttribute")
-    type = p.get_attr_opt('type')
-    cardinality = read_cardinality(p)
-    visibility = read_visibility_opt(p)
-    isComposite = p.get_attr_opt('isComposite')
+    tcv = read_type_card_vis(p)
+    bp = read_attr_bool_props(p)
+    default = p.get_attr_opt('default')
+    subsettedProperty = p.get_attr_opt('subsettedProperty')
     association = p.get_attr_opt('association')
-    attrs = p.get_attrs()
+    p.check_attrs_end()
 
     type_href = None
     if p.tag == 'type':
@@ -267,27 +301,49 @@ def parse_Attribute(p):
     propeties = parse_properties(p)
 
     p.check_end()
-    return CMOF_Attribute(tin, type, cardinality, visibility, isComposite, association,
-           attrs, type_href, propeties)
+    return CMOF_Attribute(tin, tcv, bp, default, subsettedProperty, association,
+                          type_href, propeties)
     
+
+def read_attr_bool_props(p):
+    bp = Attr_bool_props()
+    bp.isComposite = p.get_attr_opt('isComposite')
+    bp.isReadOnly = p.get_attr_opt('isReadOnly')
+    bp.isDerived = p.get_attr_opt('isDerived')
+    bp.isDerivedUnion = p.get_attr_opt('isDerivedUnion')
+    bp.isOrdered = p.get_attr_opt('isOrdered')
+    bp.isUnique = p.get_attr_opt('isUnique')
+    return bp
+
 
 def parse_End(p):
     p.check_cur_tag('ownedEnd')
 
     tin = read_type_id_name(p)
     xtype = tin[0]
-    type = p.get_attr_required('type')
-    cardinality = read_cardinality(p)
-    visibility = read_visibility_opt(p)
+    check_xmi_type(p, xtype, "cmof:Property", "ownedEnd")
+    tcv = read_type_card_vis(p)
 
     owningAssociation = p.get_attr_required('owningAssociation')
     association = p.get_attr_required('association')
-    attrs = p.get_attrs()
+    bp = read_end_bool_props(p)
+    subsettedProperty = p.get_attr_opt('subsettedProperty')
+    p.check_attrs_end()
     
     propeties = parse_properties(p)
 
     p.check_end()
-    return CMOF_End(tin, type, cardinality, visibility, owningAssociation, association, attrs, propeties)
+    return CMOF_End(tin, tcv, owningAssociation, association, bp,
+                    subsettedProperty, propeties)
+
+
+def read_end_bool_props(p):
+    bp = End_bool_props()
+    bp.isReadOnly = p.get_attr_opt('isReadOnly')
+    bp.isDerived = p.get_attr_opt('isDerived')
+    bp.isDerivedUnion = p.get_attr_opt('isDerivedUnion')
+    return bp
+
 
 
 def parse_properties(p):

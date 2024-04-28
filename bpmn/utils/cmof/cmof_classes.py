@@ -88,24 +88,6 @@ class CMOF_NamedObject (CMOF_Object):
         self.xmi_id = xid
         self.name = name
 
-    def name_id_str(self):
-        name = self.name
-        id = self.xmi_id
-        if name == id:
-            return repr(name)
-        else:
-            return repr(name) + " (id=" + repr(id) + ")"
-
-    def name_id_str_par(self, par):
-        name = self.name
-        id = self.xmi_id
-        s = par + '-' + name
-        if id == s:
-            return repr(name)
-        else:
-            return repr(name) + " (id=" + repr(id) + ")"
-
-
 
 class CMOF_Member (CMOF_NamedObject):
 
@@ -128,6 +110,7 @@ class CMOF_Class (CMOF_Member):
 
     def __init__(self, tin, isAbstract, superClass, rules, attributes, superClass2):
         super().__init__(tin)
+        assert self.xmi_type == 'cmof:Class'
         self.isAbstract = isAbstract
         self.superClass = superClass
         self.rules = rules
@@ -147,6 +130,7 @@ class CMOF_DataType (CMOF_Member):
 
     def __init__(self, tin, rules, attributes):
         super().__init__(tin)
+        assert self.xmi_type == 'cmof:DataType'
         self.rules = rules
         self.attributes = attributes
 
@@ -161,6 +145,7 @@ class CMOF_PrimitiveType (CMOF_Member):
 
     def __init__(self, tin):
         super().__init__(tin)
+        assert self.xmi_type == 'cmof:PrimitiveType'
 
     def visit(self, v):
         v.visit_PrimitiveType(self)
@@ -175,6 +160,7 @@ class CMOF_Enumeration (CMOF_Member):
 
     def __init__(self, tin, literals):
         super().__init__(tin)
+        assert self.xmi_type == 'cmof:Enumeration'
         self.literals = literals
 
     def visit(self, v):
@@ -207,6 +193,7 @@ class CMOF_Association (CMOF_Member):
 
     def __init__(self, tin, memberEnd, visibility, end):
         super().__init__(tin)
+        assert self.xmi_type == 'cmof:Association'
         self.memberEnd = memberEnd
         self.visibility = visibility
         self.end = end
@@ -215,55 +202,99 @@ class CMOF_Association (CMOF_Member):
         v.visit_Association(self)
 
 
+class CMOF_Property (CMOF_NamedObject):
 
-class CMOF_Attribute (CMOF_NamedObject):
-    
     __slots__ = [
         'type',
         'cardinality',
         'visibility',
-        'isComposite',
+    ]
+
+    def __init__(self, tin, tcv):
+        super().__init__(tin)
+        assert self.xmi_type == "cmof:Property"
+        type, cardinality, visibility = tcv
+        self.type = type
+        self.cardinality = cardinality
+        self.visibility = visibility
+
+
+class CMOF_DataType_Attribute (CMOF_Property):
+
+    __slots__ = [
+        'datatype',
+        'default',
+    ]
+
+    def __init__(self, tin, tcv, datatype, default):
+        super().__init__(tin, tcv)
+        self.datatype = datatype
+        self.default = default
+
+
+
+class CMOF_Attribute (CMOF_Property):
+
+    __slots__ = [
+        'bool_props',
+        'default',
+        'subsettedProperty',
         'association',
-        'attrs',
         'type_href',
         'properties'
     ]
 
-    def __init__(self, tin, type, cardinality, visibility, isComposite, association,
-                 attrs, type_href, properties):
-        super().__init__(tin)
-        assert self.xmi_type == "cmof:Property"
-        self.type = type
-        self.cardinality = cardinality
-        self.visibility = visibility
-        self.isComposite = isComposite
+    def __init__(self, tin, tcv, bp, default, subsettedProperty,
+            association, type_href, properties):
+        super().__init__(tin, tcv)
+        self.bool_props = bp
+        self.default = default
+        self.subsettedProperty = subsettedProperty
         self.association = association
-        self.attrs = attrs
         self.type_href = type_href
         self.properties = properties
 
 
-class CMOF_End (CMOF_NamedObject):
+class Attr_bool_props (object):
+
+    __slots__ = [
+        'isComposite',
+        'isReadOnly',
+        'isDerived',
+        'isDerivedUnion',
+        'isOrdered',
+        'isUnique'
+    ]
+
+
+
+class CMOF_End (CMOF_Property):
     
     __slots__ = [
-        'type',
-        'cardinality',
-        'visibility',
         'owningAssociation',
         'association',
-        'attrs',
+        'bool_props',
+        'subsettedProperty',
         'properties'
     ]
 
-    def __init__(self, tin, type, cardinality, visibility, owningAssociation, association, attrs, properties):
-        super().__init__(tin)
-        self.type = type
-        self.cardinality = cardinality
-        self.visibility = visibility
+    def __init__(self, tin, tcv, owningAssociation, association, bool_props,
+                 subsettedProperty, properties):
+        super().__init__(tin, tcv)
         self.owningAssociation = owningAssociation
         self.association = association
-        self.attrs = attrs
+        self.bool_props = bool_props
+        self.subsettedProperty = subsettedProperty
         self.properties = properties
+
+
+class End_bool_props (object):
+
+    __slots__ = [
+        'isReadOnly',
+        'isDerived',
+        'isDerivedUnion'
+    ]
 
 
 
