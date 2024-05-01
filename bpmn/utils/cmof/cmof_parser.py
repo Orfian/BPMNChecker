@@ -135,7 +135,7 @@ def parse_Member(p):
             return parse_Association(p, tin)
 
         case _:
-            p.error("Unknown <ownedMember> type " + repr(type))
+            p.error("Unknown <ownedMember> type " + repr(xmi_type))
 
     assert False
 

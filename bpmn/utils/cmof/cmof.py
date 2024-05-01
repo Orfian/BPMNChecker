@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-from cmof_parser import parse_cmof
-import cmof_print_all
+import cmof_parser, cmof_print_all, cmof_model_builder, cmof_model_print
 
 import sys
 import xml.etree.ElementTree as ET
@@ -19,16 +18,29 @@ def main():
     else:
         inp = open(fname)
 
+    process_file(out, err, options, inp)
+
+    print ('')
+    print ("O.K.")
+
+
+def process_file(out, err, options, inp):
     tree = read_xml(inp)
 
     if options.print_raw:
         print_tree_raw(tree)
-    else:
-        t = parse_cmof(tree, err)
-        cmof_print_all.print_all(out, t)
+        return
 
-    print ('')
-    print ("O.K.")
+    t = cmof_parser.parse_cmof(tree, err)
+
+    if options.print_parsed:
+        cmof_print_all.print_all(out, t)
+        return
+
+    print ("Building model...")
+
+    model = cmof_model_builder.build_model(t, err)
+    cmof_model_print.print_model(out, model)
 
 
 def read_xml(filename):
@@ -63,12 +75,14 @@ class Options (object):
 
     __slots__ = [
         'filename',
-        'print_raw'
+        'print_raw',
+        'print_parsed'
     ]
 
     def __init__(self):
         self.filename = None
         self.print_raw = False
+        self.print_parsed = True
 
 
 
@@ -79,8 +93,14 @@ def parse_options(argv):
     while i < n:
         s = argv[i]
         i += 1
-        if s == '-r':
+        if s in ['-?', '-h']:
+            usage()
+        elif s == '-r':
             opts.print_raw = True
+        # elif s == '-p':
+        #     opts.print_parsed = True
+        elif s == '-m':
+            opts.print_parsed = False
         else:
             if s.startswith('-'):
                 print ("Error: unknown option " + repr(s))
@@ -96,7 +116,11 @@ def parse_options(argv):
 
 
 def usage():
-    print ("Usage: -----")
+    print ("Usage: cmof.py [<options>] <filename>")
+    print ("   options:")
+    print ("     -r  - print raw XML")
+    # print ("     -p  - print parsed CMOF")
+    print ("     -m  - print constructed model")
     sys.exit(1)
 
 
@@ -140,10 +164,25 @@ class ErrOutput (object):
     def __init__(self, out):
         self.out = out
 
-    def error(self, msg):
+    def syntax_error(self, msg):
+        self.out.write('\n')
+        self.out.write("SYNTAX ERROR: ")
         self.out.write (msg)
-        self.out.write ('\n')
+        self.out.write('\n\n')
         sys.exit(1)
+
+    def error(self, msg):
+        self.out.write('\n')
+        self.out.write("ERROR: ")
+        self.out.write (msg)
+        self.out.write('\n\n')
+        sys.exit(1)
+
+    def warning(self, msg):
+        self.out.write('\n')
+        self.out.write("WARNING: ")
+        self.out.write (msg)
+        self.out.write('\n\n')
 
 
 

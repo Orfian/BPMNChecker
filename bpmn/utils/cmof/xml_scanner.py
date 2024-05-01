@@ -27,7 +27,7 @@ class XML_Scanner (object):
         self.__start_node(root)
 
     def error(self, msg):
-        self.err.error("Syntax error: " + msg)
+        self.err.syntax_error(msg)
 
     def has_next(self):
         return (self.child is not None)
