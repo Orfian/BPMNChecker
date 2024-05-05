@@ -177,7 +177,7 @@ class CMOF_Literal (CMOF_NamedObject):
     def __init__(self, tin, classifier, enumeration):
         super().__init__(tin)
         assert self.xmi_type == 'cmof:EnumerationLiteral'
-        assert classifier == enumeration
+        # assert classifier == enumeration
         self.classifier = classifier
         self.enumeration = enumeration
 

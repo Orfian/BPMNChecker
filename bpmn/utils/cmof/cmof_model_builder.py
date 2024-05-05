@@ -1,35 +1,15 @@
 
 from cmof_classes import *
 from cmof_model import *
-
-
-def is_letter(c):
-    x = ord(c)
-    return (ord('A') <= x <= ord('Z')) or (ord('a') <= x <= ord('z'))
-
-def is_digit(c):
-    x = ord(c)
-    return ord('0') <= x <= ord('9')
-
-def is_first_ident_char(c):
-    return is_letter(c) or c == '_'
-
-def is_next_ident_char(c):
-    return is_letter(c) or is_digit(c) or c == '_'
-
-def is_ident(s):
-    if len(s) < 1: return False
-    c = s[0]
-    if not is_first_ident_char(c): return False
-    for c in s[1:]:
-        if not is_next_ident_char(c): return False
-    return True
+from utils import is_ident
 
 
 
 def build_model(t, err):
     b = ModelBuilder (err)
     process_top_level_node(b, t)
+    # show_ids(b)
+    process_class_attributes(b)
     model = b.build()
     return model
 
@@ -72,7 +52,7 @@ class Build_Visitor (object):
         process_Association(self.builder, c)
 
 
-def check_name(b, name, s):
+def check_name_is_ident(b, name, s):
     if is_ident(name): return
     b.error("Name of "  + s + " " + repr(name) + " is not an identifier.")
 
@@ -89,10 +69,19 @@ def check_id_not_used(b, xid, s, name):
 
 def process_member_id(b, c, s):
     name = c.name
-    check_name(b, name, s)
+    check_name_is_ident(b, name, s)
     xid = c.xmi_id
     check_id(b, xid, name, s, name)
     check_id_not_used(b, xid, s, name)
+    return name
+
+def process_item_id(b, par_id, c, s):
+    name = c.name
+    check_name_is_ident(b, name, s + "in " + repr(par_id))
+    xid = c.xmi_id
+    item_name = par_id + '.' + name
+    check_id(b, xid, par_id + '-' + name, s, item_name)
+    check_id_not_used(b, xid, s, item_name)
     return name
 
 
@@ -102,7 +91,42 @@ def process_Class(b, c):
     assert c.xmi_type == 'cmof:Class'
     name = process_member_id(b, c, "Class")
     obj = M_Class(name)
-    tmp = b.add_Class(c, obj)
+    tmp = Tmp_Class(c, obj)
+
+    for attr in c.attributes:
+        preprocess_Attribute(b, tmp, attr)
+
+    b.add_Class(tmp)
+
+
+def preprocess_Attribute(b, tmp_cl, c):
+    assert isinstance(tmp_cl, Tmp_Class)
+    assert isinstance(c, CMOF_Attribute)
+    assert c.xmi_type == 'cmof:Property'
+    par_name = tmp_cl.get_id()
+    name = process_item_id(b, par_name, c, "Attribute")
+    tmp = Tmp_Attribute(tmp_cl, name)
+    tmp_cl.add_attribute(tmp)
+    b.add_Attribute(tmp)
+
+
+def process_class_attributes(b):
+    for cl in b.get_classes():
+        process_class_attributes_one(b, cl)
+
+
+def process_class_attributes_one(b, cl):
+    attrs = []
+    for attr in cl.get_attributes():
+        obj = process_class_attribute(b, cl, attr)
+        attrs.append(obj)
+    cl.set_obj_attributes(attrs)
+
+
+def process_class_attribute(b, cl, attr):
+    name = attr.get_name()
+    obj = M_Attribute(name)
+    return obj
 
 
 def process_DataType(b, c):
@@ -116,21 +140,79 @@ def process_Enumeration(b, c):
     assert isinstance(c, CMOF_Enumeration)
     assert c.xmi_type == 'cmof:Enumeration'
     name = process_member_id(b, c, "Enumeration")
-    obj = M_Enumeration(name)
-    tmp = b.add_Enumeration(c, obj)
+    tmp = Tmp_Enumeration(name)
+
+    for literal in c.literals:
+        process_Literal(b, tmp, literal)
+
+    test_enumeration_duplicates(b, tmp)
+
+    b.add_Enumeration(tmp)
+    
+    obj = M_Enumeration (tmp.get_name(), tmp.get_literal_names())
+    tmp.set_obj(obj)
+
+
+def test_enumeration_duplicates(b, tmp):
+    assert isinstance(tmp, Tmp_Enumeration)
+    h = {}
+    for name in tmp.get_literal_names():
+        if name in h:
+            b.error("Enum " + tmp.get_name() + " --- duplicate item " + repr(name))
+        h[name] = name
+
+
+def process_Literal(b, enum, c):
+    assert isinstance(enum, Tmp_Enumeration)
+    assert isinstance(c, CMOF_Literal)
+    assert c.xmi_type == 'cmof:EnumerationLiteral'
+    par_name = enum.get_id()
+    name = process_item_id(b, par_name, c, "Enumeration Literal")
+
+    if c.classifier != par_name:
+        b.error("Enum Literal \'" + name + "\' in \'" + par_name + '\': ' +
+            "classifier " + repr(c.classifier) + " is not as expected (\'" +
+            par_name + "\')"
+        )
+
+    if c.enumeration != par_name:
+        b.error("Enum Literal \'" + name + "\' in \'" + par_name + '\': ' +
+            "enumeration " + repr(c.enumeration) + " is not as expected (\'" +
+            par_name + "\')"
+        )
+
+    tmp = enum.add_literal(name)
+    b.add_Literal(tmp)
 
 
 def process_PrimitiveType(b, c):
-    print ("Processing PrimitiveType " + repr(c.xmi_id))
+    # print ("Processing PrimitiveType " + repr(c.xmi_id))
     assert isinstance(c, CMOF_PrimitiveType)
     assert c.xmi_type == 'cmof:PrimitiveType'
+    name = process_member_id(b, c, "PrimitiveType")
+    obj = M_PrimitiveType(name)
+    tmp = Tmp_PrimitiveType(obj)
+    b.add_PrimitiveType(tmp)
 
 
 def process_Association(b, c):
-    print ("Processing Association " + repr(c.xmi_id))
+    # print ("Processing Association " + repr(c.xmi_id))
     assert isinstance(c, CMOF_Association)
     assert c.xmi_type == 'cmof:Association'
+    name = process_member_id(b, c, "Association")
+    # if c.end is None:
+    #     obj = process_two_way_Association(name, b, c)
+    # else:
+    #     obj = process_one_way_Association(name, b, c)
 
+
+def show_ids(b):
+    h = b.get_id_table()
+    print ("Id table:")
+    print ("=========")
+    for xid in h:
+        tmp = h[xid]
+        print ("   " + repr(xid) + " ==> " + tmp.get_short_descr())
 
 
 
@@ -141,7 +223,10 @@ class ModelBuilder (object):
         '__id_table',
         '__classes',
         '__enumerations',
+        '__primitive_types',
         '__type_table',
+        '__associations',
+        '__assoc_table'
     ]
 
     def __init__(self, err):
@@ -149,13 +234,19 @@ class ModelBuilder (object):
         self.__id_table = {}
         self.__classes = []
         self.__enumerations = []
+        self.__primitive_types = []
         self.__type_table = {}
+        self.__associations = []
+        self.__assoc_table = {}
 
     def warning(self, msg):
         self.err.warning(msg)
 
     def error(self, msg):
         self.err.error(msg)
+
+    def get_id_table(self):
+        return self.__id_table
 
     def __add_to_id_table(self, xid, tmp):
         h = self.__id_table
@@ -175,30 +266,62 @@ class ModelBuilder (object):
         else:
             return None
 
-    def add_Class(self, c, obj):
-        name = obj.name
-        xid = c.xmi_id
+    def add_Class(self, tmp):
+        xid = tmp.get_id()
+        name = tmp.get_name()
         assert xid == name
-        tmp = Tmp_Class(c, obj)
         self.__classes.append(tmp)
         self.__add_to_type_table(xid, tmp)
         self.__add_to_id_table(xid, tmp)
-        return tmp
 
-    def add_Enumeration(self, c, obj):
-        name = obj.name
-        xid = c.xmi_id
+    def add_Attribute(self, tmp):
+        assert isinstance(tmp, Tmp_Attribute)
+        xid = tmp.get_id()
+        self.__add_to_id_table(xid, tmp)
+
+    def add_Enumeration(self, tmp):
+        assert isinstance(tmp, Tmp_Enumeration)
+        xid = tmp.get_id()
+        name = tmp.get_name()
         assert xid == name
-        tmp = Tmp_Enumeration(c, obj)
         self.__enumerations.append(tmp)
         self.__add_to_type_table(xid, tmp)
         self.__add_to_id_table(xid, tmp)
         return tmp
 
+    def add_Literal(self, tmp):
+        assert isinstance(tmp, Tmp_Literal)
+        xid = tmp.get_id()
+        self.__add_to_id_table(xid, tmp)
+
+    def add_PrimitiveType(self, tmp):
+        assert isinstance(tmp, Tmp_PrimitiveType)
+        xid = tmp.get_id()
+        name = tmp.get_name()
+        assert xid == name
+        self.__primitive_types.append(tmp)
+        self.__add_to_type_table(xid, tmp)
+        self.__add_to_id_table(xid, tmp)
+
+
+    def add_Association(self, c, obj):
+        name = obj.name
+        xid = c.xmi_id
+        assert xid == name
+        tmp = Tmp_Association(c, obj)
+        self.__associations.append(tmp)
+        self.__add_to_assoc_table(xid, tmp)
+        self.__add_to_id_table(xid, tmp)
+        return tmp
+
+    def get_classes(self):
+        return self.__classes
+        
     def build (self):
-        classes = [ tmp.new for tmp in self.__classes ]
-        enums = [ tmp.new for tmp in self.__enumerations]
-        return M_Model(classes, enums)
+        classes = [ tmp.get_obj() for tmp in self.__classes ]
+        enums = [ tmp.get_obj() for tmp in self.__enumerations ]
+        prim_types = [ tmp.get_obj() for tmp in self.__primitive_types ]
+        return M_Model(classes, enums, prim_types)
 
 
 
@@ -207,21 +330,154 @@ class Tmp_Object (object):
     def __init__(self):
         pass
 
+    def get_id(self):
+        assert False
+
+    def get_short_descr(self):
+        assert False
+
 
 class Tmp_Class (Tmp_Object):
 
-    __slots__ = [ 'old', 'new' ]
+    __slots__ = [ '__orig', '__obj', '__attributes' ]
 
-    def __init__(self, old, new):
-        self.old = old
-        self.new = new
+    def __init__(self, orig, obj):
+        self.__orig = orig
+        self.__obj = obj
+        self.__attributes = []
+
+    def get_id(self):
+        return self.__orig.xmi_id
+
+    def get_name(self):
+        return self.__obj.name
+
+    def get_short_descr(self):
+        return "class " + self.get_name()
+
+    def add_attribute(self, attr):
+        assert isinstance(attr, Tmp_Attribute)
+        assert attr.get_parent() is self
+        self.__attributes.append(attr)
+
+    def get_attributes(self):
+        return self.__attributes
+
+    def set_obj_attributes(self, attrs):
+        obj = self.__obj
+        obj.set_attributes(attrs)
+
+    def get_obj(self):
+        return self.__obj
+
+
+class Tmp_Attribute(Tmp_Object):
+
+    __slots__ = [ '__parent', '__name', ]
+
+    def __init__(self, parent, name):
+        assert isinstance(parent, Tmp_Class)
+        assert isinstance(name, str)
+        self.__parent = parent
+        self.__name = name
+
+    def get_parent(self):
+        return self.__parent
+
+    def get_id(self):
+        return self.__parent.get_id() + '-' + self.get_name()
+
+    def get_name(self):
+        return self.__name
+
+    def get_long_name(self):
+        return self.__parent.get_name() + '.' + self.get_name()
+
+    def get_short_descr(self):
+        return "attribute " + self.get_long_name()
+
+
 
 
 class Tmp_Enumeration (Tmp_Object):
 
-    __slots__ = [ 'old', 'new' ]
+    __slots__ = [ '__name', '__literals', '__obj' ]
 
-    def __init__(self, old, new):
-        self.old = old
-        self.new = new
+    def __init__(self, name):
+        assert isinstance(name, str)
+        self.__name = name
+        self.__literals = []
 
+    def get_id(self):
+        return self.__name
+
+    def get_name(self):
+        return self.__name
+
+    def get_short_descr(self):
+        return "enum " + self.get_name()
+
+    def add_literal(self, name):
+        assert isinstance(name, str)
+        literal = Tmp_Literal(self, name)
+        self.__literals.append(literal)
+        return literal
+
+    def get_literal_names(self):
+        return [ lit.get_name() for lit in self.__literals ]
+
+    def set_obj(self, obj):
+        self.__obj = obj
+
+    def get_obj(self):
+        return self.__obj
+
+
+class Tmp_Literal (Tmp_Object):
+
+    __slots__ = [ '__enum', '__name' ]
+
+    def __init__(self, enum, name):
+        assert isinstance(enum, Tmp_Enumeration)
+        assert isinstance(name, str)
+        self.__enum = enum
+        self.__name = name
+
+    def get_id(self):
+        par = self.__enum
+        return par.get_id() + '-' + self.__name
+
+    def get_name(self):
+        return self.__name
+
+    def get_long_name(self):
+        return self.__enum.get_name() + '.' + self.get_name()
+
+    def get_short_descr(self):
+        return "literal " + self.get_long_name()
+
+
+class Tmp_PrimitiveType(Tmp_Object):
+
+    __slots__ = [ '__obj' ]
+
+    def __init__(self, obj):
+        assert isinstance(obj, M_PrimitiveType)
+        self.__obj = obj
+
+    def get_id(self):
+        return self.__obj.name
+
+    def get_name(self):
+        return self.__obj.name
+
+    def get_obj(self):
+        return self.__obj
+
+    def get_short_descr(self):
+        return "primitive type " + self.get_name()
+
+
+class Tmp_OneWay_Association(Tmp_Object):
+
+    pass
