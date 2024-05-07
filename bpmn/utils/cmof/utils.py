@@ -14,6 +14,7 @@ def is_next_ident_char(c):
     return is_letter(c) or is_digit(c) or c == '_'
 
 def is_ident(s):
+    assert isinstance(s, str)
     if len(s) < 1: return False
     c = s[0]
     if not is_first_ident_char(c): return False

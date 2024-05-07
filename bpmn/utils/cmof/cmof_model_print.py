@@ -53,6 +53,9 @@ def print_primitive_types(out, prim_types):
 
 
 def print_Class(out, c):
+    assert isinstance(c, M_Class)
+    if c.is_abstract:
+        out.write ("abstract ")
     out.write("class " + c.name + " {").nl()
     out.inc()
     for attr in c.attributes:
@@ -62,7 +65,12 @@ def print_Class(out, c):
 
 
 def print_Attribute(out, c):
-    out.write(c.name).nl()
+    out.write(c.name)
+    typ = c.type
+    if typ is not None:
+        assert isinstance(typ, M_Type)
+        out.write(" : " + typ.name)
+    out.nl()
 
 
 def print_Enumeration(out, c):

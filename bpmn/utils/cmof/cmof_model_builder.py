@@ -9,7 +9,7 @@ def build_model(t, err):
     b = ModelBuilder (err)
     process_top_level_node(b, t)
     # show_ids(b)
-    process_class_attributes(b)
+    process_classes(b)
     model = b.build()
     return model
 
@@ -85,12 +85,17 @@ def process_item_id(b, par_id, c, s):
     return name
 
 
+def class_descr(c, s):
+    return "Class " + repr(c.name) + " --- " + s
+
+
 def process_Class(b, c):
     # print ("Processing Class " + repr(c.xmi_id))
     assert isinstance(c, CMOF_Class)
     assert c.xmi_type == 'cmof:Class'
     name = process_member_id(b, c, "Class")
-    obj = M_Class(name)
+    is_abstract = read_bool_true(b, c.isAbstract, class_descr(c, "isAbstract"))
+    obj = M_Class(name, is_abstract)
     tmp = Tmp_Class(c, obj)
 
     for attr in c.attributes:
@@ -105,17 +110,32 @@ def preprocess_Attribute(b, tmp_cl, c):
     assert c.xmi_type == 'cmof:Property'
     par_name = tmp_cl.get_id()
     name = process_item_id(b, par_name, c, "Attribute")
-    tmp = Tmp_Attribute(tmp_cl, name)
+    typ = read_class_attr_type(b, tmp_cl, c)
+    tmp = Tmp_Attribute(tmp_cl, name, typ)
     tmp_cl.add_attribute(tmp)
     b.add_Attribute(tmp)
 
 
-def process_class_attributes(b):
+def read_class_attr_type(b, tmp_cl, c):
+    t = c.type
+    if t is not None:
+        assert isinstance(t, str)
+        typ = Tmp_TypeRef_name(t)
+    else:
+        typ = None
+    return typ
+
+
+def class_attr_name(cl, attr):
+    return cl.get_name() + "." + attr.get_name()
+
+
+def process_classes(b):
     for cl in b.get_classes():
-        process_class_attributes_one(b, cl)
+        process_one_class(b, cl)
 
 
-def process_class_attributes_one(b, cl):
+def process_one_class(b, cl):
     attrs = []
     for attr in cl.get_attributes():
         obj = process_class_attribute(b, cl, attr)
@@ -125,8 +145,24 @@ def process_class_attributes_one(b, cl):
 
 def process_class_attribute(b, cl, attr):
     name = attr.get_name()
-    obj = M_Attribute(name)
+    typ = find_class_attribute_type(b, cl, attr)
+    obj = M_Attribute(name, typ)
     return obj
+
+
+def find_class_attribute_type(b, cl, attr):
+    t = attr.get_type()
+    assert isinstance(t, Tmp_TypeRef) or t is None
+    if t is None or t.is_href():
+        typ = None
+    else:
+        assert isinstance(t, Tmp_TypeRef_name)
+        tname = t.name
+        typ = b.find_type_by_name(tname)
+        if typ is None:
+            b.error("Attribute " + class_attr_name(cl, attr) + " --- " +
+            "type " + repr(tname) + " not found")
+    return typ
 
 
 def process_DataType(b, c):
@@ -215,6 +251,12 @@ def show_ids(b):
         print ("   " + repr(xid) + " ==> " + tmp.get_short_descr())
 
 
+def read_bool_true(b, v, s):
+    if v is None: return False
+    if v == 'true': return True
+    b.error(s + ": \'true\' expected, got " + repr(v))
+    return False
+
 
 class ModelBuilder (object):
 
@@ -254,10 +296,19 @@ class ModelBuilder (object):
         h[xid] = tmp
 
     def __add_to_type_table(self, xid, tmp):
+        # print ("Adding to type table: " + repr(xid) + " ==> " + 
+        #         tmp.get_short_descr())
         h = self.__type_table
         assert xid not in h
         h[xid] = tmp
 
+    def find_type_by_name(self, name):
+        # print ("Find type by name: " + repr(name))
+        h = self.__type_table
+        if name not in h: return None
+        # print ("      ... found")
+        tmp = h[name]
+        return tmp.get_type_obj()
 
     def get_obj_by_id_opt(self, xid):
         h = self.__id_table
@@ -370,16 +421,20 @@ class Tmp_Class (Tmp_Object):
     def get_obj(self):
         return self.__obj
 
+    def get_type_obj(self):
+        return self.get_obj()
+
 
 class Tmp_Attribute(Tmp_Object):
 
-    __slots__ = [ '__parent', '__name', ]
+    __slots__ = [ '__parent', '__name', '__type' ]
 
-    def __init__(self, parent, name):
+    def __init__(self, parent, name, typ):
         assert isinstance(parent, Tmp_Class)
         assert isinstance(name, str)
         self.__parent = parent
         self.__name = name
+        self.__type = typ
 
     def get_parent(self):
         return self.__parent
@@ -392,6 +447,9 @@ class Tmp_Attribute(Tmp_Object):
 
     def get_long_name(self):
         return self.__parent.get_name() + '.' + self.get_name()
+
+    def get_type(self):
+        return self.__type
 
     def get_short_descr(self):
         return "attribute " + self.get_long_name()
@@ -431,6 +489,9 @@ class Tmp_Enumeration (Tmp_Object):
 
     def get_obj(self):
         return self.__obj
+
+    def get_type_obj(self):
+        return self.get_obj()
 
 
 class Tmp_Literal (Tmp_Object):
@@ -481,3 +542,20 @@ class Tmp_PrimitiveType(Tmp_Object):
 class Tmp_OneWay_Association(Tmp_Object):
 
     pass
+
+
+class Tmp_TypeRef(object):
+    
+    pass
+
+
+class Tmp_TypeRef_name(Tmp_TypeRef):
+
+    __slots__ = [ 'name' ]
+
+    def __init__(self, name):
+        self.name = name
+
+
+    def is_href(self):
+        return False

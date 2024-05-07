@@ -27,19 +27,26 @@ class M_Model(object):
 
 class M_Type(object):
 
-    def __init__(self):
-        pass
+    __slots__ = [ 'name' ]
+
+    def __init__(self, name):
+        assert is_ident(name)
+        self.name = name
 
 
 class M_Class(M_Type):
 
     __slots__ = [
-        'name'
+        'is_abstract',
+        'superclasses',
+        'attributes'
     ]
 
-    def __init__(self, name):
-        assert is_ident(name)
-        self.name = name
+    def __init__(self, name, is_abstract):
+        super().__init__(name)
+        assert isinstance(is_abstract, bool)
+        self.superclasses = []
+        self.is_abstract = is_abstract
 
     def set_attributes(self, attrs):
         for attr in attrs:
@@ -52,14 +59,18 @@ class M_Attribute(object):
 
     __slots__ = [
         'parent',
-        'name'
+        'name',
+        'type'
     ]
 
-    def __init__(self, name):
+    def __init__(self, name, typ):
         assert is_ident(name)
+        # assert isinstance(typ, M_Type)
         self.name = name
+        self.type = typ
 
     def set_parent(self, parent):
+        assert isinstance(parent, M_Class)
         self.parent = parent
 
 
@@ -67,13 +78,11 @@ class M_Attribute(object):
 class M_Enumeration(M_Type):
 
     __slots__ = [
-        'name', 
         'literals'
     ]
 
     def __init__(self, name, literals):
-        assert is_ident(name)
-        self.name = name
+        super().__init__(name)
         self.literals = [ M_Literal(self, lit) for lit in literals ]
 
 
@@ -87,7 +96,6 @@ class M_Literal(object):
 
     def __init__(self, enum, name):
         assert isinstance(enum, M_Enumeration)
-        assert isinstance(name, str)
         assert is_ident(name)
         self.enum = enum
         self.name = name
@@ -95,10 +103,7 @@ class M_Literal(object):
 
 class M_PrimitiveType(M_Type):
 
-    __slots__ = [
-        'name'
-    ]
+    __slots__ = [ ]
 
     def __init__(self, name):
-        assert is_ident(name)
-        self.name = name
+        super().__init__(name)
