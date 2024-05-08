@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import cmof_parser, cmof_print_all, cmof_model_builder, cmof_model_print
+import cmof_parser, cmof_print_parsed, cmof_model_builder, cmof_print_model
+from utils import Output, ErrOutput
 
 import sys
 import xml.etree.ElementTree as ET
@@ -34,13 +35,13 @@ def process_file(out, err, options, inp):
     t = cmof_parser.parse_cmof(tree, err)
 
     if options.print_parsed:
-        cmof_print_all.print_all(out, t)
+        cmof_print_parsed.print_all(out, t)
         return
 
     print ("Building model...")
 
     model = cmof_model_builder.build_model(t, err)
-    cmof_model_print.print_model(out, model)
+    cmof_print_model.print_model(out, model)
 
 
 def read_xml(filename):
@@ -82,7 +83,7 @@ class Options (object):
     def __init__(self):
         self.filename = None
         self.print_raw = False
-        self.print_parsed = True
+        self.print_parsed = False
 
 
 
@@ -97,10 +98,10 @@ def parse_options(argv):
             usage()
         elif s == '-r':
             opts.print_raw = True
-        # elif s == '-p':
-        #     opts.print_parsed = True
-        elif s == '-m':
-            opts.print_parsed = False
+        elif s == '-p':
+            opts.print_parsed = True
+        # elif s == '-m':
+        #     opts.print_parsed = False
         else:
             if s.startswith('-'):
                 print ("Error: unknown option " + repr(s))
@@ -114,75 +115,13 @@ def parse_options(argv):
     return opts
 
 
-
 def usage():
     print ("Usage: cmof.py [<options>] <filename>")
     print ("   options:")
     print ("     -r  - print raw XML")
-    # print ("     -p  - print parsed CMOF")
-    print ("     -m  - print constructed model")
+    print ("     -p  - print parsed CMOF")
+    # print ("     -m  - print constructed model")
     sys.exit(1)
-
-
-class Output(object):
-
-    __slots__ = [
-        'out',
-        'indent',
-        'start_line'
-    ]
-
-    def __init__(self, f):
-        self.out = f
-        self.indent = 0
-        self.start_line = True
-
-    def write(self, s):
-        if self.start_line:
-            self.start_line = False
-            self.out.write(' ' * self.indent * 4)
-        self.out.write(s)
-        return self
-
-    def nl(self):
-        self.out.write('\n')
-        self.start_line = True
-        return self
-    
-    def inc(self):
-        self.indent += 1
-        
-    def dec(self):
-        assert (self.indent > 0)
-        self.indent -= 1
-
-
-class ErrOutput (object):
-
-    __slots__ = [ 'out' ]
-    
-    def __init__(self, out):
-        self.out = out
-
-    def syntax_error(self, msg):
-        self.out.write('\n')
-        self.out.write("SYNTAX ERROR: ")
-        self.out.write (msg)
-        self.out.write('\n\n')
-        sys.exit(1)
-
-    def error(self, msg):
-        self.out.write('\n')
-        self.out.write("ERROR: ")
-        self.out.write (msg)
-        self.out.write('\n\n')
-        sys.exit(1)
-
-    def warning(self, msg):
-        self.out.write('\n')
-        self.out.write("WARNING: ")
-        self.out.write (msg)
-        self.out.write('\n\n')
 
 
 

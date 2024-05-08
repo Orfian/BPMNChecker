@@ -1,9 +1,9 @@
 
-from cmof_classes import *
+from cmof_parsed_classes import *
 
 
 def print_all(out, c):
-    assert isinstance(c, CMOF_top_node)
+    assert isinstance(c, P_top_node)
     out.write("XMI {").nl()
     out.inc()
     out.write("xmi:version: " + repr(c.version)).nl()
@@ -16,7 +16,7 @@ def print_all(out, c):
 
 
 def print_Tag (out, c):
-    assert isinstance(c, CMOF_Tag)
+    assert isinstance(c, P_Tag)
     out.write("Tag (id = " + repr(c.xmi_id) + ") {").nl()
     out.inc()
     out.write("   name: " + repr(c.name)).nl()
@@ -27,7 +27,7 @@ def print_Tag (out, c):
 
 
 def print_Package (out, c):
-    assert isinstance(c, CMOF_Package)
+    assert isinstance(c, P_Package)
     out.write("Package " + repr(c.name) + " " +
         "(id = " + repr(c.xmi_id) + ") {").nl()
     out.inc()
@@ -45,7 +45,7 @@ def print_Package (out, c):
 
 
 def print_PackageImport (out, c):
-    assert isinstance(c, CMOF_PackageImport)
+    assert isinstance(c, P_PackageImport)
     out.write("PackageImport (id = " + repr(c.xmi_id) + ") {").nl()
     out.inc()
     # out.write("xmi:type: " + repr(self.xmi_type)).nl()
@@ -58,7 +58,7 @@ def print_PackageImport (out, c):
 
 
 def print_Member(out, c):
-    assert isinstance(c, CMOF_Member)
+    assert isinstance(c, P_Member)
     v = Member_Visitor(out)
     c.visit(v)
 
@@ -71,29 +71,29 @@ class Member_Visitor (object):
         self.out = out
 
     def visit_Class(self, c):
-        assert isinstance(c, CMOF_Class)
+        assert isinstance(c, P_Class)
         print_Class(self.out, c)
 
     def visit_DataType(self, c):
-        assert isinstance(c, CMOF_DataType)
+        assert isinstance(c, P_DataType)
         print_DataType(self.out, c)
 
     def visit_PrimitiveType(self, c):
-        assert isinstance(c, CMOF_PrimitiveType)
+        assert isinstance(c, P_PrimitiveType)
         print_PrimitiveType(self.out, c)
 
     def visit_Enumeration(self, c):
-        assert isinstance(c, CMOF_Enumeration)
+        assert isinstance(c, P_Enumeration)
         print_Enumeration(self.out, c)
 
     def visit_Association(self, c):
-        assert isinstance(c, CMOF_Association)
+        assert isinstance(c, P_Association)
         print_Association(self.out, c)
 
 
 
 def print_Class(out, c):
-    assert isinstance(c, CMOF_Class)
+    assert isinstance(c, P_Class)
     out.write("Class " + name_id_str(c))
     if c.superClass is not None:
         out.write(" extends " + repr(c.superClass))
@@ -120,7 +120,7 @@ def print_Class(out, c):
 
 
 def print_DataType(out, c):
-    assert isinstance(c, CMOF_DataType)
+    assert isinstance(c, P_DataType)
     out.write("DataType " + name_id_str(c) + " {").nl()
     out.inc()
     out.inc()
@@ -140,12 +140,12 @@ def print_DataType(out, c):
 
 
 def print_PrimitiveType(out, c):
-    assert isinstance(c, CMOF_PrimitiveType)
+    assert isinstance(c, P_PrimitiveType)
     out.write("PrimitiveType " + name_id_str(c) + " {}").nl()
 
 
 def print_Enumeration(out, c):
-    assert isinstance(c, CMOF_Enumeration)
+    assert isinstance(c, P_Enumeration)
     out.write("Enumeration " + name_id_str(c) + " {").nl()
     out.inc()
 
@@ -156,7 +156,7 @@ def print_Enumeration(out, c):
 
 
 def print_Literal (out, c, par):
-    assert isinstance(c, CMOF_Literal)
+    assert isinstance(c, P_Literal)
     out.write("Literal " + name_id_str_par(c, par))
     if c.classifier == par and c.enumeration == par:
         out.nl()
@@ -171,7 +171,7 @@ def print_Literal (out, c, par):
 
 
 def print_Association(out, c):
-    assert isinstance(c, CMOF_Association)
+    assert isinstance(c, P_Association)
     out.write("Association " + name_id_str(c) + " {").nl()
     out.inc()
 
@@ -187,7 +187,7 @@ def print_Association(out, c):
 
 
 def print_property_header(out, title, c, par):
-    assert isinstance(c, CMOF_Property)
+    assert isinstance(c, P_Property)
     out.write(title + " " + name_id_str_par(c, par))
     if c.type is not None:
         out.write(" : " + repr(c.type))
@@ -197,13 +197,13 @@ def print_property_header(out, title, c, par):
 
 
 def print_property_visibility(out, c):
-    assert isinstance(c, CMOF_Property)
+    assert isinstance(c, P_Property)
     if c.visibility is not None:
         out.write("visibility ==> " + repr(c.visibility)).nl()
 
 
 def print_DataType_Attribute (out, c, par):
-    assert isinstance(c, CMOF_DataType_Attribute)
+    assert isinstance(c, P_DataType_Attribute)
     print_property_header(out, "Attribute", c, par)
     out.nl()
     out.inc()
@@ -220,7 +220,7 @@ def print_DataType_Attribute (out, c, par):
 
 
 def print_Attribute (out, c, par):
-    assert isinstance(c, CMOF_Attribute)
+    assert isinstance(c, P_Attribute)
     print_property_header(out, "Attribute", c, par)
     out.nl()
     out.inc()
@@ -258,7 +258,7 @@ def print_attr_bool_props(out, bp):
 
 
 def print_End (out, c, par):
-    assert isinstance(c, CMOF_End)
+    assert isinstance(c, P_End)
     print_property_header(out, "End", c, par)
     out.nl()
     out.inc()
@@ -301,7 +301,7 @@ def print_properties(out, properties):
 
 
 def print_href_object(out, c, class_name, expected_type):
-    assert isinstance(c, CMOF_HRef_Object)
+    assert isinstance(c, P_HRef_Object)
     assert c.xmi_type == expected_type
     out.write(class_name + " {").nl()
     out.inc()
@@ -311,23 +311,23 @@ def print_href_object(out, c, class_name, expected_type):
 
 
 def print_redefinedProperty (out, c):
-    assert isinstance(c, CMOF_redefinedProperty)
+    assert isinstance(c, P_redefinedProperty)
     print_href_object(out, c, 'redefinedProperty', 'cmof:Property')
 
 def print_subsettedProperty (out, c):
-    assert isinstance(c, CMOF_subsettedProperty)
+    assert isinstance(c, P_subsettedProperty)
     print_href_object(out, c, 'subsettedProperty', 'cmof:Property')
 
 def print_ImportedPackage (out, c):
-    assert isinstance(c, CMOF_ImportedPackage)
+    assert isinstance(c, P_ImportedPackage)
     print_href_object(out, c, 'ImportedPackage', 'cmof:Package')
 
 def print_superClass (out, c):
-    assert isinstance(c, CMOF_superClass)
+    assert isinstance(c, P_superClass)
     print_href_object(out, c, 'superClass', 'cmof:Class')
 
 def print_type (out, c):
-    assert isinstance(c, CMOF_type)
+    assert isinstance(c, P_type)
     out.write("type (" + repr(c.xmi_type) + ") {").nl()
     out.inc()
     out.write("href: " + repr(c.href)).nl()
@@ -337,7 +337,7 @@ def print_type (out, c):
 
 
 def print_Rule (out, c, par):
-    assert isinstance(c, CMOF_Rule)
+    assert isinstance(c, P_Rule)
     out.write("Rule " + name_id_str_par(c, par) + " {").nl()
     out.inc()
     out.write("constrainedElement: " + repr(c.constrainedElement)).nl()
@@ -406,7 +406,7 @@ def print_array_raw_par(out, arr, pr, par):
 
 
 def name_id_str(c):
-    assert isinstance(c, CMOF_NamedObject)
+    assert isinstance(c, P_NamedObject)
     name = c.name
     id = c.xmi_id
     if name == id:
@@ -416,7 +416,7 @@ def name_id_str(c):
 
 
 def name_id_str_par(c, par):
-    assert isinstance(c, CMOF_NamedObject)
+    assert isinstance(c, P_NamedObject)
     name = c.name
     id = c.xmi_id
     s = par + '-' + name

@@ -1,6 +1,6 @@
 
 
-class CMOF_top_node (object):
+class P_top_node (object):
 
     __slots__ = [
         'version',
@@ -14,7 +14,7 @@ class CMOF_top_node (object):
         self.tags = tags
 
 
-class CMOF_Tag (object):
+class P_Tag (object):
 
     __slots__ = [
         'xmi_id',
@@ -23,14 +23,14 @@ class CMOF_Tag (object):
         'element',
     ]
 
-    def __init__(self, id, name, value, element):
-        self.xmi_id = id
+    def __init__(self, xid, name, value, element):
+        self.xmi_id = xid
         self.name = name
         self.value = value
         self.element = element
 
 
-class CMOF_Package (object):
+class P_Package (object):
 
     __slots__ = [
         'xmi_id',
@@ -49,7 +49,7 @@ class CMOF_Package (object):
 
 
 
-class CMOF_Object (object):
+class P_Object (object):
 
     __slots__ = [
         'xmi_type'
@@ -60,7 +60,7 @@ class CMOF_Object (object):
 
 
 
-class CMOF_PackageImport (CMOF_Object):
+class P_PackageImport (P_Object):
 
     __slots__ = [
         'xmi_id',
@@ -76,7 +76,7 @@ class CMOF_PackageImport (CMOF_Object):
         self.importedPackage = importedPackage
 
 
-class CMOF_NamedObject (CMOF_Object):
+class P_NamedObject (P_Object):
     __slots__ = [
         'xmi_id',
         'name',
@@ -89,7 +89,7 @@ class CMOF_NamedObject (CMOF_Object):
         self.name = name
 
 
-class CMOF_Member (CMOF_NamedObject):
+class P_Member (P_NamedObject):
 
     __slots__ = [ ]
 
@@ -98,7 +98,7 @@ class CMOF_Member (CMOF_NamedObject):
 
 
 
-class CMOF_Class (CMOF_Member):
+class P_Class (P_Member):
 
     __slots__ = [
         'isAbstract',
@@ -121,7 +121,7 @@ class CMOF_Class (CMOF_Member):
         v.visit_Class(self)
 
 
-class CMOF_DataType (CMOF_Member):
+class P_DataType (P_Member):
 
     __slots__ = [
         'rules',
@@ -139,7 +139,7 @@ class CMOF_DataType (CMOF_Member):
 
 
 
-class CMOF_PrimitiveType (CMOF_Member):
+class P_PrimitiveType (P_Member):
 
     __slots__ = [ ]
 
@@ -152,7 +152,7 @@ class CMOF_PrimitiveType (CMOF_Member):
 
 
 
-class CMOF_Enumeration (CMOF_Member):
+class P_Enumeration (P_Member):
 
     __slots__ = [
         'literals'
@@ -167,7 +167,7 @@ class CMOF_Enumeration (CMOF_Member):
         v.visit_Enumeration(self)
 
 
-class CMOF_Literal (CMOF_NamedObject):
+class P_Literal (P_NamedObject):
     
     __slots__ = [
         'classifier',
@@ -183,7 +183,7 @@ class CMOF_Literal (CMOF_NamedObject):
 
 
 
-class CMOF_Association (CMOF_Member):
+class P_Association (P_Member):
 
     __slots__ = [
         'memberEnd',
@@ -202,7 +202,7 @@ class CMOF_Association (CMOF_Member):
         v.visit_Association(self)
 
 
-class CMOF_Property (CMOF_NamedObject):
+class P_Property (P_NamedObject):
 
     __slots__ = [
         'type',
@@ -219,11 +219,11 @@ class CMOF_Property (CMOF_NamedObject):
         self.visibility = visibility
 
 
-class CMOF_DataType_Attribute (CMOF_Property):
+class P_DataType_Attribute (P_Property):
 
     __slots__ = [
         'datatype',
-        'default',
+        'default'
     ]
 
     def __init__(self, tin, tcv, datatype, default):
@@ -233,7 +233,7 @@ class CMOF_DataType_Attribute (CMOF_Property):
 
 
 
-class CMOF_Attribute (CMOF_Property):
+class P_Attribute (P_Property):
 
     __slots__ = [
         'bool_props',
@@ -268,7 +268,7 @@ class Attr_bool_props (object):
 
 
 
-class CMOF_End (CMOF_Property):
+class P_End (P_Property):
     
     __slots__ = [
         'owningAssociation',
@@ -298,7 +298,7 @@ class End_bool_props (object):
 
 
 
-class CMOF_Rule (CMOF_NamedObject):
+class P_Rule (P_NamedObject):
 
     __slots__ = [
         'constrainedElement',
@@ -315,7 +315,7 @@ class CMOF_Rule (CMOF_NamedObject):
 
 
 
-class CMOF_HRef_Object (CMOF_Object):
+class P_HRef_Object (P_Object):
 
     __slots__ = [ 'href' ]
 
@@ -324,38 +324,39 @@ class CMOF_HRef_Object (CMOF_Object):
         self.href = href
 
 
-class CMOF_ImportedPackage (CMOF_HRef_Object):
+class P_ImportedPackage (P_HRef_Object):
 
     def __init__(self, xtype, href):
         super().__init__(xtype, href)
         assert self.xmi_type == 'cmof:Package'
 
 
-class CMOF_superClass (CMOF_HRef_Object):
-    
+class P_superClass (P_HRef_Object):
+
     def __init__(self, xtype, href):
         super().__init__(xtype, href)
         assert xtype == 'cmof:Class'
 
 
-class CMOF_redefinedProperty (CMOF_HRef_Object):
-    
-    def __init__(self, xtype, href):
-        super().__init__(xtype, href)
-        assert xtype == 'cmof:Property'
-
-
-class CMOF_subsettedProperty (CMOF_HRef_Object):
-    
-    def __init__(self, xtype, href):
-        super().__init__(xtype, href)
-        assert xtype == 'cmof:Property'
-
-
-class CMOF_type (CMOF_HRef_Object):
+class P_type (P_HRef_Object):
 
     def __init__(self, xtype, href):
         super().__init__(xtype, href)
         # assert xtype == 'cmof:Class'
+
+
+class P_redefinedProperty (P_HRef_Object):
+
+    def __init__(self, xtype, href):
+        super().__init__(xtype, href)
+        assert xtype == 'cmof:Property'
+
+
+class P_subsettedProperty (P_HRef_Object):
+
+    def __init__(self, xtype, href):
+        super().__init__(xtype, href)
+        assert xtype == 'cmof:Property'
+
 
 

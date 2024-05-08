@@ -1,19 +1,28 @@
 
 from utils import is_ident
+from enum import Enum
 
 
 class M_Model(object):
 
     __slots__ = [
+        '__name',
         '__classes',
         '__enumerations',
-        '__primitive_types'
+        '__primitive_types',
+        '__external_types'
     ]
 
-    def __init__(self, classes, enumerations, prim_types):
+    def __init__(self, name, classes, enumerations, prim_types, ext_types):
+        assert is_ident(name)
+        self.__name = name
         self.__classes = classes
         self.__enumerations = enumerations
         self.__primitive_types = prim_types
+        self.__external_types = ext_types
+
+    def get_package_name(self):
+        return self.__name
 
     def get_classes(self):
         return self.__classes
@@ -23,6 +32,10 @@ class M_Model(object):
 
     def get_primitive_types(self):
         return self.__primitive_types
+
+    def get_external_types(self):
+        return self.__external_types
+
 
 
 class M_Type(object):
@@ -45,7 +58,6 @@ class M_Class(M_Type):
     def __init__(self, name, is_abstract):
         super().__init__(name)
         assert isinstance(is_abstract, bool)
-        self.superclasses = []
         self.is_abstract = is_abstract
 
     def set_attributes(self, attrs):
@@ -53,6 +65,8 @@ class M_Class(M_Type):
             attr.set_parent(self)
         self.attributes = attrs
 
+    def set_superclasses(self, superclasses):
+        self.superclasses = superclasses
 
 
 class M_Attribute(object):
@@ -60,14 +74,17 @@ class M_Attribute(object):
     __slots__ = [
         'parent',
         'name',
-        'type'
+        'type',
+        'cardinality'
     ]
 
-    def __init__(self, name, typ):
+    def __init__(self, name, typ, card):
         assert is_ident(name)
-        # assert isinstance(typ, M_Type)
+        assert isinstance(typ, M_Type)
+        assert isinstance(card, M_Cardinality)
         self.name = name
         self.type = typ
+        self.cardinality = card
 
     def set_parent(self, parent):
         assert isinstance(parent, M_Class)
@@ -107,3 +124,37 @@ class M_PrimitiveType(M_Type):
 
     def __init__(self, name):
         super().__init__(name)
+
+
+class M_HRef_Type(M_Type):
+
+    __slots__ = [ 'href', 'kind' ]
+
+    def __init__(self, name, href, kind):
+        assert is_ident(name)
+        super().__init__(name)
+        assert isinstance(href, str)
+        assert isinstance(kind, Type_Kind)
+        self.href = href
+        self.kind = kind
+
+
+class Type_Kind(Enum):
+    Class = 0
+    DataType = 1
+    Enumeration = 2
+    PrimitiveType = 3
+
+
+class M_Cardinality (object):
+
+    __slots__ = [ 'lower', 'upper' ]
+
+    def __init__(self, lower, upper):
+        assert isinstance(lower, int)
+        assert isinstance(upper, int)
+        assert lower >= 0
+        assert upper >= -1
+        self.lower = lower
+        self.upper = upper
+

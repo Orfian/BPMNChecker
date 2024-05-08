@@ -1,6 +1,6 @@
 
 from xml_scanner import create_xml_scanner
-from cmof_classes import *
+from cmof_parsed_classes import *
 
 
 xmi_uri = "http://schema.omg.org/spec/XMI/2.1"
@@ -41,7 +41,7 @@ def parse_top_node(p):
 
     p.check_end()
 
-    return CMOF_top_node (version, package, tags)
+    return P_top_node (version, package, tags)
 
 
 def parse_Package(p):
@@ -70,7 +70,7 @@ def parse_Package(p):
 
     p.check_end()
 
-    return CMOF_Package(id, name, uri, imports, members)
+    return P_Package(id, name, uri, imports, members)
 
 
 def check_xmi_type(p, xtype, expected, tag):
@@ -108,7 +108,7 @@ def parse_packageImport(p):
     p.pop()
 
     p.check_end()
-    return CMOF_PackageImport(xtype, xid, importingNamespace, importedPackage)
+    return P_PackageImport(xtype, xid, importingNamespace, importedPackage)
 
 
 def parse_Member(p):
@@ -155,7 +155,7 @@ def parse_Class(p, tin):
         p.pop()
 
     p.check_end()
-    return CMOF_Class(tin, isAbstract, superClass, rules, attributes, superClass2)
+    return P_Class(tin, isAbstract, superClass, rules, attributes, superClass2)
 
 
 def parse_DataType(p, tin):
@@ -165,7 +165,7 @@ def parse_DataType(p, tin):
     attributes = parse_datatype_attributes(p)
 
     p.check_end()
-    return CMOF_DataType(tin, rules, attributes)
+    return P_DataType(tin, rules, attributes)
 
 
 def parse_rules(p):
@@ -207,7 +207,7 @@ def parse_datatype_attributes(p):
 def parse_PrimitiveType(p, sup):
     p.check_attrs_end()
     p.check_end()
-    return CMOF_PrimitiveType(sup)
+    return P_PrimitiveType(sup)
 
 
 
@@ -223,7 +223,7 @@ def parse_Enumeration(p, sup):
         literals.append(literal)
 
     p.check_end()
-    return CMOF_Enumeration(sup, literals)
+    return P_Enumeration(sup, literals)
 
 
 def parse_Literal(p):
@@ -238,7 +238,7 @@ def parse_Literal(p):
     p.check_attrs_end()
 
     p.check_end()
-    return CMOF_Literal(tin, classifier, enumeration)
+    return P_Literal(tin, classifier, enumeration)
 
 
 def parse_Association(p, tin):
@@ -253,7 +253,7 @@ def parse_Association(p, tin):
         p.pop()
 
     p.check_end()
-    return CMOF_Association(tin, memberEnd, visibility, end)
+    return P_Association(tin, memberEnd, visibility, end)
 
 
 def read_type_card_vis (p):
@@ -275,7 +275,7 @@ def parse_DataType_Attribute(p):
     p.check_attrs_end()
 
     p.check_end()
-    return CMOF_DataType_Attribute(tin, tcv, datatype, default)
+    return P_DataType_Attribute(tin, tcv, datatype, default)
 
 
 
@@ -301,8 +301,8 @@ def parse_Attribute(p):
     propeties = parse_properties(p)
 
     p.check_end()
-    return CMOF_Attribute(tin, tcv, bp, default, subsettedProperty, association,
-                          type_href, propeties)
+    return P_Attribute(tin, tcv, bp, default, subsettedProperty, association,
+                       type_href, propeties)
     
 
 def read_attr_bool_props(p):
@@ -333,8 +333,8 @@ def parse_End(p):
     propeties = parse_properties(p)
 
     p.check_end()
-    return CMOF_End(tin, tcv, owningAssociation, association, bp,
-                    subsettedProperty, propeties)
+    return P_End(tin, tcv, owningAssociation, association, bp,
+                 subsettedProperty, propeties)
 
 
 def read_end_bool_props(p):
@@ -378,7 +378,7 @@ def parse_Rule(p):
     p.pop()
 
     p.check_end()
-    return CMOF_Rule(tin, constrainedElement, namespace, specification)
+    return P_Rule(tin, constrainedElement, namespace, specification)
 
 
 def parse_rule_specification(p):
@@ -394,7 +394,7 @@ def parse_importedPackage(p):
     p.check_attrs_end()
 
     p.check_end()
-    return CMOF_ImportedPackage(xtype, href)
+    return P_ImportedPackage(xtype, href)
 
 
 
@@ -405,7 +405,7 @@ def parse_type(p):
     p.check_attrs_end()
 
     p.check_end()
-    return CMOF_type(xtype, href)
+    return P_type(xtype, href)
 
 
 def parse_superClass(p):
@@ -416,7 +416,7 @@ def parse_superClass(p):
     p.check_attrs_end()
 
     p.check_end()
-    return CMOF_superClass(xtype, href)
+    return P_superClass(xtype, href)
 
 
 def parse_redefinedProperty(p):
@@ -427,7 +427,7 @@ def parse_redefinedProperty(p):
     p.check_attrs_end()
 
     p.check_end()
-    return CMOF_redefinedProperty(xtype, href)
+    return P_redefinedProperty(xtype, href)
 
 
 def parse_subsettedProperty(p):
@@ -438,7 +438,7 @@ def parse_subsettedProperty(p):
     p.check_attrs_end()
 
     p.check_end()
-    return CMOF_subsettedProperty(xtype, href)
+    return P_subsettedProperty(xtype, href)
 
 
 
@@ -450,7 +450,7 @@ def parse_Tag(p):
     element = p.get_attr_required('element')
     p.check_attrs_end()
     p.check_end()
-    return CMOF_Tag(id, name, value, element)
+    return P_Tag(id, name, value, element)
 
 
 def read_cardinality(p):
