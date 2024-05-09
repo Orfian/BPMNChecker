@@ -9,18 +9,38 @@ def print_all(out, c):
     out.write("elementFormDefault: " + repr(c.elementFormDefault)).nl()
     out.write("attributeFormDefault: " + repr(c.attributeFormDefault)).nl()
     out.write("targetNamespace: " + repr(c.targetNamespace)).nl()
-    out.nl()
 
     for imp in c.imports:
-        out.write(repr(imp)).nl()
+        out.nl()
+        print_Import(out, imp)
 
     for incl in c.includes:
-        out.write(repr(incl)).nl()
+        out.nl()
+        print_Include(out, incl)
 
     for member in c.members:
         out.nl()
         print_Member(out, member)
 
+    out.dec()
+    out.write("}").nl()
+
+
+def print_Import(out, c):
+    assert isinstance(c, P_Import)
+    out.write("Import {").nl()
+    out.inc()
+    out.write("namespace ==> " + repr(c.namespace)).nl()
+    out.write("location ==> " + repr(c.schemaLocation)).nl()
+    out.dec()
+    out.write("}").nl()
+
+
+def print_Include(out, c):
+    assert isinstance(c, P_Include)
+    out.write("Include {").nl()
+    out.inc()
+    out.write("location ==> " + repr(c.schemaLocation)).nl()
     out.dec()
     out.write("}").nl()
 
@@ -53,9 +73,20 @@ class Member_Visitor (object):
 
 def print_Element(out, c):
     assert isinstance(c, P_Element)
-    out.write("Element " + repr(c.name) + " {").nl()
+    out.write("Element " + repr(c.name) + " : " + repr(c.type) + " {")
     out.inc()
-    print_attrs(out, c.attrs)
+
+    print_nl = False
+
+    if c.substitutionGroup is not None:
+        out.nl().write("substitution group ==> " + repr(c.substitutionGroup))
+        print_nl = True
+
+    if c.abstract is not None:
+        out.nl().write("abstract ==> " + repr(c.abstract))
+        print_nl = True
+
+    if print_nl: out.nl()
     out.dec()
     out.write("}").nl()
 
@@ -64,7 +95,34 @@ def print_ComplexType(out, c):
     assert isinstance(c, P_ComplexType)
     out.write("ComplexType " + repr(c.name) + " {").nl()
     out.inc()
-    print_attrs(out, c.attrs)
+
+    if c.abstract is not None:
+        out.write("abstract ==> " + repr(c.abstract)).nl()
+
+    if c.mixed is not None:
+        out.write("mixed ==> " + repr(c.mixed)).nl()
+
+    if c.complexContent is not None:
+        out.nl()
+        print_ComplexContent(out, c.complexContent)
+
+    out.dec()
+    out.write("}").nl()
+
+
+def print_ComplexContent(out, c):
+    assert isinstance(c, P_ComplexContent)
+    out.write("ComplexContent {").nl()
+    out.inc()
+    print_Extension(out, c.extension)
+    out.dec()
+    out.write("}").nl()
+
+
+def print_Extension(out, c):
+    assert isinstance(c, P_Extension)
+    out.write("Extension " + repr(c.base) + " {").nl()
+    out.inc()
     out.dec()
     out.write("}").nl()
 
@@ -73,7 +131,6 @@ def print_SimpleType(out, c):
     assert isinstance(c, P_SimpleType)
     out.write("SimpleType " + repr(c.name) + " {").nl()
     out.inc()
-    print_attrs(out, c.attrs)
     out.dec()
     out.write("}").nl()
 

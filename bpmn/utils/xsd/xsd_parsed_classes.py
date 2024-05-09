@@ -20,16 +20,42 @@ class P_top_node (object):
         self.members = members
 
 
+class P_Import (object):
+
+    __slots__ = [
+        'namespace',
+        'schemaLocation',
+    ]
+
+    def __init__(self, namespace, schemaLocation):
+        self.namespace = namespace
+        self.schemaLocation = schemaLocation
+
+
+class P_Include (object):
+
+    __slots__ = [
+        'schemaLocation',
+    ]
+
+    def __init__(self, schemaLocation):
+        self.schemaLocation = schemaLocation
+
+
 class P_Element (object):
 
     __slots__ = [
         'name',
-        'attrs'
+        'type',
+        'substitutionGroup',
+        'abstract',
     ]
 
-    def __init__(self, name, attrs):
+    def __init__(self, name, typ, subst_group, abstract):
         self.name = name
-        self.attrs = attrs
+        self.type = typ
+        self.substitutionGroup = subst_group
+        self.abstract = abstract
 
     def visit(self, v):
         v.visit_Element(self)
@@ -39,27 +65,52 @@ class P_ComplexType (object):
 
     __slots__ = [
         'name',
-        'attrs'
+        'abstract',
+        'mixed',
+        'complexContent'
     ]
 
-    def __init__(self, name, attrs):
+    def __init__(self, name, abstract, mixed, complexContent):
         self.name = name
-        self.attrs = attrs
+        self.abstract = abstract
+        self.mixed = mixed
+        self.complexContent = complexContent
 
     def visit(self, v):
         v.visit_ComplexType(self)
+
+
+class P_ComplexContent (object):
+
+    __slots__ = [
+        'extension'
+    ]
+
+    def __init__(self, extension):
+        self.extension = extension
+
+
+class P_Extension (object):
+
+    __slots__ = [
+        'base',
+    ]
+
+    def __init__(self, base):
+        self.base = base
+
 
 
 class P_SimpleType (object):
 
     __slots__ = [
         'name',
-        'attrs'
     ]
 
-    def __init__(self, name, attrs):
+    def __init__(self, name):
         self.name = name
-        self.attrs = attrs
 
     def visit(self, v):
         v.visit_SimpleType(self)
+
+
