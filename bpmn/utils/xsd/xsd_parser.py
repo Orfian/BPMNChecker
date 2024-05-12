@@ -14,6 +14,14 @@ xsd_import         = ns_xsd + 'import'
 xsd_include        = ns_xsd + 'include'
 xsd_complexContent = ns_xsd + 'complexContent'
 xsd_extension      = ns_xsd + 'extension'
+xsd_sequence       = ns_xsd + 'sequence'
+xsd_any            = ns_xsd + 'any'
+xsd_choice         = ns_xsd + 'choice'
+xsd_attribute      = ns_xsd + 'attribute'
+xsd_anyAttribute   = ns_xsd + 'anyAttribute'
+xsd_restriction    = ns_xsd + 'restriction'
+xsd_enumeration    = ns_xsd + 'enumeration'
+xsd_union          = ns_xsd + 'union'
 
 
 def parse_xsd(tree, err_output):
@@ -49,7 +57,6 @@ def parse_top_node(p):
     while p.tag is not None:
 
         tag = p.tag
-        # print ("Tag: " + repr(tag))
 
         if tag == xsd_element:
             p.push()
@@ -114,26 +121,22 @@ def parse_ComplexType(p):
     p.check_cur_tag(xsd_complexType)
 
     name = p.get_attr_required('name')
-    abstract = p.get_attr_opt("abstract")
-    mixed = p.get_attr_opt("mixed")
+    abstract = p.get_attr_opt('abstract')
+    mixed = p.get_attr_opt('mixed')
     p.check_attrs_end()
 
     if p.tag == xsd_complexContent:
         p.push()
         complexContent = parse_ComplexContent(p)
         p.pop()
+        expr_attrs = None
 
     else:
         complexContent = None
-
-        print ("parse_ComplexType(1): " + repr(p.tag))
-
-        while p.tag is not None:
-            p.next()
-            print ("   parse_ComplexType(2): " + repr(p.tag))
+        expr_attrs = parse_expr_and_attributes(p)
 
     p.check_end()
-    return P_ComplexType(name, abstract, mixed, complexContent)
+    return P_ComplexType(name, abstract, mixed, complexContent, expr_attrs)
 
 
 def parse_ComplexContent(p):
@@ -145,12 +148,6 @@ def parse_ComplexContent(p):
     extension = parse_Extension(p)
     p.pop()
 
-    # print ("parse_ComplexContent(1): " + repr(p.tag))
-
-    # while p.tag is not None:
-    #     p.next()
-    #     print ("   parse_ComplexContent(2): " + repr(p.tag))
-
     p.check_end()
     return P_ComplexContent(extension)
 
@@ -161,14 +158,178 @@ def parse_Extension(p):
     base = p.get_attr_required("base")
     p.check_attrs_end()
 
-    print ("parse_Extension(1): " + repr(p.tag))
-
-    while p.tag is not None:
-        p.next()
-        print ("   parse_Extension(2): " + repr(p.tag))
+    expr_attrs = parse_expr_and_attributes(p)
 
     p.check_end()
-    return P_Extension(base)
+    return P_Extension(base, expr_attrs)
+
+
+def parse_expr_and_attributes(p):
+    if p.tag == xsd_sequence or p.tag == xsd_choice:
+        expr = parse_expr(p)
+    else:
+        expr = None
+
+    attributes = []
+
+    while p.tag == xsd_attribute:
+        p.push()
+        a = parse_Attribute(p)
+        p.pop()
+        attributes.append(a)
+
+    if p.tag == xsd_anyAttribute:
+        p.push()
+        any_attr = parse_AnyAttribute(p)
+        p.pop()
+    else:
+        any_attr = None
+
+    return P_expr_and_attributes(expr, attributes, any_attr)
+
+
+def parse_expr(p):
+    if p.tag == xsd_sequence:
+        p.push()
+        e = parse_Sequence(p)
+        p.pop()
+        return e
+
+    elif p.tag == xsd_choice:
+        p.push()
+        e = parse_Choice(p)
+        p.pop()
+        return e
+
+    elif p.tag == xsd_element:
+        p.push()
+        e = parse_expr_element(p)
+        p.pop()
+        return e
+
+    else:
+        p.error("<sequence> or <choice> expected")
+
+
+def parse_Choice(p):
+    p.check_cur_tag(xsd_choice)
+
+    p.check_attrs_end()
+
+    exprs = []
+
+    while p.tag is not None:
+        e = parse_expr(p)
+        exprs.append(e)
+
+    p.check_end()
+    return P_Choice(exprs)
+
+
+def parse_expr_element(p):
+    p.check_cur_tag(xsd_element)
+    e = parse_LocalElement(p)
+    return P_Expr_Element(e)
+
+
+
+def parse_Sequence(p):
+    p.check_cur_tag(xsd_sequence)
+
+    p.check_attrs_end()
+
+    elements = []
+
+    while p.tag == xsd_element:
+        p.push()
+        e = parse_LocalElement(p)
+        p.pop()
+        elements.append(e)
+
+    if p.tag == xsd_any:
+        p.push()
+        any_e = parse_LocalAny(p)
+        p.pop()
+    else:
+        any_e = None
+
+    p.check_end()
+    return P_Sequence(elements, any_e)
+
+
+def parse_LocalElement(p):
+    p.check_cur_tag(xsd_element)
+
+    card = read_card(p)
+
+    ref = p.get_attr_opt('ref')
+    if ref is not None:
+        p.check_attrs_end()
+        res = P_LocalElementRef(ref, card)
+
+    else:
+        name = p.get_attr_required('name')
+        typ = p.get_attr_opt('type')
+        p.check_attrs_end()
+
+        if typ is not None:
+            res = P_LocalElementDef(name, typ, card)
+        else:
+            p.check_tag(xsd_complexType)
+            p.push()
+            typ = parse_Local_ComplexType(p)
+            p.pop()
+
+            res = P_LocalElementDefType(name, typ, card)
+
+    p.check_end()
+    return res
+
+
+def parse_Local_ComplexType (p):
+    p.check_cur_tag(xsd_complexType)
+
+    p.check_attrs_end()
+    expr_attrs = parse_expr_and_attributes(p)
+
+    p.check_end()
+    return P_Local_ComplexType(expr_attrs)
+
+
+def parse_LocalAny(p):
+    p.check_cur_tag(xsd_any)
+
+    namespace = p.get_attr_required('namespace')
+    processContents = p.get_attr_opt('processContents')
+    card = read_card(p)
+    p.check_attrs_end()
+
+    p.check_end()
+    return P_LocalAny(namespace, processContents, card)
+
+
+def parse_Attribute(p):
+    p.check_cur_tag(xsd_attribute)
+
+    name = p.get_attr_required("name")
+    typ = p.get_attr_required("type")
+    use = p.get_attr_opt("use")
+    default = p.get_attr_opt("default")
+    p.check_attrs_end()
+
+    p.check_end()
+    return P_Attribute(name, typ, use, default)
+
+
+def parse_AnyAttribute(p):
+    p.check_cur_tag(xsd_anyAttribute)
+
+    namespace = p.get_attr_required('namespace')
+    processContents = p.get_attr_required('processContents')
+    p.check_attrs_end()
+
+    p.check_end()
+    return P_AnyAttribute(namespace, processContents)
 
 
 def parse_SimpleType(p):
@@ -176,12 +337,79 @@ def parse_SimpleType(p):
     name = p.get_attr_required('name')
     p.check_attrs_end()
 
-    print ("parse_SimpleType(1): " + repr(p.tag))
+    if p.tag == xsd_restriction:
+        p.push()
+        st = parse_Restriction(p)
+        p.pop()
+    elif p.tag == xsd_union:
+        p.push()
+        st = parse_Union(p)
+        p.pop()
+    else:
+        p.error("<restriction> or <union> expected")
 
-    while p.tag is not None:
-        p.next()
-        print ("   parse_SimpleType(2): " + repr(p.tag))
+    p.check_end()
+    return P_SimpleType(name, st)
 
 
-    return P_SimpleType(name)
+def parse_Restriction(p):
+    p.check_cur_tag(xsd_restriction)
+
+    base = p.get_attr_required('base')
+    p.check_attrs_end()
+
+    enums = []
+
+    while p.tag == xsd_enumeration:
+        p.push()
+        e = parse_Enumeration(p)
+        p.pop()
+        enums.append(e)
+
+    p.check_end()
+    return P_Restriction(base, enums)
+
+
+def parse_Enumeration(p):
+    p.check_cur_tag(xsd_enumeration)
+
+    value = p.get_attr_required('value')
+    p.check_attrs_end()
+
+    p.check_end()
+    return P_Enumeration(value)
+
+
+def parse_Union(p):
+    p.check_cur_tag(xsd_union)
+
+    memberTypes = p.get_attr_required('memberTypes')
+    p.check_attrs_end()
+
+    p.check_tag(xsd_simpleType)
+    p.push()
+    simple_type = parse_Local_SimpleType(p)
+    p.pop()
+
+    p.check_end()
+    return P_Union(memberTypes, simple_type)
+
+
+def parse_Local_SimpleType(p):
+    p.check_cur_tag(xsd_simpleType)
+    p.check_attrs_end()
+
+    p.check_tag(xsd_restriction)
+    p.push()
+    restriction = parse_Restriction(p)
+    p.pop()
+
+    p.check_end()
+    return P_Local_SimpleType(restriction)
+
+
+def read_card(p):
+    min_occurs = p.get_attr_opt('minOccurs')
+    max_occurs = p.get_attr_opt('maxOccurs')
+    return (min_occurs, max_occurs)
 
