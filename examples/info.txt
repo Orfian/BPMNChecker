@@ -13,3 +13,69 @@ BPMN-430.xml - https://flower-bpm.com/templates/customer_on-boarding
 BPMN-15.xml - https://flower-bpm.com/templates/new_supplier_evaluation
 BPMN-5.xml - https://flower-bpm.com/templates/organisation_of_change_management
         Při simulaci nastává deadlock
+		
+		
+https://github.com/NPDeehan
+---------------------------
+BookHolidayV1.bpmn
+BookHolidaySagaPatternV2.bpmn - Saga Pattern using Camunda & BPMN
+		This is an example of how to model the Saga Pattern by taking a distributed group of micro services and have them orchestrated asynchronously using Camunda and BPMN.
+genericErrorAndReturn.bpmn - Generic Error and returned
+		An example of throwing a BPMN from any point in the process and returning back to that point after the problem has been resolved.
+process.bpmn - Idempotent Camunda Process
+		A Pattern for creating process that will only start one instance per request. 
+		So that if an external system sends multiple identical requests it will not start any new processes if one has been successfully started.
+Multi-instance Messaging between processes.
+		This demonstrates a way in which you can asynchronously start lots of instances of another process and be able to wait for each to return with results.
+    - Multi-instanceMessagingBetweenProcesses-Doctor.bpmn
+    - Multi-instanceMessagingBetweenProcesses-Tardis.bpmn
+Compensating Multi-Instance Sub processes 
+		- In this example there are two BPMN processes. A parent and a child.
+        - The parent process uses a Call Activity to call multiple instances of a child processes. 
+		  It also waits for a Graceful Shutdown message which should trigger the process to compensate any completed tasks 
+		  in the sub process while canceling the currently running instances. 
+		  This is done by sending a Signal event which is caught by all active sub processes
+	    - The child process executes a Send Email task while also waiting for a signal that might come in from the parent process. 
+		  If that signal does come in the compensation will be triggered and once that has been successfully compensated the sub process will end.
+	- CompensatingMulti-InstanceSubProcesses-process.bpmn	
+    - CompensatingMulti-InstanceSubProcesses-subprocess.bpmn
+	
+	
+https://camunda.com/bpmn/examples/ - namodelováno podle obrázků na této stránce
+----------------------------------	
+Business Rules	
+		Let’s say we want to model a process in BPMN and the process induces some business rules. We will use the example of creating a bill. In order to create the bill, a discount needs to be computed. The sum of the order and the customer type are the relevant criteria to compute the discount.
+
+		This is a very simple example which will show us where to apply BPMN and where not to.
+	- BusinessRules-solution.bpmn - solution
+	- BusinessRules-wrongWay.bpmn - wrong way to model
+
+Dependent Instances
+		- Let’s say we want to model a process with concurring instances. We are using a simple example. 
+	      If one credit check of a customer is running, we do not want another credit check for the same customer to be performed at the same time.
+		- The reason could be that the total number of credit checks performed influences the result of the check.
+		- Let’s assume that we are running a credit check for a customer and we get a second request for the same customer at the same time.
+		- What all solutions have in common is that every new instance needs to check for concurring instances on the data level before starting the actual credit check.
+	- DependentInstances-SignalEvent.bpmn
+	- DependentInstances-MessageEvent.bpmn
+	- DependentInstances-TimerAndLoop.bpmn
+	
+Four Eyes Principle
+		- We want to model the following situation using BPMN 2.0. For a request (e.g., a payment) two approvals of two different people are needed. 
+		  A Process Engine should ensure that both approvals are fulfilled before the request is approved. 
+		  The manual steps that are performed by the two approvers should also be modeled in the BPMN diagram. 
+		  The approval decision is performed using a portal with a Tasklist.
+		- The Use Cases - The use cases for this pattern are numerous. Here are some examples: Payment Approval, Invoice Approval, Contract Approval, ...
+	- FourEyesPrinciple.bpmn
+	- FourEyesPrinciple-CollapsedPools.bpmn
+	- FourEyesPrinciple-LDAP.bpmn
+	
+Monthly Invoicing
+		- This example explains a very common struggle with structuring BPMN 2.0 diagrams. 
+		  Let’s say there is a lawyer who offers legal advice to his customers. 
+		  The service works as follows: The customers can ask for legal advice whenever they need it. 
+		  The lawyer provides the requested advice and puts the billable hours on the customer’s time sheet. 
+		  When the month is over, the lawyer’s accountant determines the billable hours based on the time sheet and creates the invoice.
+		- This example illustrates a very common modeling scenario. It’s not the steps of the processes that are difficult, it’s the structure of the diagram.
+	- MonthlyInvoicing-solution.bpmn
+	- MonthlyInvoicing-wrongWay.bpmn
