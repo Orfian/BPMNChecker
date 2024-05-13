@@ -1,0 +1,15 @@
+Suchenia, Ligeza: Event anomalies in modeling with BPMN
+-------------------------------------------------------
+event_anomalies_fig21.bpmn - Fig. 21 Non-deterministic deadlock
+event_anomalies_fig20.bpmn - Fig. 20 Deterministic deadlock
+
+https://flower-bpm.com/templates
+--------------------------------
+BPMN-315.xml - https://flower-bpm.com/templates/change_management_
+        Token simulator plugin neumi Inclusive Gateway
+BPMN-316.xml - https://flower-bpm.com/templates/change_evaluation
+        Token simulator plugin neumi Inclusive Gateway
+BPMN-430.xml - https://flower-bpm.com/templates/customer_on-boarding
+BPMN-15.xml - https://flower-bpm.com/templates/new_supplier_evaluation
+BPMN-5.xml - https://flower-bpm.com/templates/organisation_of_change_management
+        Při simulaci nastává deadlock
