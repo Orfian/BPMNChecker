@@ -58,5 +58,23 @@ namespace BPMNModel
                 return result;
             }
         }
+        public object? Check(string value, out string? error)
+        {
+            if (RestrictedValues.Contains(value))
+            {
+                error = null;
+                return value;
+            }
+
+            if (AcceptsURL && Uri.TryCreate(value, UriKind.RelativeOrAbsolute, out Uri? uri))
+            {
+                error = null;
+                return uri;
+            }
+            
+            error = $"Unexpected value {value}, need: {string.Join(",",RestrictedValues)}{(AcceptsURL?" or URL":"")}.";
+            return null;
+        }
+
     }
 }

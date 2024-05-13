@@ -13,11 +13,19 @@ namespace BPMNModel
 
     }
 
+    public enum ElementXMLType
+    {
+        QName,
+        IDRef,
+        ComplexType,
+    }
+
     public abstract class Element : IElement
     {
         public int? MinOccurs { get; set; }
         public int? MaxOccurs { get; set; }
 
+        public abstract string Name { get; }
 
         public static Element Create(XElement element, Dictionary<string, RootElement> elements, Dictionary<string, ElementType> types)
         {
@@ -43,7 +51,7 @@ namespace BPMNModel
             {
                 if (types[type] is ComplexType complexRestriction)
                 {
-                    return new NamedElement(name, RestrictedXMLType.ComplexType, complexRestriction, null);
+                    return new NamedElement(name, ElementXMLType.ComplexType, complexRestriction);
                 }
                 else
                 {
@@ -52,18 +60,20 @@ namespace BPMNModel
             }
             var valueType = type.ToLower() switch
             {
-                "xsd:qname" => RestrictedXMLType.QName,
-                "xsd:idref" => RestrictedXMLType.IDRef,
+                "xsd:qname" => ElementXMLType.QName,
+                "xsd:idref" => ElementXMLType.IDRef,
                 _ => throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (element attribute contain unexpected attribute {type}).")
             };
 
-            return new NamedElement(name, valueType, null, type);
+            return new NamedElement(name, valueType, null);
         }
     }
 
     public class ReferenceElement :Element
     {
         public RootElement ReferencedElement { get; init; }
+
+        public override string Name => ReferencedElement.Name;
 
         public ReferenceElement(RootElement referencedElement)
         {
@@ -72,29 +82,27 @@ namespace BPMNModel
 
         public override string ToString()
         {
-            return $"<ref={ReferencedElement.Name} min={MinOccurs} max={MaxOccurs}>";
+            return $"<refToRootElement {ReferencedElement.Name} min={MinOccurs} max={MaxOccurs}>";
         }
     }
 
     public class NamedElement : Element
     {
-        public string Name {  get; init; }
+        private string name;
+        public override string Name => name;
 
-        public RestrictedXMLType Category { get; init; }
+        public ElementXMLType Category { get; init; }
         public ComplexType? InnerComplexType { get; init; }
 
-        public string? InnerStringType { get; init; }
-
-        public NamedElement(string name, RestrictedXMLType category, ComplexType? innerComplexType, string? innerStringType)
+        public NamedElement(string name, ElementXMLType category, ComplexType? innerComplexType)
         {
-            Name = name;
+            this.name = name;
             Category = category;
             InnerComplexType = innerComplexType;
-            InnerStringType = innerStringType;
         }
         public override string ToString()
         {
-            return $"<{Name} type={Category} type={(InnerComplexType is null? InnerStringType : InnerComplexType.Name)} min={MinOccurs} max={MaxOccurs}>";
+            return $"<{Name} category={Category}, {(InnerComplexType is null? "":"type="+InnerComplexType.Name)}, min={MinOccurs},  max={MaxOccurs}>";
         }
     }
 
@@ -131,7 +139,7 @@ namespace BPMNModel
             }
         }
 
-        public RootElement(string name, ComplexType innerType, string? group) :base(name, RestrictedXMLType.ComplexType, innerType, null)
+        public RootElement(string name, ComplexType innerType, string? group) :base(name, ElementXMLType.ComplexType, innerType)
         {
             Group = group;
         }
