@@ -31,7 +31,8 @@ namespace Testing
 
             var generator = Generator.CreateGenerator(Log.Logger);
 
-            XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/single_user_task.bpmn");
+//            XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/single_user_task.bpmn");
+            XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/subprocesses.bpmn");
             Log.Logger.Debug("Opening file: diagrams/single_user_task.bpmn");
 
             var parser = XmlParser.Parse(Log.Logger, generator, doc);

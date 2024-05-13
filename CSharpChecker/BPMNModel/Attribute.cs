@@ -10,18 +10,16 @@ namespace BPMNModel
         Optional
     }
 
-    public enum RestrictedXMLType
+    public enum AttributeXMLType
     {
-        QName,
-        Boolean,
-        Integer,
-        IDRef,
-        SimpleType,
-        ComplexType,
         ID,
         String,
+        Boolean,
+        Integer,
         URI,
-        
+        SimpleType,
+        QName,
+        IDRef,
     }
 
     public class Attribute
@@ -29,39 +27,39 @@ namespace BPMNModel
 
         public string Name { get; init; }
 
-        public (RestrictedXMLType Category, SimpleType? Restriction) Type { get; init; }
+        public (AttributeXMLType Category, SimpleType? Restriction) Type { get; init; }
 
         public AttributeUse Use { get; set; }
 
         public string? Default { get; set; }
 
-        public Attribute(string name, (RestrictedXMLType Category, SimpleType? Restriction) type)
+        public Attribute(string name, (AttributeXMLType Category, SimpleType? Restriction) type)
         {
             Name = name;
             Type = type;
             Use = AttributeUse.Optional;
         }
 
-        public static (RestrictedXMLType Category, SimpleType? Restriction) LoadTypeFromString(string type, Dictionary<string, ElementType> types)
+        public static (AttributeXMLType Category, SimpleType? Restriction) LoadTypeFromString(string type, Dictionary<string, ElementType> types)
         {
             if (types.ContainsKey(type))
             {
                 if (types[type] is SimpleType restriction)
                 {
-                    return (RestrictedXMLType.SimpleType,  restriction);
+                    return (AttributeXMLType.SimpleType,  restriction);
                 }
             }
 
             return type.ToLower() switch
             {
-                "xsd:qname" => (RestrictedXMLType.QName, null),
-                "xsd:boolean" => (RestrictedXMLType.Boolean, null),
-                "xsd:integer" => (RestrictedXMLType.Integer, null),
-                "xsd:idref" => (RestrictedXMLType.IDRef, null),
-                "xsd:id" => (RestrictedXMLType.ID, null),
-                "xsd:string" => (RestrictedXMLType.String, null),
-                "xsd:anyuri" => (RestrictedXMLType.String, null),
-                "xsd:int" => (RestrictedXMLType.Integer, null),
+                "xsd:qname" => (AttributeXMLType.QName, null),
+                "xsd:boolean" => (AttributeXMLType.Boolean, null),
+                "xsd:integer" => (AttributeXMLType.Integer, null),
+                "xsd:idref" => (AttributeXMLType.IDRef, null),
+                "xsd:id" => (AttributeXMLType.ID, null),
+                "xsd:string" => (AttributeXMLType.String, null),
+                "xsd:anyuri" => (AttributeXMLType.URI, null),
+                "xsd:int" => (AttributeXMLType.Integer, null),
                 _ => throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (element attribute contain unexpected attribute {type}).")
             };
         }
@@ -88,13 +86,44 @@ namespace BPMNModel
 
             switch (this.Type.Category)
             {
-                case RestrictedXMLType.ID: return (resultingAttribute, null);
-                case RestrictedXMLType.String: return (resultingAttribute, null);
-                case RestrictedXMLType.Boolean: 
+                case AttributeXMLType.ID: return (resultingAttribute, null);
+                case AttributeXMLType.String: return (resultingAttribute, null);
+                case AttributeXMLType.Boolean: 
                     if (realValueinLowerCase!="true" && realValueinLowerCase!="false") return (resultingAttribute, $"Wrong boolean value: {realValue}"); 
                     resultingAttribute.ProcessedValue= realValueinLowerCase == "true"? true: false;
                     return (resultingAttribute, null);
+                case AttributeXMLType.Integer:
+                    if (int.TryParse(realValue, out int value))
+                    {
+                        resultingAttribute.ProcessedValue = value;
+                        return (resultingAttribute, null);
+                    }else
+                    {
+                        return (resultingAttribute, $"Wrong integer value: {realValue}");
+                    }
+                case AttributeXMLType.URI:
+                    if (Uri.TryCreate(realValue, UriKind.RelativeOrAbsolute,out Uri? uri))
+                    {
+                        resultingAttribute.ProcessedValue = uri;
+                        return (resultingAttribute, null);
+                    }else
+                    {
+                        return (resultingAttribute, $"Wrong URI value: {realValue}");
+                    }
 
+                case AttributeXMLType.SimpleType:
+                    if (Type.Restriction is null) return (resultingAttribute, $"Attached simple type not found.");
+                    else
+                    {
+                        resultingAttribute.ProcessedValue = Type.Restriction.Check(realValue, out string? error);
+                        return (resultingAttribute, error);
+                    }
+                case AttributeXMLType.IDRef:
+                    //TODO: QNAME as IDREF now.
+                case AttributeXMLType.QName:
+                    var node = XmlParserNode.GetReferecne(realValue);
+                    resultingAttribute.ProcessedValue = node;
+                    return (resultingAttribute, null);
                 default:
                     return (null, $"Unsolved attribute {Name} with type: " + this.Type.Category);
             }
@@ -103,7 +132,7 @@ namespace BPMNModel
 
         public override string ToString()
         {
-            return $"<{Name} type={Type.Category} restriction={Type.Restriction?.Name} use={Use} default={Default}>";
+            return $"Attribute({Name} type={Type.Category}, restriction={Type.Restriction?.Name}, use={Use}, default={Default})";
         }
     }
 }

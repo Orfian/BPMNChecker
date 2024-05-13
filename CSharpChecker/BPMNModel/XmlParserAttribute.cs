@@ -12,14 +12,19 @@ namespace BPMNModel
         public string Value { get; init; }
         public string Name { get; init; }
 
-        public RestrictedXMLType Type { get; init; }
+        public AttributeXMLType Type { get; init; }
 
         public object? ProcessedValue { get; set; }
-        public XmlParserAttribute(string name, string value, RestrictedXMLType type)
+        public XmlParserAttribute(string name, string value, AttributeXMLType type)
         {
             Value = value;
             Name = name;
             Type = type;    
+        }
+
+        public override string ToString()
+        {
+            return $"{Name} = {(ProcessedValue is null? Value : ProcessedValue)}";
         }
     }
 }
