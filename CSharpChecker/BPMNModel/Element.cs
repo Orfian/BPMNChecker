@@ -13,7 +13,7 @@ namespace BPMNModel
 
     }
 
-    public class Element : IElement
+    public abstract class Element : IElement
     {
         public int? MinOccurs { get; set; }
         public int? MaxOccurs { get; set; }
@@ -24,6 +24,7 @@ namespace BPMNModel
 
             var minOccurs = ElementType.TryToGetOccursAttribute(element, "minOccurs");
             var maxOccurs = ElementType.TryToGetOccursAttribute(element, "maxOccurs");
+
 
             var reference = ElementType.TryToGetAttribute(element, "ref");
             if (reference != null)
@@ -68,6 +69,11 @@ namespace BPMNModel
         {
             this.ReferencedElement = referencedElement;
         }
+
+        public override string ToString()
+        {
+            return $"<ref={ReferencedElement.Name} min={MinOccurs} max={MaxOccurs}>";
+        }
     }
 
     public class NamedElement : Element
@@ -84,7 +90,11 @@ namespace BPMNModel
             Name = name;
             Category = category;
             InnerComplexType = innerComplexType;
-            InnerStringType = InnerStringType;
+            InnerStringType = innerStringType;
+        }
+        public override string ToString()
+        {
+            return $"<{Name} type={Category} type={(InnerComplexType is null? InnerStringType : InnerComplexType.Name)} min={MinOccurs} max={MaxOccurs}>";
         }
     }
 

@@ -11,10 +11,15 @@ namespace BPMNModel
     {
         public string Value { get; init; }
         public string Name { get; init; }
-        public XmlParserAttribute(string name, string value)
+
+        public RestrictedXMLType Type { get; init; }
+
+        public object? ProcessedValue { get; set; }
+        public XmlParserAttribute(string name, string value, RestrictedXMLType type)
         {
             Value = value;
             Name = name;
+            Type = type;    
         }
     }
 }

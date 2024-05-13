@@ -39,6 +39,11 @@ namespace BPMNModel
         {
             var result = new List<Element>();
 
+            if (ParentType != null)
+            {
+                result.AddRange(ParentType.GetAllElements());
+            }
+
             if (InnerElement != null)
             {
                 if (InnerElement.Type == ContainerElement.ContainerType.Sequence )
@@ -60,11 +65,7 @@ namespace BPMNModel
                     throw new NotImplementedException("Choice not implemented yet");
                 }
             }
-
-            if (ParentType != null)
-            {
-                result.AddRange(ParentType.GetAllElements());
-            }
+            
             return result.ToArray();
         }
 

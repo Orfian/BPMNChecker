@@ -38,9 +38,10 @@ namespace Testing
 
             if (parser.HasErrors)
             {
+                Log.Debug("\nERRORS:");
                 foreach (var error in parser.Errors)
                 {
-                    Log.Debug(error);
+                    Log.Error(error);
                 }
             }
 

@@ -83,20 +83,27 @@ namespace BPMNModel
             }
 
             string realValue = attributeFromXml is null ? Default??String.Empty : attributeFromXml.Value;
+            var resultingAttribute = new XmlParserAttribute(Name, realValue, Type.Category);
+            var realValueinLowerCase = realValue.ToLower();
 
             switch (this.Type.Category)
             {
-                case RestrictedXMLType.ID: break;
-                case RestrictedXMLType.String: break;
-
+                case RestrictedXMLType.ID: return (resultingAttribute, null);
+                case RestrictedXMLType.String: return (resultingAttribute, null);
+                case RestrictedXMLType.Boolean: 
+                    if (realValueinLowerCase!="true" && realValueinLowerCase!="false") return (resultingAttribute, $"Wrong boolean value: {realValue}"); 
+                    resultingAttribute.ProcessedValue= realValueinLowerCase == "true"? true: false;
+                    return (resultingAttribute, null);
 
                 default:
                     return (null, $"Unsolved attribute {Name} with type: " + this.Type.Category);
             }
-
-
-            return (new XmlParserAttribute(Name,realValue),null);
         }
 
+
+        public override string ToString()
+        {
+            return $"<{Name} type={Type.Category} restriction={Type.Restriction?.Name} use={Use} default={Default}>";
+        }
     }
 }

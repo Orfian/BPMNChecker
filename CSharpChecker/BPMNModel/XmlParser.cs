@@ -52,14 +52,24 @@ namespace BPMNModel
             }
 
             var processedAttributes = new List<XmlParserAttribute>();
-            foreach (var attribute in type.Type.GetAllAttributes())
+
+            var allAttributes = type.Type.GetAllAttributes();
+
+            Log.Debug(GetNiceMessage(element, $"  All attributes: "));
+            foreach (var attribute in allAttributes)
+            {
+                Log.Debug(GetNiceMessage(element, $"    {attribute }"));
+            }
+
+            foreach (var attribute in allAttributes)
             {
                 var (xmlAttribute, message) = attribute.CreateAndCheck(element);
                 if (xmlAttribute != null)
                 {
+                    Log.Debug(GetNiceMessage(element, $"  Created attribute: {xmlAttribute.Name} = {xmlAttribute.Value}"));
                     processedAttributes.Add(xmlAttribute);
                 }
-                if (message!= null)
+                if (message != null)
                 {
                     Errors.Add(GetNiceMessage(element, message));
                 }
@@ -77,7 +87,27 @@ namespace BPMNModel
 
             if (type.InnerComplexType is not null)
             {
-                var allelements = type.InnerComplexType.GetAllElements();
+                var allElements = type.InnerComplexType.GetAllElements();
+
+                Log.Debug(GetNiceMessage(element, $"  All elements: "));
+                foreach (var item in allElements)
+                {
+                    Log.Debug(GetNiceMessage(element, $"    {item}"));
+                }
+
+                foreach (var item in element.Elements())
+                {
+                    if (generator.Elements.ContainsKey(item.Name.LocalName))
+                    {
+                        var createdNode = LoadAndCheck(item, generator.Elements[item.Name.LocalName]);
+
+                    }else
+                    {
+                        Errors.Add(GetNiceMessage(element, $"Skiping element: {item.Name.LocalName}"));
+                    }
+                }
+
+
             }
 
             logger.Debug(GetNiceMessage(element, "Finished loading."));
