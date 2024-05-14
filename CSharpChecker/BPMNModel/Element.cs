@@ -125,6 +125,10 @@ namespace BPMNModel
             MinOccurs = minOccurs; 
             MaxOccurs = maxOccurs;
         }
+        public override string ToString()
+        {
+            return $"<any namespace={Namespace} min={MinOccurs} max={MaxOccurs}>";
+        }
     }
 
     public class NamedElement : Element
@@ -146,41 +150,6 @@ namespace BPMNModel
         public override string ToString()
         {
             return $"<{Name} category={Category}, {(InnerComplexType is null? "":"type="+InnerComplexType.Name)}, min={MinOccurs},  max={MaxOccurs}>";
-        }
-    }
-
-    public class ContainerElement 
-    {
-        public List<Element> InnerElements { get; } = new();
-
-        public List<(string A, string B)> Restrictions { get; } = new();
-
-        public ContainerElement()
-        {
-        }
-
-        public void AddWithRestriction(Element newElement)
-        {
-            foreach(var oldElement in InnerElements)
-            {
-                Restrictions.Add((oldElement.Name, newElement.Name));
-            }
-            InnerElements.Add(newElement);
-        }
-
-        public void AddWithRestriction(ContainerElement sequence)
-        {
-            foreach (var newElement in sequence.InnerElements)
-            {
-                foreach (var oldElement in InnerElements)
-                {
-                    Restrictions.Add((oldElement.Name, newElement.Name));
-                }
-            }
-            foreach (var newElement in sequence.InnerElements)
-            {
-                InnerElements.Add(newElement);
-            }
         }
     }
 

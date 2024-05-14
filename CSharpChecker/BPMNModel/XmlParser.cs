@@ -52,8 +52,12 @@ namespace BPMNModel
                 return null;
             }
 
-            var processedAttributes = new List<XmlParserAttribute>();
+            if (type.Type.HasMixedContent)
+            {
+                //TODO: Processing mixed content.
+            }
 
+            var processedAttributes = new List<XmlParserAttribute>();
             var allAttributes = type.Type.GetAllAttributes();
 
             Log.Debug(GetNiceMessage(element, $"  All attributes: "));
@@ -90,13 +94,13 @@ namespace BPMNModel
 
             if (type.InnerComplexType is not null)
             {
-                var (allCategories, categoriesRestrictions) = type.InnerComplexType.GetAllElements();
+                var (allCategories, categoriesRestrictions) = type.InnerComplexType.GetAllInformations();
                 int currentCategoryIndex = 0;
 
                 Log.Debug(GetNiceMessage(element, $"  All elements: "));
                 foreach (var item in allCategories)
                 {
-                    Log.Debug(GetNiceMessage(element, $"    {item}"));
+                    logger.Debug(GetNiceMessage(element, $"    {item}"));
                 }
 
                 var allElements = element.Elements().ToList();
@@ -109,8 +113,9 @@ namespace BPMNModel
                     node.ChildNodes.Add(currentCategory.Name, []);
                     currentCategoryIndex++;
 
-                    Log.Debug(GetNiceMessage(element, $"  Processing: {currentCategory.Name}"));
+                    logger.Debug(GetNiceMessage(element, $"  Processing: {currentCategory.Name}"));
 
+                   
                     while (currentElementIndex < allElements.Count())
                     {
                         var currentElement = allElements[currentElementIndex];

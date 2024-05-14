@@ -15,6 +15,7 @@
     <None Remove="diagrams\all_icons.bpmn" />
     <None Remove="diagrams\all_tasks.bpmn" />
     <None Remove="diagrams\MonthlyInvoicing-solution.bpmn" />
+    <None Remove="diagrams\Multi-instanceMessagingBetweenProcesses-Doctor.bpmn" />
     <None Remove="diagrams\single_user_task.bpmn" />
     <None Remove="diagrams\subprocesses.bpmn" />
   </ItemGroup>
@@ -28,6 +29,9 @@
     <EmbeddedResource Include="diagrams\all_icons.bpmn" />
     <EmbeddedResource Include="diagrams\all_tasks.bpmn" />
     <EmbeddedResource Include="diagrams\MonthlyInvoicing-solution.bpmn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="diagrams\Multi-instanceMessagingBetweenProcesses-Doctor.bpmn">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="diagrams\single_user_task.bpmn">

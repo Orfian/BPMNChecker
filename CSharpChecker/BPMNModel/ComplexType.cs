@@ -35,13 +35,14 @@ namespace BPMNModel
             return result.ToArray();
         }
 
-        public (List<Element> Categories, List<(string A, string B)> Restrictions)  GetAllElements()
+        public (List<Element> Categories, List<(string A, string B)> Restrictions)  GetAllInformations()
         {
             var result = new List<Element>();
             var restrictions = new List<(string A, string B)>();
+
             if (ParentType != null)
             {
-                var (parentElements, parentRestrictions) = ParentType.GetAllElements();
+                var (parentElements, parentRestrictions) = ParentType.GetAllInformations();
                 result.AddRange(parentElements);
                 restrictions.AddRange(parentRestrictions);
             }
@@ -82,7 +83,7 @@ namespace BPMNModel
 
             bool isAbstract = ElementType.TryToGetBoolAttribute(element, "abstract");
             bool isMixed = ElementType.TryToGetBoolAttribute(element, "mixed");
-           
+          
             ComplexType result = new ComplexType(name, isAbstract, isMixed, element);
 
             return result;
