@@ -97,10 +97,7 @@ namespace BPMNModel
 
                 foreach (var sequenceElement in innerElement.Elements())
                 {
-                    //TODO: Skiping any tags now.
-                    if (sequenceElement.Name.LocalName == "any") continue;
-
-                    if (sequenceElement.Name.LocalName != "element")
+                    if (sequenceElement.Name.LocalName != "element" && sequenceElement.Name.LocalName != "any")
                     {
                         throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (In {this.Name} there is a sequence with {sequenceElement.Name.LocalName}).");
                     }

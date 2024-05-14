@@ -20,6 +20,12 @@ namespace BPMNModel
         ComplexType,
     }
 
+    public enum AnyElementNamespace
+    {
+        Any,
+        Other,
+    }
+
     public abstract class Element : IElement
     {
         public int? MinOccurs { get; set; }
@@ -32,6 +38,15 @@ namespace BPMNModel
 
             var minOccurs = ElementType.TryToGetOccursAttribute(element, "minOccurs");
             var maxOccurs = ElementType.TryToGetOccursAttribute(element, "maxOccurs");
+
+            if (element.Name.LocalName == "any")
+            {
+                var nameSpace = ElementType.GetExpectedAttribute(element, "namespace");
+                var anyElement = new AnyElement(nameSpace == "##any" ? AnyElementNamespace.Any : AnyElementNamespace.Other);
+                anyElement.MinOccurs = minOccurs;
+                anyElement.MaxOccurs = maxOccurs;
+                return anyElement;
+            }
 
 
             var reference = ElementType.TryToGetAttribute(element, "ref");
@@ -83,6 +98,18 @@ namespace BPMNModel
         public override string ToString()
         {
             return $"<refToRootElement {ReferencedElement.Name} min={MinOccurs} max={MaxOccurs}>";
+        }
+    }
+
+    public class AnyElement : Element
+    {
+        public AnyElementNamespace Namespace { get; init; }
+
+        public override string Name => "any";
+
+        public AnyElement(AnyElementNamespace @namespace)
+        {
+            Namespace = @namespace;
         }
     }
 

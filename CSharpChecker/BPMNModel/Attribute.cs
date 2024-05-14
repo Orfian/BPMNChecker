@@ -121,7 +121,7 @@ namespace BPMNModel
                 case AttributeXMLType.IDRef:
                     //TODO: QNAME as IDREF now.
                 case AttributeXMLType.QName:
-                    var node = XmlParserNode.GetReferecne(realValue);
+                    var node = XmlParserComplexNode.GetReferecne(realValue);
                     resultingAttribute.ProcessedValue = node;
                     return (resultingAttribute, null);
                 default:

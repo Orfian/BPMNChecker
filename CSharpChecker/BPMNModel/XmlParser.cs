@@ -76,15 +76,20 @@ namespace BPMNModel
                 }
             }
 
-            var idAttribute = processedAttributes.First(x => x.Name == "id");
+            var idAttributes = processedAttributes.Where(x => x.Name == "id");
 
-            if (idAttribute == null)
+            if (idAttributes.Count() > 1)
             {
-                Errors.Add(GetNiceMessage(element, $"every element should have id."));
+                Errors.Add(GetNiceMessage(element, $"element should have at most one id."));
                 return null;
             }
 
-            XmlParserNode node = XmlParserNode.CreateOrGet(idAttribute.Value, type.Type);
+            if (idAttributes.Count() == 0)
+            {
+
+            }
+
+            XmlParserComplexNode node = idAttributes.Any() ? XmlParserComplexNode.CreateOrGet(idAttributes.First().Value, type.Type) : XmlParserComplexNode.CreatePlaceholderForAnyNodes();
             node.Attributes.AddRange(processedAttributes);
 
 
@@ -163,7 +168,7 @@ namespace BPMNModel
                                 else
                                 {
                                     var realValue = currentElement.Value;
-                                    var targetNode = XmlParserNode.GetReferecne(realValue);
+                                    var targetNode = XmlParserComplexNode.GetReferecne(realValue);
                                     node.ChildNodes[currentCategory.Name].Add(targetNode);
                                     Log.Debug(GetNiceMessage(element, $"    {targetNode}"));
                                 }
@@ -175,9 +180,17 @@ namespace BPMNModel
                                 break;
                             }
                         }
+                        else if (currentCategory is AnyElement)
+                        {
+                            //TODO: Use namespace
+                            node.ChildNodes[currentCategory.Name].Add(new XmlParserAnyNode(currentElement));
+                            currentElementIndex++;
+                            continue;
+                        }
                         else
                         {
                             Errors.Add(GetNiceMessage(element, $"Unexpected category: {currentCategory.Name}"));
+                            break;
                         }
                     }
                 }
@@ -201,7 +214,7 @@ namespace BPMNModel
             XmlParser parser = new XmlParser(logger, generator);
             parser.Root = parser.LoadAndCheck(document.Root, generator.Elements["definitions"]);
 
-            var error = XmlParserNode.CheckReferencesWithoutDefinitions();
+            var error = XmlParserComplexNode.CheckReferencesWithoutDefinitions();
             if (error is not null) parser.Errors.Add(error);
 
             return parser;

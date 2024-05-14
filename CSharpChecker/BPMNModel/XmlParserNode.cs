@@ -3,45 +3,72 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace BPMNModel
 {
-    public class XmlParserNode
+    public abstract class XmlParserNode
     {
-        private static readonly Dictionary<string, XmlParserNode> cache = new();
+        private static readonly Dictionary<string, XmlParserComplexNode> cache = new();
 
         public List<XmlParserAttribute> Attributes { get; } = new();
+    }
 
-        public Dictionary<string, List<XmlParserNode>> ChildNodes { get; } = new();
+    public class XmlParserAnyNode : XmlParserNode
+    {
+        public XElement AnyNode { get; init; }
+        public XmlParserAnyNode(XElement anyNode)
+        {
+            AnyNode = anyNode;
+        }
+    }
+
+    public class XmlParserComplexNode :XmlParserNode
+    {
+        private static readonly Dictionary<string, XmlParserComplexNode> cache = new();
 
         public ComplexType? Type { get; private set; }
 
         public string ID { get; init; }
 
-        private XmlParserNode(string id) {
+        public Dictionary<string, List<XmlParserNode>> ChildNodes { get; } = new();
+
+        private XmlParserComplexNode(string id)
+        {
             ID = id;
         }
-        private XmlParserNode(string id, ComplexType type)
+        private XmlParserComplexNode(string id, ComplexType type)
         {
             ID = id;
             Type = type;
         }
 
+        public override string ToString()
+        {
+            return $"<id={ID} {(Type is null ? "Stub" : Type.Name)} >";
+        }
 
-        public static XmlParserNode CreateOrGet(string id, ComplexType complexType) { 
+        public static XmlParserComplexNode CreatePlaceholderForAnyNodes()
+        {
+            return new XmlParserComplexNode("any");
+        }
+
+        public static XmlParserComplexNode CreateOrGet(string id, ComplexType complexType)
+        {
             if (cache.ContainsKey(id))
             {
                 var cached = cache[id];
                 cached.Type = complexType;
                 return cached;
-            }else
+            }
+            else
             {
-                var cached = new XmlParserNode(id, complexType);
+                var cached = new XmlParserComplexNode(id, complexType);
                 cache.Add(id, cached);
                 return cached;
             }
         }
-        public static XmlParserNode GetReferecne(string id)
+        public static XmlParserComplexNode GetReferecne(string id)
         {
             if (cache.ContainsKey(id))
             {
@@ -50,7 +77,7 @@ namespace BPMNModel
             }
             else
             {
-                var cached = new XmlParserNode(id);
+                var cached = new XmlParserComplexNode(id);
                 cache.Add(id, cached);
                 return cached;
             }
@@ -58,17 +85,13 @@ namespace BPMNModel
 
         public static string? CheckReferencesWithoutDefinitions()
         {
-            var justReference = cache.Where(x => x.Value.Type is null).Select(x=>x.Key);
+            var justReference = cache.Where(x => x.Value.Type is null).Select(x => x.Key);
 
             if (justReference.Any())
             {
                 return $"IDs: {string.Join(",", justReference)} were referenced but not defined.";
             }
             return null;
-        }
-        public override string ToString()
-        {
-            return $"<id={ID} {(Type is null? "Stub":Type.Name)} >";
         }
     }
 }
