@@ -35,38 +35,37 @@ namespace BPMNModel
             return result.ToArray();
         }
 
-        public Element[] GetAllElements()
+        public (List<Element> Categories, List<(string A, string B)> Restrictions)  GetAllElements()
         {
             var result = new List<Element>();
-
+            var restrictions = new List<(string A, string B)>();
             if (ParentType != null)
             {
-                result.AddRange(ParentType.GetAllElements());
+                var (parentElements, parentRestrictions) = ParentType.GetAllElements();
+                result.AddRange(parentElements);
+                restrictions.AddRange(parentRestrictions);
             }
 
             if (InnerElement != null)
             {
-                if (InnerElement.Type == ContainerElement.ContainerType.Sequence )
+                foreach (var item in InnerElement.InnerElements)
                 {
-                    foreach(var item in InnerElement.InnerElements)
+                    if (item is Element element)
                     {
-                        if (item is Element element)
-                        {
-                            result.Add(element);
-                        }else
-                        {
-                            throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({this.Name} - there are only elements in a sequence).");
-                        }
+                        result.Add(element);
                     }
-
-
-                }else
+                    else
+                    {
+                        throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({this.Name} - there are only elements in a sequence).");
+                    }
+                }
+                foreach (var restriction in InnerElement.Restrictions)
                 {
-                    throw new NotImplementedException("Choice not implemented yet");
+                    restrictions.Add(restriction);
                 }
             }
             
-            return result.ToArray();
+            return (result, restrictions);
         }
 
         private ComplexType(string name, bool isAbstract, bool hasMixedContent, XElement element)
@@ -93,7 +92,7 @@ namespace BPMNModel
         {
             ContainerElement LoadSequence(XElement innerElement)
             {
-                var sequence = new ContainerElement(ContainerElement.ContainerType.Sequence);
+                var sequence = new ContainerElement();
 
                 foreach (var sequenceElement in innerElement.Elements())
                 {
@@ -161,7 +160,7 @@ namespace BPMNModel
                         if (this.InnerElement != null) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({this.Name} has more than one inner element - {innerElement.Name.LocalName}).");
 
 
-                        var choice = new ContainerElement(ContainerElement.ContainerType.Choice);
+                        var choice = new ContainerElement();
 
                         foreach (var choiceElement in innerElement.Elements())
                         {
@@ -171,11 +170,11 @@ namespace BPMNModel
                             }
                             if (choiceElement.Name.LocalName == "element")
                             {
-                                choice.InnerElements.Add(Element.Create(choiceElement, elements, types));
+                                choice.AddWithRestriction(Element.Create(choiceElement, elements, types));
                             }
                             if (choiceElement.Name.LocalName == "sequence")
                             {
-                                choice.InnerElements.Add(LoadSequence(choiceElement));
+                                choice.AddWithRestriction(LoadSequence(choiceElement));
                             }
                         }
 

@@ -53,7 +53,7 @@ namespace BPMNModel
 
             if (isAttribute is null) return null;
 
-            if (isAttribute.Value == "unbounded") return null;           
+            if (isAttribute.Value == "unbounded") return int.MaxValue;           
             return int.Parse(isAttribute.Value);
             
         }

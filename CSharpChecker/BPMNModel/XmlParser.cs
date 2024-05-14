@@ -84,18 +84,13 @@ namespace BPMNModel
                 return null;
             }
 
-            if (idAttributes.Count() == 0)
-            {
-
-            }
-
             XmlParserComplexNode node = idAttributes.Any() ? XmlParserComplexNode.CreateOrGet(idAttributes.First().Value, type.Type) : XmlParserComplexNode.CreatePlaceholderForAnyNodes();
             node.Attributes.AddRange(processedAttributes);
 
 
             if (type.InnerComplexType is not null)
             {
-                var allCategories = type.InnerComplexType.GetAllElements().ToList();
+                var (allCategories, categoriesRestrictions) = type.InnerComplexType.GetAllElements();
                 int currentCategoryIndex = 0;
 
                 Log.Debug(GetNiceMessage(element, $"  All elements: "));
@@ -104,7 +99,6 @@ namespace BPMNModel
                     Log.Debug(GetNiceMessage(element, $"    {item}"));
                 }
 
-                
                 var allElements = element.Elements().ToList();
                 int currentElementIndex = 0;
 
@@ -164,6 +158,8 @@ namespace BPMNModel
                                     {
                                         node.ChildNodes[currentCategory.Name].Add(createdNode);
                                     }*/
+
+                                    throw new NotImplementedException();
                                 }
                                 else
                                 {
@@ -191,6 +187,37 @@ namespace BPMNModel
                         {
                             Errors.Add(GetNiceMessage(element, $"Unexpected category: {currentCategory.Name}"));
                             break;
+                        }
+                    }
+
+                    int realOccurences = node.ChildNodes[currentCategory.Name].Count;
+                    if (currentCategory.MinOccurs is null || currentCategory.MaxOccurs is null) throw new BPMNCheckerExceptions($"For {currentCategory.Name} something went wrong - number of occurences should be filed now.");
+                    int minOccurences = currentCategory.MinOccurs??0;
+                    int maxOccurences = currentCategory.MaxOccurs ?? 0;
+                    logger.Debug(GetNiceMessage(element, $"  Checking:   {currentCategory.Name} - occurences: min={minOccurences} max={maxOccurences} real={realOccurences}"));
+
+                    if (realOccurences < minOccurences) Errors.Add(GetNiceMessage(element, $"{currentCategory.Name} requires minimum {minOccurences} occurences, but there are {realOccurences}."));
+                    if (realOccurences > maxOccurences) Errors.Add(GetNiceMessage(element, $"{currentCategory.Name} requires maximum {maxOccurences} occurences, but there are {realOccurences}."));
+                }
+
+                if (categoriesRestrictions.Any())
+                {
+                    Log.Debug(GetNiceMessage(element, $"  Restrictions:"));
+                    foreach (var item in categoriesRestrictions)
+                    {
+                        Log.Debug(GetNiceMessage(element, $"    {item.A} vs {item.B}"));
+                    }
+                    foreach (var (A,B) in categoriesRestrictions)
+                    {
+                        if (node.ChildNodes.ContainsKey(A) && node.ChildNodes.ContainsKey(B))
+                        {
+                            int aOccurences = node.ChildNodes[A].Count;
+                            int bOccurences = node.ChildNodes[B].Count;
+
+                            if (aOccurences > 0 && bOccurences > 0)
+                            {
+                                Errors.Add(GetNiceMessage(element, $"Elements {A} and {B} can not be used at the same time."));
+                            }
                         }
                     }
                 }

@@ -8,11 +8,12 @@ using Utility;
 
 namespace BPMNModel
 {
+    /*
     public interface IElement
     {
 
     }
-
+    */
     public enum ElementXMLType
     {
         QName,
@@ -26,7 +27,7 @@ namespace BPMNModel
         Other,
     }
 
-    public abstract class Element : IElement
+    public abstract class Element 
     {
         public int? MinOccurs { get; set; }
         public int? MaxOccurs { get; set; }
@@ -39,12 +40,23 @@ namespace BPMNModel
             var minOccurs = ElementType.TryToGetOccursAttribute(element, "minOccurs");
             var maxOccurs = ElementType.TryToGetOccursAttribute(element, "maxOccurs");
 
+            if (minOccurs is null &&  maxOccurs is not null){
+                minOccurs = 1;
+            }
+                
+            if (minOccurs is not null && maxOccurs is null) {
+                maxOccurs = 1;
+            }
+
+            if (minOccurs is null && maxOccurs is null) { 
+                minOccurs = 0;
+                maxOccurs = 1;
+            }
+
             if (element.Name.LocalName == "any")
             {
                 var nameSpace = ElementType.GetExpectedAttribute(element, "namespace");
-                var anyElement = new AnyElement(nameSpace == "##any" ? AnyElementNamespace.Any : AnyElementNamespace.Other);
-                anyElement.MinOccurs = minOccurs;
-                anyElement.MaxOccurs = maxOccurs;
+                var anyElement = new AnyElement(nameSpace == "##any" ? AnyElementNamespace.Any : AnyElementNamespace.Other, minOccurs, maxOccurs);
                 return anyElement;
             }
 
@@ -53,9 +65,7 @@ namespace BPMNModel
             if (reference != null)
             {
                 var referencedElement = elements[reference];
-                var refResult = new ReferenceElement(referencedElement);
-                refResult.MinOccurs = minOccurs;
-                refResult.MaxOccurs = maxOccurs;
+                var refResult = new ReferenceElement(referencedElement, minOccurs, maxOccurs);
                 return refResult;
             }
 
@@ -66,7 +76,7 @@ namespace BPMNModel
             {
                 if (types[type] is ComplexType complexRestriction)
                 {
-                    return new NamedElement(name, ElementXMLType.ComplexType, complexRestriction);
+                    return new NamedElement(name, ElementXMLType.ComplexType, complexRestriction, minOccurs, maxOccurs);
                 }
                 else
                 {
@@ -80,7 +90,7 @@ namespace BPMNModel
                 _ => throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (element attribute contain unexpected attribute {type}).")
             };
 
-            return new NamedElement(name, valueType, null);
+            return new NamedElement(name, valueType, null, minOccurs, maxOccurs);
         }
     }
 
@@ -90,9 +100,11 @@ namespace BPMNModel
 
         public override string Name => ReferencedElement.Name;
 
-        public ReferenceElement(RootElement referencedElement)
+        public ReferenceElement(RootElement referencedElement, int? minOccurs, int? maxOccurs)
         {
             this.ReferencedElement = referencedElement;
+            MinOccurs = minOccurs;
+            MaxOccurs = maxOccurs;
         }
 
         public override string ToString()
@@ -107,9 +119,11 @@ namespace BPMNModel
 
         public override string Name => "any";
 
-        public AnyElement(AnyElementNamespace @namespace)
+        public AnyElement(AnyElementNamespace @namespace, int? minOccurs, int? maxOccurs)
         {
             Namespace = @namespace;
+            MinOccurs = minOccurs; 
+            MaxOccurs = maxOccurs;
         }
     }
 
@@ -121,11 +135,13 @@ namespace BPMNModel
         public ElementXMLType Category { get; init; }
         public ComplexType? InnerComplexType { get; init; }
 
-        public NamedElement(string name, ElementXMLType category, ComplexType? innerComplexType)
+        public NamedElement(string name, ElementXMLType category, ComplexType? innerComplexType, int? minOccurs, int? maxOccurs)
         {
             this.name = name;
             Category = category;
             InnerComplexType = innerComplexType;
+            MinOccurs = minOccurs; 
+            MaxOccurs = maxOccurs;
         }
         public override string ToString()
         {
@@ -133,24 +149,39 @@ namespace BPMNModel
         }
     }
 
-    public class ContainerElement : IElement
+    public class ContainerElement 
     {
-        public enum ContainerType
+        public List<Element> InnerElements { get; } = new();
+
+        public List<(string A, string B)> Restrictions { get; } = new();
+
+        public ContainerElement()
         {
-            Sequence,
-            Choice
         }
 
-        public List<IElement> InnerElements { get; } = new();
-
-        public ContainerType Type { get; init; }
-
-        public ContainerElement(ContainerType type)
+        public void AddWithRestriction(Element newElement)
         {
-            Type = type;
+            foreach(var oldElement in InnerElements)
+            {
+                Restrictions.Add((oldElement.Name, newElement.Name));
+            }
+            InnerElements.Add(newElement);
         }
 
-
+        public void AddWithRestriction(ContainerElement sequence)
+        {
+            foreach (var newElement in sequence.InnerElements)
+            {
+                foreach (var oldElement in InnerElements)
+                {
+                    Restrictions.Add((oldElement.Name, newElement.Name));
+                }
+            }
+            foreach (var newElement in sequence.InnerElements)
+            {
+                InnerElements.Add(newElement);
+            }
+        }
     }
 
     public class RootElement :NamedElement
@@ -166,7 +197,7 @@ namespace BPMNModel
             }
         }
 
-        public RootElement(string name, ComplexType innerType, string? group) :base(name, ElementXMLType.ComplexType, innerType)
+        public RootElement(string name, ComplexType innerType, string? group) :base(name, ElementXMLType.ComplexType, innerType, null, null)
         {
             Group = group;
         }
