@@ -11,6 +11,7 @@
     <None Remove="definitions\BPMN20.xsd" />
     <None Remove="definitions\BPMNDI.cmof" />
     <None Remove="definitions\BPMNDI.xsd" />
+    <None Remove="definitions\camunda.json" />
     <None Remove="definitions\Semantic.xsd" />
     <None Remove="diagrams\all_icons.bpmn" />
     <None Remove="diagrams\all_tasks.bpmn" />
@@ -25,20 +26,21 @@
     <EmbeddedResource Include="definitions\BPMN20.xsd" />
     <EmbeddedResource Include="definitions\BPMNDI.cmof" />
     <EmbeddedResource Include="definitions\BPMNDI.xsd" />
+    <EmbeddedResource Include="definitions\camunda.json" />
     <EmbeddedResource Include="definitions\Semantic.xsd" />
     <EmbeddedResource Include="diagrams\all_icons.bpmn" />
     <EmbeddedResource Include="diagrams\all_tasks.bpmn" />
     <EmbeddedResource Include="diagrams\MonthlyInvoicing-solution.bpmn">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="diagrams\Multi-instanceMessagingBetweenProcesses-Doctor.bpmn">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="diagrams\single_user_task.bpmn">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="diagrams\subprocesses.bpmn">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 
