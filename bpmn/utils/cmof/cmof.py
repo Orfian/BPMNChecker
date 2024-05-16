@@ -43,7 +43,9 @@ def process_file(out, err, options, inp):
     model = cmof_model_builder.build_model(t, err)
 
     if options.print_csharp: 
-        cmof_print_csharp.print_model(out, model)
+        file = Output(open(r"D:\TACR\bpmnchecker\CSharpChecker\BPMNModel\model\File.cs", "w"))
+        cmof_print_csharp.print_model(file, model)
+        
     else: 
         cmof_print_model.print_model(out, model)
 

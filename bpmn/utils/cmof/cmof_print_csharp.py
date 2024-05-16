@@ -4,15 +4,15 @@ from cmof_model import *
 
 def print_model(out, model):
     assert isinstance(model, M_Model)
-    out.nl().write("Model " + model.get_package_name() + " {").nl()
+    out.write("namespace BPMNModel.Model").nl()
+    out.write("{").nl()
     out.inc()
 
-    print_external_types(out, model.get_external_types())
+    #print_external_types(out, model.get_external_types())
     print_classes(out, model.get_classes())
     print_enumerations(out, model.get_enumerations())
     print_primitive_types(out, model.get_primitive_types())
 
-    sep_line_last(out)
     out.dec()
     out.write("}").nl()
 
@@ -20,32 +20,28 @@ def print_model(out, model):
 def print_classes(out, classes):
     n = len(classes)
     if n == 0: return
-    sep_line(out)
-    out.write("    (%d classes)" % n).nl().nl()
-    first = True
+
+    out.write("#region Classes (%d items)" % n).nl()
     for c in classes:
-        if first:
-            first = False
-        else:
-            out.nl()
+        out.nl()
         print_Class(out, c)
-    out.nl()
+    out.write("#endregion").nl().nl()
 
 
 def print_enumerations(out, enums):
     n = len(enums)
     if n == 0: return
-    sep_line(out)
-    out.write("    (%d enumerations)" % n).nl().nl()
+    out.write("#region Enumerations (%d items)" % n).nl()
     for c in enums:
         print_Enumeration(out, c)
         out.nl()
-
+    out.write("#endregion").nl()
+    
 
 def print_primitive_types(out, prim_types):
     n = len(prim_types)
     if n == 0: return
-    sep_line(out)
+
     out.write("    (%d primitive types)" % n).nl().nl()
     for c in prim_types:
         print_PrimitiveType(out, c)
@@ -55,7 +51,7 @@ def print_primitive_types(out, prim_types):
 def print_external_types(out, ext_types):
     n = len(ext_types)
     if n == 0: return
-    sep_line(out)
+
     out.write("    (%d external types)" % n).nl().nl()
     first = True
     for c in ext_types:
@@ -69,44 +65,109 @@ def print_external_types(out, ext_types):
 
 
 def print_Class(out, c):
+    #InteractionNode - no parent
+    #FlowElementsContainer (BaseElement) vs 
+    #   CallableElement (RootElement (BaseElement))
+    #   ChoreographyActivity (FlowNode (FlowElement (BaseElement)))
+    #   Collaboration (RootElement (BaseElement))
+    #   Activity (FlowNode (FlowElement (BaseElement)))
+    #ItemAwareElement (BaseElement) vs
+    #   FlowElement (BaseElement)
+    #   RootElement (BaseElement)
+    interfaces = ["InteractionNode", "FlowElementsContainer", "ItemAwareElement"] 
+
     assert isinstance(c, M_Class)
-    if c.is_abstract:
-        out.write ("abstract ")
-    out.write("class " + c.name)
+    out.write("public ")
+    isInterface = c.name in interfaces
+    if isInterface:
+        out.write("interface " + c.name)
+        if c.is_abstract:
+            out.write (" // abstract ")
+    else:
+        if c.is_abstract:
+            out.write ("abstract ")
+        out.write("class " + c.name)
 
     scls = c.superclasses
-    if len(scls) > 0:
-        out.write(" :> ")
-        scls_names = [ sc.name for sc in scls ]
-        out.write(" +++ ".join(scls_names))
-
-    out.write(" {").nl()
+    if len(scls) > 0 and not isInterface:
+        out.write(" : ")
+        scls_names = [sc.name for sc in scls if not(sc.name in interfaces)]
+        interfaces_names = [sc.name for sc in scls if sc.name in interfaces]
+        assert len(scls_names) <=1
+        if len(scls_names) == 0 and len(interfaces_names)>0:
+            out.write(", ".join(["BaseElement"] + interfaces_names))
+        else:
+            out.write(", ".join(scls_names + interfaces_names))
+    out.nl()
+    out.write("{").nl()
     out.inc()
+    
+    attributesForConstructor = []
+
     for attr in c.attributes:
-        print_Attribute(out, attr)
+        attributesForConstructor+=print_Attribute(out, attr,isInterface)
+
+    if not isInterface:
+        out.write("public "+c.name+"(")
+        if len(attributesForConstructor)>0:
+            formatedParameters = [(type+" _"+name) for (name, type) in attributesForConstructor] 
+            out.write(", ".join(formatedParameters))
+        out.write(")").nl()
+        out.write("{").nl()
+        out.write("}").nl()
     out.dec()
     out.write("}").nl()
 
+def print_csharp_type(type):
+    assert isinstance(type, M_Type)
+    if type.name == "String":
+        return "string"
+    if type.name == "Boolean":
+        return "bool"
+    if type.name == "Integer":
+        return "int"
+    return type.name
 
-def print_Attribute(out, c):
-    out.write(c.name)
-    typ = c.type
-    assert isinstance(typ, M_Type)
-    out.write(" : " + typ.name)
-    s = cardinality_to_str(c.cardinality)
-    if s is not None:
-        out.write(" " + s)
+def print_Attribute(out, c, isInInterface):
+    #TODO Override for diagrams.
+    if c.name == "diagrams" and print_csharp_type(c.type) == "BPMNDiagram":
+        return []
+
+    typesForConstructor = []
+
+    realName = c.name.capitalize()
+    card = c.cardinality
+    assert isinstance(card, M_Cardinality)
+    lower = card.lower
+    upper = card.upper
+    if isInInterface:
+        if lower == 1 and upper == 1:
+            out.write(print_csharp_type(c.type)+ " " + realName + " { get; init; }")
+        elif lower == 0 and upper == 1:
+            out.write(print_csharp_type(c.type)+"? " + realName + " { get; set; }")
+        else:
+            out.write("List<"+print_csharp_type(c.type)+"> "+ realName + " { get; }")
+    else:
+        if lower == 1 and upper == 1:
+            realType = print_csharp_type(c.type)
+            out.write("public "+realType+ " " + realName + " { get; init; }")
+            typesForConstructor.append((c.name, realType))
+        elif lower == 0 and upper == 1:
+            out.write("public "+print_csharp_type(c.type)+"? " + realName + " { get; set; }")
+        else:
+            out.write("public List<"+print_csharp_type(c.type)+"> "+ realName + " { get; } = new();")
     out.nl()
+    return typesForConstructor
 
 
 def print_Enumeration(out, c):
-    out.write("enum " + c.name + " :=").nl()
+    out.write("public enum " + c.name).nl().write("{").nl()
     out.inc()
     for item in c.literals:
         assert item.enum is c
-        out.write("| " + item.name).nl()
+        out.write(item.name).write(",").nl()
     out.dec()
-    # out.write("}").nl()
+    out.write("}").nl()
 
 
 def print_PrimitiveType(out, c):
@@ -142,26 +203,3 @@ def type_kind_to_str(kind):
             assert False
 
 
-def cardinality_to_str(card):
-    assert isinstance(card, M_Cardinality)
-    lower = card.lower
-    upper = card.upper
-    if lower == 1 and upper == 1:
-        return None
-
-    if lower == 0 and upper == 1:
-        return "(opt)"
-
-    ls = "%d" % lower
-    if upper == -1:
-        us = "*"
-    else:
-        us = "%d" % upper
-    return "[" + ls + " .. " + us + "]"
-
-
-def sep_line(out):
-    out.write('-' * 60).nl().nl()
-
-def sep_line_last(out):
-    out.write('-' * 60).nl()

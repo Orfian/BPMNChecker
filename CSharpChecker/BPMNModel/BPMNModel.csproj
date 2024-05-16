@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Utility\Utility.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="model\" />
+  </ItemGroup>
+
 </Project>
