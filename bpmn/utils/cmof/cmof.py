@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import cmof_parser, cmof_print_parsed, cmof_model_builder, cmof_print_model
+import cmof_parser, cmof_print_parsed, cmof_model_builder, cmof_print_model, cmof_print_csharp
 from utils import Output, ErrOutput
 
 import sys
@@ -41,7 +41,11 @@ def process_file(out, err, options, inp):
     print ("Building model...")
 
     model = cmof_model_builder.build_model(t, err)
-    cmof_print_model.print_model(out, model)
+
+    if options.print_csharp: 
+        cmof_print_csharp.print_model(out, model)
+    else: 
+        cmof_print_model.print_model(out, model)
 
 
 def read_xml(filename):
@@ -77,14 +81,15 @@ class Options (object):
     __slots__ = [
         'filename',
         'print_raw',
-        'print_parsed'
+        'print_parsed',
+        'print_csharp'
     ]
 
     def __init__(self):
         self.filename = None
         self.print_raw = False
         self.print_parsed = False
-
+        self.print_csharp = False
 
 
 def parse_options(argv):
@@ -100,8 +105,8 @@ def parse_options(argv):
             opts.print_raw = True
         elif s == '-p':
             opts.print_parsed = True
-        # elif s == '-m':
-        #     opts.print_parsed = False
+        elif s == '-csharp':
+             opts.print_csharp = True
         else:
             if s.startswith('-'):
                 print ("Error: unknown option " + repr(s))
@@ -118,9 +123,9 @@ def parse_options(argv):
 def usage():
     print ("Usage: cmof.py [<options>] <filename>")
     print ("   options:")
-    print ("     -r  - print raw XML")
-    print ("     -p  - print parsed CMOF")
-    # print ("     -m  - print constructed model")
+    print ("     -r         - print raw XML")
+    print ("     -p         - print parsed CMOF")
+    print ("     -csharp    - print constructed model in C#")
     sys.exit(1)
 
 
