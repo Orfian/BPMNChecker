@@ -23,28 +23,46 @@ namespace BPMNModel
 
         public bool HasErrors { get => Errors.Any(); }
 
-        private XmlParser(ILogger logger, Generator generator)
+        private XNamespace bpmnNamespace;
+
+        private XNamespace xsiNamespace;
+
+        private XmlParser(ILogger logger, Generator generator, XNamespace bpmnNamespace, XNamespace xsiNamespace)
         {
             this.logger = logger;
             this.generator = generator;
+            this.bpmnNamespace = bpmnNamespace;
+            this.xsiNamespace = xsiNamespace;
         }
 
-        private static string GetNiceMessage(XElement element, string text)
+        
+        private string GetNiceNamespace(XNamespace @namespace)
+        {
+            if (@namespace == bpmnNamespace) return "bpmn:";
+            if (@namespace == xsiNamespace) return "xsi:";
+            return @namespace.NamespaceName;
+        }
+        private string GetNiceName(XName name)
+        {
+            return GetNiceNamespace(name.NamespaceName)+name.LocalName;
+        }
+
+        private string GetNiceMessage(XElement element, string text)
         {
             if (element is IXmlLineInfo info && info.HasLineInfo())
             {
-                return $"{element.Name.LocalName}[{info.LineNumber}:{info.LinePosition}] - {text}";
+                return $"{GetNiceName(element.Name)}[{info.LineNumber}:{info.LinePosition}] - {text}";
             }
             else
             {
-                return $"{element.Name.LocalName}[---] - {text}";
+                return $"{GetNiceName(element.Name)}[---] - {text}";
             }
         }
 
 
         private XmlParserNode? LoadAndCheck(XElement element, RootElement type)
         {
-            logger.Debug(GetNiceMessage(element, $"Starting to load {element.Name.LocalName}"));
+            logger.Debug(GetNiceMessage(element, $"Starting to load {GetNiceName(element.Name)}"));
 
             if (element.Name.LocalName != type.Name)
             {
@@ -157,6 +175,35 @@ namespace BPMNModel
                                     {
                                         throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({namedElement.Name} refers to nonexisting complex type).");
                                     }
+
+                                    var castAttribute = currentElement.Attribute(xsiNamespace + "type");
+                                    if  (castAttribute is not null)
+                                    {
+                                        var castType = castAttribute.Value;
+
+                                        if (castType.StartsWith("bpmn:")) {
+                                            castType = castType.Substring(5);
+                                            if (generator.Types.ContainsKey(castType) && generator.Types[castType] is ComplexType castingType)
+                                            {
+                                                var createdNode = new XmlParserCastNode(castingType, currentElement.Value);
+                                                node.ChildNodes[currentCategory.Name].Add(createdNode);
+                                                Log.Debug(GetNiceMessage(element, $"    {createdNode}"));
+                                            }
+                                            else
+                                            {
+                                                Errors.Add(GetNiceMessage(element, $"{currentCategory.Name} there is referenced unknown type {castType}."));
+                                            }
+
+                                            currentElementIndex++;
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            throw new NotImplementedException();
+                                        }
+
+                                     }
+
                                     /*
                                     var createdNode = LoadAndCheck(currentElement, namedElement.InnerComplexType);
                                     if (createdNode != null)
@@ -184,7 +231,9 @@ namespace BPMNModel
                         else if (currentCategory is AnyElement)
                         {
                             //TODO: Use namespace
-                            node.ChildNodes[currentCategory.Name].Add(new XmlParserAnyNode(currentElement));
+                            var createdNode = new XmlParserAnyNode(currentElement);
+                            node.ChildNodes[currentCategory.Name].Add(createdNode);
+                            Log.Debug(GetNiceMessage(element, $"    {createdNode}"));
                             currentElementIndex++;
                             continue;
                         }
@@ -228,7 +277,7 @@ namespace BPMNModel
                 }
             }
 
-            logger.Debug(GetNiceMessage(element, $"Finished loading {element.Name.LocalName}: id={node.ID}, type={node.Type?.Name}, attributes: {node.Attributes.Count}, categories: {node.ChildNodes.Count} with {node.ChildNodes.Values.Select(x=>x.Count).Sum()} elements."));
+            logger.Debug(GetNiceMessage(element, $"Finished loading {GetNiceName(element.Name)}: id={node.ID}, type={node.Type?.Name}, attributes: {node.Attributes.Count}, categories: {node.ChildNodes.Count} with {node.ChildNodes.Values.Select(x=>x.Count).Sum()} elements."));
             return node;
         }
 
@@ -243,7 +292,20 @@ namespace BPMNModel
             {
                 diagramElement.Remove();
             }
-            XmlParser parser = new XmlParser(logger, generator);
+
+            var bpmnNamespaceString = document.Root.Attribute(XNamespace.Xmlns+"bpmn")?.Value;
+            var xsiNamespaceString = document.Root.Attribute(XNamespace.Xmlns+"xsi")?.Value;
+
+            if (string.IsNullOrEmpty(bpmnNamespaceString) || string.IsNullOrEmpty(xsiNamespaceString))
+            {
+                throw new BPMNCheckerExceptions($"There are no required namespaces attributes: {"xmlns:bpmn"} and {"xmlns:xsi"}");
+            }
+
+            XNamespace bpmnNamespace = XNamespace.Get(bpmnNamespaceString);
+            XNamespace xsiNamespace = XNamespace.Get(xsiNamespaceString);
+
+
+            XmlParser parser = new XmlParser(logger, generator, bpmnNamespace, xsiNamespace);
             parser.Root = parser.LoadAndCheck(document.Root, generator.Elements["definitions"]);
 
             var error = XmlParserComplexNode.CheckReferencesWithoutDefinitions();
