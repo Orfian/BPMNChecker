@@ -117,7 +117,7 @@ def usage():
     print ("   options:")
     print ("     -r         - print raw XML")
     print ("     -p         - print parsed CMOF")
-    print ("     -l  - list of classes")
+    print ("     -l         - list of classes")
     print ("     -csharp    - print constructed model in C#")
     sys.exit(1)
 
