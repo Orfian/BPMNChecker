@@ -89,34 +89,68 @@ def print_Class(out, c):
         out.write("class " + c.name)
 
     scls = c.superclasses
+    parentClass = None
+    implementedInterface = None
+
     if len(scls) > 0 and not isInterface:
         out.write(" : ")
-        scls_names = [sc.name for sc in scls if not(sc.name in interfaces)]
-        interfaces_names = [sc.name for sc in scls if sc.name in interfaces]
-        assert len(scls_names) <=1
-        if len(scls_names) == 0 and len(interfaces_names)>0:
-            out.write(", ".join(["BaseElement"] + interfaces_names))
+        parentClasses = [sc for sc in scls if not(sc.name in interfaces)]
+        parentClass = parentClasses[0] if parentClasses else None
+        implementedInterfaces = [sc for sc in scls if sc.name in interfaces]
+        implementedInterface =  implementedInterfaces[0] if implementedInterfaces else None
+        assert len(parentClasses) <=1 and len(implementedInterfaces) <=1
+        if parentClass == None and implementedInterface !=None :
+            out.write("BaseElement, "+implementedInterface.name)
         else:
-            out.write(", ".join(scls_names + interfaces_names))
+            out.write(", ".join([x.name for x in parentClasses] + [x.name for x in implementedInterfaces] ))
     out.nl()
     out.write("{").nl()
     out.inc()
     
     attributesForConstructor = []
-
     for attr in c.attributes:
         attributesForConstructor+=print_Attribute(out, attr,isInterface)
 
     if not isInterface:
+        baseParameters = []
+        if parentClass != None:
+            baseParameters = get_all_required_attributes(parentClass, interfaces)
+        elif implementedInterface != None:
+            baseParameters = [("id", "string")]    
+
         out.write("public "+c.name+"(")
-        if len(attributesForConstructor)>0:
-            formatedParameters = [(type+" _"+name) for (name, type) in attributesForConstructor] 
+        realParameters =  baseParameters + attributesForConstructor
+        if len(realParameters)>0:
+            formatedParameters = [(type+" _"+name) for (name, type) in realParameters] 
             out.write(", ".join(formatedParameters))
         out.write(")").nl()
+        if len(baseParameters) > 0:
+            out.inc()
+            out.write(": base(" +", ".join(["_"+x for (x,_) in baseParameters] )+")" ).nl()
+            out.dec();
         out.write("{").nl()
+        out.inc()
+        for (name,type) in attributesForConstructor:
+            out.write("this."+name.capitalize()+" = _" + name+";").nl()
+        out.dec()
         out.write("}").nl()
     out.dec()
     out.write("}").nl()
+
+def get_all_required_attributes(currentClass, interfaces):
+    assert isinstance(currentClass, M_Class)
+    result = []
+    parentClasses = [sc for sc in currentClass.superclasses if not(sc.name in interfaces)]
+    parentClass = parentClasses[0] if parentClasses else None
+    if parentClass != None:
+        result += get_all_required_attributes(parentClass, interfaces)
+    for attr in currentClass.attributes:
+        assert isinstance(attr, M_Attribute)
+        card = attr.cardinality
+        assert isinstance(card, M_Cardinality)
+        if card.lower == 1 and card.upper==1:
+            result.append((attr.name, print_csharp_type(attr.type)))
+    return result
 
 def print_csharp_type(type):
     assert isinstance(type, M_Type)
