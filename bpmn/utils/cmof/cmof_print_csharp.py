@@ -111,6 +111,12 @@ def print_Class(out, c):
     for attr in c.attributes:
         attributesForConstructor+=print_Attribute(out, attr,isInterface)
 
+    if implementedInterface != None:
+        out.write("#region Implementing: "+implementedInterface.name).nl()
+        for attr in implementedInterface.attributes:
+            attributesForConstructor+=print_Attribute(out, attr,False)
+        out.write("#endregion").nl()
+
     if not isInterface:
         baseParameters = []
         if parentClass != None:
