@@ -17,7 +17,7 @@ namespace BPMNModel
 
         private Generator generator;
 
-        public XmlParserNode? Root { get; private set; }
+        public XmlParserComplexNode? Root { get; private set; }
 
         public List<string> Errors { get; } = new List<string>();
 
@@ -60,7 +60,7 @@ namespace BPMNModel
         }
 
 
-        private XmlParserNode? LoadAndCheck(XElement element, RootElement type)
+        private XmlParserComplexNode? LoadAndCheck(XElement element, RootElement type)
         {
             logger.Debug(GetNiceMessage(element, $"Starting to load {GetNiceName(element.Name)}"));
 
@@ -107,7 +107,10 @@ namespace BPMNModel
             }
 
             XmlParserComplexNode node = idAttributes.Any() ? XmlParserComplexNode.CreateOrGet(idAttributes.First().Value, type.Type) : XmlParserComplexNode.CreatePlaceholderForAnyNodes();
-            node.Attributes.AddRange(processedAttributes);
+            foreach (var item in processedAttributes)
+            {
+                node.Attributes.Add(item.Name, item);
+            }
 
 
             if (type.InnerComplexType is not null)
@@ -115,7 +118,7 @@ namespace BPMNModel
                 var (allCategories, categoriesRestrictions) = type.InnerComplexType.GetAllInformations();
                 int currentCategoryIndex = 0;
 
-                Log.Debug(GetNiceMessage(element, $"  All elements: "));
+                logger.Debug(GetNiceMessage(element, $"  All elements: "));
                 foreach (var item in allCategories)
                 {
                     logger.Debug(GetNiceMessage(element, $"    {item}"));

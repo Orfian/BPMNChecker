@@ -14,7 +14,18 @@ namespace BPMNModel
 
         public AttributeXMLType Type { get; init; }
 
-        public object? ProcessedValue { get; set; }
+        private object? processedValue = null;
+
+        public object? ProcessedValue { get
+            {
+                if (processedValue == null) return Value;
+                return processedValue;
+            }
+            set
+            {
+                this.processedValue = value;
+            }
+        }
         public XmlParserAttribute(string name, string value, AttributeXMLType type)
         {
             Value = value;
