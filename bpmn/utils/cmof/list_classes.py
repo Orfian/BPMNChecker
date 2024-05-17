@@ -67,6 +67,7 @@ def print_enum(out, e, info):
 
 
 def print_remaining(out, remaining):
+    if len(remaining) == 0: return
 
     out.write("=" * 78).nl()
     out.write("     REMAINING TYPES").nl()

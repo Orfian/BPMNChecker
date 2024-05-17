@@ -222,4 +222,51 @@ overview = [
       ]),
 
     #=========================================================================
+
+    Package( "Collaboration", "9.1 - 9.3", [
+
+         ( "Collaboration"                   , "attr. str. 110-111; XSD str. 140" ),
+         ( "InteractionNode"                 , "text str. 123"                    ),
+         ( "Participant"                     , "attr. str. 116; XSD str. 142"     ),
+         ( "ParticipantMultiplicity"         , "attr. str. 118; XSD str. 143"     ),
+         ( "ParticipantAssociation"          , "attr. str. 119; XSD str. 143"     ),
+         ( "MessageFlow"                     , "attr. str. 123; XSD str. 142"     ),
+         ( "MessageFlowAssociation"          , "attr. str. 124; XSD str. 142"     ),
+         ( "PartnerEntity"                   , "attr. str. 116; XSD str. 143"     ),
+         ( "PartnerRole"                     , "attr. str. 117; XSD str. 143"     ),
+      ]),
+
+    #=========================================================================
+
+    Package( "Conversations", "9.4", [
+
+         ( "ConversationNode"                , "attr. str. 130; XSD str. 141"     ),
+         ( "Conversation"                    , "text str. 130; XSD str. 140"      ),
+         ( "SubConversation"                 , "attr. str. 131; XSD str. 144"     ),
+         ( "CallConversation"                , "attr. str. 132; XSD str. 139"     ),
+         ( "GlobalConversation"              , "text str. 132; XSD str. 141-142"  ),
+         ( "ConversationLink"                , "attr. str. 134; XSD str. 140"     ),
+         ( "ConversationAssociation"         , "attr. str. 136; XSD str. 140"     ),
+      ]),
+
+    #=========================================================================
+
+    Package( "Choreography", "11", [
+
+         ( "Choreography"                    , "XSD str. 364"        ),
+         ( "GlobalChoreographyTask"          , "attr. str. 335; XSD str. 365"     ),
+      ]),
+
+    #=========================================================================
+
+    Package( "ChoreographyActivities", "11", [
+
+         ( "ChoreographyActivity"            , "attr. str. 322; XSD str. 365"     ),
+         ( "ChoreographyLoopType"            , "XSD str. 365"                     ),
+         ( "ChoreographyTask"                , "attr. str. 328; XSD str. 365"     ),
+         ( "SubChoreography"                 , "attr. str. 332; XSD str. 366"     ),
+         ( "CallChoreography"                , "attr. str. 335 ; XSD str. 366"    ),
+      ]),
+
+    #=========================================================================
 ]
