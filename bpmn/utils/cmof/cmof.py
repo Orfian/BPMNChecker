@@ -44,8 +44,7 @@ def process_file(out, err, options, inp):
     model = cmof_model_builder.build_model(t, err)
 
     if options.print_csharp:
-        file = Output(open(r"D:\TACR\bpmnchecker\CSharpChecker\BPMNModel\model\File.cs", "w"))
-        cmof_print_csharp.print_model(file, model)
+        cmof_print_csharp.print_model(r"D:\TACR\bpmnchecker\CSharpChecker\BPMNModel\model", model)
 
     elif options.list_classes:
         pckg_name = model.get_package_name()

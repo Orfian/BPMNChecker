@@ -1,30 +1,67 @@
 
 from cmof_model import *
+from utils import Output
+
+def print_model(path, model):
+    #InteractionNode - no parent
+    #FlowElementsContainer (BaseElement) vs 
+    #   CallableElement (RootElement (BaseElement))
+    #   ChoreographyActivity (FlowNode (FlowElement (BaseElement)))
+    #   Collaboration (RootElement (BaseElement))
+    #   Activity (FlowNode (FlowElement (BaseElement)))
+    #ItemAwareElement (BaseElement) vs
+    #   FlowElement (BaseElement)
+    #   RootElement (BaseElement)
+    interfaces = ["InteractionNode", "FlowElementsContainer", "ItemAwareElement"] 
 
 
-def print_model(out, model):
+    print(path)
+    classFile = path + r"\File.cs"
+    out = Output(open(classFile, "w"))
     assert isinstance(model, M_Model)
+    #out.write("using Serilog;").nl()
+    #out.nl()
     out.write("namespace BPMNModel.Model").nl()
     out.write("{").nl()
     out.inc()
 
-    #print_external_types(out, model.get_external_types())
-    print_classes(out, model.get_classes())
+    print_classes(out, model.get_classes(), interfaces)
     print_enumerations(out, model.get_enumerations())
-    print_primitive_types(out, model.get_primitive_types())
-
+    out.dec()
+    out.write("}").nl()
+    
+    out = Output(open(path + r"\Factory.cs", "w"))
+    out.write("using Utility;").nl()
+    out.nl()
+    out.write("namespace BPMNModel.Model").nl()
+    out.write("{").nl()
+    out.inc()
+    out.write("public partial class Factory").nl()
+    out.write("{").nl()
+    out.inc()
+    print_factories(out, model.get_classes(), interfaces)
+    out.dec()
+    out.write("}").nl()
     out.dec()
     out.write("}").nl()
 
-
-def print_classes(out, classes):
+def print_factories(out, classes, interfaces):
+    n = len(classes)
+    if n == 0: return
+    out.write("#region Factories").nl()
+    for c in classes:
+        out.nl()
+        print_factory(out, c, interfaces)
+    out.write("#endregion").nl().nl()
+ 
+def print_classes(out, classes, interfaces):
     n = len(classes)
     if n == 0: return
 
     out.write("#region Classes (%d items)" % n).nl()
     for c in classes:
         out.nl()
-        print_Class(out, c)
+        print_Class(out, c, interfaces)
     out.write("#endregion").nl().nl()
 
 
@@ -37,45 +74,34 @@ def print_enumerations(out, enums):
         out.nl()
     out.write("#endregion").nl()
     
-
-def print_primitive_types(out, prim_types):
-    n = len(prim_types)
-    if n == 0: return
-
-    out.write("    (%d primitive types)" % n).nl().nl()
-    for c in prim_types:
-        print_PrimitiveType(out, c)
-    out.nl()
-
-
-def print_external_types(out, ext_types):
-    n = len(ext_types)
-    if n == 0: return
-
-    out.write("    (%d external types)" % n).nl().nl()
-    first = True
-    for c in ext_types:
-        if first:
-            first = False
-        else:
+def print_factory(out, c, interfaces):
+    assert isinstance(c, M_Class)
+    isInterface = c.name in interfaces
+    if isInterface == False and c.is_abstract == False:
+        out.write("public "+c.name+ " Create"+c.name+ "(XmlParserComplexNode node)").nl()
+        out.write("{").nl()
+        out.inc()
+        required = get_all_required_attributes(c, interfaces)
+        for (requiredName, requiredType) in required:
+            out.write("// required: " + requiredType+ " " + requiredName).nl()
+            out.write("var _"+requiredName+"Attribute = node.Attributes[\""+requiredName+"\"]?.ProcessedValue;").nl()
+            out.write("if (_"+requiredName+"Attribute is null) throw new BPMNCheckerExceptions($\"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : \"\")}) is missing required attribute "+requiredName+"\");").nl()
+            out.write(requiredType+" _"+requiredName+" = ("+requiredType+ ")_"+requiredName+"Attribute;").nl()
             out.nl()
-        print_external_type(out, c)
-    out.nl()
+        out.write("var result = new "+c.name+"("+ ", ".join(["_"+name for (name,_) in required])+ ");").nl()
 
+        non_required = get_all_non_required_attributes(c,interfaces)
+        for (optionalName, optionalType) in non_required:
+            out.write("// optional: "+optionalType + " "+ optionalName).nl()
+            out.write("var _"+optionalName+"Attribute = node.Attributes[\""+optionalName+"\"]?.ProcessedValue;").nl()
+            out.write("if (_"+optionalName+"Attribute is not null) result."+ optionalName.capitalize() +" = ("+optionalType+ ")_"+optionalName+"Attribute;").nl()
+            out.nl()
+        out.write("return result;").nl()
+        out.dec()
+        out.write("}").nl().nl()
 
-
-def print_Class(out, c):
-    #InteractionNode - no parent
-    #FlowElementsContainer (BaseElement) vs 
-    #   CallableElement (RootElement (BaseElement))
-    #   ChoreographyActivity (FlowNode (FlowElement (BaseElement)))
-    #   Collaboration (RootElement (BaseElement))
-    #   Activity (FlowNode (FlowElement (BaseElement)))
-    #ItemAwareElement (BaseElement) vs
-    #   FlowElement (BaseElement)
-    #   RootElement (BaseElement)
-    interfaces = ["InteractionNode", "FlowElementsContainer", "ItemAwareElement"] 
-
+def print_Class(out, c, interfaces):
+    
     assert isinstance(c, M_Class)
     out.write("public ")
     isInterface = c.name in interfaces
@@ -112,11 +138,13 @@ def print_Class(out, c):
         attributesForConstructor+=print_Attribute(out, attr,isInterface)
 
     if implementedInterface != None:
+        out.nl();
         out.write("#region Implementing: "+implementedInterface.name).nl()
         for attr in implementedInterface.attributes:
             attributesForConstructor+=print_Attribute(out, attr,False)
         out.write("#endregion").nl()
-
+        out.nl();
+    
     if not isInterface:
         baseParameters = []
         if parentClass != None:
@@ -139,7 +167,7 @@ def print_Class(out, c):
         for (name,type) in attributesForConstructor:
             out.write("this."+name.capitalize()+" = _" + name+";").nl()
         out.dec()
-        out.write("}").nl()
+        out.write("}").nl().nl()
     out.dec()
     out.write("}").nl()
 
@@ -149,7 +177,9 @@ def get_all_required_attributes(currentClass, interfaces):
     parentClasses = [sc for sc in currentClass.superclasses if not(sc.name in interfaces)]
     parentClass = parentClasses[0] if parentClasses else None
     if parentClass != None:
-        result += get_all_required_attributes(parentClass, interfaces)
+        result += get_all_required_attributes(parentClass, interfaces) 
+    elif len(currentClass.superclasses) > 0: 
+        result +=   [("id", "string")]    
     for attr in currentClass.attributes:
         assert isinstance(attr, M_Attribute)
         card = attr.cardinality
@@ -157,6 +187,23 @@ def get_all_required_attributes(currentClass, interfaces):
         if card.lower == 1 and card.upper==1:
             result.append((attr.name, print_csharp_type(attr.type)))
     return result
+
+def get_all_non_required_attributes(currentClass, interfaces):
+    assert isinstance(currentClass, M_Class)
+    result = []
+    parentClasses = [sc for sc in currentClass.superclasses if not(sc.name in interfaces)]
+    parentClass = parentClasses[0] if parentClasses else None
+    if parentClass != None:
+        result += get_all_non_required_attributes(parentClass, interfaces) 
+    for attr in currentClass.attributes:
+        assert isinstance(attr, M_Attribute)
+        card = attr.cardinality
+        assert isinstance(card, M_Cardinality)
+        if card.lower == 0 and card.upper==1:
+            result.append((attr.name, print_csharp_type(attr.type)))
+    return result
+
+
 
 def print_csharp_type(type):
     assert isinstance(type, M_Type)
@@ -208,38 +255,4 @@ def print_Enumeration(out, c):
         out.write(item.name).write(",").nl()
     out.dec()
     out.write("}").nl()
-
-
-def print_PrimitiveType(out, c):
-    out.write("primitive type " + c.name).nl()
-
-
-def print_external_type(out, c):
-    out.write("external " + type_kind_to_str(c.kind) + " " +
-              c.name + " {").nl()
-    out.inc()
-    out.write("href = " + repr(c.href)).nl()
-    out.dec()
-    out.write("}").nl()
-
-
-def type_kind_to_str(kind):
-    assert isinstance(kind, Type_Kind)
-
-    match kind:
-        case Type_Kind.Class:
-            return "class"
-
-        case Type_Kind.DataType:
-            return "datatype"
-
-        case Type_Kind.Enumeration:
-            return "enum"
-
-        case Type_Kind.PrimitiveType:
-            return "primitive type"
-
-        case _:
-            assert False
-
 
