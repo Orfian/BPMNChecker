@@ -262,7 +262,7 @@ def print_End (out, c, par):
     print_property_header(out, "End", c, par)
     out.nl()
     out.inc()
-    if c.association != par:
+    if c.association != par or c.owningAssociation != par:
         if (c.owningAssociation == c.association):
             out.write("association (= owningAssociation): " + repr(c.association)).nl()
         else:

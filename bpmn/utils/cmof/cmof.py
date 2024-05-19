@@ -42,6 +42,7 @@ def process_file(out, err, options, inp):
     print ("Building model...")
 
     model = cmof_model_builder.build_model(t, err)
+    print_opts = print_options_from_options(options)
 
     if options.print_csharp:
         cmof_print_csharp.print_model(r"D:\TACR\bpmnchecker\CSharpChecker\BPMNModel\model", model)
@@ -51,9 +52,9 @@ def process_file(out, err, options, inp):
         if pckg_name != "BPMN20":
             err.error("Listing of classes requires 'BPMN20', obtained " +
             repr(pckg_name) + ".")
-        list_classes.print_list(out, model)
+        list_classes.print_list(out, model, print_opts)
     else:
-        cmof_print_model.print_model(out, model)
+        cmof_print_model.print_model(out, model, print_opts)
 
 
 def read_xml(filename):
@@ -61,6 +62,11 @@ def read_xml(filename):
     return tree
 
 
+def print_options_from_options(options):
+    print_props = options.print_properties
+    print_assoc = options.print_associations
+    opts = cmof_print_model.create_print_options(print_props, print_assoc)
+    return opts
 
 
 class Options (object):
@@ -69,6 +75,8 @@ class Options (object):
         'filename',
         'print_raw',
         'print_parsed',
+        'print_properties',
+        'print_associations',
         'list_classes',
         'print_csharp'
     ]
@@ -77,6 +85,8 @@ class Options (object):
         self.filename = None
         self.print_raw = False
         self.print_parsed = False
+        self.print_properties = False
+        self.print_associations = False
         self.list_classes = False
         self.print_csharp = False
 
@@ -94,6 +104,10 @@ def parse_options(argv):
             opts.print_raw = True
         elif s == '-p':
             opts.print_parsed = True
+        elif s == '-a':
+            opts.print_associations = True
+        elif s == '-b':
+            opts.print_properties = True
         elif s == '-l':
             opts.list_classes = True
         elif s == '-csharp':
@@ -116,6 +130,8 @@ def usage():
     print ("   options:")
     print ("     -r         - print raw XML")
     print ("     -p         - print parsed CMOF")
+    print ("     -b         - display also properties of attributes")
+    print ("     -a         - display also associations")
     print ("     -l         - list of classes")
     print ("     -csharp    - print constructed model in C#")
     sys.exit(1)

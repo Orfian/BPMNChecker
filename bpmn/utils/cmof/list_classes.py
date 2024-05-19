@@ -3,38 +3,44 @@ import cmof_model, cmof_print_model
 import bpmn_classes_overview 
 
 
-def print_list(out, model):
+def print_list(out, model, opts):
     t = prepare_table(model)
     overview = bpmn_classes_overview.overview
 
     out.nl()
     for package in overview:
-        print_package(out, t, package)
+        print_package(out, t, package, opts)
 
     remaining = t.get_remaining()
-    print_remaining(out, remaining)
+    if len(remaining) > 0:
+        print_remaining(out, remaining, opts)
 
     out.write("=" * 78).nl()
 
 
-def print_package(out, t, package):
+def print_package(out, t, package, opts):
     out.write("=" * 78).nl()
     out.write("   " + package.get_name() + 
         "  (" + package.get_info() + ")").nl()
     out.write("=" * 78).nl().nl()
 
-    # out.inc()
-
     for name, info in package.get_types():
         c = t.find(name)
         assert not c.used
         c.used = True
-        c.print(out, info)
+        c.print(out, info, opts)
         # out.nl()
 
     out.nl()
 
-    # out.dec()
+
+def print_remaining(out, remaining, opts):
+    out.write("=" * 78).nl()
+    out.write("     REMAINING TYPES").nl()
+    out.write("=" * 78).nl()
+    out.nl()
+    for c in remaining:
+        c.print(out, None, opts)
 
 
 def print_type_name(out, s, name, info):
@@ -48,33 +54,22 @@ def print_type_name(out, s, name, info):
     out.write("  #" + "-" * 74).nl()
 
 
-def print_class(out, c, info):
+def print_class(out, c, info, opts):
     print_type_name(out, "class", c.get_name(), info)
     out.nl()
     out.inc()
-    cmof_print_model.print_Class(out, c.cl)
+    cmof_print_model.print_Class(out, c.cl, opts)
     out.dec()
     out.nl()
 
 
-def print_enum(out, e, info):
+def print_enum(out, e, info, opts):
     print_type_name(out, "enum", e.get_name(), info)
     out.nl()
     out.inc()
-    cmof_print_model.print_Enumeration(out, e.enum)
+    cmof_print_model.print_Enumeration(out, e.enum, opts)
     out.dec()
     out.nl()
-
-
-def print_remaining(out, remaining):
-    if len(remaining) == 0: return
-
-    out.write("=" * 78).nl()
-    out.write("     REMAINING TYPES").nl()
-    out.write("=" * 78).nl()
-    out.nl()
-    for c in remaining:
-        c.print(out, None)
 
 
 
@@ -143,8 +138,8 @@ class T_Class (T_Type):
     def get_name(self):
         return self.cl.name
 
-    def print(self, out, info):
-        print_class(out, self, info)
+    def print(self, out, info, opts):
+        print_class(out, self, info, opts)
 
 
 class T_Enum (T_Type):
@@ -158,6 +153,6 @@ class T_Enum (T_Type):
     def get_name(self):
         return self.enum.name
 
-    def print(self, out, info):
-        print_enum(out, self, info)
+    def print(self, out, info, opts):
+        print_enum(out, self, info, opts)
 

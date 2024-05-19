@@ -37,38 +37,31 @@ overview = [
          ( "Artifact"                       , "text str. 66; XSD str. 72"         ),
          ( "Association"                    , "attr. str. 68; XSD str. 72"        ),
          ( "AssociationDirection"           , "XSD str. 72"                       ),
+         ( "TextAnnotation"                 , "attr. str. 72; XSD str. 73"        ),
+         # ( "Text"                           , "není v obj. modelu; XSD str. 74"  ),
          ( "Group"                          , "attr. str. 70; XSD str. 73"        ),
          ( "Category"                       , "attr. str. 71; XSD str. 73"        ),
          ( "CategoryValue"                  , "attr. str. 71; XSD str. 73"        ),
-         ( "TextAnnotation"                 , "attr. str. 72; XSD str. 73"        ),
-         # ( "Text"                           , "není v obj. modelu; XSD str. 74"  ),
       ]),
 
     #=========================================================================
 
     Package ("Common", "8.3.2 - 8.3.13, 10.2.6", [
 
-         ( "CorrelationKey"                  , "attr. str. 77; XSD str. 79"       ),
-         ( "CorrelationProperty"             , "attr. str. 77; XSD str. 79-80"    ),
-         ( "CorrelationPropertyRetrievalExpression" , "attr. str. 78; XSD str. 80" ),
-         ( "CorrelationSubscription"         , "attr. str. 78; XSD str. 80"       ),
-         ( "CorrelationPropertyBinding"      , "attr. str. 79; XSD str. 80"       ),
-
-         ( "Error"                           , "attr. str. 82; XSD str. 100"      ),
-
-         ( "Escalation"                      , "attr. str. 83; XSD str. 100"      ),
+         ( "FlowElement"                     , "attr. str. 88; XSD str. 101"      ),
+         ( "FlowElementsContainer"           , "attr. str. 90; nemá XSD"          ),
+         ( "FlowNode"                        , "attr. str. 100; XSD str. 101"     ),
+         ( "SequenceFlow"                    , "attr. str. 99; XSD str. 103"      ),
 
          ( "Expression"                      , "text str. 85; XSD str. 100"       ),
          ( "FormalExpression"                , "attr str. 86; XSD str. 101"       ),
 
-         ( "FlowElement"                     , "attr. str. 88; XSD str. 101"      ),
-         ( "FlowNode"                        , "attr. str. 100; XSD str. 101"     ),
-         ( "SequenceFlow"                    , "attr. str. 99; XSD str. 103"      ),
-
-         ( "FlowElementsContainer"           , "attr. str. 90; nemá XSD"          ),
-
          ( "ItemDefinition"                  , "attr. str. 92; XSD str. 102"      ),
          ( "ItemKind"                        , "XSD str. 102"                     ),
+
+         ( "Error"                           , "attr. str. 82; XSD str. 100"      ),
+
+         ( "Escalation"                      , "attr. str. 83; XSD str. 100"      ),
 
          ( "Message"                         , "attr. str. 95; XSD str. 102"      ),
 
@@ -77,6 +70,13 @@ overview = [
 
          ( "CallableElement"                 , "attr. str. 187; XSD str. 197"     ),
          ( "InputOutputBinding"              , "attr. str. 187; XSD str. 102"     ),
+
+         ( "CorrelationKey"                  , "attr. str. 77; XSD str. 79"       ),
+         ( "CorrelationProperty"             , "attr. str. 77; XSD str. 79-80"    ),
+         ( "CorrelationPropertyRetrievalExpression" , "attr. str. 78; XSD str. 80" ),
+         ( "CorrelationSubscription"         , "attr. str. 78; XSD str. 80"       ),
+         ( "CorrelationPropertyBinding"      , "attr. str. 79; XSD str. 80"       ),
+
       ]),
 
     #=========================================================================
@@ -84,8 +84,8 @@ overview = [
     Package( "Service", "8.4", [
 
          ( "Interface"                       , "attr. str. 105; XSD str. 106"     ),
-         ( "EndPoint"                        , "attr. str. 105; XSD str. 107"     ),
          ( "Operation"                       , "attr. str. 106; XSD str. 106"     ),
+         ( "EndPoint"                        , "attr. str. 105; XSD str. 107"     ),
       ]),
 
     #=========================================================================
@@ -265,7 +265,7 @@ overview = [
          ( "ChoreographyLoopType"            , "XSD str. 365"                     ),
          ( "ChoreographyTask"                , "attr. str. 328; XSD str. 365"     ),
          ( "SubChoreography"                 , "attr. str. 332; XSD str. 366"     ),
-         ( "CallChoreography"                , "attr. str. 335 ; XSD str. 366"    ),
+         ( "CallChoreography"                , "attr. str. 335; XSD str. 366"     ),
       ]),
 
     #=========================================================================
