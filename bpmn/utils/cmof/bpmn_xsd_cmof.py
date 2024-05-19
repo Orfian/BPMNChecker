@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import xsd_parser, xsd_print_parsed, xsd_builder, xsd_print_model, \
-       cmof_parser, cmof_model_builder, cmof_print_model
+       cmof_parser, cmof_model_builder, cmof_print_model, \
+       find_matching, print_matching
+
 from utils import Output, ErrOutput
 
 import sys
@@ -33,6 +35,9 @@ def do_work(options):
     if options.print_cmof:
         cmof_print_model.print_model(out, cmof_model, print_opts)
         return
+
+    matching = find_matching.match_all(xsd_model, cmof_model, err)
+    print_matching.print_xsd_cmof_matching(out, matching)
 
 
 

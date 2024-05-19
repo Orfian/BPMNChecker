@@ -16,6 +16,7 @@ class XSD_Model (object):
 class XSD_Class (object):
 
     __slots__ = [
+        'cmof_class',
         'element_name',
         'type_name',
         'substitutionGroup',

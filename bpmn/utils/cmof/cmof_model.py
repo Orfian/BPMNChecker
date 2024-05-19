@@ -50,6 +50,7 @@ class M_Type(object):
 class M_Class(M_Type):
 
     __slots__ = [
+        'xsd_class',
         'is_abstract',
         'superclasses',
         'attributes'
