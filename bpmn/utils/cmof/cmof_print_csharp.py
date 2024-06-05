@@ -2,30 +2,184 @@
 from cmof_model import *
 from utils import Output
 
-def print_model(path, model):
-    #InteractionNode - no parent
-    #FlowElementsContainer (BaseElement) vs 
+extracted = {
+	"Activity": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"AdHocSubProcess": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "triggeredByEvent", "cancelRemainingInstances", "ordering"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "laneSet", "flowElement", "artifact", "completionCondition"]),
+	"Artifact": ([], ["id"], ["documentation", "extensionElements"]),
+	"Assignment": ([], ["id"], ["documentation", "extensionElements", "from", "to"]),
+	"Association": (["sourceRef", "targetRef"], ["id", "associationDirection"], ["documentation", "extensionElements"]),
+	"Auditing": ([], ["id"], ["documentation", "extensionElements"]),
+	"BaseElement": ([], ["id"], ["documentation", "extensionElements"]),
+	"BaseElementWithMixedContent": ([], ["id"], ["documentation", "extensionElements"]),
+	"BoundaryEvent": (["attachedToRef"], ["id", "name", "parallelMultiple", "cancelActivity"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataOutput", "dataOutputAssociation", "outputSet", "eventDefinition", "eventDefinitionRef"]),
+	"BusinessRuleTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "implementation"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"CallableElement": ([], ["id", "name"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding"]),
+	"CallActivity": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "calledElement"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"CallChoreography": (["initiatingParticipantRef"], ["id", "name", "loopType", "calledChoreographyRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "participantRef", "correlationKey", "participantAssociation"]),
+	"CallConversation": ([], ["id", "name", "calledCollaborationRef"], ["documentation", "extensionElements", "participantRef", "messageFlowRef", "correlationKey", "participantAssociation"]),
+	"CancelEventDefinition": ([], ["id"], ["documentation", "extensionElements"]),
+	"CatchEvent": ([], ["id", "name", "parallelMultiple"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataOutput", "dataOutputAssociation", "outputSet", "eventDefinition", "eventDefinitionRef"]),
+	"Category": ([], ["id", "name"], ["documentation", "extensionElements", "categoryValue"]),
+	"CategoryValue": ([], ["id", "value"], ["documentation", "extensionElements"]),
+	"Choreography": ([], ["id", "name", "isClosed"], ["documentation", "extensionElements", "participant", "messageFlow", "artifact", "conversationNode", "conversationAssociation", "participantAssociation", "messageFlowAssociation", "correlationKey", "choreographyRef", "conversationLink", "flowElement"]),
+	"ChoreographyActivity": (["initiatingParticipantRef"], ["id", "name", "loopType"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "participantRef", "correlationKey"]),
+	"ChoreographyTask": (["initiatingParticipantRef"], ["id", "name", "loopType"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "participantRef", "correlationKey", "messageFlowRef"]),
+	"Collaboration": ([], ["id", "name", "isClosed"], ["documentation", "extensionElements", "participant", "messageFlow", "artifact", "conversationNode", "conversationAssociation", "participantAssociation", "messageFlowAssociation", "correlationKey", "choreographyRef", "conversationLink"]),
+	"CompensateEventDefinition": ([], ["id", "waitForCompletion", "activityRef"], ["documentation", "extensionElements"]),
+	"ComplexBehaviorDefinition": ([], ["id"], ["documentation", "extensionElements", "condition", "event"]),
+	"ComplexGateway": ([], ["id", "name", "gatewayDirection", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "activationCondition"]),
+	"ConditionalEventDefinition": ([], ["id"], ["documentation", "extensionElements", "condition"]),
+	"Conversation": ([], ["id", "name"], ["documentation", "extensionElements", "participantRef", "messageFlowRef", "correlationKey"]),
+	"ConversationAssociation": (["innerConversationNodeRef", "outerConversationNodeRef"], ["id"], ["documentation", "extensionElements"]),
+	"ConversationLink": (["sourceRef", "targetRef"], ["id", "name"], ["documentation", "extensionElements"]),
+	"ConversationNode": ([], ["id", "name"], ["documentation", "extensionElements", "participantRef", "messageFlowRef", "correlationKey"]),
+	"CorrelationKey": ([], ["id", "name"], ["documentation", "extensionElements", "correlationPropertyRef"]),
+	"CorrelationProperty": ([], ["id", "name", "type"], ["documentation", "extensionElements", "correlationPropertyRetrievalExpression"]),
+	"CorrelationPropertyBinding": (["correlationPropertyRef"], ["id"], ["documentation", "extensionElements", "dataPath"]),
+	"CorrelationPropertyRetrievalExpression": (["messageRef"], ["id"], ["documentation", "extensionElements", "messagePath"]),
+	"CorrelationSubscription": (["correlationKeyRef"], ["id"], ["documentation", "extensionElements", "correlationPropertyBinding"]),
+	"DataAssociation": ([], ["id"], ["documentation", "extensionElements", "sourceRef", "targetRef", "transformation", "assignment"]),
+	"DataInput": ([], ["id", "name", "itemSubjectRef", "isCollection"], ["documentation", "extensionElements", "dataState"]),
+	"DataInputAssociation": ([], ["id"], ["documentation", "extensionElements", "sourceRef", "targetRef", "transformation", "assignment"]),
+	"DataObject": ([], ["id", "name", "itemSubjectRef", "isCollection"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "dataState"]),
+	"DataObjectReference": ([], ["id", "name", "itemSubjectRef", "dataObjectRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "dataState"]),
+	"DataOutput": ([], ["id", "name", "itemSubjectRef", "isCollection"], ["documentation", "extensionElements", "dataState"]),
+	"DataOutputAssociation": ([], ["id"], ["documentation", "extensionElements", "sourceRef", "targetRef", "transformation", "assignment"]),
+	"DataState": ([], ["id", "name"], ["documentation", "extensionElements"]),
+	"DataStore": ([], ["id", "name", "capacity", "isUnlimited", "itemSubjectRef"], ["documentation", "extensionElements", "dataState"]),
+	"DataStoreReference": ([], ["id", "name", "itemSubjectRef", "dataStoreRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "dataState"]),
+	"Documentation": ([], ["id", "textFormat"], ["any"]),
+	"EndEvent": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataInput", "dataInputAssociation", "inputSet", "eventDefinition", "eventDefinitionRef"]),
+	"EndPoint": ([], ["id"], ["documentation", "extensionElements"]),
+	"Error": ([], ["id", "name", "errorCode", "structureRef"], ["documentation", "extensionElements"]),
+	"ErrorEventDefinition": ([], ["id", "errorRef"], ["documentation", "extensionElements"]),
+	"Escalation": ([], ["id", "name", "escalationCode", "structureRef"], ["documentation", "extensionElements"]),
+	"EscalationEventDefinition": ([], ["id", "escalationRef"], ["documentation", "extensionElements"]),
+	"Event": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property"]),
+	"EventBasedGateway": ([], ["id", "name", "gatewayDirection", "instantiate", "eventGatewayType"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
+	"EventDefinition": ([], ["id"], ["documentation", "extensionElements"]),
+	"ExclusiveGateway": ([], ["id", "name", "gatewayDirection", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
+	"Expression": ([], ["id"], ["documentation", "extensionElements"]),
+	"Extension": ([], ["definition", "mustUnderstand"], ["documentation"]),
+	"ExtensionElements": ([], [], ["any"]),
+	"FlowElement": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef"]),
+	"FlowNode": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
+	"FormalExpression": ([], ["id", "language", "evaluatesToTypeRef"], ["documentation", "extensionElements"]),
+	"Gateway": ([], ["id", "name", "gatewayDirection"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
+	"GlobalBusinessRuleTask": ([], ["id", "name", "implementation"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "resourceRole"]),
+	"GlobalChoreographyTask": ([], ["id", "name", "isClosed", "initiatingParticipantRef"], ["documentation", "extensionElements", "participant", "messageFlow", "artifact", "conversationNode", "conversationAssociation", "participantAssociation", "messageFlowAssociation", "correlationKey", "choreographyRef", "conversationLink", "flowElement"]),
+	"GlobalConversation": ([], ["id", "name", "isClosed"], ["documentation", "extensionElements", "participant", "messageFlow", "artifact", "conversationNode", "conversationAssociation", "participantAssociation", "messageFlowAssociation", "correlationKey", "choreographyRef", "conversationLink"]),
+	"GlobalManualTask": ([], ["id", "name"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "resourceRole"]),
+	"GlobalScriptTask": ([], ["id", "name", "scriptLanguage"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "resourceRole", "script"]),
+	"GlobalTask": ([], ["id", "name"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "resourceRole"]),
+	"GlobalUserTask": ([], ["id", "name", "implementation"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "resourceRole", "rendering"]),
+	"Group": ([], ["id", "categoryValueRef"], ["documentation", "extensionElements"]),
+	"HumanPerformer": ([], ["id", "name"], ["documentation", "extensionElements", "resourceRef", "resourceParameterBinding", "resourceAssignmentExpression"]),
+	"ImplicitThrowEvent": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataInput", "dataInputAssociation", "inputSet", "eventDefinition", "eventDefinitionRef"]),
+	"InclusiveGateway": ([], ["id", "name", "gatewayDirection", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
+	"InputSet": ([], ["id", "name"], ["documentation", "extensionElements", "dataInputRefs", "optionalInputRefs", "whileExecutingInputRefs", "outputSetRefs"]),
+	"Interface": (["name"], ["id", "implementationRef"], ["documentation", "extensionElements", "operation"]),
+	"IntermediateCatchEvent": ([], ["id", "name", "parallelMultiple"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataOutput", "dataOutputAssociation", "outputSet", "eventDefinition", "eventDefinitionRef"]),
+	"IntermediateThrowEvent": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataInput", "dataInputAssociation", "inputSet", "eventDefinition", "eventDefinitionRef"]),
+	"InputOutputBinding": (["operationRef", "inputDataRef", "outputDataRef"], ["id"], ["documentation", "extensionElements"]),
+	"InputOutputSpecification": ([], ["id"], ["documentation", "extensionElements", "dataInput", "dataOutput", "inputSet", "outputSet"]),
+	"ItemDefinition": ([], ["id", "structureRef", "isCollection", "itemKind"], ["documentation", "extensionElements"]),
+	"Lane": ([], ["id", "name", "partitionElementRef"], ["documentation", "extensionElements", "partitionElement", "flowNodeRef", "childLaneSet"]),
+	"LaneSet": ([], ["id", "name"], ["documentation", "extensionElements", "lane"]),
+	"LinkEventDefinition": (["name"], ["id"], ["documentation", "extensionElements", "source", "target"]),
+	"LoopCharacteristics": ([], ["id"], ["documentation", "extensionElements"]),
+	"ManualTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"Message": ([], ["id", "name", "itemRef"], ["documentation", "extensionElements"]),
+	"MessageEventDefinition": ([], ["id", "messageRef"], ["documentation", "extensionElements", "operationRef"]),
+	"MessageFlow": (["sourceRef", "targetRef"], ["id", "name", "messageRef"], ["documentation", "extensionElements"]),
+	"MessageFlowAssociation": (["innerMessageFlowRef", "outerMessageFlowRef"], ["id"], ["documentation", "extensionElements"]),
+	"Monitoring": ([], ["id"], ["documentation", "extensionElements"]),
+	"MultiInstanceLoopCharacteristics": ([], ["id", "isSequential", "behavior", "oneBehaviorEventRef", "noneBehaviorEventRef"], ["documentation", "extensionElements", "loopCardinality", "loopDataInputRef", "loopDataOutputRef", "inputDataItem", "outputDataItem", "complexBehaviorDefinition", "completionCondition"]),
+	"Operation": (["name"], ["id", "implementationRef"], ["documentation", "extensionElements", "inMessageRef", "outMessageRef", "errorRef"]),
+	"OutputSet": ([], ["id", "name"], ["documentation", "extensionElements", "dataOutputRefs", "optionalOutputRefs", "whileExecutingOutputRefs", "inputSetRefs"]),
+	"ParallelGateway": ([], ["id", "name", "gatewayDirection"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
+	"Participant": ([], ["id", "name", "processRef"], ["documentation", "extensionElements", "interfaceRef", "endPointRef", "participantMultiplicity"]),
+	"ParticipantAssociation": ([], ["id"], ["documentation", "extensionElements", "innerParticipantRef", "outerParticipantRef"]),
+	"ParticipantMultiplicity": ([], ["id", "minimum", "maximum"], ["documentation", "extensionElements"]),
+	"PartnerEntity": ([], ["id", "name"], ["documentation", "extensionElements", "participantRef"]),
+	"PartnerRole": ([], ["id", "name"], ["documentation", "extensionElements", "participantRef"]),
+	"Performer": ([], ["id", "name"], ["documentation", "extensionElements", "resourceRef", "resourceParameterBinding", "resourceAssignmentExpression"]),
+	"PotentialOwner": ([], ["id", "name"], ["documentation", "extensionElements", "resourceRef", "resourceParameterBinding", "resourceAssignmentExpression"]),
+	"Process": ([], ["id", "name", "processType", "isClosed", "isExecutable", "definitionalCollaborationRef"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "auditing", "monitoring", "property", "laneSet", "flowElement", "artifact", "resourceRole", "correlationSubscription", "supports"]),
+	"Property": ([], ["id", "name", "itemSubjectRef"], ["documentation", "extensionElements", "dataState"]),
+	"ReceiveTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "implementation", "instantiate", "messageRef", "operationRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"Relationship": (["type"], ["id", "direction"], ["documentation", "extensionElements", "source", "target"]),
+	"Rendering": ([], ["id"], ["documentation", "extensionElements"]),
+	"Resource": (["name"], ["id"], ["documentation", "extensionElements", "resourceParameter"]),
+	"ResourceAssignmentExpression": ([], ["id"], ["documentation", "extensionElements", "expression"]),
+	"ResourceParameter": ([], ["id", "name", "type", "isRequired"], ["documentation", "extensionElements"]),
+	"ResourceParameterBinding": (["parameterRef"], ["id"], ["documentation", "extensionElements", "expression"]),
+	"ResourceRole": ([], ["id", "name"], ["documentation", "extensionElements", "resourceRef", "resourceParameterBinding", "resourceAssignmentExpression"]),
+	"RootElement": ([], ["id"], ["documentation", "extensionElements"]),
+	"ScriptTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "scriptFormat"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "script"]),
+	"Script": ([], [], ["any"]),
+	"SendTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "implementation", "messageRef", "operationRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"SequenceFlow": (["sourceRef", "targetRef"], ["id", "name", "isImmediate"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "conditionExpression"]),
+	"ServiceTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "implementation", "operationRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"Signal": ([], ["id", "name", "structureRef"], ["documentation", "extensionElements"]),
+	"SignalEventDefinition": ([], ["id", "signalRef"], ["documentation", "extensionElements"]),
+	"StandardLoopCharacteristics": ([], ["id", "testBefore", "loopMaximum"], ["documentation", "extensionElements", "loopCondition"]),
+	"StartEvent": ([], ["id", "name", "parallelMultiple", "isInterrupting"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataOutput", "dataOutputAssociation", "outputSet", "eventDefinition", "eventDefinitionRef"]),
+	"SubChoreography": (["initiatingParticipantRef"], ["id", "name", "loopType"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "participantRef", "correlationKey", "flowElement", "artifact"]),
+	"SubConversation": ([], ["id", "name"], ["documentation", "extensionElements", "participantRef", "messageFlowRef", "correlationKey", "conversationNode"]),
+	"SubProcess": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "triggeredByEvent"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "laneSet", "flowElement", "artifact"]),
+	"Task": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"TerminateEventDefinition": ([], ["id"], ["documentation", "extensionElements"]),
+	"TextAnnotation": ([], ["id", "textFormat"], ["documentation", "extensionElements", "text"]),
+	"Text": ([], [], ["any"]),
+	"ThrowEvent": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataInput", "dataInputAssociation", "inputSet", "eventDefinition", "eventDefinitionRef"]),
+	"TimerEventDefinition": ([], ["id"], ["documentation", "extensionElements", "timeDate", "timeDuration", "timeCycle"]),
+	"Transaction": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "triggeredByEvent", "method"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "laneSet", "flowElement", "artifact"]),
+	"UserTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "implementation"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "rendering"]),
+	"Definitions": (["targetNamespace"], ["id", "name", "expressionLanguage", "typeLanguage", "exporter", "exporterVersion"], ["import", "extension", "rootElement", "relationship"]),
+	"Import": (["namespace", "location", "importType"], [], []),
+	}
+
+#InteractionNode - no parent
+#FlowElementsContainer (BaseElement) vs 
     #   CallableElement (RootElement (BaseElement))
     #   ChoreographyActivity (FlowNode (FlowElement (BaseElement)))
     #   Collaboration (RootElement (BaseElement))
     #   Activity (FlowNode (FlowElement (BaseElement)))
-    #ItemAwareElement (BaseElement) vs
+#ItemAwareElement (BaseElement) vs
     #   FlowElement (BaseElement)
     #   RootElement (BaseElement)
-    interfaces = ["InteractionNode", "FlowElementsContainer", "ItemAwareElement"] 
+interfaces = ["InteractionNode", "FlowElementsContainer", "ItemAwareElement"] 
 
+enumNames = []
 
+def capitalize_first_letter(s):
+    if not s:
+        return s
+    return s[0].upper() + s[1:]
+
+def print_model(path, model):
+   
     print(path)
     classFile = path + r"\File.cs"
     out = Output(open(classFile, "w"))
     assert isinstance(model, M_Model)
+
+    mappings = build_mapping(model.get_classes())
+    # for key,(fromXMLtoCMOF, fromCMOFtoXML) in mappings.items():
+    #     print(key)
+    #     for xmlAtt, cmofAtt in fromXMLtoCMOF.items():
+    #         print ("\tXML: "+xmlAtt+" -> "+cmofAtt)
+    #     for cmofAtt, xmlAtt in fromCMOFtoXML.items():
+    #         print ("\tCMOF: "+cmofAtt+" -> "+xmlAtt)
+    #     print()
+
     #out.write("using Serilog;").nl()
     #out.nl()
     out.write("namespace BPMNModel.Model").nl()
     out.write("{").nl()
     out.inc()
-
-    print_classes(out, model.get_classes(), interfaces)
+    print_classes(out, model.get_classes(), mappings)
     print_enumerations(out, model.get_enumerations())
     out.dec()
     out.write("}").nl()
@@ -39,29 +193,56 @@ def print_model(path, model):
     out.write("public partial class Factory").nl()
     out.write("{").nl()
     out.inc()
-    print_factories(out, model.get_classes(), interfaces)
+    print_factories(out, model.get_classes(), mappings)
     out.dec()
     out.write("}").nl()
     out.dec()
     out.write("}").nl()
 
-def print_factories(out, classes, interfaces):
+def build_mapping(classes):
+    n = len(classes)
+    if n == 0: return
+    result = {}
+    for c in classes:
+        fromXMLtoCMOF = {}
+        fromCMOFtoXML = {}
+        assert isinstance(c, M_Class)
+        if not c.name in extracted:
+            continue;
+        (reqiredFromXSD, optionalFormXSD, elementsFromXSD) = extracted[c.name]
+        allCMOFAtributes = get_all_attributes_names(c)
+        allXMLAttributes = reqiredFromXSD+optionalFormXSD+elementsFromXSD
+        #print(c.name + " : "+ ("" if parentClass is None else parentClass) + " , " + ("" if implementedInterface is None else implementedInterface.name))
+        #print("\t"+ ", ".join(allXMLAttributes))
+        #print("\t"+", ".join(allCMOFAtributes))
+        for xmlAtt in allXMLAttributes:
+            matches = [cmofAtt for cmofAtt in allCMOFAtributes if remove_trailing_s(xmlAtt) == remove_trailing_s(cmofAtt)]
+            if len(matches) == 1 :
+                fromXMLtoCMOF[xmlAtt] = matches[0]
+                fromCMOFtoXML[matches[0]] = xmlAtt
+                allCMOFAtributes.remove(matches[0])
+            else:
+                assert len(matches) == 0
+        result[c.name] = (fromXMLtoCMOF, fromCMOFtoXML)
+    return result
+
+
+def print_factories(out, classes, mappings):
     n = len(classes)
     if n == 0: return
     out.write("#region Factories").nl()
     for c in classes:
         out.nl()
-        print_factory(out, c, interfaces)
+        print_factory(out, c, mappings)
     out.write("#endregion").nl().nl()
  
-def print_classes(out, classes, interfaces):
+def print_classes(out, classes, mapping):
     n = len(classes)
     if n == 0: return
-
     out.write("#region Classes (%d items)" % n).nl()
     for c in classes:
         out.nl()
-        print_Class(out, c, interfaces)
+        print_Class(out, c, mapping)
     out.write("#endregion").nl().nl()
 
 
@@ -74,35 +255,124 @@ def print_enumerations(out, enums):
         out.nl()
     out.write("#endregion").nl()
     
-def print_factory(out, c, interfaces):
+def get_arity(l, h):
+    result = " ("+str(l)+", "
+    if h < 0:
+        return result + "*)"
+    else:
+        return result + str(h) + ")"
+
+def print_factory(out, c, mappings):
     assert isinstance(c, M_Class)
     isInterface = c.name in interfaces
-    if isInterface == False and c.is_abstract == False:
+    if isInterface == False and c.is_abstract == False and c.name in extracted:
         out.write("public "+c.name+ " Create"+c.name+ "(XmlParserComplexNode node)").nl()
         out.write("{").nl()
         out.inc()
-        required = get_all_required_attributes(c, interfaces)
-        for (requiredName, requiredType) in required:
-            out.write("// required: " + requiredType+ " " + requiredName).nl()
-            out.write("var _"+requiredName+"Attribute = node.Attributes[\""+requiredName+"\"]?.ProcessedValue;").nl()
-            out.write("if (_"+requiredName+"Attribute is null) throw new BPMNCheckerExceptions($\"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : \"\")}) is missing required attribute "+requiredName+"\");").nl()
-            out.write(requiredType+" _"+requiredName+" = ("+requiredType+ ")_"+requiredName+"Attribute;").nl()
-            out.nl()
-        out.write("var result = new "+c.name+"("+ ", ".join(["_"+name for (name,_) in required])+ ");").nl()
+        (requiredXmlNames, optionalXmlNames, elementXmlNames) = extracted[c.name]
+        allAttributes = get_all_attributes_with_Xml_names(c, mappings)
+        
+        processed = []
+        processedXML = []
+        for (requiredName, (requiredType, requiredXMLName,l,h)) in allAttributes.items():
+            if requiredXMLName in requiredXmlNames:
+                assert l <= 1 and l>=0 and h <= 1 and h >=0
+                out.write("// required: " + requiredXMLName + " -> " + requiredType+ " " + requiredName + get_arity(l,h)).nl()
+                out.write("var _"+requiredName+"Attribute = node.Attributes[\""+requiredXMLName+"\"]?.ProcessedValue;").nl()
+                out.write("if (_"+requiredName+"Attribute is null) throw new BPMNCheckerExceptions($\"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : \"\")}) is missing required attribute "+requiredXMLName+"\");").nl()
+                if requiredType == "string" or requiredType == "int" or requiredType == "bool":
+                    out.write(requiredType+" _"+requiredName+" = ("+requiredType+ ")_"+requiredName+"Attribute;").nl()
+                elif requiredType in enumNames:
+                    out.write("TODO: XXX").nl()
+                else:
+                    out.write(requiredType+" _"+requiredName+" = Create<"+requiredType+ ">((XmlParserComplexNode)_"+requiredName+"Attribute);").nl()
+                out.nl()
+                processed.append(requiredName)
+                processedXML.append(requiredXMLName)
 
-        non_required = get_all_non_required_attributes(c,interfaces)
-        for (optionalName, optionalType) in non_required:
-            out.write("// optional: "+optionalType + " "+ optionalName).nl()
-            out.write("var _"+optionalName+"Attribute = node.Attributes[\""+optionalName+"\"]?.ProcessedValue;").nl()
-            out.write("if (_"+optionalName+"Attribute is not null) result."+ optionalName.capitalize() +" = ("+optionalType+ ")_"+optionalName+"Attribute;").nl()
-            out.nl()
+        out.write("var result = new "+c.name+"("+ ", ".join(["_"+name for name in processed])+ ");").nl()
+        out.nl()
+
+        for (optionalName, (optionalType, optionalXmlName, l, h)) in allAttributes.items():
+            if optionalXmlName in optionalXmlNames:
+                assert l <= 1 and l>=0 and h <= 1 and h >=0
+                out.write("// optional: "+ optionalXmlName + " -> " +optionalType + " "+ optionalName + get_arity(l,h)).nl()
+                out.write("var _"+optionalName+"Attribute = node.Attributes.ContainsKey(\"" + optionalXmlName +"\") ? node.Attributes[\""+optionalXmlName+"\"].ProcessedValue : null;").nl()
+                out.write("if (_"+optionalName+"Attribute is not null) ")
+                if optionalType == "string" or optionalType == "int" or optionalType == "bool":
+                    out.write("result."+ capitalize_first_letter(optionalName) +" = ("+optionalType+ ")_"+optionalName+"Attribute;").nl()
+                elif optionalType in enumNames:
+                    out.write("result."+ capitalize_first_letter(optionalName) +" = CreateEnum<"+optionalType+ ">((string)_"+optionalName+"Attribute);").nl()
+                else:
+                    out.write("result."+ capitalize_first_letter(optionalName) +" = Create<"+optionalType+ ">((XmlParserComplexNode)_"+optionalName+"Attribute);").nl()   
+                out.nl()
+                processed.append(optionalName)
+                processedXML.append(optionalXmlName)
+
+        for (elementName, (elementType, elementXmlName, l, h)) in allAttributes.items():
+            if elementXmlName in elementXmlNames:
+                out.write("// element: "+ elementXmlName + " -> " +elementType + " "+ elementName + get_arity(l,h)).nl()
+                if h == 1:
+                    out.write("result." + capitalize_first_letter(elementName) + " = CreateElement<")
+                    out.write(elementType)
+                    out.write(">(node.ChildNodes[\"" + elementXmlName + "\"]);").nl()
+                    out.nl()
+                else:
+                    out.write("FillElements(node.ChildNodes[\"" + elementXmlName + "\"], result.")
+                    out.write(capitalize_first_letter(elementName))
+                    out.write(");").nl()
+                    out.nl()
+
+                processed.append(elementName)
+                processedXML.append(elementXmlName)
+
+        out.nl()
+
+        for (itemName, (itemType, itemXmlName,l, h)) in allAttributes.items():
+            #TODO: Solve known attributes
+            if itemName not in processed + ["diagrams", "extensionValues", "extensionDefinitions", "documentation"]:
+                out.write("// Link back: "+ itemType + " "+ itemName + " ( " +str(l) + ","+str(h)+") ")
+                if itemXmlName is None:
+                    out.write("None")
+                else: 
+                    out.write(itemXmlName)
+                out.nl()
+
+        for  xmlName in requiredXmlNames + optionalXmlNames + elementXmlNames:
+            #TODO: Solve known attributes
+            if xmlName not in processedXML + [ "extensionElements", "id", "any"]:
+                out.write("// not attached: "+ xmlName).nl()
         out.write("return result;").nl()
         out.dec()
         out.write("}").nl().nl()
 
-def print_Class(out, c, interfaces):
-    
+def remove_trailing_s(string):
+    if string == "calledElementRef":
+        return "calledElement"
+    if string.lower().endswith('node'):
+        return string[:-4]
+    if string.lower().endswith('nodes'):
+        return string[:-5]
+    if string.lower().endswith('role'):
+        return string[:-4]
+    if string.lower()=="resources":
+        return "resource"
+    if string.lower()=="properties":
+        return "property"
+    if string.lower().endswith('s'):
+        return string[:-1]
+    return string
+
+def print_Class(out, c, mappings):
     assert isinstance(c, M_Class)
+    mapping = None
+    if c.name in mappings:    
+        (mapping, _) = mappings[c.name]
+    requiredXMLnames = []
+    if c.name in extracted and mapping is not None:
+        (originalRequired,_,_) = extracted[c.name]
+        requiredXMLnames = [name for name in originalRequired]
+
     out.write("public ")
     isInterface = c.name in interfaces
     if isInterface:
@@ -132,26 +402,34 @@ def print_Class(out, c, interfaces):
     out.nl()
     out.write("{").nl()
     out.inc()
-    
+
+    if implementedInterface is None and parentClass is None :
+        print(c.name)
+
     attributesForConstructor = []
     for attr in c.attributes:
-        attributesForConstructor+=print_Attribute(out, attr,isInterface)
+        required = False
+        if mapping is not None and attr.name in mapping:
+            required = mapping[attr.name] in requiredXMLnames
+        attributesForConstructor+=print_Attribute(out, attr,isInterface, required)
 
     if implementedInterface != None:
         out.nl();
         out.write("#region Implementing: "+implementedInterface.name).nl()
         for attr in implementedInterface.attributes:
-            attributesForConstructor+=print_Attribute(out, attr,False)
+            required = False
+            if mapping is not None and attr.name in mapping:
+                required = mapping[attr.name] in requiredXMLnames
+            attributesForConstructor+=print_Attribute(out, attr,False, required)
         out.write("#endregion").nl()
         out.nl();
     
     if not isInterface:
         baseParameters = []
         if parentClass != None:
-            baseParameters = get_all_required_attributes(parentClass, interfaces)
-        elif implementedInterface != None:
-            baseParameters = [("id", "string")]    
-
+            allAttributes = get_all_attributes_with_Xml_names(parentClass, mappings)
+            baseParameters = [(name, type) for (name, (type, xmlName, _, _)) in allAttributes.items() if xmlName in requiredXMLnames]
+        
         out.write("public "+c.name+"(")
         realParameters =  baseParameters + attributesForConstructor
         if len(realParameters)>0:
@@ -165,43 +443,131 @@ def print_Class(out, c, interfaces):
         out.write("{").nl()
         out.inc()
         for (name,type) in attributesForConstructor:
-            out.write("this."+name.capitalize()+" = _" + name+";").nl()
+            out.write("this."+capitalize_first_letter(name)+" = _" + name+";").nl()
         out.dec()
         out.write("}").nl().nl()
     out.dec()
     out.write("}").nl()
 
-def get_all_required_attributes(currentClass, interfaces):
+# def get_all_attributes_with_mapping(currentClass, mappings):
+#     assert isinstance(currentClass, M_Class)
+#     result = []
+#     if currentClass not in interfaces:
+#         parentClasses = [sc for sc in currentClass.superclasses]
+#         for parentClass in parentClasses:
+#             result += get_all_attributes_with_mapping(parentClass, mappings) 
+#     if currentClass.name in mappings:    
+#         (fromXmlToCmof, fromCmofToXml) = mappings[currentClass.name]
+#     attributesWithMapping = []
+#     if currentClass.name in extracted and fromXmlToCmof is not None:
+#         (originalRequired,originalOptional,originalElements) = extracted[currentClass.name]
+#         for name in originalRequired + originalOptional + originalElements:
+#             if name in fromXmlToCmof:
+#                 attributesWithMapping.append(fromXmlToCmof[name])
+#             #elif name == "id" and "id" not in optional :
+#             #    optional.append("id")
+#     for attr in currentClass.attributes:
+#         if attr.name in attributesWithMapping:
+#             card = attr.cardinality
+#             assert isinstance(card, M_Cardinality)
+#             lower = card.lower
+#             upper = card.upper
+#             result.append((attr.name, print_csharp_type(attr.type), fromCmofToXml[attr.name], lower, upper))
+#     print("Solving " + currentClass.name)            
+#     print(result)
+#     return result
+
+
+def get_all_attributes_names(currentClass):
     assert isinstance(currentClass, M_Class)
     result = []
-    parentClasses = [sc for sc in currentClass.superclasses if not(sc.name in interfaces)]
-    parentClass = parentClasses[0] if parentClasses else None
-    if parentClass != None:
-        result += get_all_required_attributes(parentClass, interfaces) 
-    elif len(currentClass.superclasses) > 0: 
-        result +=   [("id", "string")]    
+    parentClasses = [sc for sc in currentClass.superclasses]
+    for parentClass in parentClasses:
+        parentResult = get_all_attributes_names(parentClass) 
+        for newAttributeName in parentResult:
+            if newAttributeName not in result:
+                result.append(newAttributeName)
+
     for attr in currentClass.attributes:
-        assert isinstance(attr, M_Attribute)
-        card = attr.cardinality
-        assert isinstance(card, M_Cardinality)
-        if card.lower == 1 and card.upper==1:
-            result.append((attr.name, print_csharp_type(attr.type)))
+        if attr.name not in result:
+            result.append(attr.name)
     return result
 
-def get_all_non_required_attributes(currentClass, interfaces):
+def get_all_attributes(currentClass):
     assert isinstance(currentClass, M_Class)
-    result = []
-    parentClasses = [sc for sc in currentClass.superclasses if not(sc.name in interfaces)]
-    parentClass = parentClasses[0] if parentClasses else None
-    if parentClass != None:
-        result += get_all_non_required_attributes(parentClass, interfaces) 
+    result = {}
+    parentClasses = [sc for sc in currentClass.superclasses]
+    for parentClass in parentClasses:
+        parentResult = get_all_attributes(parentClass) 
+        for newAttributeName in parentResult:
+            if newAttributeName not in result:
+                result[newAttributeName] = parentResult[newAttributeName]
+
     for attr in currentClass.attributes:
-        assert isinstance(attr, M_Attribute)
-        card = attr.cardinality
-        assert isinstance(card, M_Cardinality)
-        if card.lower == 0 and card.upper==1:
-            result.append((attr.name, print_csharp_type(attr.type)))
+        if attr.name not in result:
+            card = attr.cardinality
+            assert isinstance(card, M_Cardinality)
+            lower = card.lower
+            upper = card.upper
+            result[attr.name] = (print_csharp_type(attr.type), lower, upper)
     return result
+
+def get_all_attributes_with_Xml_names(currentClass, mappings):
+    assert isinstance(currentClass, M_Class)
+    result = {}
+    attributes = get_all_attributes(currentClass)
+    fromCmofToXml = None
+    if currentClass.name in mappings:    
+        (_, fromCmofToXml) = mappings[currentClass.name]
+
+    for (attName,(attType, l, u)) in attributes.items():
+        xmlName = None
+        if fromCmofToXml is not None and attName in fromCmofToXml:
+            xmlName = fromCmofToXml[attName]
+        result[attName] = (attType,xmlName, l, u)
+    return result
+
+# def get_all_required_attributes(currentClass, mappings):
+#     assert isinstance(currentClass, M_Class)
+#     result = []
+#     parentClasses = [sc for sc in currentClass.superclasses if not(sc.name in interfaces)]
+#     parentClass = parentClasses[0] if parentClasses else None
+#     if parentClass != None:
+#         result += get_all_required_attributes(parentClass, mappings) 
+#     if currentClass.name in mappings:    
+#         (fromXmlToCmof, fromCmofToXml, _) = mappings[currentClass.name]
+#     required = []
+#     if currentClass.name in extracted and fromXmlToCmof is not None:
+#         (originalRequired,_,_) = extracted[currentClass.name]
+#         required = [fromXmlToCmof[name] for name in originalRequired]
+#     for attr in currentClass.attributes:
+#         if attr.name in required:
+#             result.append((attr.name, print_csharp_type(attr.type), fromCmofToXml[attr.name]))
+#     return result
+
+# def get_all_non_required_attributes(currentClass, mappings):
+#     assert isinstance(currentClass, M_Class)
+#     result = []
+#     if currentClass.name not in interfaces:
+#         parentClasses = [sc for sc in currentClass.superclasses]
+#         for parentClass in parentClasses:
+#             result += get_all_non_required_attributes(parentClass, mappings) 
+
+#     if currentClass.name in mappings:    
+#         (fromXmlToCmof, fromCmofToXml, _) = mappings[currentClass.name]
+#     optional = []
+#     if currentClass.name in extracted and fromXmlToCmof is not None:
+#         (_,originalOptional,_) = extracted[currentClass.name]
+#         for name in originalOptional:
+#             if name in fromXmlToCmof:
+#                 optional.append(fromXmlToCmof[name])
+#             elif name == "id" and "id" not in optional :
+#                 optional.append("id")
+
+#     for attr in currentClass.attributes:
+#         if attr.name in optional:
+#             result.append((attr.name, print_csharp_type(attr.type), fromCmofToXml[attr.name]))
+#     return result
 
 
 
@@ -215,31 +581,31 @@ def print_csharp_type(type):
         return "int"
     return type.name
 
-def print_Attribute(out, c, isInInterface):
+def print_Attribute(out, c, isInInterface, isRequired):
     #TODO Override for diagrams.
     if c.name == "diagrams" and print_csharp_type(c.type) == "BPMNDiagram":
         return []
 
     typesForConstructor = []
 
-    realName = c.name.capitalize()
+    realName = capitalize_first_letter(c.name)
     card = c.cardinality
     assert isinstance(card, M_Cardinality)
     lower = card.lower
     upper = card.upper
     if isInInterface:
-        if lower == 1 and upper == 1:
+        if  isRequired and upper == 1:
             out.write(print_csharp_type(c.type)+ " " + realName + " { get; init; }")
-        elif lower == 0 and upper == 1:
+        elif upper == 1:
             out.write(print_csharp_type(c.type)+"? " + realName + " { get; set; }")
         else:
             out.write("List<"+print_csharp_type(c.type)+"> "+ realName + " { get; }")
     else:
-        if lower == 1 and upper == 1:
+        if isRequired and upper == 1:
             realType = print_csharp_type(c.type)
             out.write("public "+realType+ " " + realName + " { get; init; }")
             typesForConstructor.append((c.name, realType))
-        elif lower == 0 and upper == 1:
+        elif upper == 1:
             out.write("public "+print_csharp_type(c.type)+"? " + realName + " { get; set; }")
         else:
             out.write("public List<"+print_csharp_type(c.type)+"> "+ realName + " { get; } = new();")
@@ -249,6 +615,9 @@ def print_Attribute(out, c, isInInterface):
 
 def print_Enumeration(out, c):
     out.write("public enum " + c.name).nl().write("{").nl()
+
+    enumNames.append(c.name)
+
     out.inc()
     for item in c.literals:
         assert item.enum is c

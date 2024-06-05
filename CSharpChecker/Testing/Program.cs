@@ -1,6 +1,8 @@
 ﻿
 using BPMNModel;
 using BPMNModel.Model;
+
+//using BPMNModel.Model;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
@@ -31,6 +33,42 @@ namespace Testing
             .CreateLogger();
 
             var generator = Generator.CreateGenerator(Log.Logger);
+            /*
+            int count = 0;
+            using var writer = new StreamWriter(@"d:\extracted.types");
+            writer.WriteLine("extracted = {");
+            
+            foreach(var item in generator.Types) {
+                if (item.Value is ComplexType c) {
+                    (List<BPMNModel.Attribute>  Attributes, List<string> Elements) GetAll(ComplexType current)
+                    {
+                        List<BPMNModel.Attribute> attributes = new();
+                        List<string> elements = new();
+                        if (current.ParentType is not null)
+                        {
+                            var parent = GetAll(current.ParentType);
+                            attributes.AddRange(parent.Attributes);
+                            elements.AddRange(parent.Elements);
+                        }
+                        attributes.AddRange(current.Attributes);
+                        var currentElements = current.InnerElement?.InnerElements.Select(x => $"\"{x.Name}\"").ToList();
+                         
+                        if (currentElements is not null && currentElements.Any()) elements.AddRange(currentElements);
+
+                        return (attributes, elements);
+                    }
+                    var (allAttributes, allElements) = GetAll(c);
+ 
+                    var required = allAttributes.Where(x => x.Use == AttributeUse.Required).Select(x => $"\"{x.Name}\"").ToList();
+                    var optional = allAttributes.Where(x => x.Use == AttributeUse.Optional).Select(x => $"\"{x.Name}\"").ToList();
+                    writer.WriteLine($"\t\"{c.Name.Substring(1)}\": ([{string.Join(", ", required)}], [{string.Join(", ", optional)}], [{string.Join(", ", allElements ?? [])}]),");
+                    count++;
+                }
+            }
+            writer.WriteLine("\t}\n");
+
+            return;
+            */
 
             XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/single_user_task.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/subprocesses.bpmn");
@@ -53,9 +91,10 @@ namespace Testing
             }
             if (parser.Root is not null)
             {
-                Factory factory = new Factory();
+                Factory factory = new Factory(Log.Logger);
+                 
+                var result = factory.Create<Definitions>(parser.Root);
 
-                factory.CreateDefinitions(parser.Root);
             }
 
         }
