@@ -266,12 +266,15 @@ def print_factory(out, c, mappings):
     assert isinstance(c, M_Class)
     isInterface = c.name in interfaces
     if isInterface == False and c.is_abstract == False and c.name in extracted:
-        out.write("public "+c.name+ " Create"+c.name+ "(XmlParserComplexNode node)").nl()
+        out.write("public "+c.name+ " Load"+c.name+ "(XmlParserComplexNode node)").nl()
         out.write("{").nl()
         out.inc()
         (requiredXmlNames, optionalXmlNames, elementXmlNames) = extracted[c.name]
         allAttributes = get_all_attributes_with_Xml_names(c, mappings)
-        
+
+        out.write(" var result = GetOrCreate<"+c.name+">(node);").nl()
+        out.nl()
+
         processed = []
         processedXML = []
         for (requiredName, (requiredType, requiredXMLName,l,h)) in allAttributes.items():
@@ -281,17 +284,14 @@ def print_factory(out, c, mappings):
                 out.write("var _"+requiredName+"Attribute = node.Attributes[\""+requiredXMLName+"\"]?.ProcessedValue;").nl()
                 out.write("if (_"+requiredName+"Attribute is null) throw new BPMNCheckerExceptions($\"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : \"\")}) is missing required attribute "+requiredXMLName+"\");").nl()
                 if requiredType == "string" or requiredType == "int" or requiredType == "bool":
-                    out.write(requiredType+" _"+requiredName+" = ("+requiredType+ ")_"+requiredName+"Attribute;").nl()
+                    out.write("result."+ capitalize_first_letter(requiredName) + " = ("+requiredType+ ")_"+requiredName+"Attribute;").nl()
                 elif requiredType in enumNames:
-                    out.write("TODO: XXX").nl()
+                    out.write("result."+ capitalize_first_letter(requiredName) +" = CreateEnum<"+requiredType+ ">((string)_"+requiredName+"Attribute);").nl()
                 else:
-                    out.write(requiredType+" _"+requiredName+" = Create<"+requiredType+ ">((XmlParserComplexNode)_"+requiredName+"Attribute);").nl()
+                    out.write("result."+ capitalize_first_letter(requiredName) + " = Load<"+requiredType+ ">((XmlParserComplexNode)_"+requiredName+"Attribute);").nl()
                 out.nl()
                 processed.append(requiredName)
                 processedXML.append(requiredXMLName)
-
-        out.write("var result = new "+c.name+"("+ ", ".join(["_"+name for name in processed])+ ");").nl()
-        out.nl()
 
         for (optionalName, (optionalType, optionalXmlName, l, h)) in allAttributes.items():
             if optionalXmlName in optionalXmlNames:
@@ -304,7 +304,7 @@ def print_factory(out, c, mappings):
                 elif optionalType in enumNames:
                     out.write("result."+ capitalize_first_letter(optionalName) +" = CreateEnum<"+optionalType+ ">((string)_"+optionalName+"Attribute);").nl()
                 else:
-                    out.write("result."+ capitalize_first_letter(optionalName) +" = Create<"+optionalType+ ">((XmlParserComplexNode)_"+optionalName+"Attribute);").nl()   
+                    out.write("result."+ capitalize_first_letter(optionalName) +" = Load<"+optionalType+ ">((XmlParserComplexNode)_"+optionalName+"Attribute);").nl()   
                 out.nl()
                 processed.append(optionalName)
                 processedXML.append(optionalXmlName)
@@ -313,7 +313,7 @@ def print_factory(out, c, mappings):
             if elementXmlName in elementXmlNames:
                 out.write("// element: "+ elementXmlName + " -> " +elementType + " "+ elementName + get_arity(l,h)).nl()
                 if h == 1:
-                    out.write("result." + capitalize_first_letter(elementName) + " = CreateElement<")
+                    out.write("result." + capitalize_first_letter(elementName) + " = FillElement<")
                     out.write(elementType)
                     out.write(">(node.ChildNodes[\"" + elementXmlName + "\"]);").nl()
                     out.nl()
@@ -406,21 +406,14 @@ def print_Class(out, c, mappings):
     if implementedInterface is None and parentClass is None :
         print(c.name)
 
-    attributesForConstructor = []
     for attr in c.attributes:
-        required = False
-        if mapping is not None and attr.name in mapping:
-            required = mapping[attr.name] in requiredXMLnames
-        attributesForConstructor+=print_Attribute(out, attr,isInterface, required)
+        print_Attribute(out, attr,isInterface)
 
     if implementedInterface != None:
         out.nl();
         out.write("#region Implementing: "+implementedInterface.name).nl()
         for attr in implementedInterface.attributes:
-            required = False
-            if mapping is not None and attr.name in mapping:
-                required = mapping[attr.name] in requiredXMLnames
-            attributesForConstructor+=print_Attribute(out, attr,False, required)
+            print_Attribute(out, attr,False)
         out.write("#endregion").nl()
         out.nl();
     
@@ -430,21 +423,8 @@ def print_Class(out, c, mappings):
             allAttributes = get_all_attributes_with_Xml_names(parentClass, mappings)
             baseParameters = [(name, type) for (name, (type, xmlName, _, _)) in allAttributes.items() if xmlName in requiredXMLnames]
         
-        out.write("public "+c.name+"(")
-        realParameters =  baseParameters + attributesForConstructor
-        if len(realParameters)>0:
-            formatedParameters = [(type+" _"+name) for (name, type) in realParameters] 
-            out.write(", ".join(formatedParameters))
-        out.write(")").nl()
-        if len(baseParameters) > 0:
-            out.inc()
-            out.write(": base(" +", ".join(["_"+x for (x,_) in baseParameters] )+")" ).nl()
-            out.dec();
+        out.write("public "+c.name+"()").nl()
         out.write("{").nl()
-        out.inc()
-        for (name,type) in attributesForConstructor:
-            out.write("this."+capitalize_first_letter(name)+" = _" + name+";").nl()
-        out.dec()
         out.write("}").nl().nl()
     out.dec()
     out.write("}").nl()
@@ -581,12 +561,10 @@ def print_csharp_type(type):
         return "int"
     return type.name
 
-def print_Attribute(out, c, isInInterface, isRequired):
+def print_Attribute(out, c, isInInterface):
     #TODO Override for diagrams.
     if c.name == "diagrams" and print_csharp_type(c.type) == "BPMNDiagram":
         return []
-
-    typesForConstructor = []
 
     realName = capitalize_first_letter(c.name)
     card = c.cardinality
@@ -594,24 +572,16 @@ def print_Attribute(out, c, isInInterface, isRequired):
     lower = card.lower
     upper = card.upper
     if isInInterface:
-        if  isRequired and upper == 1:
-            out.write(print_csharp_type(c.type)+ " " + realName + " { get; init; }")
-        elif upper == 1:
+        if upper == 1:
             out.write(print_csharp_type(c.type)+"? " + realName + " { get; set; }")
         else:
             out.write("List<"+print_csharp_type(c.type)+"> "+ realName + " { get; }")
     else:
-        if isRequired and upper == 1:
-            realType = print_csharp_type(c.type)
-            out.write("public "+realType+ " " + realName + " { get; init; }")
-            typesForConstructor.append((c.name, realType))
-        elif upper == 1:
+        if upper == 1:
             out.write("public "+print_csharp_type(c.type)+"? " + realName + " { get; set; }")
         else:
             out.write("public List<"+print_csharp_type(c.type)+"> "+ realName + " { get; } = new();")
     out.nl()
-    return typesForConstructor
-
 
 def print_Enumeration(out, c):
     out.write("public enum " + c.name).nl().write("{").nl()
