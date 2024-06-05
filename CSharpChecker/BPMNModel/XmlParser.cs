@@ -17,6 +17,8 @@ namespace BPMNModel
 
         private Generator generator;
 
+        public Dictionary<string, XmlParserComplexNode> Cache { get; } = new();
+
         public XmlParserComplexNode? Root { get; private set; }
 
         public List<string> Errors { get; } = new List<string>();
@@ -86,7 +88,7 @@ namespace BPMNModel
 
             foreach (var attribute in allAttributes)
             {
-                var (xmlAttribute, message) = attribute.CreateAndCheck(element);
+                var (xmlAttribute, message) = attribute.CreateAndCheck(element, this);
                 if (xmlAttribute != null)
                 {
                     Log.Debug(GetNiceMessage(element, $"  Created attribute: {xmlAttribute}"));
@@ -106,7 +108,7 @@ namespace BPMNModel
                 return null;
             }
 
-            XmlParserComplexNode node = idAttributes.Any() ? XmlParserComplexNode.CreateOrGet(idAttributes.First().Value, type.Type) : XmlParserComplexNode.CreatePlaceholderForAnyNodes();
+            XmlParserComplexNode node = idAttributes.Any() ? CreateOrGet(idAttributes.First().Value, type.Type) : XmlParserComplexNode.CreatePlaceholderForAnyNodes();
             foreach (var item in processedAttributes)
             {
                 node.Attributes.Add(item.Name, item);
@@ -219,7 +221,7 @@ namespace BPMNModel
                                 else
                                 {
                                     var realValue = currentElement.Value;
-                                    var targetNode = XmlParserComplexNode.GetReferecne(realValue);
+                                    var targetNode = GetReferecne(realValue);
                                     node.ChildNodes[currentCategory.Name].Add(targetNode);
                                     Log.Debug(GetNiceMessage(element, $"    {targetNode}"));
                                 }
@@ -284,6 +286,47 @@ namespace BPMNModel
             return node;
         }
 
+        public string? CheckReferencesWithoutDefinitions()
+        {
+            var justReference = Cache.Where(x => x.Value.Type is null).Select(x => x.Key);
+
+            if (justReference.Any())
+            {
+                return $"IDs: {string.Join(",", justReference)} were referenced but not defined.";
+            }
+            return null;
+        }
+
+        public XmlParserComplexNode CreateOrGet(string id, ComplexType complexType)
+        {
+            if (Cache.ContainsKey(id))
+            {
+                var cached = Cache[id];
+                cached.Type = complexType;
+                return cached;
+            }
+            else
+            {
+                var cached = new XmlParserComplexNode(id, complexType);
+                Cache.Add(id, cached);
+                return cached;
+            }
+        }
+        public XmlParserComplexNode GetReferecne(string id)
+        {
+            if (Cache.ContainsKey(id))
+            {
+                var cached = Cache[id];
+                return cached;
+            }
+            else
+            {
+                var cached = new XmlParserComplexNode(id);
+                Cache.Add(id, cached);
+                return cached;
+            }
+        }
+
 
         public static XmlParser Parse(ILogger logger, Generator generator, XDocument document)
         {
@@ -311,7 +354,7 @@ namespace BPMNModel
             XmlParser parser = new XmlParser(logger, generator, bpmnNamespace, xsiNamespace);
             parser.Root = parser.LoadAndCheck(document.Root, generator.Elements["definitions"]);
 
-            var error = XmlParserComplexNode.CheckReferencesWithoutDefinitions();
+            var error = parser.CheckReferencesWithoutDefinitions();
             if (error is not null) parser.Errors.Add(error);
 
             return parser;

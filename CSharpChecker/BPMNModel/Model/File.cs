@@ -1,0 +1,1561 @@
+namespace BPMNModel.Model
+{
+    #region Classes (137 items)
+
+    public class Interface : RootElement
+    {
+        public string? Name { get; set; }
+        public List<Operation> Operations { get; } = new();
+        public Element? ImplementationRef { get; set; }
+        public Interface()
+        {
+        }
+
+    }
+
+    public class Operation : BaseElement
+    {
+        public string? Name { get; set; }
+        public Message? InMessageRef { get; set; }
+        public Message? OutMessageRef { get; set; }
+        public List<Error> ErrorRefs { get; } = new();
+        public Element? ImplementationRef { get; set; }
+        public Operation()
+        {
+        }
+
+    }
+
+    public class EndPoint : RootElement
+    {
+        public EndPoint()
+        {
+        }
+
+    }
+
+    public class Auditing : BaseElement
+    {
+        public Auditing()
+        {
+        }
+
+    }
+
+    public class GlobalTask : CallableElement
+    {
+        public List<ResourceRole> Resources { get; } = new();
+        public GlobalTask()
+        {
+        }
+
+    }
+
+    public class Monitoring : BaseElement
+    {
+        public Monitoring()
+        {
+        }
+
+    }
+
+    public class Performer : ResourceRole
+    {
+        public Performer()
+        {
+        }
+
+    }
+
+    public class Process : CallableElement, FlowElementsContainer
+    {
+        public ProcessType? ProcessType { get; set; }
+        public bool? IsClosed { get; set; }
+        public Auditing? Auditing { get; set; }
+        public Monitoring? Monitoring { get; set; }
+        public List<Property> Properties { get; } = new();
+        public List<Process> Supports { get; } = new();
+        public Collaboration? DefinitionalCollaborationRef { get; set; }
+        public bool? IsExecutable { get; set; }
+        public List<ResourceRole> Resources { get; } = new();
+        public List<Artifact> Artifacts { get; } = new();
+        public List<CorrelationSubscription> CorrelationSubscriptions { get; } = new();
+
+        #region Implementing: FlowElementsContainer
+        public List<FlowElement> FlowElements { get; } = new();
+        public List<LaneSet> LaneSets { get; } = new();
+        #endregion
+
+        public Process()
+        {
+        }
+
+    }
+
+    public class LaneSet : BaseElement
+    {
+        public List<Lane> Lanes { get; } = new();
+        public string? Name { get; set; }
+        public LaneSet()
+        {
+        }
+
+    }
+
+    public class Lane : BaseElement
+    {
+        public string? Name { get; set; }
+        public LaneSet? ChildLaneSet { get; set; }
+        public BaseElement? PartitionElementRef { get; set; }
+        public List<FlowNode> FlowNodeRefs { get; } = new();
+        public BaseElement? PartitionElement { get; set; }
+        public Lane()
+        {
+        }
+
+    }
+
+    public class GlobalManualTask : GlobalTask
+    {
+        public GlobalManualTask()
+        {
+        }
+
+    }
+
+    public class ManualTask : Task
+    {
+        public ManualTask()
+        {
+        }
+
+    }
+
+    public class UserTask : Task
+    {
+        public List<Rendering> Renderings { get; } = new();
+        public string? Implementation { get; set; }
+        public UserTask()
+        {
+        }
+
+    }
+
+    public class Rendering : BaseElement
+    {
+        public Rendering()
+        {
+        }
+
+    }
+
+    public class HumanPerformer : Performer
+    {
+        public HumanPerformer()
+        {
+        }
+
+    }
+
+    public class PotentialOwner : HumanPerformer
+    {
+        public PotentialOwner()
+        {
+        }
+
+    }
+
+    public class GlobalUserTask : GlobalTask
+    {
+        public string? Implementation { get; set; }
+        public List<Rendering> Renderings { get; } = new();
+        public GlobalUserTask()
+        {
+        }
+
+    }
+
+    public abstract class Gateway : FlowNode
+    {
+        public GatewayDirection? GatewayDirection { get; set; }
+        public Gateway()
+        {
+        }
+
+    }
+
+    public class EventBasedGateway : Gateway
+    {
+        public bool? Instantiate { get; set; }
+        public EventBasedGatewayType? EventGatewayType { get; set; }
+        public EventBasedGateway()
+        {
+        }
+
+    }
+
+    public class ComplexGateway : Gateway
+    {
+        public Expression? ActivationCondition { get; set; }
+        public SequenceFlow? Default { get; set; }
+        public ComplexGateway()
+        {
+        }
+
+    }
+
+    public class ExclusiveGateway : Gateway
+    {
+        public SequenceFlow? Default { get; set; }
+        public ExclusiveGateway()
+        {
+        }
+
+    }
+
+    public class InclusiveGateway : Gateway
+    {
+        public SequenceFlow? Default { get; set; }
+        public InclusiveGateway()
+        {
+        }
+
+    }
+
+    public class ParallelGateway : Gateway
+    {
+        public ParallelGateway()
+        {
+        }
+
+    }
+
+    public abstract class RootElement : BaseElement
+    {
+        public RootElement()
+        {
+        }
+
+    }
+
+    public class Relationship : BaseElement
+    {
+        public string? Type { get; set; }
+        public RelationshipDirection? Direction { get; set; }
+        public List<Element> Sources { get; } = new();
+        public List<Element> Targets { get; } = new();
+        public Relationship()
+        {
+        }
+
+    }
+
+    public abstract class BaseElement
+    {
+        public string? Id { get; set; }
+        public List<ExtensionDefinition> ExtensionDefinitions { get; } = new();
+        public List<ExtensionAttributeValue> ExtensionValues { get; } = new();
+        public List<Documentation> Documentation { get; } = new();
+        public BaseElement()
+        {
+        }
+
+    }
+
+    public class Extension
+    {
+        public bool? MustUnderstand { get; set; }
+        public ExtensionDefinition? Definition { get; set; }
+        public Extension()
+        {
+        }
+
+    }
+
+    public class ExtensionDefinition
+    {
+        public string? Name { get; set; }
+        public List<ExtensionAttributeDefinition> ExtensionAttributeDefinitions { get; } = new();
+        public ExtensionDefinition()
+        {
+        }
+
+    }
+
+    public class ExtensionAttributeDefinition
+    {
+        public string? Name { get; set; }
+        public string? Type { get; set; }
+        public bool? IsReference { get; set; }
+        public ExtensionDefinition? ExtensionDefinition { get; set; }
+        public ExtensionAttributeDefinition()
+        {
+        }
+
+    }
+
+    public class ExtensionAttributeValue
+    {
+        public Element? ValueRef { get; set; }
+        public Element? Value { get; set; }
+        public ExtensionAttributeDefinition? ExtensionAttributeDefinition { get; set; }
+        public ExtensionAttributeValue()
+        {
+        }
+
+    }
+
+    public class Documentation : BaseElement
+    {
+        public string? Text { get; set; }
+        public string? TextFormat { get; set; }
+        public Documentation()
+        {
+        }
+
+    }
+
+    public abstract class Event : FlowNode, InteractionNode
+    {
+        public List<Property> Properties { get; } = new();
+
+        #region Implementing: InteractionNode
+        public List<ConversationLink> IncomingConversationLinks { get; } = new();
+        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
+        #endregion
+
+        public Event()
+        {
+        }
+
+    }
+
+    public class IntermediateCatchEvent : CatchEvent
+    {
+        public IntermediateCatchEvent()
+        {
+        }
+
+    }
+
+    public class IntermediateThrowEvent : ThrowEvent
+    {
+        public IntermediateThrowEvent()
+        {
+        }
+
+    }
+
+    public class EndEvent : ThrowEvent
+    {
+        public EndEvent()
+        {
+        }
+
+    }
+
+    public class StartEvent : CatchEvent
+    {
+        public bool? IsInterrupting { get; set; }
+        public StartEvent()
+        {
+        }
+
+    }
+
+    public abstract class ThrowEvent : Event
+    {
+        public InputSet? InputSet { get; set; }
+        public List<EventDefinition> EventDefinitionRefs { get; } = new();
+        public List<DataInputAssociation> DataInputAssociation { get; } = new();
+        public List<DataInput> DataInputs { get; } = new();
+        public List<EventDefinition> EventDefinitions { get; } = new();
+        public ThrowEvent()
+        {
+        }
+
+    }
+
+    public abstract class CatchEvent : Event
+    {
+        public bool? ParallelMultiple { get; set; }
+        public OutputSet? OutputSet { get; set; }
+        public List<EventDefinition> EventDefinitionRefs { get; } = new();
+        public List<DataOutputAssociation> DataOutputAssociation { get; } = new();
+        public List<DataOutput> DataOutputs { get; } = new();
+        public List<EventDefinition> EventDefinitions { get; } = new();
+        public CatchEvent()
+        {
+        }
+
+    }
+
+    public class BoundaryEvent : CatchEvent
+    {
+        public bool? CancelActivity { get; set; }
+        public Activity? AttachedToRef { get; set; }
+        public BoundaryEvent()
+        {
+        }
+
+    }
+
+    public abstract class EventDefinition : RootElement
+    {
+        public EventDefinition()
+        {
+        }
+
+    }
+
+    public class CancelEventDefinition : EventDefinition
+    {
+        public CancelEventDefinition()
+        {
+        }
+
+    }
+
+    public class ErrorEventDefinition : EventDefinition
+    {
+        public Error? ErrorRef { get; set; }
+        public ErrorEventDefinition()
+        {
+        }
+
+    }
+
+    public class TerminateEventDefinition : EventDefinition
+    {
+        public TerminateEventDefinition()
+        {
+        }
+
+    }
+
+    public class EscalationEventDefinition : EventDefinition
+    {
+        public Escalation? EscalationRef { get; set; }
+        public EscalationEventDefinition()
+        {
+        }
+
+    }
+
+    public class Escalation
+    {
+        public ItemDefinition? StructureRef { get; set; }
+        public string? Name { get; set; }
+        public string? EscalationCode { get; set; }
+        public Escalation()
+        {
+        }
+
+    }
+
+    public class CompensateEventDefinition : EventDefinition
+    {
+        public bool? WaitForCompletion { get; set; }
+        public Activity? ActivityRef { get; set; }
+        public CompensateEventDefinition()
+        {
+        }
+
+    }
+
+    public class TimerEventDefinition : EventDefinition
+    {
+        public Expression? TimeDate { get; set; }
+        public Expression? TimeCycle { get; set; }
+        public Expression? TimeDuration { get; set; }
+        public TimerEventDefinition()
+        {
+        }
+
+    }
+
+    public class LinkEventDefinition : EventDefinition
+    {
+        public string? Name { get; set; }
+        public LinkEventDefinition? Target { get; set; }
+        public List<LinkEventDefinition> Source { get; } = new();
+        public LinkEventDefinition()
+        {
+        }
+
+    }
+
+    public class MessageEventDefinition : EventDefinition
+    {
+        public Message? MessageRef { get; set; }
+        public Operation? OperationRef { get; set; }
+        public MessageEventDefinition()
+        {
+        }
+
+    }
+
+    public class ConditionalEventDefinition : EventDefinition
+    {
+        public Expression? Condition { get; set; }
+        public ConditionalEventDefinition()
+        {
+        }
+
+    }
+
+    public class SignalEventDefinition : EventDefinition
+    {
+        public Signal? SignalRef { get; set; }
+        public SignalEventDefinition()
+        {
+        }
+
+    }
+
+    public class Signal : RootElement
+    {
+        public ItemDefinition? StructureRef { get; set; }
+        public string? Name { get; set; }
+        public Signal()
+        {
+        }
+
+    }
+
+    public class ImplicitThrowEvent : ThrowEvent
+    {
+        public ImplicitThrowEvent()
+        {
+        }
+
+    }
+
+    public class DataState : BaseElement
+    {
+        public string? Name { get; set; }
+        public DataState()
+        {
+        }
+
+    }
+
+    public interface ItemAwareElement
+    {
+        ItemDefinition? ItemSubjectRef { get; set; }
+        DataState? DataState { get; set; }
+    }
+
+    public class DataAssociation : BaseElement
+    {
+        public FormalExpression? Transformation { get; set; }
+        public List<Assignment> Assignment { get; } = new();
+        public ItemAwareElement? TargetRef { get; set; }
+        public List<ItemAwareElement> SourceRef { get; } = new();
+        public DataAssociation()
+        {
+        }
+
+    }
+
+    public class DataInput : BaseElement, ItemAwareElement
+    {
+        public string? Name { get; set; }
+        public bool? IsCollection { get; set; }
+        public List<InputSet> InputSetRefs { get; } = new();
+        public List<InputSet> InputSetWithOptional { get; } = new();
+        public List<InputSet> InputSetWithWhileExecuting { get; } = new();
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public DataInput()
+        {
+        }
+
+    }
+
+    public class DataOutput : BaseElement, ItemAwareElement
+    {
+        public string? Name { get; set; }
+        public bool? IsCollection { get; set; }
+        public List<OutputSet> OutputSetRefs { get; } = new();
+        public List<OutputSet> OutputSetWithOptional { get; } = new();
+        public List<OutputSet> OutputSetWithWhileExecuting { get; } = new();
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public DataOutput()
+        {
+        }
+
+    }
+
+    public class InputSet : BaseElement
+    {
+        public string? Name { get; set; }
+        public List<DataInput> DataInputRefs { get; } = new();
+        public List<DataInput> OptionalInputRefs { get; } = new();
+        public List<DataInput> WhileExecutingInputRefs { get; } = new();
+        public List<OutputSet> OutputSetRefs { get; } = new();
+        public InputSet()
+        {
+        }
+
+    }
+
+    public class OutputSet : BaseElement
+    {
+        public List<DataOutput> DataOutputRefs { get; } = new();
+        public string? Name { get; set; }
+        public List<InputSet> InputSetRefs { get; } = new();
+        public List<DataOutput> OptionalOutputRefs { get; } = new();
+        public List<DataOutput> WhileExecutingOutputRefs { get; } = new();
+        public OutputSet()
+        {
+        }
+
+    }
+
+    public class Property : BaseElement, ItemAwareElement
+    {
+        public string? Name { get; set; }
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public Property()
+        {
+        }
+
+    }
+
+    public class DataInputAssociation : DataAssociation
+    {
+        public DataInputAssociation()
+        {
+        }
+
+    }
+
+    public class DataOutputAssociation : DataAssociation
+    {
+        public DataOutputAssociation()
+        {
+        }
+
+    }
+
+    public class InputOutputSpecification : BaseElement
+    {
+        public List<InputSet> InputSets { get; } = new();
+        public List<OutputSet> OutputSets { get; } = new();
+        public List<DataInput> DataInputs { get; } = new();
+        public List<DataOutput> DataOutputs { get; } = new();
+        public InputOutputSpecification()
+        {
+        }
+
+    }
+
+    public class DataObject : FlowElement, ItemAwareElement
+    {
+        public bool? IsCollection { get; set; }
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public DataObject()
+        {
+        }
+
+    }
+
+    public class InputOutputBinding
+    {
+        public InputSet? InputDataRef { get; set; }
+        public OutputSet? OutputDataRef { get; set; }
+        public Operation? OperationRef { get; set; }
+        public InputOutputBinding()
+        {
+        }
+
+    }
+
+    public class Assignment : BaseElement
+    {
+        public Expression? From { get; set; }
+        public Expression? To { get; set; }
+        public Assignment()
+        {
+        }
+
+    }
+
+    public class DataStore : RootElement, ItemAwareElement
+    {
+        public string? Name { get; set; }
+        public int? Capacity { get; set; }
+        public bool? IsUnlimited { get; set; }
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public DataStore()
+        {
+        }
+
+    }
+
+    public class DataStoreReference : FlowElement, ItemAwareElement
+    {
+        public DataStore? DataStoreRef { get; set; }
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public DataStoreReference()
+        {
+        }
+
+    }
+
+    public class DataObjectReference : FlowElement, ItemAwareElement
+    {
+        public DataObject? DataObjectRef { get; set; }
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public DataObjectReference()
+        {
+        }
+
+    }
+
+    public class ConversationLink : BaseElement
+    {
+        public InteractionNode? SourceRef { get; set; }
+        public InteractionNode? TargetRef { get; set; }
+        public string? Name { get; set; }
+        public ConversationLink()
+        {
+        }
+
+    }
+
+    public class ConversationAssociation : BaseElement
+    {
+        public ConversationNode? InnerConversationNodeRef { get; set; }
+        public ConversationNode? OuterConversationNodeRef { get; set; }
+        public ConversationAssociation()
+        {
+        }
+
+    }
+
+    public class CallConversation : ConversationNode
+    {
+        public Collaboration? CalledCollaborationRef { get; set; }
+        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
+        public CallConversation()
+        {
+        }
+
+    }
+
+    public class Conversation : ConversationNode
+    {
+        public Conversation()
+        {
+        }
+
+    }
+
+    public class SubConversation : ConversationNode
+    {
+        public List<ConversationNode> ConversationNodes { get; } = new();
+        public SubConversation()
+        {
+        }
+
+    }
+
+    public abstract class ConversationNode : BaseElement, InteractionNode
+    {
+        public string? Name { get; set; }
+        public List<Participant> ParticipantRefs { get; } = new();
+        public List<MessageFlow> MessageFlowRefs { get; } = new();
+        public List<CorrelationKey> CorrelationKeys { get; } = new();
+
+        #region Implementing: InteractionNode
+        public List<ConversationLink> IncomingConversationLinks { get; } = new();
+        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
+        #endregion
+
+        public ConversationNode()
+        {
+        }
+
+    }
+
+    public class GlobalConversation : Collaboration
+    {
+        public GlobalConversation()
+        {
+        }
+
+    }
+
+    public class PartnerEntity : RootElement
+    {
+        public string? Name { get; set; }
+        public List<Participant> ParticipantRef { get; } = new();
+        public PartnerEntity()
+        {
+        }
+
+    }
+
+    public class PartnerRole : RootElement
+    {
+        public string? Name { get; set; }
+        public List<Participant> ParticipantRef { get; } = new();
+        public PartnerRole()
+        {
+        }
+
+    }
+
+    public class CorrelationProperty : RootElement
+    {
+        public List<CorrelationPropertyRetrievalExpression> CorrelationPropertyRetrievalExpression { get; } = new();
+        public string? Name { get; set; }
+        public ItemDefinition? Type { get; set; }
+        public CorrelationProperty()
+        {
+        }
+
+    }
+
+    public class Error : RootElement
+    {
+        public ItemDefinition? StructureRef { get; set; }
+        public string? Name { get; set; }
+        public string? ErrorCode { get; set; }
+        public Error()
+        {
+        }
+
+    }
+
+    public class CorrelationKey : BaseElement
+    {
+        public List<CorrelationProperty> CorrelationPropertyRef { get; } = new();
+        public string? Name { get; set; }
+        public CorrelationKey()
+        {
+        }
+
+    }
+
+    public class Expression : BaseElement
+    {
+        public Expression()
+        {
+        }
+
+    }
+
+    public class FormalExpression : Expression
+    {
+        public string? Language { get; set; }
+        public Element? Body { get; set; }
+        public ItemDefinition? EvaluatesToTypeRef { get; set; }
+        public FormalExpression()
+        {
+        }
+
+    }
+
+    public class Message : RootElement
+    {
+        public string? Name { get; set; }
+        public ItemDefinition? ItemRef { get; set; }
+        public Message()
+        {
+        }
+
+    }
+
+    public class ItemDefinition : RootElement
+    {
+        public ItemKind? ItemKind { get; set; }
+        public Element? StructureRef { get; set; }
+        public bool? IsCollection { get; set; }
+        public Import? Import { get; set; }
+        public ItemDefinition()
+        {
+        }
+
+    }
+
+    public abstract class FlowElement : BaseElement
+    {
+        public string? Name { get; set; }
+        public Auditing? Auditing { get; set; }
+        public Monitoring? Monitoring { get; set; }
+        public List<CategoryValue> CategoryValueRef { get; } = new();
+        public FlowElement()
+        {
+        }
+
+    }
+
+    public class SequenceFlow : FlowElement
+    {
+        public bool? IsImmediate { get; set; }
+        public Expression? ConditionExpression { get; set; }
+        public FlowNode? SourceRef { get; set; }
+        public FlowNode? TargetRef { get; set; }
+        public SequenceFlow()
+        {
+        }
+
+    }
+
+    public interface FlowElementsContainer // abstract 
+    {
+        List<FlowElement> FlowElements { get; }
+        List<LaneSet> LaneSets { get; }
+    }
+
+    public abstract class CallableElement : RootElement
+    {
+        public string? Name { get; set; }
+        public InputOutputSpecification? IoSpecification { get; set; }
+        public List<Interface> SupportedInterfaceRefs { get; } = new();
+        public List<InputOutputBinding> IoBinding { get; } = new();
+        public CallableElement()
+        {
+        }
+
+    }
+
+    public abstract class FlowNode : FlowElement
+    {
+        public List<SequenceFlow> Outgoing { get; } = new();
+        public List<SequenceFlow> Incoming { get; } = new();
+        public List<Lane> Lanes { get; } = new();
+        public FlowNode()
+        {
+        }
+
+    }
+
+    public class CorrelationPropertyRetrievalExpression : BaseElement
+    {
+        public FormalExpression? MessagePath { get; set; }
+        public Message? MessageRef { get; set; }
+        public CorrelationPropertyRetrievalExpression()
+        {
+        }
+
+    }
+
+    public class CorrelationPropertyBinding : BaseElement
+    {
+        public FormalExpression? DataPath { get; set; }
+        public CorrelationProperty? CorrelationPropertyRef { get; set; }
+        public CorrelationPropertyBinding()
+        {
+        }
+
+    }
+
+    public class Resource : RootElement
+    {
+        public string? Name { get; set; }
+        public List<ResourceParameter> ResourceParameters { get; } = new();
+        public Resource()
+        {
+        }
+
+    }
+
+    public class ResourceParameter : BaseElement
+    {
+        public string? Name { get; set; }
+        public bool? IsRequired { get; set; }
+        public ItemDefinition? Type { get; set; }
+        public ResourceParameter()
+        {
+        }
+
+    }
+
+    public class CorrelationSubscription : BaseElement
+    {
+        public CorrelationKey? CorrelationKeyRef { get; set; }
+        public List<CorrelationPropertyBinding> CorrelationPropertyBinding { get; } = new();
+        public CorrelationSubscription()
+        {
+        }
+
+    }
+
+    public class MessageFlow : BaseElement
+    {
+        public string? Name { get; set; }
+        public InteractionNode? SourceRef { get; set; }
+        public InteractionNode? TargetRef { get; set; }
+        public Message? MessageRef { get; set; }
+        public MessageFlow()
+        {
+        }
+
+    }
+
+    public class MessageFlowAssociation : BaseElement
+    {
+        public MessageFlow? InnerMessageFlowRef { get; set; }
+        public MessageFlow? OuterMessageFlowRef { get; set; }
+        public MessageFlowAssociation()
+        {
+        }
+
+    }
+
+    public interface InteractionNode // abstract 
+    {
+        List<ConversationLink> IncomingConversationLinks { get; }
+        List<ConversationLink> OutgoingConversationLinks { get; }
+    }
+
+    public class Participant : BaseElement, InteractionNode
+    {
+        public string? Name { get; set; }
+        public List<Interface> InterfaceRefs { get; } = new();
+        public ParticipantMultiplicity? ParticipantMultiplicity { get; set; }
+        public List<EndPoint> EndPointRefs { get; } = new();
+        public Process? ProcessRef { get; set; }
+
+        #region Implementing: InteractionNode
+        public List<ConversationLink> IncomingConversationLinks { get; } = new();
+        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
+        #endregion
+
+        public Participant()
+        {
+        }
+
+    }
+
+    public class ParticipantAssociation : BaseElement
+    {
+        public Participant? InnerParticipantRef { get; set; }
+        public Participant? OuterParticipantRef { get; set; }
+        public ParticipantAssociation()
+        {
+        }
+
+    }
+
+    public class ParticipantMultiplicity
+    {
+        public int? Minimum { get; set; }
+        public int? Maximum { get; set; }
+        public ParticipantMultiplicity()
+        {
+        }
+
+    }
+
+    public class Collaboration : RootElement
+    {
+        public string? Name { get; set; }
+        public bool? IsClosed { get; set; }
+        public List<Choreography> ChoreographyRef { get; } = new();
+        public List<Artifact> Artifacts { get; } = new();
+        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
+        public List<MessageFlowAssociation> MessageFlowAssociations { get; } = new();
+        public ConversationAssociation? ConversationAssociations { get; set; }
+        public List<Participant> Participants { get; } = new();
+        public List<MessageFlow> MessageFlows { get; } = new();
+        public List<CorrelationKey> CorrelationKeys { get; } = new();
+        public List<ConversationNode> Conversations { get; } = new();
+        public List<ConversationLink> ConversationLinks { get; } = new();
+        public Collaboration()
+        {
+        }
+
+    }
+
+    public abstract class ChoreographyActivity : FlowNode
+    {
+        public List<Participant> ParticipantRefs { get; } = new();
+        public Participant? InitiatingParticipantRef { get; set; }
+        public List<CorrelationKey> CorrelationKeys { get; } = new();
+        public ChoreographyLoopType? LoopType { get; set; }
+        public ChoreographyActivity()
+        {
+        }
+
+    }
+
+    public class CallChoreography : ChoreographyActivity
+    {
+        public Choreography? CalledChoreographyRef { get; set; }
+        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
+        public CallChoreography()
+        {
+        }
+
+    }
+
+    public class SubChoreography : ChoreographyActivity, FlowElementsContainer
+    {
+        public List<Artifact> Artifacts { get; } = new();
+
+        #region Implementing: FlowElementsContainer
+        public List<FlowElement> FlowElements { get; } = new();
+        public List<LaneSet> LaneSets { get; } = new();
+        #endregion
+
+        public SubChoreography()
+        {
+        }
+
+    }
+
+    public class ChoreographyTask : ChoreographyActivity
+    {
+        public List<MessageFlow> MessageFlowRef { get; } = new();
+        public ChoreographyTask()
+        {
+        }
+
+    }
+
+    public class Choreography : Collaboration, FlowElementsContainer
+    {
+
+        #region Implementing: FlowElementsContainer
+        public List<FlowElement> FlowElements { get; } = new();
+        public List<LaneSet> LaneSets { get; } = new();
+        #endregion
+
+        public Choreography()
+        {
+        }
+
+    }
+
+    public class GlobalChoreographyTask : Choreography
+    {
+        public Participant? InitiatingParticipantRef { get; set; }
+        public GlobalChoreographyTask()
+        {
+        }
+
+    }
+
+    public class TextAnnotation : Artifact
+    {
+        public string? Text { get; set; }
+        public string? TextFormat { get; set; }
+        public TextAnnotation()
+        {
+        }
+
+    }
+
+    public class Group : Artifact
+    {
+        public CategoryValue? CategoryValueRef { get; set; }
+        public Group()
+        {
+        }
+
+    }
+
+    public class Association : Artifact
+    {
+        public AssociationDirection? AssociationDirection { get; set; }
+        public BaseElement? SourceRef { get; set; }
+        public BaseElement? TargetRef { get; set; }
+        public Association()
+        {
+        }
+
+    }
+
+    public class Category : RootElement
+    {
+        public List<CategoryValue> CategoryValue { get; } = new();
+        public string? Name { get; set; }
+        public Category()
+        {
+        }
+
+    }
+
+    public abstract class Artifact : BaseElement
+    {
+        public Artifact()
+        {
+        }
+
+    }
+
+    public class CategoryValue : BaseElement
+    {
+        public List<FlowElement> CategorizedFlowElements { get; } = new();
+        public string? Value { get; set; }
+        public CategoryValue()
+        {
+        }
+
+    }
+
+    public abstract class Activity : FlowNode
+    {
+        public bool? IsForCompensation { get; set; }
+        public LoopCharacteristics? LoopCharacteristics { get; set; }
+        public List<ResourceRole> Resources { get; } = new();
+        public SequenceFlow? Default { get; set; }
+        public List<Property> Properties { get; } = new();
+        public InputOutputSpecification? IoSpecification { get; set; }
+        public List<BoundaryEvent> BoundaryEventRefs { get; } = new();
+        public List<DataInputAssociation> DataInputAssociations { get; } = new();
+        public List<DataOutputAssociation> DataOutputAssociations { get; } = new();
+        public int? StartQuantity { get; set; }
+        public int? CompletionQuantity { get; set; }
+        public Activity()
+        {
+        }
+
+    }
+
+    public class ServiceTask : Task
+    {
+        public string? Implementation { get; set; }
+        public Operation? OperationRef { get; set; }
+        public ServiceTask()
+        {
+        }
+
+    }
+
+    public class SubProcess : Activity, FlowElementsContainer
+    {
+        public bool? TriggeredByEvent { get; set; }
+        public List<Artifact> Artifacts { get; } = new();
+
+        #region Implementing: FlowElementsContainer
+        public List<FlowElement> FlowElements { get; } = new();
+        public List<LaneSet> LaneSets { get; } = new();
+        #endregion
+
+        public SubProcess()
+        {
+        }
+
+    }
+
+    public abstract class LoopCharacteristics : BaseElement
+    {
+        public LoopCharacteristics()
+        {
+        }
+
+    }
+
+    public class MultiInstanceLoopCharacteristics : LoopCharacteristics
+    {
+        public bool? IsSequential { get; set; }
+        public MultiInstanceBehavior? Behavior { get; set; }
+        public Expression? LoopCardinality { get; set; }
+        public ItemAwareElement? LoopDataInputRef { get; set; }
+        public ItemAwareElement? LoopDataOutputRef { get; set; }
+        public DataInput? InputDataItem { get; set; }
+        public DataOutput? OutputDataItem { get; set; }
+        public Expression? CompletionCondition { get; set; }
+        public List<ComplexBehaviorDefinition> ComplexBehaviorDefinition { get; } = new();
+        public EventDefinition? OneBehaviorEventRef { get; set; }
+        public EventDefinition? NoneBehaviorEventRef { get; set; }
+        public MultiInstanceLoopCharacteristics()
+        {
+        }
+
+    }
+
+    public class StandardLoopCharacteristics : LoopCharacteristics
+    {
+        public bool? TestBefore { get; set; }
+        public Expression? LoopCondition { get; set; }
+        public Expression? LoopMaximum { get; set; }
+        public StandardLoopCharacteristics()
+        {
+        }
+
+    }
+
+    public class CallActivity : Activity
+    {
+        public CallableElement? CalledElementRef { get; set; }
+        public CallActivity()
+        {
+        }
+
+    }
+
+    public class Task : Activity, InteractionNode
+    {
+
+        #region Implementing: InteractionNode
+        public List<ConversationLink> IncomingConversationLinks { get; } = new();
+        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
+        #endregion
+
+        public Task()
+        {
+        }
+
+    }
+
+    public class SendTask : Task
+    {
+        public string? Implementation { get; set; }
+        public Operation? OperationRef { get; set; }
+        public Message? MessageRef { get; set; }
+        public SendTask()
+        {
+        }
+
+    }
+
+    public class ReceiveTask : Task
+    {
+        public string? Implementation { get; set; }
+        public bool? Instantiate { get; set; }
+        public Operation? OperationRef { get; set; }
+        public Message? MessageRef { get; set; }
+        public ReceiveTask()
+        {
+        }
+
+    }
+
+    public class ScriptTask : Task
+    {
+        public string? ScriptFormat { get; set; }
+        public string? Script { get; set; }
+        public ScriptTask()
+        {
+        }
+
+    }
+
+    public class BusinessRuleTask : Task
+    {
+        public string? Implementation { get; set; }
+        public BusinessRuleTask()
+        {
+        }
+
+    }
+
+    public class AdHocSubProcess : SubProcess
+    {
+        public Expression? CompletionCondition { get; set; }
+        public AdHocOrdering? Ordering { get; set; }
+        public bool? CancelRemainingInstances { get; set; }
+        public AdHocSubProcess()
+        {
+        }
+
+    }
+
+    public class Transaction : SubProcess
+    {
+        public string? Protocol { get; set; }
+        public string? Method { get; set; }
+        public Transaction()
+        {
+        }
+
+    }
+
+    public class GlobalScriptTask : GlobalTask
+    {
+        public string? ScriptLanguage { get; set; }
+        public string? Script { get; set; }
+        public GlobalScriptTask()
+        {
+        }
+
+    }
+
+    public class GlobalBusinessRuleTask : GlobalTask
+    {
+        public string? Implementation { get; set; }
+        public GlobalBusinessRuleTask()
+        {
+        }
+
+    }
+
+    public class ComplexBehaviorDefinition : BaseElement
+    {
+        public FormalExpression? Condition { get; set; }
+        public ImplicitThrowEvent? Event { get; set; }
+        public ComplexBehaviorDefinition()
+        {
+        }
+
+    }
+
+    public class ResourceRole : BaseElement
+    {
+        public Resource? ResourceRef { get; set; }
+        public List<ResourceParameterBinding> ResourceParameterBindings { get; } = new();
+        public ResourceAssignmentExpression? ResourceAssignmentExpression { get; set; }
+        public string? Name { get; set; }
+        public ResourceRole()
+        {
+        }
+
+    }
+
+    public class ResourceParameterBinding
+    {
+        public Expression? Expression { get; set; }
+        public ResourceParameter? ParameterRef { get; set; }
+        public ResourceParameterBinding()
+        {
+        }
+
+    }
+
+    public class ResourceAssignmentExpression
+    {
+        public Expression? Expression { get; set; }
+        public ResourceAssignmentExpression()
+        {
+        }
+
+    }
+
+    public class Import
+    {
+        public string? ImportType { get; set; }
+        public string? Location { get; set; }
+        public string? Namespace { get; set; }
+        public Import()
+        {
+        }
+
+    }
+
+    public class Definitions : BaseElement
+    {
+        public string? Name { get; set; }
+        public string? TargetNamespace { get; set; }
+        public string? ExpressionLanguage { get; set; }
+        public string? TypeLanguage { get; set; }
+        public List<Import> Imports { get; } = new();
+        public List<Extension> Extensions { get; } = new();
+        public List<Relationship> Relationships { get; } = new();
+        public List<RootElement> RootElements { get; } = new();
+        public string? Exporter { get; set; }
+        public string? ExporterVersion { get; set; }
+        public Definitions()
+        {
+        }
+
+    }
+    #endregion
+
+    #region Enumerations (9 items)
+    public enum ProcessType
+    {
+        None,
+        Public,
+        Private,
+    }
+
+    public enum GatewayDirection
+    {
+        Unspecified,
+        Converging,
+        Diverging,
+        Mixed,
+    }
+
+    public enum EventBasedGatewayType
+    {
+        Parallel,
+        Exclusive,
+    }
+
+    public enum RelationshipDirection
+    {
+        None,
+        Forward,
+        Backward,
+        Both,
+    }
+
+    public enum ItemKind
+    {
+        Physical,
+        Information,
+    }
+
+    public enum ChoreographyLoopType
+    {
+        None,
+        Standard,
+        MultiInstanceSequential,
+        MultiInstanceParallel,
+    }
+
+    public enum AssociationDirection
+    {
+        None,
+        One,
+        Both,
+    }
+
+    public enum MultiInstanceBehavior
+    {
+        None,
+        One,
+        All,
+        Complex,
+    }
+
+    public enum AdHocOrdering
+    {
+        Parallel,
+        Sequential,
+    }
+
+    #endregion
+}

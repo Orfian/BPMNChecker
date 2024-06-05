@@ -8,8 +8,6 @@ namespace BPMNModel
 {
     public abstract class XmlParserNode
     {
-        private static readonly Dictionary<string, XmlParserComplexNode> cache = new();
-
         public Dictionary<string, XmlParserAttribute> Attributes { get; } = new();
 
 

@@ -64,7 +64,7 @@ namespace BPMNModel
             };
         }
 
-        public (XmlParserAttribute? Result, string? Error)  CreateAndCheck(XElement element)
+        public (XmlParserAttribute? Result, string? Error)  CreateAndCheck(XElement element, XmlParser parser)
         {
             var attributeFromXml = element.Attribute(Name);
 
@@ -121,7 +121,7 @@ namespace BPMNModel
                 case AttributeXMLType.IDRef:
                     //TODO: QNAME as IDREF now.
                 case AttributeXMLType.QName:
-                    var node = XmlParserComplexNode.GetReferecne(realValue);
+                    var node = parser.GetReferecne(realValue);
                     resultingAttribute.ProcessedValue = node;
                     return (resultingAttribute, null);
                 default:
