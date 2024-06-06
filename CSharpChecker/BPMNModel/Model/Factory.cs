@@ -6,7 +6,7 @@ namespace BPMNModel.Model
     {
         #region Factories
 
-        public Interface LoadInterface(XmlParserComplexNode node)
+        private Interface LoadInterface(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Interface>(node);
 
@@ -29,12 +29,11 @@ namespace BPMNModel.Model
             // element: operation -> Operation operations (1, *)
             FillElements(node.ChildNodes["operation"], result.Operations);
 
-
             return result;
         }
 
 
-        public Operation LoadOperation(XmlParserComplexNode node)
+        private Operation LoadOperation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Operation>(node);
 
@@ -63,12 +62,11 @@ namespace BPMNModel.Model
             // element: errorRef -> Error errorRefs (0, *)
             FillElements(node.ChildNodes["errorRef"], result.ErrorRefs);
 
-
             return result;
         }
 
 
-        public EndPoint LoadEndPoint(XmlParserComplexNode node)
+        private EndPoint LoadEndPoint(XmlParserComplexNode node)
         {
              var result = GetOrCreate<EndPoint>(node);
 
@@ -79,12 +77,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public Auditing LoadAuditing(XmlParserComplexNode node)
+        private Auditing LoadAuditing(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Auditing>(node);
 
@@ -95,12 +92,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public GlobalTask LoadGlobalTask(XmlParserComplexNode node)
+        private GlobalTask LoadGlobalTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<GlobalTask>(node);
 
@@ -127,12 +123,11 @@ namespace BPMNModel.Model
             // element: resourceRole -> ResourceRole resources (0, *)
             FillElements(node.ChildNodes["resourceRole"], result.Resources);
 
-
             return result;
         }
 
 
-        public Monitoring LoadMonitoring(XmlParserComplexNode node)
+        private Monitoring LoadMonitoring(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Monitoring>(node);
 
@@ -143,12 +138,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public Performer LoadPerformer(XmlParserComplexNode node)
+        private Performer LoadPerformer(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Performer>(node);
 
@@ -172,12 +166,11 @@ namespace BPMNModel.Model
             // element: resourceAssignmentExpression -> ResourceAssignmentExpression resourceAssignmentExpression (0, 1)
             result.ResourceAssignmentExpression = FillElement<ResourceAssignmentExpression>(node.ChildNodes["resourceAssignmentExpression"]);
 
-
             return result;
         }
 
 
-        public Process LoadProcess(XmlParserComplexNode node)
+        private Process LoadProcess(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Process>(node);
 
@@ -244,12 +237,11 @@ namespace BPMNModel.Model
             // element: correlationSubscription -> CorrelationSubscription correlationSubscriptions (0, *)
             FillElements(node.ChildNodes["correlationSubscription"], result.CorrelationSubscriptions);
 
-
             return result;
         }
 
 
-        public LaneSet LoadLaneSet(XmlParserComplexNode node)
+        private LaneSet LoadLaneSet(XmlParserComplexNode node)
         {
              var result = GetOrCreate<LaneSet>(node);
 
@@ -267,12 +259,11 @@ namespace BPMNModel.Model
             // element: lane -> Lane lanes (0, *)
             FillElements(node.ChildNodes["lane"], result.Lanes);
 
-
             return result;
         }
 
 
-        public Lane LoadLane(XmlParserComplexNode node)
+        private Lane LoadLane(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Lane>(node);
 
@@ -300,12 +291,11 @@ namespace BPMNModel.Model
             // element: partitionElement -> BaseElement partitionElement (0, 1)
             result.PartitionElement = FillElement<BaseElement>(node.ChildNodes["partitionElement"]);
 
-
             return result;
         }
 
 
-        public GlobalManualTask LoadGlobalManualTask(XmlParserComplexNode node)
+        private GlobalManualTask LoadGlobalManualTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<GlobalManualTask>(node);
 
@@ -332,12 +322,11 @@ namespace BPMNModel.Model
             // element: resourceRole -> ResourceRole resources (0, *)
             FillElements(node.ChildNodes["resourceRole"], result.Resources);
 
-
             return result;
         }
 
 
-        public ManualTask LoadManualTask(XmlParserComplexNode node)
+        private ManualTask LoadManualTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ManualTask>(node);
 
@@ -401,16 +390,27 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: BoundaryEvent boundaryEventRefs ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: BoundaryEvent boundaryEventRefs (0, *)
+            // boundaryEventRefs 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADF40>
+            // target: BoundaryEvent.attachedToRef
+
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public UserTask LoadUserTask(XmlParserComplexNode node)
+        private UserTask LoadUserTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<UserTask>(node);
 
@@ -481,16 +481,27 @@ namespace BPMNModel.Model
             // element: rendering -> Rendering renderings (0, *)
             FillElements(node.ChildNodes["rendering"], result.Renderings);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: BoundaryEvent boundaryEventRefs ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: BoundaryEvent boundaryEventRefs (0, *)
+            // boundaryEventRefs 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADF40>
+            // target: BoundaryEvent.attachedToRef
+
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public Rendering LoadRendering(XmlParserComplexNode node)
+        private Rendering LoadRendering(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Rendering>(node);
 
@@ -501,12 +512,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public HumanPerformer LoadHumanPerformer(XmlParserComplexNode node)
+        private HumanPerformer LoadHumanPerformer(XmlParserComplexNode node)
         {
              var result = GetOrCreate<HumanPerformer>(node);
 
@@ -530,12 +540,11 @@ namespace BPMNModel.Model
             // element: resourceAssignmentExpression -> ResourceAssignmentExpression resourceAssignmentExpression (0, 1)
             result.ResourceAssignmentExpression = FillElement<ResourceAssignmentExpression>(node.ChildNodes["resourceAssignmentExpression"]);
 
-
             return result;
         }
 
 
-        public PotentialOwner LoadPotentialOwner(XmlParserComplexNode node)
+        private PotentialOwner LoadPotentialOwner(XmlParserComplexNode node)
         {
              var result = GetOrCreate<PotentialOwner>(node);
 
@@ -559,12 +568,11 @@ namespace BPMNModel.Model
             // element: resourceAssignmentExpression -> ResourceAssignmentExpression resourceAssignmentExpression (0, 1)
             result.ResourceAssignmentExpression = FillElement<ResourceAssignmentExpression>(node.ChildNodes["resourceAssignmentExpression"]);
 
-
             return result;
         }
 
 
-        public GlobalUserTask LoadGlobalUserTask(XmlParserComplexNode node)
+        private GlobalUserTask LoadGlobalUserTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<GlobalUserTask>(node);
 
@@ -598,13 +606,12 @@ namespace BPMNModel.Model
             // element: rendering -> Rendering renderings (0, *)
             FillElements(node.ChildNodes["rendering"], result.Renderings);
 
-
             return result;
         }
 
 
 
-        public EventBasedGateway LoadEventBasedGateway(XmlParserComplexNode node)
+        private EventBasedGateway LoadEventBasedGateway(XmlParserComplexNode node)
         {
              var result = GetOrCreate<EventBasedGateway>(node);
 
@@ -646,13 +653,15 @@ namespace BPMNModel.Model
             // element: incoming -> SequenceFlow incoming (0, *)
             FillElements(node.ChildNodes["incoming"], result.Incoming);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
             return result;
         }
 
 
-        public ComplexGateway LoadComplexGateway(XmlParserComplexNode node)
+        private ComplexGateway LoadComplexGateway(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ComplexGateway>(node);
 
@@ -693,13 +702,15 @@ namespace BPMNModel.Model
             // element: activationCondition -> Expression activationCondition (0, 1)
             result.ActivationCondition = FillElement<Expression>(node.ChildNodes["activationCondition"]);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
             return result;
         }
 
 
-        public ExclusiveGateway LoadExclusiveGateway(XmlParserComplexNode node)
+        private ExclusiveGateway LoadExclusiveGateway(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ExclusiveGateway>(node);
 
@@ -737,13 +748,15 @@ namespace BPMNModel.Model
             // element: incoming -> SequenceFlow incoming (0, *)
             FillElements(node.ChildNodes["incoming"], result.Incoming);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
             return result;
         }
 
 
-        public InclusiveGateway LoadInclusiveGateway(XmlParserComplexNode node)
+        private InclusiveGateway LoadInclusiveGateway(XmlParserComplexNode node)
         {
              var result = GetOrCreate<InclusiveGateway>(node);
 
@@ -781,13 +794,15 @@ namespace BPMNModel.Model
             // element: incoming -> SequenceFlow incoming (0, *)
             FillElements(node.ChildNodes["incoming"], result.Incoming);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
             return result;
         }
 
 
-        public ParallelGateway LoadParallelGateway(XmlParserComplexNode node)
+        private ParallelGateway LoadParallelGateway(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ParallelGateway>(node);
 
@@ -821,14 +836,16 @@ namespace BPMNModel.Model
             // element: incoming -> SequenceFlow incoming (0, *)
             FillElements(node.ChildNodes["incoming"], result.Incoming);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
             return result;
         }
 
 
 
-        public Relationship LoadRelationship(XmlParserComplexNode node)
+        private Relationship LoadRelationship(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Relationship>(node);
 
@@ -854,13 +871,12 @@ namespace BPMNModel.Model
             // element: target -> Element targets (1, *)
             FillElements(node.ChildNodes["target"], result.Targets);
 
-
             return result;
         }
 
 
 
-        public Extension LoadExtension(XmlParserComplexNode node)
+        private Extension LoadExtension(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Extension>(node);
 
@@ -872,8 +888,6 @@ namespace BPMNModel.Model
             var _definitionAttribute = node.Attributes.ContainsKey("definition") ? node.Attributes["definition"].ProcessedValue : null;
             if (_definitionAttribute is not null) result.Definition = Load<ExtensionDefinition>((XmlParserComplexNode)_definitionAttribute);
 
-
-            // not attached: documentation
             return result;
         }
 
@@ -881,7 +895,7 @@ namespace BPMNModel.Model
 
 
 
-        public Documentation LoadDocumentation(XmlParserComplexNode node)
+        private Documentation LoadDocumentation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Documentation>(node);
 
@@ -893,14 +907,14 @@ namespace BPMNModel.Model
             var _textFormatAttribute = node.Attributes.ContainsKey("textFormat") ? node.Attributes["textFormat"].ProcessedValue : null;
             if (_textFormatAttribute is not null) result.TextFormat = (string)_textFormatAttribute;
 
+            // missing: string text (1, 1)
 
-            // Link back: string text ( 1,1) None
             return result;
         }
 
 
 
-        public IntermediateCatchEvent LoadIntermediateCatchEvent(XmlParserComplexNode node)
+        private IntermediateCatchEvent LoadIntermediateCatchEvent(XmlParserComplexNode node)
         {
              var result = GetOrCreate<IntermediateCatchEvent>(node);
 
@@ -952,15 +966,23 @@ namespace BPMNModel.Model
             // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
             FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public IntermediateThrowEvent LoadIntermediateThrowEvent(XmlParserComplexNode node)
+        private IntermediateThrowEvent LoadIntermediateThrowEvent(XmlParserComplexNode node)
         {
              var result = GetOrCreate<IntermediateThrowEvent>(node);
 
@@ -1008,15 +1030,23 @@ namespace BPMNModel.Model
             // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
             FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public EndEvent LoadEndEvent(XmlParserComplexNode node)
+        private EndEvent LoadEndEvent(XmlParserComplexNode node)
         {
              var result = GetOrCreate<EndEvent>(node);
 
@@ -1064,15 +1094,23 @@ namespace BPMNModel.Model
             // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
             FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public StartEvent LoadStartEvent(XmlParserComplexNode node)
+        private StartEvent LoadStartEvent(XmlParserComplexNode node)
         {
              var result = GetOrCreate<StartEvent>(node);
 
@@ -1128,17 +1166,25 @@ namespace BPMNModel.Model
             // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
             FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
 
 
-        public BoundaryEvent LoadBoundaryEvent(XmlParserComplexNode node)
+        private BoundaryEvent LoadBoundaryEvent(XmlParserComplexNode node)
         {
              var result = GetOrCreate<BoundaryEvent>(node);
 
@@ -1199,16 +1245,24 @@ namespace BPMNModel.Model
             // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
             FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
 
-        public CancelEventDefinition LoadCancelEventDefinition(XmlParserComplexNode node)
+        private CancelEventDefinition LoadCancelEventDefinition(XmlParserComplexNode node)
         {
              var result = GetOrCreate<CancelEventDefinition>(node);
 
@@ -1219,12 +1273,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public ErrorEventDefinition LoadErrorEventDefinition(XmlParserComplexNode node)
+        private ErrorEventDefinition LoadErrorEventDefinition(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ErrorEventDefinition>(node);
 
@@ -1239,12 +1292,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public TerminateEventDefinition LoadTerminateEventDefinition(XmlParserComplexNode node)
+        private TerminateEventDefinition LoadTerminateEventDefinition(XmlParserComplexNode node)
         {
              var result = GetOrCreate<TerminateEventDefinition>(node);
 
@@ -1255,12 +1307,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public EscalationEventDefinition LoadEscalationEventDefinition(XmlParserComplexNode node)
+        private EscalationEventDefinition LoadEscalationEventDefinition(XmlParserComplexNode node)
         {
              var result = GetOrCreate<EscalationEventDefinition>(node);
 
@@ -1275,12 +1326,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public Escalation LoadEscalation(XmlParserComplexNode node)
+        private Escalation LoadEscalation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Escalation>(node);
 
@@ -1296,13 +1346,11 @@ namespace BPMNModel.Model
             var _escalationCodeAttribute = node.Attributes.ContainsKey("escalationCode") ? node.Attributes["escalationCode"].ProcessedValue : null;
             if (_escalationCodeAttribute is not null) result.EscalationCode = (string)_escalationCodeAttribute;
 
-
-            // not attached: documentation
             return result;
         }
 
 
-        public CompensateEventDefinition LoadCompensateEventDefinition(XmlParserComplexNode node)
+        private CompensateEventDefinition LoadCompensateEventDefinition(XmlParserComplexNode node)
         {
              var result = GetOrCreate<CompensateEventDefinition>(node);
 
@@ -1321,12 +1369,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public TimerEventDefinition LoadTimerEventDefinition(XmlParserComplexNode node)
+        private TimerEventDefinition LoadTimerEventDefinition(XmlParserComplexNode node)
         {
              var result = GetOrCreate<TimerEventDefinition>(node);
 
@@ -1346,12 +1393,11 @@ namespace BPMNModel.Model
             // element: timeDuration -> Expression timeDuration (0, 1)
             result.TimeDuration = FillElement<Expression>(node.ChildNodes["timeDuration"]);
 
-
             return result;
         }
 
 
-        public LinkEventDefinition LoadLinkEventDefinition(XmlParserComplexNode node)
+        private LinkEventDefinition LoadLinkEventDefinition(XmlParserComplexNode node)
         {
              var result = GetOrCreate<LinkEventDefinition>(node);
 
@@ -1373,12 +1419,11 @@ namespace BPMNModel.Model
             // element: source -> LinkEventDefinition source (0, *)
             FillElements(node.ChildNodes["source"], result.Source);
 
-
             return result;
         }
 
 
-        public MessageEventDefinition LoadMessageEventDefinition(XmlParserComplexNode node)
+        private MessageEventDefinition LoadMessageEventDefinition(XmlParserComplexNode node)
         {
              var result = GetOrCreate<MessageEventDefinition>(node);
 
@@ -1396,12 +1441,11 @@ namespace BPMNModel.Model
             // element: operationRef -> Operation operationRef (0, 1)
             result.OperationRef = FillElement<Operation>(node.ChildNodes["operationRef"]);
 
-
             return result;
         }
 
 
-        public ConditionalEventDefinition LoadConditionalEventDefinition(XmlParserComplexNode node)
+        private ConditionalEventDefinition LoadConditionalEventDefinition(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ConditionalEventDefinition>(node);
 
@@ -1415,12 +1459,11 @@ namespace BPMNModel.Model
             // element: condition -> Expression condition (1, 1)
             result.Condition = FillElement<Expression>(node.ChildNodes["condition"]);
 
-
             return result;
         }
 
 
-        public SignalEventDefinition LoadSignalEventDefinition(XmlParserComplexNode node)
+        private SignalEventDefinition LoadSignalEventDefinition(XmlParserComplexNode node)
         {
              var result = GetOrCreate<SignalEventDefinition>(node);
 
@@ -1435,12 +1478,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public Signal LoadSignal(XmlParserComplexNode node)
+        private Signal LoadSignal(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Signal>(node);
 
@@ -1459,12 +1501,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public ImplicitThrowEvent LoadImplicitThrowEvent(XmlParserComplexNode node)
+        private ImplicitThrowEvent LoadImplicitThrowEvent(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ImplicitThrowEvent>(node);
 
@@ -1512,15 +1553,23 @@ namespace BPMNModel.Model
             // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
             FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public DataState LoadDataState(XmlParserComplexNode node)
+        private DataState LoadDataState(XmlParserComplexNode node)
         {
              var result = GetOrCreate<DataState>(node);
 
@@ -1535,13 +1584,12 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
 
-        public DataAssociation LoadDataAssociation(XmlParserComplexNode node)
+        private DataAssociation LoadDataAssociation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<DataAssociation>(node);
 
@@ -1564,12 +1612,11 @@ namespace BPMNModel.Model
             // element: sourceRef -> ItemAwareElement sourceRef (0, *)
             FillElements(node.ChildNodes["sourceRef"], result.SourceRef);
 
-
             return result;
         }
 
 
-        public DataInput LoadDataInput(XmlParserComplexNode node)
+        private DataInput LoadDataInput(XmlParserComplexNode node)
         {
              var result = GetOrCreate<DataInput>(node);
 
@@ -1595,15 +1642,23 @@ namespace BPMNModel.Model
             // element: dataState -> DataState dataState (0, 1)
             result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
 
+            // link back: InputSet inputSetRefs (1, *)
+            // inputSetRefs 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD940>
+            // target: InputSet.dataInputRefs
 
-            // Link back: InputSet inputSetRefs ( 1,-1) None
-            // Link back: InputSet inputSetWithOptional ( 0,-1) None
-            // Link back: InputSet inputSetWithWhileExecuting ( 0,-1) None
+            // link back: InputSet inputSetWithOptional (0, *)
+            // inputSetWithOptional 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADB40>
+            // target: InputSet.optionalInputRefs
+
+            // link back: InputSet inputSetWithWhileExecuting (0, *)
+            // inputSetWithWhileExecuting 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADAC0>
+            // target: InputSet.whileExecutingInputRefs
+
             return result;
         }
 
 
-        public DataOutput LoadDataOutput(XmlParserComplexNode node)
+        private DataOutput LoadDataOutput(XmlParserComplexNode node)
         {
              var result = GetOrCreate<DataOutput>(node);
 
@@ -1629,15 +1684,23 @@ namespace BPMNModel.Model
             // element: dataState -> DataState dataState (0, 1)
             result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
 
+            // link back: OutputSet outputSetRefs (1, *)
+            // outputSetRefs 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD9C0>
+            // target: OutputSet.dataOutputRefs
 
-            // Link back: OutputSet outputSetRefs ( 1,-1) None
-            // Link back: OutputSet outputSetWithOptional ( 0,-1) None
-            // Link back: OutputSet outputSetWithWhileExecuting ( 0,-1) None
+            // link back: OutputSet outputSetWithOptional (0, *)
+            // outputSetWithOptional 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADBC0>
+            // target: OutputSet.optionalOutputRefs
+
+            // link back: OutputSet outputSetWithWhileExecuting (0, *)
+            // outputSetWithWhileExecuting 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADC40>
+            // target: OutputSet.whileExecutingOutputRefs
+
             return result;
         }
 
 
-        public InputSet LoadInputSet(XmlParserComplexNode node)
+        private InputSet LoadInputSet(XmlParserComplexNode node)
         {
              var result = GetOrCreate<InputSet>(node);
 
@@ -1664,12 +1727,11 @@ namespace BPMNModel.Model
             // element: outputSetRefs -> OutputSet outputSetRefs (0, *)
             FillElements(node.ChildNodes["outputSetRefs"], result.OutputSetRefs);
 
-
             return result;
         }
 
 
-        public OutputSet LoadOutputSet(XmlParserComplexNode node)
+        private OutputSet LoadOutputSet(XmlParserComplexNode node)
         {
              var result = GetOrCreate<OutputSet>(node);
 
@@ -1696,12 +1758,11 @@ namespace BPMNModel.Model
             // element: whileExecutingOutputRefs -> DataOutput whileExecutingOutputRefs (0, *)
             FillElements(node.ChildNodes["whileExecutingOutputRefs"], result.WhileExecutingOutputRefs);
 
-
             return result;
         }
 
 
-        public Property LoadProperty(XmlParserComplexNode node)
+        private Property LoadProperty(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Property>(node);
 
@@ -1723,12 +1784,11 @@ namespace BPMNModel.Model
             // element: dataState -> DataState dataState (0, 1)
             result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
 
-
             return result;
         }
 
 
-        public DataInputAssociation LoadDataInputAssociation(XmlParserComplexNode node)
+        private DataInputAssociation LoadDataInputAssociation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<DataInputAssociation>(node);
 
@@ -1751,12 +1811,11 @@ namespace BPMNModel.Model
             // element: sourceRef -> ItemAwareElement sourceRef (0, *)
             FillElements(node.ChildNodes["sourceRef"], result.SourceRef);
 
-
             return result;
         }
 
 
-        public DataOutputAssociation LoadDataOutputAssociation(XmlParserComplexNode node)
+        private DataOutputAssociation LoadDataOutputAssociation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<DataOutputAssociation>(node);
 
@@ -1779,12 +1838,11 @@ namespace BPMNModel.Model
             // element: sourceRef -> ItemAwareElement sourceRef (0, *)
             FillElements(node.ChildNodes["sourceRef"], result.SourceRef);
 
-
             return result;
         }
 
 
-        public InputOutputSpecification LoadInputOutputSpecification(XmlParserComplexNode node)
+        private InputOutputSpecification LoadInputOutputSpecification(XmlParserComplexNode node)
         {
              var result = GetOrCreate<InputOutputSpecification>(node);
 
@@ -1807,12 +1865,11 @@ namespace BPMNModel.Model
             // element: dataOutput -> DataOutput dataOutputs (0, *)
             FillElements(node.ChildNodes["dataOutput"], result.DataOutputs);
 
-
             return result;
         }
 
 
-        public DataObject LoadDataObject(XmlParserComplexNode node)
+        private DataObject LoadDataObject(XmlParserComplexNode node)
         {
              var result = GetOrCreate<DataObject>(node);
 
@@ -1847,12 +1904,11 @@ namespace BPMNModel.Model
             // element: dataState -> DataState dataState (0, 1)
             result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
 
-
             return result;
         }
 
 
-        public InputOutputBinding LoadInputOutputBinding(XmlParserComplexNode node)
+        private InputOutputBinding LoadInputOutputBinding(XmlParserComplexNode node)
         {
              var result = GetOrCreate<InputOutputBinding>(node);
 
@@ -1871,13 +1927,11 @@ namespace BPMNModel.Model
             if (_operationRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute operationRef");
             result.OperationRef = Load<Operation>((XmlParserComplexNode)_operationRefAttribute);
 
-
-            // not attached: documentation
             return result;
         }
 
 
-        public Assignment LoadAssignment(XmlParserComplexNode node)
+        private Assignment LoadAssignment(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Assignment>(node);
 
@@ -1894,12 +1948,11 @@ namespace BPMNModel.Model
             // element: to -> Expression to (1, 1)
             result.To = FillElement<Expression>(node.ChildNodes["to"]);
 
-
             return result;
         }
 
 
-        public DataStore LoadDataStore(XmlParserComplexNode node)
+        private DataStore LoadDataStore(XmlParserComplexNode node)
         {
              var result = GetOrCreate<DataStore>(node);
 
@@ -1929,12 +1982,11 @@ namespace BPMNModel.Model
             // element: dataState -> DataState dataState (0, 1)
             result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
 
-
             return result;
         }
 
 
-        public DataStoreReference LoadDataStoreReference(XmlParserComplexNode node)
+        private DataStoreReference LoadDataStoreReference(XmlParserComplexNode node)
         {
              var result = GetOrCreate<DataStoreReference>(node);
 
@@ -1969,12 +2021,11 @@ namespace BPMNModel.Model
             // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
             FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
 
-
             return result;
         }
 
 
-        public DataObjectReference LoadDataObjectReference(XmlParserComplexNode node)
+        private DataObjectReference LoadDataObjectReference(XmlParserComplexNode node)
         {
              var result = GetOrCreate<DataObjectReference>(node);
 
@@ -2009,12 +2060,11 @@ namespace BPMNModel.Model
             // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
             FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
 
-
             return result;
         }
 
 
-        public ConversationLink LoadConversationLink(XmlParserComplexNode node)
+        private ConversationLink LoadConversationLink(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ConversationLink>(node);
 
@@ -2039,12 +2089,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public ConversationAssociation LoadConversationAssociation(XmlParserComplexNode node)
+        private ConversationAssociation LoadConversationAssociation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ConversationAssociation>(node);
 
@@ -2065,12 +2114,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public CallConversation LoadCallConversation(XmlParserComplexNode node)
+        private CallConversation LoadCallConversation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<CallConversation>(node);
 
@@ -2101,14 +2149,19 @@ namespace BPMNModel.Model
             // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
             FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
 
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
 
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public Conversation LoadConversation(XmlParserComplexNode node)
+        private Conversation LoadConversation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Conversation>(node);
 
@@ -2132,14 +2185,19 @@ namespace BPMNModel.Model
             // element: correlationKey -> CorrelationKey correlationKeys (0, *)
             FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
 
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
 
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public SubConversation LoadSubConversation(XmlParserComplexNode node)
+        private SubConversation LoadSubConversation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<SubConversation>(node);
 
@@ -2166,15 +2224,20 @@ namespace BPMNModel.Model
             // element: conversationNode -> ConversationNode conversationNodes (0, *)
             FillElements(node.ChildNodes["conversationNode"], result.ConversationNodes);
 
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
 
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
 
-        public GlobalConversation LoadGlobalConversation(XmlParserComplexNode node)
+        private GlobalConversation LoadGlobalConversation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<GlobalConversation>(node);
 
@@ -2223,12 +2286,11 @@ namespace BPMNModel.Model
             // element: conversationLink -> ConversationLink conversationLinks (0, *)
             FillElements(node.ChildNodes["conversationLink"], result.ConversationLinks);
 
-
             return result;
         }
 
 
-        public PartnerEntity LoadPartnerEntity(XmlParserComplexNode node)
+        private PartnerEntity LoadPartnerEntity(XmlParserComplexNode node)
         {
              var result = GetOrCreate<PartnerEntity>(node);
 
@@ -2246,12 +2308,11 @@ namespace BPMNModel.Model
             // element: participantRef -> Participant participantRef (0, *)
             FillElements(node.ChildNodes["participantRef"], result.ParticipantRef);
 
-
             return result;
         }
 
 
-        public PartnerRole LoadPartnerRole(XmlParserComplexNode node)
+        private PartnerRole LoadPartnerRole(XmlParserComplexNode node)
         {
              var result = GetOrCreate<PartnerRole>(node);
 
@@ -2269,12 +2330,11 @@ namespace BPMNModel.Model
             // element: participantRef -> Participant participantRef (0, *)
             FillElements(node.ChildNodes["participantRef"], result.ParticipantRef);
 
-
             return result;
         }
 
 
-        public CorrelationProperty LoadCorrelationProperty(XmlParserComplexNode node)
+        private CorrelationProperty LoadCorrelationProperty(XmlParserComplexNode node)
         {
              var result = GetOrCreate<CorrelationProperty>(node);
 
@@ -2296,12 +2356,11 @@ namespace BPMNModel.Model
             // element: correlationPropertyRetrievalExpression -> CorrelationPropertyRetrievalExpression correlationPropertyRetrievalExpression (1, *)
             FillElements(node.ChildNodes["correlationPropertyRetrievalExpression"], result.CorrelationPropertyRetrievalExpression);
 
-
             return result;
         }
 
 
-        public Error LoadError(XmlParserComplexNode node)
+        private Error LoadError(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Error>(node);
 
@@ -2324,12 +2383,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public CorrelationKey LoadCorrelationKey(XmlParserComplexNode node)
+        private CorrelationKey LoadCorrelationKey(XmlParserComplexNode node)
         {
              var result = GetOrCreate<CorrelationKey>(node);
 
@@ -2347,12 +2405,11 @@ namespace BPMNModel.Model
             // element: correlationPropertyRef -> CorrelationProperty correlationPropertyRef (0, *)
             FillElements(node.ChildNodes["correlationPropertyRef"], result.CorrelationPropertyRef);
 
-
             return result;
         }
 
 
-        public Expression LoadExpression(XmlParserComplexNode node)
+        private Expression LoadExpression(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Expression>(node);
 
@@ -2363,12 +2420,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public FormalExpression LoadFormalExpression(XmlParserComplexNode node)
+        private FormalExpression LoadFormalExpression(XmlParserComplexNode node)
         {
              var result = GetOrCreate<FormalExpression>(node);
 
@@ -2387,13 +2443,13 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
+            // missing: Element body (1, 1)
 
-            // Link back: Element body ( 1,1) None
             return result;
         }
 
 
-        public Message LoadMessage(XmlParserComplexNode node)
+        private Message LoadMessage(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Message>(node);
 
@@ -2412,12 +2468,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public ItemDefinition LoadItemDefinition(XmlParserComplexNode node)
+        private ItemDefinition LoadItemDefinition(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ItemDefinition>(node);
 
@@ -2440,14 +2495,14 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
+            // empty: Import import (0, 1)
 
-            // Link back: Import import ( 0,1) None
             return result;
         }
 
 
 
-        public SequenceFlow LoadSequenceFlow(XmlParserComplexNode node)
+        private SequenceFlow LoadSequenceFlow(XmlParserComplexNode node)
         {
              var result = GetOrCreate<SequenceFlow>(node);
 
@@ -2488,7 +2543,6 @@ namespace BPMNModel.Model
             // element: conditionExpression -> Expression conditionExpression (0, 1)
             result.ConditionExpression = FillElement<Expression>(node.ChildNodes["conditionExpression"]);
 
-
             return result;
         }
 
@@ -2496,7 +2550,7 @@ namespace BPMNModel.Model
 
 
 
-        public CorrelationPropertyRetrievalExpression LoadCorrelationPropertyRetrievalExpression(XmlParserComplexNode node)
+        private CorrelationPropertyRetrievalExpression LoadCorrelationPropertyRetrievalExpression(XmlParserComplexNode node)
         {
              var result = GetOrCreate<CorrelationPropertyRetrievalExpression>(node);
 
@@ -2515,12 +2569,11 @@ namespace BPMNModel.Model
             // element: messagePath -> FormalExpression messagePath (1, 1)
             result.MessagePath = FillElement<FormalExpression>(node.ChildNodes["messagePath"]);
 
-
             return result;
         }
 
 
-        public CorrelationPropertyBinding LoadCorrelationPropertyBinding(XmlParserComplexNode node)
+        private CorrelationPropertyBinding LoadCorrelationPropertyBinding(XmlParserComplexNode node)
         {
              var result = GetOrCreate<CorrelationPropertyBinding>(node);
 
@@ -2539,12 +2592,11 @@ namespace BPMNModel.Model
             // element: dataPath -> FormalExpression dataPath (1, 1)
             result.DataPath = FillElement<FormalExpression>(node.ChildNodes["dataPath"]);
 
-
             return result;
         }
 
 
-        public Resource LoadResource(XmlParserComplexNode node)
+        private Resource LoadResource(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Resource>(node);
 
@@ -2563,12 +2615,11 @@ namespace BPMNModel.Model
             // element: resourceParameter -> ResourceParameter resourceParameters (0, *)
             FillElements(node.ChildNodes["resourceParameter"], result.ResourceParameters);
 
-
             return result;
         }
 
 
-        public ResourceParameter LoadResourceParameter(XmlParserComplexNode node)
+        private ResourceParameter LoadResourceParameter(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ResourceParameter>(node);
 
@@ -2591,12 +2642,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public CorrelationSubscription LoadCorrelationSubscription(XmlParserComplexNode node)
+        private CorrelationSubscription LoadCorrelationSubscription(XmlParserComplexNode node)
         {
              var result = GetOrCreate<CorrelationSubscription>(node);
 
@@ -2615,12 +2665,11 @@ namespace BPMNModel.Model
             // element: correlationPropertyBinding -> CorrelationPropertyBinding correlationPropertyBinding (0, *)
             FillElements(node.ChildNodes["correlationPropertyBinding"], result.CorrelationPropertyBinding);
 
-
             return result;
         }
 
 
-        public MessageFlow LoadMessageFlow(XmlParserComplexNode node)
+        private MessageFlow LoadMessageFlow(XmlParserComplexNode node)
         {
              var result = GetOrCreate<MessageFlow>(node);
 
@@ -2649,12 +2698,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public MessageFlowAssociation LoadMessageFlowAssociation(XmlParserComplexNode node)
+        private MessageFlowAssociation LoadMessageFlowAssociation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<MessageFlowAssociation>(node);
 
@@ -2675,13 +2723,12 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
 
-        public Participant LoadParticipant(XmlParserComplexNode node)
+        private Participant LoadParticipant(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Participant>(node);
 
@@ -2709,14 +2756,19 @@ namespace BPMNModel.Model
             // element: endPointRef -> EndPoint endPointRefs (0, *)
             FillElements(node.ChildNodes["endPointRef"], result.EndPointRefs);
 
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
 
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public ParticipantAssociation LoadParticipantAssociation(XmlParserComplexNode node)
+        private ParticipantAssociation LoadParticipantAssociation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ParticipantAssociation>(node);
 
@@ -2733,12 +2785,11 @@ namespace BPMNModel.Model
             // element: outerParticipantRef -> Participant outerParticipantRef (1, 1)
             result.OuterParticipantRef = FillElement<Participant>(node.ChildNodes["outerParticipantRef"]);
 
-
             return result;
         }
 
 
-        public ParticipantMultiplicity LoadParticipantMultiplicity(XmlParserComplexNode node)
+        private ParticipantMultiplicity LoadParticipantMultiplicity(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ParticipantMultiplicity>(node);
 
@@ -2750,13 +2801,11 @@ namespace BPMNModel.Model
             var _maximumAttribute = node.Attributes.ContainsKey("maximum") ? node.Attributes["maximum"].ProcessedValue : null;
             if (_maximumAttribute is not null) result.Maximum = (int)_maximumAttribute;
 
-
-            // not attached: documentation
             return result;
         }
 
 
-        public Collaboration LoadCollaboration(XmlParserComplexNode node)
+        private Collaboration LoadCollaboration(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Collaboration>(node);
 
@@ -2805,13 +2854,12 @@ namespace BPMNModel.Model
             // element: conversationLink -> ConversationLink conversationLinks (0, *)
             FillElements(node.ChildNodes["conversationLink"], result.ConversationLinks);
 
-
             return result;
         }
 
 
 
-        public CallChoreography LoadCallChoreography(XmlParserComplexNode node)
+        private CallChoreography LoadCallChoreography(XmlParserComplexNode node)
         {
              var result = GetOrCreate<CallChoreography>(node);
 
@@ -2863,13 +2911,15 @@ namespace BPMNModel.Model
             // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
             FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
             return result;
         }
 
 
-        public SubChoreography LoadSubChoreography(XmlParserComplexNode node)
+        private SubChoreography LoadSubChoreography(XmlParserComplexNode node)
         {
              var result = GetOrCreate<SubChoreography>(node);
 
@@ -2920,14 +2970,17 @@ namespace BPMNModel.Model
             // element: artifact -> Artifact artifacts (0, *)
             FillElements(node.ChildNodes["artifact"], result.Artifacts);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: LaneSet laneSets ( 0,-1) None
+            // empty: LaneSet laneSets (0, *)
+
             return result;
         }
 
 
-        public ChoreographyTask LoadChoreographyTask(XmlParserComplexNode node)
+        private ChoreographyTask LoadChoreographyTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ChoreographyTask>(node);
 
@@ -2975,13 +3028,15 @@ namespace BPMNModel.Model
             // element: messageFlowRef -> MessageFlow messageFlowRef (1, 2)
             FillElements(node.ChildNodes["messageFlowRef"], result.MessageFlowRef);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
             return result;
         }
 
 
-        public Choreography LoadChoreography(XmlParserComplexNode node)
+        private Choreography LoadChoreography(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Choreography>(node);
 
@@ -3033,13 +3088,13 @@ namespace BPMNModel.Model
             // element: conversationLink -> ConversationLink conversationLinks (0, *)
             FillElements(node.ChildNodes["conversationLink"], result.ConversationLinks);
 
+            // empty: LaneSet laneSets (0, *)
 
-            // Link back: LaneSet laneSets ( 0,-1) None
             return result;
         }
 
 
-        public GlobalChoreographyTask LoadGlobalChoreographyTask(XmlParserComplexNode node)
+        private GlobalChoreographyTask LoadGlobalChoreographyTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<GlobalChoreographyTask>(node);
 
@@ -3095,13 +3150,13 @@ namespace BPMNModel.Model
             // element: conversationLink -> ConversationLink conversationLinks (0, *)
             FillElements(node.ChildNodes["conversationLink"], result.ConversationLinks);
 
+            // empty: LaneSet laneSets (0, *)
 
-            // Link back: LaneSet laneSets ( 0,-1) None
             return result;
         }
 
 
-        public TextAnnotation LoadTextAnnotation(XmlParserComplexNode node)
+        private TextAnnotation LoadTextAnnotation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<TextAnnotation>(node);
 
@@ -3119,12 +3174,11 @@ namespace BPMNModel.Model
             // element: text -> string text (1, 1)
             result.Text = FillElement<string>(node.ChildNodes["text"]);
 
-
             return result;
         }
 
 
-        public Group LoadGroup(XmlParserComplexNode node)
+        private Group LoadGroup(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Group>(node);
 
@@ -3139,12 +3193,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public Association LoadAssociation(XmlParserComplexNode node)
+        private Association LoadAssociation(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Association>(node);
 
@@ -3169,12 +3222,11 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-
             return result;
         }
 
 
-        public Category LoadCategory(XmlParserComplexNode node)
+        private Category LoadCategory(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Category>(node);
 
@@ -3192,13 +3244,12 @@ namespace BPMNModel.Model
             // element: categoryValue -> CategoryValue categoryValue (0, *)
             FillElements(node.ChildNodes["categoryValue"], result.CategoryValue);
 
-
             return result;
         }
 
 
 
-        public CategoryValue LoadCategoryValue(XmlParserComplexNode node)
+        private CategoryValue LoadCategoryValue(XmlParserComplexNode node)
         {
              var result = GetOrCreate<CategoryValue>(node);
 
@@ -3213,14 +3264,16 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
+            // link back: FlowElement categorizedFlowElements (0, *)
+            // categorizedFlowElements 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADEC0>
+            // target: FlowElement.categoryValueRef
 
-            // Link back: FlowElement categorizedFlowElements ( 0,-1) None
             return result;
         }
 
 
 
-        public ServiceTask LoadServiceTask(XmlParserComplexNode node)
+        private ServiceTask LoadServiceTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ServiceTask>(node);
 
@@ -3292,16 +3345,27 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: BoundaryEvent boundaryEventRefs ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: BoundaryEvent boundaryEventRefs (0, *)
+            // boundaryEventRefs 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADF40>
+            // target: BoundaryEvent.attachedToRef
+
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public SubProcess LoadSubProcess(XmlParserComplexNode node)
+        private SubProcess LoadSubProcess(XmlParserComplexNode node)
         {
              var result = GetOrCreate<SubProcess>(node);
 
@@ -3378,15 +3442,20 @@ namespace BPMNModel.Model
             // element: artifact -> Artifact artifacts (0, *)
             FillElements(node.ChildNodes["artifact"], result.Artifacts);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: BoundaryEvent boundaryEventRefs ( 0,-1) None
+            // link back: BoundaryEvent boundaryEventRefs (0, *)
+            // boundaryEventRefs 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADF40>
+            // target: BoundaryEvent.attachedToRef
+
             return result;
         }
 
 
 
-        public MultiInstanceLoopCharacteristics LoadMultiInstanceLoopCharacteristics(XmlParserComplexNode node)
+        private MultiInstanceLoopCharacteristics LoadMultiInstanceLoopCharacteristics(XmlParserComplexNode node)
         {
              var result = GetOrCreate<MultiInstanceLoopCharacteristics>(node);
 
@@ -3434,12 +3503,11 @@ namespace BPMNModel.Model
             // element: complexBehaviorDefinition -> ComplexBehaviorDefinition complexBehaviorDefinition (0, *)
             FillElements(node.ChildNodes["complexBehaviorDefinition"], result.ComplexBehaviorDefinition);
 
-
             return result;
         }
 
 
-        public StandardLoopCharacteristics LoadStandardLoopCharacteristics(XmlParserComplexNode node)
+        private StandardLoopCharacteristics LoadStandardLoopCharacteristics(XmlParserComplexNode node)
         {
              var result = GetOrCreate<StandardLoopCharacteristics>(node);
 
@@ -3461,12 +3529,11 @@ namespace BPMNModel.Model
             // element: loopCondition -> Expression loopCondition (0, 1)
             result.LoopCondition = FillElement<Expression>(node.ChildNodes["loopCondition"]);
 
-
             return result;
         }
 
 
-        public CallActivity LoadCallActivity(XmlParserComplexNode node)
+        private CallActivity LoadCallActivity(XmlParserComplexNode node)
         {
              var result = GetOrCreate<CallActivity>(node);
 
@@ -3534,14 +3601,19 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: BoundaryEvent boundaryEventRefs ( 0,-1) None
+            // link back: BoundaryEvent boundaryEventRefs (0, *)
+            // boundaryEventRefs 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADF40>
+            // target: BoundaryEvent.attachedToRef
+
             return result;
         }
 
 
-        public Task LoadTask(XmlParserComplexNode node)
+        private Task LoadTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Task>(node);
 
@@ -3605,16 +3677,27 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: BoundaryEvent boundaryEventRefs ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: BoundaryEvent boundaryEventRefs (0, *)
+            // boundaryEventRefs 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADF40>
+            // target: BoundaryEvent.attachedToRef
+
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public SendTask LoadSendTask(XmlParserComplexNode node)
+        private SendTask LoadSendTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<SendTask>(node);
 
@@ -3690,16 +3773,27 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: BoundaryEvent boundaryEventRefs ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: BoundaryEvent boundaryEventRefs (0, *)
+            // boundaryEventRefs 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADF40>
+            // target: BoundaryEvent.attachedToRef
+
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public ReceiveTask LoadReceiveTask(XmlParserComplexNode node)
+        private ReceiveTask LoadReceiveTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ReceiveTask>(node);
 
@@ -3779,16 +3873,27 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: BoundaryEvent boundaryEventRefs ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: BoundaryEvent boundaryEventRefs (0, *)
+            // boundaryEventRefs 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADF40>
+            // target: BoundaryEvent.attachedToRef
+
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public ScriptTask LoadScriptTask(XmlParserComplexNode node)
+        private ScriptTask LoadScriptTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ScriptTask>(node);
 
@@ -3859,16 +3964,27 @@ namespace BPMNModel.Model
             // element: script -> string script (1, 1)
             result.Script = FillElement<string>(node.ChildNodes["script"]);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: BoundaryEvent boundaryEventRefs ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: BoundaryEvent boundaryEventRefs (0, *)
+            // boundaryEventRefs 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADF40>
+            // target: BoundaryEvent.attachedToRef
+
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public BusinessRuleTask LoadBusinessRuleTask(XmlParserComplexNode node)
+        private BusinessRuleTask LoadBusinessRuleTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<BusinessRuleTask>(node);
 
@@ -3936,16 +4052,27 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: BoundaryEvent boundaryEventRefs ( 0,-1) None
-            // Link back: ConversationLink incomingConversationLinks ( 0,-1) None
-            // Link back: ConversationLink outgoingConversationLinks ( 0,-1) None
+            // link back: BoundaryEvent boundaryEventRefs (0, *)
+            // boundaryEventRefs 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADF40>
+            // target: BoundaryEvent.attachedToRef
+
+            // link back: ConversationLink incomingConversationLinks (0, *)
+            // incomingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADD40>
+            // target: ConversationLink.targetRef
+
+            // link back: ConversationLink outgoingConversationLinks (0, *)
+            // outgoingConversationLinks 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADCC0>
+            // target: ConversationLink.sourceRef
+
             return result;
         }
 
 
-        public AdHocSubProcess LoadAdHocSubProcess(XmlParserComplexNode node)
+        private AdHocSubProcess LoadAdHocSubProcess(XmlParserComplexNode node)
         {
              var result = GetOrCreate<AdHocSubProcess>(node);
 
@@ -4033,14 +4160,19 @@ namespace BPMNModel.Model
             // element: completionCondition -> Expression completionCondition (1, 1)
             result.CompletionCondition = FillElement<Expression>(node.ChildNodes["completionCondition"]);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: BoundaryEvent boundaryEventRefs ( 0,-1) None
+            // link back: BoundaryEvent boundaryEventRefs (0, *)
+            // boundaryEventRefs 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADF40>
+            // target: BoundaryEvent.attachedToRef
+
             return result;
         }
 
 
-        public Transaction LoadTransaction(XmlParserComplexNode node)
+        private Transaction LoadTransaction(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Transaction>(node);
 
@@ -4121,15 +4253,21 @@ namespace BPMNModel.Model
             // element: artifact -> Artifact artifacts (0, *)
             FillElements(node.ChildNodes["artifact"], result.Artifacts);
 
+            // link back: Lane lanes (0, *)
+            // lanes 1 <cmof_model.M_Two_Way_Association object at 0x000002941E4AD800>
+            // target: Lane.flowNodeRefs
 
-            // Link back: Lane lanes ( 0,-1) None
-            // Link back: BoundaryEvent boundaryEventRefs ( 0,-1) None
-            // Link back: string protocol ( 0,1) None
+            // link back: BoundaryEvent boundaryEventRefs (0, *)
+            // boundaryEventRefs 0 <cmof_model.M_Two_Way_Association object at 0x000002941E4ADF40>
+            // target: BoundaryEvent.attachedToRef
+
+            // missing: string protocol (0, 1)
+
             return result;
         }
 
 
-        public GlobalScriptTask LoadGlobalScriptTask(XmlParserComplexNode node)
+        private GlobalScriptTask LoadGlobalScriptTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<GlobalScriptTask>(node);
 
@@ -4163,12 +4301,11 @@ namespace BPMNModel.Model
             // element: script -> string script (1, 1)
             result.Script = FillElement<string>(node.ChildNodes["script"]);
 
-
             return result;
         }
 
 
-        public GlobalBusinessRuleTask LoadGlobalBusinessRuleTask(XmlParserComplexNode node)
+        private GlobalBusinessRuleTask LoadGlobalBusinessRuleTask(XmlParserComplexNode node)
         {
              var result = GetOrCreate<GlobalBusinessRuleTask>(node);
 
@@ -4199,12 +4336,11 @@ namespace BPMNModel.Model
             // element: resourceRole -> ResourceRole resources (0, *)
             FillElements(node.ChildNodes["resourceRole"], result.Resources);
 
-
             return result;
         }
 
 
-        public ComplexBehaviorDefinition LoadComplexBehaviorDefinition(XmlParserComplexNode node)
+        private ComplexBehaviorDefinition LoadComplexBehaviorDefinition(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ComplexBehaviorDefinition>(node);
 
@@ -4221,12 +4357,11 @@ namespace BPMNModel.Model
             // element: event -> ImplicitThrowEvent event (0, 1)
             result.Event = FillElement<ImplicitThrowEvent>(node.ChildNodes["event"]);
 
-
             return result;
         }
 
 
-        public ResourceRole LoadResourceRole(XmlParserComplexNode node)
+        private ResourceRole LoadResourceRole(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ResourceRole>(node);
 
@@ -4250,12 +4385,11 @@ namespace BPMNModel.Model
             // element: resourceAssignmentExpression -> ResourceAssignmentExpression resourceAssignmentExpression (0, 1)
             result.ResourceAssignmentExpression = FillElement<ResourceAssignmentExpression>(node.ChildNodes["resourceAssignmentExpression"]);
 
-
             return result;
         }
 
 
-        public ResourceParameterBinding LoadResourceParameterBinding(XmlParserComplexNode node)
+        private ResourceParameterBinding LoadResourceParameterBinding(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ResourceParameterBinding>(node);
 
@@ -4267,26 +4401,22 @@ namespace BPMNModel.Model
             // element: expression -> Expression expression (1, 1)
             result.Expression = FillElement<Expression>(node.ChildNodes["expression"]);
 
-
-            // not attached: documentation
             return result;
         }
 
 
-        public ResourceAssignmentExpression LoadResourceAssignmentExpression(XmlParserComplexNode node)
+        private ResourceAssignmentExpression LoadResourceAssignmentExpression(XmlParserComplexNode node)
         {
              var result = GetOrCreate<ResourceAssignmentExpression>(node);
 
             // element: expression -> Expression expression (1, 1)
             result.Expression = FillElement<Expression>(node.ChildNodes["expression"]);
 
-
-            // not attached: documentation
             return result;
         }
 
 
-        public Import LoadImport(XmlParserComplexNode node)
+        private Import LoadImport(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Import>(node);
 
@@ -4305,12 +4435,11 @@ namespace BPMNModel.Model
             if (_namespaceAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute namespace");
             result.Namespace = (string)_namespaceAttribute;
 
-
             return result;
         }
 
 
-        public Definitions LoadDefinitions(XmlParserComplexNode node)
+        private Definitions LoadDefinitions(XmlParserComplexNode node)
         {
              var result = GetOrCreate<Definitions>(node);
 
@@ -4355,9 +4484,8 @@ namespace BPMNModel.Model
             // element: rootElement -> RootElement rootElements (0, *)
             FillElements(node.ChildNodes["rootElement"], result.RootElements);
 
-
             return result;
-         }
+        }
 
         #endregion
 

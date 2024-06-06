@@ -93,7 +93,7 @@ namespace Testing
             {
                 Factory factory = new Factory(Log.Logger, parser);
 
-                var result = factory.Load<Definitions>(parser.Root);
+                var result = factory.LoadModel();
 
             }
 

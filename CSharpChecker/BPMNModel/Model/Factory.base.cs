@@ -15,12 +15,21 @@ namespace BPMNModel.Model
     {
         private Dictionary<string, object> cacheWithObjects = new Dictionary<string, object>();
         private HashSet<string> loadedIds = new();
-
+        private XmlParserComplexNode root;
         private ILogger logger;
+
+        private string indent = "";
 
         public Factory(ILogger logger, XmlParser parser)
         {
             this.logger = logger;
+
+            if (parser.Root is null)
+            {
+                throw new BPMNCheckerExceptions($"Error in parser, unable to continue with empty instance.");
+            }
+
+            root = parser.Root;
 
             foreach (var (id, complexNode) in parser.Cache)
             {
@@ -37,7 +46,7 @@ namespace BPMNModel.Model
                     var instance = Activator.CreateInstance(type);
                     if (instance != null)
                     {
-                        logger.Debug($"Create cache: {id} - {instance.GetType().Name}");
+                        logger.Debug($"Create in cache: {id} - {instance.GetType().Name}");
                         cacheWithObjects[id] = instance;
                     }
                     else
@@ -52,14 +61,20 @@ namespace BPMNModel.Model
             }
         }
 
-        public T GetOrCreate<T>(XmlParserComplexNode complexNode) where T : class, new()
+        public Definitions LoadModel()
+        {
+            var result = Load<Definitions>(root);
+            return result;
+        }
+
+        private T GetOrCreate<T>(XmlParserComplexNode complexNode) where T : class, new()
         {
             var id = complexNode.Attributes.ContainsKey("id") ? complexNode.Attributes["id"].Value : null;
             if (id is not null)
             {
                 if (cacheWithObjects.ContainsKey(id))
                 {
-                    logger.Debug($"Get from cache: {id} - {cacheWithObjects[id].GetType().Name}");
+                    logger.Debug($"{indent}GetOrCreate: {id} - {cacheWithObjects[id].GetType().Name}");
                     return (T)cacheWithObjects[id];
                 }else
                 {
@@ -67,12 +82,12 @@ namespace BPMNModel.Model
                 }
             }else
             {
-                logger.Debug($"Creating without id: {typeof(T).Name}");
+                logger.Debug($"{indent}GetOrCreate: without id {typeof(T).Name}");
                 return new T();
             }
         }
 
-        public T CreateEnum<T>(string value) where T : struct
+        private T CreateEnum<T>(string value) where T : struct
         {
             if (Enum.TryParse(value, out T result))
             {
@@ -81,21 +96,27 @@ namespace BPMNModel.Model
             throw new BPMNCheckerExceptions($"Can not convert {value} to Enum type {typeof(T).Name}.");
         }
 
-        public T Load<T>(XmlParserComplexNode complexNode)
+        private T Load<T>(XmlParserComplexNode complexNode)
         {
+            logger.Debug($"{indent}{complexNode.ToString()} - Start to load.");
+
+            indent+="  ";
+
             var idToCheck = complexNode.Attributes.ContainsKey("id")? complexNode.Attributes["id"].Value : null;
             if (idToCheck is not null)
             {
                 if (loadedIds.Contains(idToCheck))
                 {
-                    logger.Debug($"{complexNode.ToString()} - Loaded, using from cache.");
+                    indent = indent.Substring(2);
+                    logger.Debug($"{indent}{complexNode.ToString()} - Already loading, using cache.");
+
                     return (T)cacheWithObjects[idToCheck];
                 }else
                 {
                    loadedIds.Add(idToCheck);
                 }
             }
-            Type type = typeof(Factory);
+            Type type = this.GetType();
             if (complexNode.Type is null) 
             {
                 throw new BPMNCheckerExceptions($"Error in parser, {complexNode.ID} has no type.");
@@ -103,7 +124,7 @@ namespace BPMNModel.Model
 
             var realName = complexNode.Type.Name.StartsWith('t') ? complexNode.Type.Name.Substring(1) : complexNode.Type.Name;
             var fullName = "Load" + realName;
-            var method = type.GetMethod(fullName);
+            var method = type.GetMethod(fullName, BindingFlags.NonPublic | BindingFlags.Instance );
             if (method == null)
             {
                 throw new BPMNCheckerExceptions($"Error in generator, Factory does not contain method {fullName}.");
@@ -118,14 +139,16 @@ namespace BPMNModel.Model
 
             if (result is T realResult)
             {
-                logger.Debug(complexNode.ToString() + " - Finished loading");
+                indent = indent.Substring(2);
+
+                logger.Debug($"{indent}{complexNode.ToString()} - Finished loading");
                 return realResult;
             }else
             {
                 throw new BPMNCheckerExceptions($"Error in data, data element of type {realName} can not be cast to {typeof(T).Name}.");
             }
         }
-        public void FillElements<T>(List<XmlParserNode> data, List<T> target)
+        private void FillElements<T>(List<XmlParserNode> data, List<T> target)
         {
             foreach (XmlParserNode node in data)
             {
