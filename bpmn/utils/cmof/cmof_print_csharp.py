@@ -158,21 +158,54 @@ def capitalize_first_letter(s):
         return s
     return s[0].upper() + s[1:]
 
+def print_mapping(mappings, model_names):
+    mappingFile = r"d:\mapping.txt"
+    out = Output(open(mappingFile, "w"))
+    out.write("Mapping:").nl()
+    out.inc()
+    for key,(fromXMLtoCMOF, fromCMOFtoXML) in mappings.items():
+        out.write(key).nl()
+        out.inc()
+        for xmlAtt, cmofAtt in fromXMLtoCMOF.items():
+            out.write("\tXML: "+xmlAtt+" -> "+cmofAtt).nl()
+        out.nl()
+        for cmofAtt, xmlAtt in fromCMOFtoXML.items():
+            out.write("\tCMOF: "+cmofAtt+" -> "+xmlAtt).nl()
+        out.nl()
+        out.dec()
+    out.dec()        
+    out.nl()
+    out.write("In CMOF but not in XSD").nl()
+    out.inc()
+    selectedCmof = [name for name in model_names if name not in mappings]
+    for name in selectedCmof:
+        out.write(name)
+        if name in interfaces:
+            out.write(" (interface)")
+        out.nl()
+    out.dec()
+    out.nl()
+    out.write("In XSD but not in CMOF").nl()
+    out.inc()
+    selectedXsd = [key for key in extracted if key not in mappings]
+    for name in selectedXsd:
+        out.write(name)
+        if name in interfaces:
+            out.write(" (interface)")
+        out.nl()
+    
+
 def print_model(path, model):
-   
-    print(path)
-    classFile = path + r"\File.cs"
-    out = Output(open(classFile, "w"))
+
     assert isinstance(model, M_Model)
 
+    print(path)
     mappings = build_mapping(model.get_classes())
-    # for key,(fromXMLtoCMOF, fromCMOFtoXML) in mappings.items():
-    #     print(key)
-    #     for xmlAtt, cmofAtt in fromXMLtoCMOF.items():
-    #         print ("\tXML: "+xmlAtt+" -> "+cmofAtt)
-    #     for cmofAtt, xmlAtt in fromCMOFtoXML.items():
-    #         print ("\tCMOF: "+cmofAtt+" -> "+xmlAtt)
-    #     print()
+    
+    #print_mapping(mappings, [c.name for c in model.get_classes()])
+
+    classFile = path + r"\File.cs"
+    out = Output(open(classFile, "w"))
 
     #out.write("using Serilog;").nl()
     #out.nl()
@@ -266,7 +299,7 @@ def print_factory(out, c, mappings):
     assert isinstance(c, M_Class)
     isInterface = c.name in interfaces
     if isInterface == False and c.is_abstract == False and c.name in extracted:
-        out.write("public "+c.name+ " Load"+c.name+ "(XmlParserComplexNode node)").nl()
+        out.write("private "+c.name+ " Load"+c.name+ "(XmlParserComplexNode node)").nl()
         out.write("{").nl()
         out.inc()
         (requiredXmlNames, optionalXmlNames, elementXmlNames) = extracted[c.name]
@@ -277,7 +310,7 @@ def print_factory(out, c, mappings):
 
         processed = []
         processedXML = []
-        for (requiredName, (requiredType, requiredXMLName,l,h)) in allAttributes.items():
+        for (requiredName, (requiredType, requiredXMLName,l,h,_)) in allAttributes.items():
             if requiredXMLName in requiredXmlNames:
                 assert l <= 1 and l>=0 and h <= 1 and h >=0
                 out.write("// required: " + requiredXMLName + " -> " + requiredType+ " " + requiredName + get_arity(l,h)).nl()
@@ -293,7 +326,7 @@ def print_factory(out, c, mappings):
                 processed.append(requiredName)
                 processedXML.append(requiredXMLName)
 
-        for (optionalName, (optionalType, optionalXmlName, l, h)) in allAttributes.items():
+        for (optionalName, (optionalType, optionalXmlName, l, h,_)) in allAttributes.items():
             if optionalXmlName in optionalXmlNames:
                 assert l <= 1 and l>=0 and h <= 1 and h >=0
                 out.write("// optional: "+ optionalXmlName + " -> " +optionalType + " "+ optionalName + get_arity(l,h)).nl()
@@ -309,7 +342,7 @@ def print_factory(out, c, mappings):
                 processed.append(optionalName)
                 processedXML.append(optionalXmlName)
 
-        for (elementName, (elementType, elementXmlName, l, h)) in allAttributes.items():
+        for (elementName, (elementType, elementXmlName, l, h,_)) in allAttributes.items():
             if elementXmlName in elementXmlNames:
                 out.write("// element: "+ elementXmlName + " -> " +elementType + " "+ elementName + get_arity(l,h)).nl()
                 if h == 1:
@@ -326,22 +359,35 @@ def print_factory(out, c, mappings):
                 processed.append(elementName)
                 processedXML.append(elementXmlName)
 
-        out.nl()
-
-        for (itemName, (itemType, itemXmlName,l, h)) in allAttributes.items():
+        for (itemName, (itemType, itemXmlName,l, h, attr)) in allAttributes.items():
             #TODO: Solve known attributes
             if itemName not in processed + ["diagrams", "extensionValues", "extensionDefinitions", "documentation"]:
-                out.write("// Link back: "+ itemType + " "+ itemName + " ( " +str(l) + ","+str(h)+") ")
-                if itemXmlName is None:
-                    out.write("None")
-                else: 
-                    out.write(itemXmlName)
+                #expecting just unlinked attributes
+                if itemXmlName is not None:
+                    raise "Expecting no xml name, but have:"+ itemXmlName
+
+                assert isinstance(attr, M_Attribute)
+                association = attr.association
+                if association is None:
+                    out.write("// missing: "+ itemType + " "+ itemName + get_arity(l,h)).nl()
+                elif association.is_one_way():
+                    assert isinstance(association, M_One_Way_Association)
+                    out.write("// empty: "+ itemType + " "+ itemName + get_arity(l,h)).nl()
+                else:          
+                    #
+                    assert h <0               
+                    assert isinstance(association, M_Two_Way_Association)
+                    out.write("// link back: "+ itemType + " "+ itemName + get_arity(l,h)).nl()
+                    out.write("// "+ attr.name + " " + str(attr.assoc_index) + " " + str(attr.association)).nl()
+                    target = attr.association.get_other_attr(attr.assoc_index)
+                    s = target.parent.name + '.' + target.name
+                    out.write("// target: "+s).nl()
                 out.nl()
 
         for  xmlName in requiredXmlNames + optionalXmlNames + elementXmlNames:
             #TODO: Solve known attributes
-            if xmlName not in processedXML + [ "extensionElements", "id", "any"]:
-                out.write("// not attached: "+ xmlName).nl()
+            if xmlName not in processedXML + [ "extensionElements", "id", "any", "documentation"]:
+                raise "Error: not attached: "+ xmlName
         out.write("return result;").nl()
         out.dec()
         out.write("}").nl().nl()
@@ -403,9 +449,6 @@ def print_Class(out, c, mappings):
     out.write("{").nl()
     out.inc()
 
-    if implementedInterface is None and parentClass is None :
-        print(c.name)
-
     for attr in c.attributes:
         print_Attribute(out, attr,isInterface)
 
@@ -418,11 +461,7 @@ def print_Class(out, c, mappings):
         out.nl();
     
     if not isInterface:
-        baseParameters = []
-        if parentClass != None:
-            allAttributes = get_all_attributes_with_Xml_names(parentClass, mappings)
-            baseParameters = [(name, type) for (name, (type, xmlName, _, _)) in allAttributes.items() if xmlName in requiredXMLnames]
-        
+                
         out.write("public "+c.name+"()").nl()
         out.write("{").nl()
         out.write("}").nl().nl()
@@ -489,7 +528,7 @@ def get_all_attributes(currentClass):
             assert isinstance(card, M_Cardinality)
             lower = card.lower
             upper = card.upper
-            result[attr.name] = (print_csharp_type(attr.type), lower, upper)
+            result[attr.name] = (print_csharp_type(attr.type), lower, upper, attr)
     return result
 
 def get_all_attributes_with_Xml_names(currentClass, mappings):
@@ -500,11 +539,11 @@ def get_all_attributes_with_Xml_names(currentClass, mappings):
     if currentClass.name in mappings:    
         (_, fromCmofToXml) = mappings[currentClass.name]
 
-    for (attName,(attType, l, u)) in attributes.items():
+    for (attName,(attType, l, u, attr)) in attributes.items():
         xmlName = None
         if fromCmofToXml is not None and attName in fromCmofToXml:
             xmlName = fromCmofToXml[attName]
-        result[attName] = (attType,xmlName, l, u)
+        result[attName] = (attType,xmlName, l, u, attr)
     return result
 
 # def get_all_required_attributes(currentClass, mappings):
