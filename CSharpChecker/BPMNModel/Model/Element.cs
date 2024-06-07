@@ -8,9 +8,11 @@ namespace BPMNModel.Model
 {
     public class Element
     {
-        public Element()
+        public string Value { get; init; }
+
+        public Element(string value)
         {
-            throw new NotImplementedException();
+            Value = value;  
         }
     }
 }

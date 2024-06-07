@@ -43,6 +43,7 @@ namespace BPMNModel
 
             var bpmnNamespaceString = document.Root.Attribute(XNamespace.Xmlns + "bpmn")?.Value;
             var xsiNamespaceString = document.Root.Attribute(XNamespace.Xmlns + "xsi")?.Value;
+            if (xsiNamespaceString is null) xsiNamespaceString = "http://www.w3.org/2001/XMLSchema-instance";
 
             if (string.IsNullOrEmpty(bpmnNamespaceString) || string.IsNullOrEmpty(xsiNamespaceString))
             {
@@ -135,12 +136,7 @@ namespace BPMNModel
                 Errors.Add(GetNiceMessage(element, $"Expecting element {type.Name}."));
                 return null;
             }
-
-            if (type.Type.HasMixedContent)
-            {
-                //TODO: Processing mixed content.
-            }
-
+           
             var processedAttributes = new List<XmlParserAttribute>();
             var allAttributes = type.Type.GetAllAttributes();
 
@@ -172,7 +168,14 @@ namespace BPMNModel
                 return null;
             }
 
-            XmlParserComplexNode node = idAttributes.Any() ? CreateOrGet(idAttributes.First().Value, type.Type) : XmlParserComplexNode.CreatePlaceholderForAnyNodes();
+            XmlParserComplexNode node = idAttributes.Any() ? CreateOrGet(idAttributes.First().Value, type.Type) : XmlParserComplexNode.CreatePlaceholderForAnyNodes(type.Type);
+
+            if (type.Type.HasMixedContent)
+            {
+                //TODO: Processing mixed content right?
+                node.MixedContent = element.Value;
+            }
+
             foreach (var item in processedAttributes)
             {
                 node.Attributes.Add(item.Name, item);

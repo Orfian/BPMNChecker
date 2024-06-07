@@ -2,6 +2,8 @@
 {
     public class XmlParserComplexNode :XmlParserNode
     {
+        public string? MixedContent { get; set; }
+
         public XmlParserComplexNode(string id)
         {
             ID = id;
@@ -16,9 +18,9 @@
         public Dictionary<string, List<XmlParserNode>> ChildNodes { get; } = new();
         public string ID { get; init; }
         public ComplexType? Type { get; set; }
-        public static XmlParserComplexNode CreatePlaceholderForAnyNodes()
+        public static XmlParserComplexNode CreatePlaceholderForAnyNodes(ComplexType type)
         {
-            return new XmlParserComplexNode("any");
+            return new XmlParserComplexNode("any", type);
         }
 
         public override string ToString()

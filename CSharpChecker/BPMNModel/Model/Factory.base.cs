@@ -58,6 +58,31 @@ namespace BPMNModel.Model
                 }
             }
         }
+        #region Missing types if CMOF
+        private string LoadText(XmlParserComplexNode node)
+        {
+            //TODO: Omitting inner nodes
+            return node.MixedContent ?? "";
+        }
+
+        #endregion
+
+        #region Known casts
+
+        //TODO: Do real data conversion.
+        private object SolveKnownCasts(XmlParserCastNode castNode)
+        {
+
+            if (castNode.Type.Name == "tFormalExpression")
+            {
+                FormalExpression result = new FormalExpression();
+                result.Body = new Element(castNode.Value);
+                return result;   
+            }
+            throw new BPMNCheckerExceptions($"Unknown cast to type: {castNode.Type.Name}.");
+        }
+
+        #endregion
 
         public static Definitions ProcessModel(ILogger logger, XmlParser parser)
         {
@@ -74,19 +99,15 @@ namespace BPMNModel.Model
 
         public T? FillElement<T>(List<XmlParserNode> data)
         {
+
             if (data.Count > 1) throw new BPMNCheckerExceptions($"There should be at most one element.");
             if (data.Count == 0) return default;
-            var node = data[0];
-            if (node is XmlParserComplexNode complexNode)
-            {
-                var item = Load<T>(complexNode);
-                return item;
-            }
-            else
-            {
-                //TODO: other node types
-                throw new BPMNCheckerExceptions($"Not processing this node type now.");
-            }
+
+            var result = new List<T>();
+
+            FillElements(data, result);
+
+            return result[0];
         }
 
         private T CreateEnum<T>(string value) where T : struct
@@ -106,6 +127,10 @@ namespace BPMNModel.Model
                 {
                     var item = Load<T>(complexNode);
                     target.Add(item);
+                }
+                else if (node is XmlParserCastNode castNode)
+                {
+                    target.Add((T)SolveKnownCasts(castNode));
                 }
                 else
                 {
