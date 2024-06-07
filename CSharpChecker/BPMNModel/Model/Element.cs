@@ -8,7 +8,8 @@ namespace BPMNModel.Model
 {
     public class Element
     {
-        public Element() { 
+        public Element()
+        {
             throw new NotImplementedException();
         }
     }

@@ -9,7 +9,5 @@ namespace BPMNModel
     public abstract class XmlParserNode
     {
         public Dictionary<string, XmlParserAttribute> Attributes { get; } = new();
-
-
     }
 }

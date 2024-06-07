@@ -3,7 +3,6 @@ using Utility;
 
 namespace BPMNModel
 {
-
     public enum AttributeUse
     {
         Required,
@@ -24,15 +23,6 @@ namespace BPMNModel
 
     public class Attribute
     {
-
-        public string Name { get; init; }
-
-        public (AttributeXMLType Category, SimpleType? Restriction) Type { get; init; }
-
-        public AttributeUse Use { get; set; }
-
-        public string? Default { get; set; }
-
         public Attribute(string name, (AttributeXMLType Category, SimpleType? Restriction) type)
         {
             Name = name;
@@ -40,13 +30,19 @@ namespace BPMNModel
             Use = AttributeUse.Optional;
         }
 
+        public string? Default { get; set; }
+        public string Name { get; init; }
+
+        public (AttributeXMLType Category, SimpleType? Restriction) Type { get; init; }
+
+        public AttributeUse Use { get; set; }
         public static (AttributeXMLType Category, SimpleType? Restriction) LoadTypeFromString(string type, Dictionary<string, ElementType> types)
         {
             if (types.ContainsKey(type))
             {
                 if (types[type] is SimpleType restriction)
                 {
-                    return (AttributeXMLType.SimpleType,  restriction);
+                    return (AttributeXMLType.SimpleType, restriction);
                 }
             }
 
@@ -64,7 +60,7 @@ namespace BPMNModel
             };
         }
 
-        public (XmlParserAttribute? Result, string? Error)  CreateAndCheck(XElement element, XmlParser parser)
+        public (XmlParserAttribute? Result, string? Error) CreateAndCheck(XElement element, XmlParser parser)
         {
             var attributeFromXml = element.Attribute(Name);
 
@@ -80,7 +76,7 @@ namespace BPMNModel
                 }
             }
 
-            string realValue = attributeFromXml is null ? Default??String.Empty : attributeFromXml.Value;
+            string realValue = attributeFromXml is null ? Default ?? String.Empty : attributeFromXml.Value;
             var resultingAttribute = new XmlParserAttribute(Name, realValue, Type.Category);
             var realValueinLowerCase = realValue.ToLower();
 
@@ -88,25 +84,28 @@ namespace BPMNModel
             {
                 case AttributeXMLType.ID: return (resultingAttribute, null);
                 case AttributeXMLType.String: return (resultingAttribute, null);
-                case AttributeXMLType.Boolean: 
-                    if (realValueinLowerCase!="true" && realValueinLowerCase!="false") return (resultingAttribute, $"Wrong boolean value: {realValue}"); 
-                    resultingAttribute.ProcessedValue= realValueinLowerCase == "true"? true: false;
+                case AttributeXMLType.Boolean:
+                    if (realValueinLowerCase != "true" && realValueinLowerCase != "false") return (resultingAttribute, $"Wrong boolean value: {realValue}");
+                    resultingAttribute.ProcessedValue = realValueinLowerCase == "true" ? true : false;
                     return (resultingAttribute, null);
+
                 case AttributeXMLType.Integer:
                     if (int.TryParse(realValue, out int value))
                     {
                         resultingAttribute.ProcessedValue = value;
                         return (resultingAttribute, null);
-                    }else
+                    }
+                    else
                     {
                         return (resultingAttribute, $"Wrong integer value: {realValue}");
                     }
                 case AttributeXMLType.URI:
-                    if (Uri.TryCreate(realValue, UriKind.RelativeOrAbsolute,out Uri? uri))
+                    if (Uri.TryCreate(realValue, UriKind.RelativeOrAbsolute, out Uri? uri))
                     {
                         resultingAttribute.ProcessedValue = uri;
                         return (resultingAttribute, null);
-                    }else
+                    }
+                    else
                     {
                         return (resultingAttribute, $"Wrong URI value: {realValue}");
                     }
@@ -119,16 +118,16 @@ namespace BPMNModel
                         return (resultingAttribute, error);
                     }
                 case AttributeXMLType.IDRef:
-                    //TODO: QNAME as IDREF now.
+                //TODO: QNAME as IDREF now.
                 case AttributeXMLType.QName:
                     var node = parser.GetReferecne(realValue);
                     resultingAttribute.ProcessedValue = node;
                     return (resultingAttribute, null);
+
                 default:
                     return (null, $"Unsolved attribute {Name} with type: " + this.Type.Category);
             }
         }
-
 
         public override string ToString()
         {

@@ -10,65 +10,9 @@ using Utility;
 
 namespace BPMNModel
 {
-    public class ComplexType :ElementType
+    public class ComplexType : ElementType
     {
-        public string Name { get; init; }
-        public bool IsAbstract { get; init; }
-        public bool HasMixedContent { get; init; }
-
         private XElement element;
-
-        public ContainerElement? InnerElement { get; private set; }
-
-        public ComplexType? ParentType { get; private set; }
-
-        public List<Attribute> Attributes { get; } = new();
-
-        public Attribute[] GetAllAttributes()
-        {
-            var result = new List<Attribute>();
-            result.AddRange(this.Attributes);
-            if (ParentType != null)
-            {
-                result.AddRange(ParentType.GetAllAttributes());
-            }
-            return result.ToArray();
-        }
-
-        public (List<Element> Categories, List<(string A, string B)> Restrictions)  GetAllInformations()
-        {
-            var result = new List<Element>();
-            var restrictions = new List<(string A, string B)>();
-
-            if (ParentType != null)
-            {
-                var (parentElements, parentRestrictions) = ParentType.GetAllInformations();
-                result.AddRange(parentElements);
-                restrictions.AddRange(parentRestrictions);
-            }
-
-            if (InnerElement != null)
-            {
-                foreach (var item in InnerElement.InnerElements)
-                {
-                    if (item is Element element)
-                    {
-                        result.Add(element);
-                    }
-                    else
-                    {
-                        throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({this.Name} - there are only elements in a sequence).");
-                    }
-                }
-                foreach (var restriction in InnerElement.Restrictions)
-                {
-                    restrictions.Add(restriction);
-                }
-            }
-            
-            return (result, restrictions);
-        }
-
         private ComplexType(string name, bool isAbstract, bool hasMixedContent, XElement element)
         {
             Name = name;
@@ -77,13 +21,19 @@ namespace BPMNModel
             this.element = element;
         }
 
+        public List<Attribute> Attributes { get; } = new();
+        public bool HasMixedContent { get; init; }
+        public ContainerElement? InnerElement { get; private set; }
+        public bool IsAbstract { get; init; }
+        public string Name { get; init; }
+        public ComplexType? ParentType { get; private set; }
         public static ComplexType Create(XElement element)
         {
             var name = ElementType.GetExpectedAttribute(element, "name");
 
             bool isAbstract = ElementType.TryToGetBoolAttribute(element, "abstract");
             bool isMixed = ElementType.TryToGetBoolAttribute(element, "mixed");
-          
+
             ComplexType result = new ComplexType(name, isAbstract, isMixed, element);
 
             return result;
@@ -108,10 +58,10 @@ namespace BPMNModel
                 return sequence;
             }
 
-            void ProcessInnerElements(XElement start) {
-                foreach(var innerElement in start.Elements())
+            void ProcessInnerElements(XElement start)
+            {
+                foreach (var innerElement in start.Elements())
                 {
-
                     if (innerElement.Name.LocalName == "attribute")
                     {
                         DumpAttributesExcept(innerElement, ["name", "type", "use", "default"]);
@@ -132,7 +82,6 @@ namespace BPMNModel
                                 _ => throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (attribute use have unexpected value {useString}).")
                             };
                         }
-                       
 
                         attribute.Default = ElementType.TryToGetAttribute(innerElement, "default");
 
@@ -159,7 +108,6 @@ namespace BPMNModel
                         DumpAttributesExcept(innerElement, []);
 
                         if (this.InnerElement != null) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({this.Name} has more than one inner element - {innerElement.Name.LocalName}).");
-
 
                         var choice = new ContainerElement();
 
@@ -192,11 +140,9 @@ namespace BPMNModel
                 }
             }
 
-
             DumpAttributesExcept(element, ["name", "mixed", "abstract"]);
             if (element.Element(xs + "complexContent") is not null)
             {
-                
                 var complexContent = ElementType.GetExpectedSingleElement(element, "complexContent");
                 DumpAttributesExcept(complexContent, Array.Empty<string>());
                 var extension = ElementType.GetExpectedSingleElement(complexContent, "extension");
@@ -211,6 +157,51 @@ namespace BPMNModel
             {
                 ProcessInnerElements(element);
             }
+        }
+
+        public Attribute[] GetAllAttributes()
+        {
+            var result = new List<Attribute>();
+            result.AddRange(this.Attributes);
+            if (ParentType != null)
+            {
+                result.AddRange(ParentType.GetAllAttributes());
+            }
+            return result.ToArray();
+        }
+
+        public (List<Element> Categories, List<(string A, string B)> Restrictions) GetAllInformations()
+        {
+            var result = new List<Element>();
+            var restrictions = new List<(string A, string B)>();
+
+            if (ParentType != null)
+            {
+                var (parentElements, parentRestrictions) = ParentType.GetAllInformations();
+                result.AddRange(parentElements);
+                restrictions.AddRange(parentRestrictions);
+            }
+
+            if (InnerElement != null)
+            {
+                foreach (var item in InnerElement.InnerElements)
+                {
+                    if (item is Element element)
+                    {
+                        result.Add(element);
+                    }
+                    else
+                    {
+                        throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({this.Name} - there are only elements in a sequence).");
+                    }
+                }
+                foreach (var restriction in InnerElement.Restrictions)
+                {
+                    restrictions.Add(restriction);
+                }
+            }
+
+            return (result, restrictions);
         }
     }
 }

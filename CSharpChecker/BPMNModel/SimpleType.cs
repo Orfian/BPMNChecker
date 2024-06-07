@@ -11,18 +11,17 @@ namespace BPMNModel
 {
     public class SimpleType : ElementType
     {
-        public string Name { get; init; }
-        public bool AcceptsURL { get; init; }
-
-        public string[] RestrictedValues { get; init; }
-        private SimpleType(string name, string[] restrictedValues , bool acceptsURL)
+        private SimpleType(string name, string[] restrictedValues, bool acceptsURL)
         {
             Name = name;
             RestrictedValues = restrictedValues;
             AcceptsURL = acceptsURL;
         }
 
-        public static SimpleType Create(XNamespace xs , XElement element)
+        public bool AcceptsURL { get; init; }
+        public string Name { get; init; }
+        public string[] RestrictedValues { get; init; }
+        public static SimpleType Create(XNamespace xs, XElement element)
         {
             string[] GetRestrictions(XElement elem)
             {
@@ -39,8 +38,7 @@ namespace BPMNModel
 
             var name = GetExpectedAttribute(element, "name");
 
-
-            if (element.Element(xs+"restriction") is not null)
+            if (element.Element(xs + "restriction") is not null)
             {
                 var restriction = ElementType.GetExpectedSingleElement(element, "restriction");
                 ElementType.CheckExpectedAttributr(restriction, "base", "xsd:string");
@@ -58,6 +56,7 @@ namespace BPMNModel
                 return result;
             }
         }
+
         public object? Check(string value, out string? error)
         {
             if (RestrictedValues.Contains(value))
@@ -71,10 +70,9 @@ namespace BPMNModel
                 error = null;
                 return uri;
             }
-            
-            error = $"Unexpected value {value}, need: {string.Join(",",RestrictedValues)}{(AcceptsURL?" or URL":"")}.";
+
+            error = $"Unexpected value {value}, need: {string.Join(",", RestrictedValues)}{(AcceptsURL ? " or URL" : "")}.";
             return null;
         }
-
     }
 }

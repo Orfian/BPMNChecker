@@ -10,14 +10,17 @@ namespace BPMNModel
 {
     public class XmlParserAttribute
     {
-        public string Value { get; init; }
-        public string Name { get; init; }
-
-        public AttributeXMLType Type { get; init; }
-
         private object? processedValue = null;
+        public XmlParserAttribute(string name, string value, AttributeXMLType type)
+        {
+            Value = value;
+            Name = name;
+            Type = type;
+        }
 
-        public object? ProcessedValue { 
+        public string Name { get; init; }
+        public object? ProcessedValue
+        {
             get
             {
                 switch (this.Type)
@@ -45,16 +48,12 @@ namespace BPMNModel
                 this.processedValue = value;
             }
         }
-        public XmlParserAttribute(string name, string value, AttributeXMLType type)
-        {
-            Value = value;
-            Name = name;
-            Type = type;    
-        }
 
+        public AttributeXMLType Type { get; init; }
+        public string Value { get; init; }
         public override string ToString()
         {
-            return $"{Name} = {(ProcessedValue is null? Value : ProcessedValue)}";
+            return $"{Name} = {(ProcessedValue is null ? Value : ProcessedValue)}";
         }
     }
 }

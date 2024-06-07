@@ -91,15 +91,9 @@ namespace Testing
             }
             if (parser.Root is not null)
             {
-                Factory factory = new Factory(Log.Logger, parser);
-
-                var result = factory.LoadModel();
+                var model = Factory.ProcessModel(Log.Logger, parser);
 
             }
-
         }
-
-
     }
-
 }
