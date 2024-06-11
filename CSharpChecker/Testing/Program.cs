@@ -91,9 +91,12 @@ namespace Testing
             }
             else
             {
+                parser.DumpXML("processedXML.xml");
+
                 if (parser.Root is not null)
                 {
                     var model = Factory.ProcessModel(Log.Logger, parser);
+                    model.DumpModel("processedCMOF.cmof");
                 }
             }
         }

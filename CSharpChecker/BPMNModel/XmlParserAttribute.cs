@@ -53,7 +53,11 @@ namespace BPMNModel
         public string Value { get; init; }
         public override string ToString()
         {
-            return $"{Name} = {(ProcessedValue is null ? Value : ProcessedValue)}";
+            if ((Type == AttributeXMLType.IDRef || Type == AttributeXMLType.QName) && ProcessedValue is not null)
+            {
+                return $"{Name}=\"{((XmlParserComplexNode)ProcessedValue).ID}\"";
+            }
+            return $"{Name}=\"{(ProcessedValue is null ? Value : ProcessedValue)}\"";
         }
     }
 }

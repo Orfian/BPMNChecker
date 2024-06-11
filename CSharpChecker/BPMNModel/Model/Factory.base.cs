@@ -1,6 +1,8 @@
 ﻿using Serilog;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -18,6 +20,7 @@ namespace BPMNModel.Model
         private HashSet<string> loadedIds = new();
         private ILogger logger;
         private XmlParserComplexNode root;
+
         private Factory(ILogger logger, XmlParser parser)
         {
             this.logger = logger;
@@ -58,6 +61,9 @@ namespace BPMNModel.Model
                 }
             }
         }
+
+        public Definitions? Definition { get; private set; }
+
         #region Missing types if CMOF
         private string LoadText(XmlParserComplexNode node)
         {
@@ -84,17 +90,17 @@ namespace BPMNModel.Model
 
         #endregion
 
-        public static Definitions ProcessModel(ILogger logger, XmlParser parser)
+        public static Factory ProcessModel(ILogger logger, XmlParser parser)
         {
             Factory factory = new Factory(Log.Logger, parser);
-            var result = factory.LoadModel();
+            factory.Definition = factory.LoadModel();
 
             foreach (var (_, item) in factory.cacheWithObjects)
             {
                 PostProcessing.Process(item);
             }
 
-            return result;
+            return factory;
         }
 
         public T? FillElement<T>(List<XmlParserNode> data)
@@ -221,6 +227,161 @@ namespace BPMNModel.Model
         {
             var result = Load<Definitions>(root);
             return result;
+        }
+
+        private void DumpItem(StreamWriter writer, object item, string indent)
+        {
+            var newIndent = indent + "  ";
+            var emptyProperties = new List<string>();
+
+            string? getId(object item)
+            {
+                Type itemType = item.GetType();
+                PropertyInfo? idProperty = itemType.GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+                if (idProperty != null && idProperty.PropertyType == Type.GetType("System.String"))
+                {
+                    return (string?)idProperty.GetValue(item);
+                }
+                return null;
+            }
+
+            void PrintOneObject(object value, string indent, string leftPart)
+            {
+                var valueId = getId(value);
+                Type valueType = value.GetType();
+
+                if (valueId != null)
+                {
+                    writer.WriteLine($"{indent}{leftPart} = REF({valueType.Name}, {valueId})");
+                }
+                else
+                {
+                    writer.WriteLine($"{indent}{leftPart} = ");
+                    DumpItem(writer, value, indent + "  ");
+                }
+            }
+
+            void ProcessType(PropertyInfo property, Type propertyRealType, bool isNulable)
+            {
+                var nullableString = isNulable ? "?" : "";
+
+                if (propertyRealType == typeof(string) || propertyRealType == typeof(int) || propertyRealType == typeof(bool))
+                {
+                    var value = property.GetValue(item);
+                    if (value != null)
+                    {
+                        writer.WriteLine($"{newIndent}{propertyRealType.Name}{nullableString} {property.Name} = {property.GetValue(item)}");
+                    }
+                    else
+                    {
+                        emptyProperties.Add($"{propertyRealType.Name}{nullableString} {property.Name}");
+                    }
+                }
+                else if (propertyRealType.IsEnum)
+                {
+
+                    var value = property.GetValue(item);
+                    if (value != null)
+                    {
+                        writer.WriteLine($"{newIndent}{propertyRealType.Name}{nullableString} {property.Name} = {property.GetValue(item)}");
+                    }
+                    else
+                    {
+                        emptyProperties.Add($"{propertyRealType.Name}{nullableString} {property.Name}");
+                    }
+                }
+                else if (propertyRealType == typeof(List<>))
+                {
+
+                    var list = property.GetValue(item);
+
+                    if (list == null) throw new BPMNCheckerExceptions("Something wet wrong...");
+                    if (list is IEnumerable enumerableList)
+                    {
+                        string niceTypeName = $"List<{property.PropertyType.GetGenericArguments()[0].Name}>";
+
+                        if (enumerableList.Cast<object>().Any())
+                        {
+                            writer.WriteLine($"{newIndent}{niceTypeName} {property.Name} = ");
+                            writer.WriteLine($"{newIndent}  [");
+                            int count = 0;
+                            foreach(var value in  enumerableList)
+                            {
+                                PrintOneObject(value, newIndent+"    ", $"{property.Name}[{count}]");
+                                count++;
+                            }
+                            writer.WriteLine($"{newIndent}  ]");
+
+                        }
+                        else
+                        {
+                            emptyProperties.Add($"{niceTypeName} {property.Name}");
+                        }
+                    }else
+                    {
+                        throw new BPMNCheckerExceptions("Something wet wrong...");
+                    }
+
+                }
+                else
+                {
+                    var value = property.GetValue(item);
+                    if (value == null)
+                    {
+                        emptyProperties.Add($"{property.PropertyType.Name} {property.Name}");
+                    }
+                    else
+                    {
+                        PrintOneObject(value, newIndent, $"{property.PropertyType.Name} {property.Name}");
+                    }
+                }
+            }
+
+            Type itemType = item.GetType();
+            writer.WriteLine(indent+ itemType.Name);
+            writer.WriteLine(indent + "{");
+            
+            var id = getId(itemType);
+            if (id != null )
+            {
+                writer.WriteLine($"{newIndent}Id = {id}");
+            }
+
+            foreach(var property in itemType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).OrderBy(x=>x.Name))
+            {
+                if (property.Name != "Id")
+                {
+                    if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    {
+                        var nullableType = Nullable.GetUnderlyingType(property.PropertyType);
+                        if (nullableType != null) ProcessType(property, nullableType, true);
+                        else throw new BPMNCheckerExceptions("Something wet wrong...");
+                    }
+                    else if (property.PropertyType.IsGenericType) ProcessType(property, property.PropertyType.GetGenericTypeDefinition(), false);
+                    else ProcessType(property, property.PropertyType, false);
+                }
+            }
+
+            if (emptyProperties.Any())
+            {
+                writer.WriteLine();
+                writer.WriteLine($"{newIndent}Empty:");
+                foreach (var empty in emptyProperties)
+                {
+                    writer.WriteLine($"{newIndent}  {empty}");
+                }
+            }
+            writer.WriteLine(indent + "}\n");
+        }
+
+        public void DumpModel(string fileName)
+        {
+            using var writer = new StreamWriter(fileName);
+
+            foreach (var (_, item) in cacheWithObjects)
+            {
+                DumpItem(writer, item,"");
+            }
         }
     }
 }

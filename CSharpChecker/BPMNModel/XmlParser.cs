@@ -104,6 +104,16 @@ namespace BPMNModel
             }
         }
 
+        public void DumpXML(string fileName)
+        {
+            using var writer = new StreamWriter(fileName);
+
+            foreach (var (_,item) in Cache)
+            {
+                item.DumpNode(writer, "");
+            }
+        }
+
         private string GetNiceMessage(XElement element, string text)
         {
             if (element is IXmlLineInfo info && info.HasLineInfo())
