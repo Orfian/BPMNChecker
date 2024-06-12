@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0t920f3" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.14.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.19.0">
+  <bpmn:collaboration id="Collaboration_0uol6z3">
+    <bpmn:participant id="Participant_00uqflc" name="MKPool1" processRef="Process_0lk2cai">
+      <bpmn:documentation>MKPool1ElementDocumentation</bpmn:documentation>
+    </bpmn:participant>
+  </bpmn:collaboration>
+  <bpmn:process id="Process_0lk2cai" name="MKPool1ProcessName" isExecutable="true" camunda:jobPriority="MKJobExecPriority" camunda:versionTag="MKPool1VersionTag" camunda:historyTimeToLive="180" camunda:taskPriority="MKExternalTaskPriority">
+    <bpmn:documentation>MKPool1ProcessDocumentation</bpmn:documentation>
+    <bpmn:extensionElements>
+      <camunda:executionListener class="MKPool1StartJava" event="start" />
+      <camunda:properties>
+        <camunda:property name="MKPool1ExtensionPropName" value="MKPool1ExtensionPropVal" />
+      </camunda:properties>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1f8zwot">
+      <bpmn:lane id="Lane_02afogs" name="MKLane1">
+        <bpmn:documentation>MKLane1ElementDocumentation</bpmn:documentation>
+        <bpmn:extensionElements>
+          <camunda:properties>
+            <camunda:property name="MKLane1ExtensionPropName" value="MKLane1ExtensionPropVal" />
+          </camunda:properties>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0161jp4</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1h4qxvg" name="MKLane2">
+        <bpmn:documentation>MKLane2ElementDoc</bpmn:documentation>
+        <bpmn:flowNodeRef>Event_1u9v6xm</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_1" name="MKStartEvent1Name" camunda:initiator="MKStartEvent1StartInitiator">
+      <bpmn:documentation>MKStartEvent1ElementDocumentation</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:executionListener class="MKStartEvent1StartJava" event="start" />
+        <camunda:properties>
+          <camunda:property name="MKStartEvent1ExtensionName" value="MKStartEvent1ExtensionVal" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_1ei67ud</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:startEvent id="Event_1u9v6xm" name="MKStartEvent2" camunda:asyncBefore="true" camunda:jobPriority="MKStartEvent2Priority" camunda:formRef="MKStartEvent2FormReference" camunda:formRefBinding="latest">
+      <bpmn:documentation>MKStartEvent1 Element Documentation</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:failedJobRetryTimeCycle>MKStartEvent2RetryTimeCycle</camunda:failedJobRetryTimeCycle>
+      </bpmn:extensionElements>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_0161jp4" name="MKTask1Name">
+      <bpmn:documentation>MKTask1 Element Documentation</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="Input_3q9373l">MKTask1InputVal</camunda:inputParameter>
+          <camunda:inputParameter name="Input_33htno4">
+            <camunda:list>
+              <camunda:value>MKTask1InListVal3</camunda:value>
+              <camunda:value>MKTask1InListVal2</camunda:value>
+              <camunda:value>MKTask1InListVal1</camunda:value>
+            </camunda:list>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="Input_178551d">
+            <camunda:map>
+              <camunda:entry key="MKTask1InMapKey1">MKTask1InMapVal1</camunda:entry>
+              <camunda:entry key="MKTask1InMapKey2">MKTask1InMapVal2</camunda:entry>
+            </camunda:map>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="MKTask1In">
+            <camunda:script scriptFormat="MKTask1InScriptFormat">MKTask1InInlineScript</camunda:script>
+          </camunda:inputParameter>
+          <camunda:outputParameter name="Output_0jqtone">MKTask1OutputVal</camunda:outputParameter>
+        </camunda:inputOutput>
+        <camunda:executionListener class="MKTask1StartJavaClass" event="start" />
+        <camunda:properties>
+          <camunda:property name="MKTask1ExtensionName" value="MKTask1ExtensionValue" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ei67ud</bpmn:incoming>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1ei67ud" name="MKSequenceFlow1" sourceRef="StartEvent_1" targetRef="Activity_0161jp4">
+      <bpmn:documentation>MKSequenceFlow1 Element Documentation</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:executionListener class="MKSequenceFlow1TakeJavaClass" event="take" />
+        <camunda:properties>
+          <camunda:property name="MKSequenceFlow1ExtensionName" value="MKSequenceFlow1ExtensionVal" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:textAnnotation id="TextAnnotation_1kh94b4">
+      <bpmn:documentation>MKEventTextAnnootation1 Element doc</bpmn:documentation>
+      <bpmn:text>MKEventTextAnnootation1Name</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_14iialr" sourceRef="StartEvent_1" targetRef="TextAnnotation_1kh94b4" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0uol6z3">
+      <bpmndi:BPMNShape id="Participant_00uqflc_di" bpmnElement="Participant_00uqflc" isHorizontal="true">
+        <dc:Bounds x="129" y="90" width="600" height="370" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_02afogs_di" bpmnElement="Lane_02afogs" isHorizontal="true">
+        <dc:Bounds x="159" y="90" width="570" height="250" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1h4qxvg_di" bpmnElement="Lane_1h4qxvg" isHorizontal="true">
+        <dc:Bounds x="159" y="340" width="570" height="120" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_1kh94b4_di" bpmnElement="TextAnnotation_1kh94b4">
+        <dc:Bounds x="240" y="120" width="100" height="39" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="202" y="202" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="181" y="245" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1u9v6xm_di" bpmnElement="Event_1u9v6xm">
+        <dc:Bounds x="202" y="382" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="183" y="425" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0161jp4_di" bpmnElement="Activity_0161jp4">
+        <dc:Bounds x="390" y="180" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_14iialr_di" bpmnElement="Association_14iialr">
+        <di:waypoint x="231" y="206" />
+        <di:waypoint x="270" y="159" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ei67ud_di" bpmnElement="Flow_1ei67ud">
+        <di:waypoint x="238" y="220" />
+        <di:waypoint x="390" y="220" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="276" y="202" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
