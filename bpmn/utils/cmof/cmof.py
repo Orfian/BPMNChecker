@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import cmof_parser, cmof_print_parsed, cmof_model_builder, cmof_print_model
+import cmof_parser, cmof_print_parsed, cmof_model_builder, cmof_print_model, \
+       xml_print_raw, list_classes, cmof_print_csharp
 from utils import Output, ErrOutput
 
 import sys
@@ -29,7 +30,7 @@ def process_file(out, err, options, inp):
     tree = read_xml(inp)
 
     if options.print_raw:
-        print_tree_raw(tree)
+        xml_print_raw.print_tree_raw(out, tree)
         return
 
     t = cmof_parser.parse_cmof(tree, err)
@@ -41,7 +42,19 @@ def process_file(out, err, options, inp):
     print ("Building model...")
 
     model = cmof_model_builder.build_model(t, err)
-    cmof_print_model.print_model(out, model)
+    print_opts = print_options_from_options(options)
+
+    if options.print_csharp:
+        cmof_print_csharp.print_model(r"D:\TACR\bpmnchecker\CSharpChecker\BPMNModel\model", model)
+
+    elif options.list_classes:
+        pckg_name = model.get_package_name()
+        if pckg_name != "BPMN20":
+            err.error("Listing of classes requires 'BPMN20', obtained " +
+            repr(pckg_name) + ".")
+        list_classes.print_list(out, model, print_opts)
+    else:
+        cmof_print_model.print_model(out, model, print_opts)
 
 
 def read_xml(filename):
@@ -49,27 +62,11 @@ def read_xml(filename):
     return tree
 
 
-def print_tree_raw(tree):
-    root = tree.getroot()
-    print_subtree (root, 0)
-
-
-def print_subtree(node, level):
-    sp = ' ' * (level * 4)
-    print (sp + "Node " + repr(node.tag) + " {")
-    sp2 = sp + "    "
-    # # print (sp2 + "attrs = " + repr(node.attrib))
-    print (sp2 +"Attrs:")
-    for attr in node.attrib:
-        print (sp2 + "   " + repr(attr) + ": " + repr(node.attrib[attr]))
-    # print (sp2 + "text = " + repr(node.text))
-    for child in node:
-        print ('')
-        print_subtree(child, level + 1)
-    print (sp + "}")
-    # print (sp + "tail = " + repr(node.tail))
-
-
+def print_options_from_options(options):
+    print_props = options.print_properties
+    print_assoc = options.print_associations
+    opts = cmof_print_model.create_print_options(print_props, print_assoc)
+    return opts
 
 
 class Options (object):
@@ -77,14 +74,21 @@ class Options (object):
     __slots__ = [
         'filename',
         'print_raw',
-        'print_parsed'
+        'print_parsed',
+        'print_properties',
+        'print_associations',
+        'list_classes',
+        'print_csharp'
     ]
 
     def __init__(self):
         self.filename = None
         self.print_raw = False
         self.print_parsed = False
-
+        self.print_properties = False
+        self.print_associations = False
+        self.list_classes = False
+        self.print_csharp = False
 
 
 def parse_options(argv):
@@ -100,8 +104,14 @@ def parse_options(argv):
             opts.print_raw = True
         elif s == '-p':
             opts.print_parsed = True
-        # elif s == '-m':
-        #     opts.print_parsed = False
+        elif s == '-a':
+            opts.print_associations = True
+        elif s == '-b':
+            opts.print_properties = True
+        elif s == '-l':
+            opts.list_classes = True
+        elif s == '-csharp':
+             opts.print_csharp = True
         else:
             if s.startswith('-'):
                 print ("Error: unknown option " + repr(s))
@@ -118,9 +128,12 @@ def parse_options(argv):
 def usage():
     print ("Usage: cmof.py [<options>] <filename>")
     print ("   options:")
-    print ("     -r  - print raw XML")
-    print ("     -p  - print parsed CMOF")
-    # print ("     -m  - print constructed model")
+    print ("     -r         - print raw XML")
+    print ("     -p         - print parsed CMOF")
+    print ("     -b         - display also properties of attributes")
+    print ("     -a         - display also associations")
+    print ("     -l         - list of classes")
+    print ("     -csharp    - print constructed model in C#")
     sys.exit(1)
 
 

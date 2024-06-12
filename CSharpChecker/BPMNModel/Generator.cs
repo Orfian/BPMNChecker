@@ -11,16 +11,13 @@ namespace BPMNModel
 
         private ILogger logger;
 
-        public Dictionary<string, ElementType> Types { get; } = new();
-
-        public Dictionary<string, RootElement> Elements { get; } = new();
-
         private Generator(ILogger logger)
         {
             this.logger = logger;
         }
 
-
+        public Dictionary<string, RootElement> Elements { get; } = new();
+        public Dictionary<string, ElementType> Types { get; } = new();
         public static Generator CreateGenerator(ILogger logger)
         {
             XNamespace xs = XNamespace.Get("http://www.w3.org/2001/XMLSchema");

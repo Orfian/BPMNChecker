@@ -2,6 +2,13 @@
 import sys
 
 
+def to_upper(c):
+    x = ord(c)
+    if ord('a') <= x <= ord('z'):
+        return chr(x - ord('a') + ord('A'))
+    return c
+
+
 def is_letter(c):
     x = ord(c)
     return (ord('A') <= x <= ord('Z')) or (ord('a') <= x <= ord('z'))

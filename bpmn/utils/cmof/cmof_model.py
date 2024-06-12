@@ -50,6 +50,7 @@ class M_Type(object):
 class M_Class(M_Type):
 
     __slots__ = [
+        'xsd_class',
         'is_abstract',
         'superclasses',
         'attributes'
@@ -69,30 +70,105 @@ class M_Class(M_Type):
         self.superclasses = superclasses
 
 
-class M_Attribute(object):
+class M_Property (object):
 
     __slots__ = [
-        'parent',
         'name',
         'type',
-        'cardinality'
+        'cardinality',
+        'visibility',
     ]
 
-    def __init__(self, name, typ, card):
+    def __init__(self, name, typ, card, visibility):
         assert is_ident(name)
         assert isinstance(typ, M_Type)
         assert isinstance(card, M_Cardinality)
+        assert isinstance(visibility, Visibility)
         self.name = name
         self.type = typ
         self.cardinality = card
+        self.visibility = visibility
+
+
+
+class M_Attribute (M_Property):
+
+    __slots__ = [
+        'parent',
+        'association',
+        'assoc_index',
+        'props'
+    ]
+
+    def __init__(self, name, typ, card, visibility, props):
+        super().__init__(name, typ, card, visibility)
+        assert isinstance(props, M_Attr_props)
+        self.props = props
+        self.association = None
+        self.assoc_index = -1
 
     def set_parent(self, parent):
         assert isinstance(parent, M_Class)
         self.parent = parent
 
+    def set_one_way_assoc(self, assoc):
+        assert isinstance(assoc, M_One_Way_Association)
+        assert self.association is None
+        self.association = assoc
+        self.assoc_index = 0
+
+    def set_two_way_assoc(self, assoc, index):
+        assert isinstance(assoc, M_Two_Way_Association)
+        assert self.association is None
+        self.association = assoc
+        self.assoc_index = index
 
 
-class M_Enumeration(M_Type):
+class M_End (M_Property):
+
+    __slots__ = [
+        'parent',
+        'props'
+    ]
+
+    def __init__(self, name, typ, card, visibility, props):
+        super().__init__(name, typ, card, visibility)
+        self.name = name
+        self.props = props
+
+
+
+class M_Attr_props (object):
+
+    __slots__ = [
+        'isComposite',
+        'isReadOnly',
+        'isDerived',
+        'isDerivedUnion',
+        'isOrdered',
+        'isUnique',
+        'default'
+    ]
+
+    def __init__(self, isComposite, isReadOnly, isDerived, isDerivedUnion,
+                 isOrdered, isUnique, default):
+        assert isinstance(isComposite, bool)
+        assert isinstance(isReadOnly, bool)
+        assert isinstance(isDerived, bool)
+        assert isinstance(isDerivedUnion, bool)
+        assert isinstance(isOrdered, bool)
+        assert isinstance(isUnique, bool)
+        self.isComposite = isComposite
+        self.isReadOnly = isReadOnly
+        self.isDerived = isDerived
+        self.isDerivedUnion = isDerivedUnion
+        self.isOrdered = isOrdered
+        self.isUnique = isUnique
+        self.default = default
+
+
+
+class M_Enumeration (M_Type):
 
     __slots__ = [
         'literals'
@@ -157,4 +233,60 @@ class M_Cardinality (object):
         assert upper >= -1
         self.lower = lower
         self.upper = upper
+
+
+class Visibility (Enum):
+    Unknown = 0
+    Public = 1
+    Private = 2
+
+
+class M_Association (object):
+
+    __slots__ = [
+        'name',
+        'visibility',
+    ]
+
+    def __init__(self, name, visibility):
+        assert isinstance(name, str)
+        assert isinstance(visibility, Visibility)
+        self.name = name
+        self.visibility = visibility
+
+
+
+class M_One_Way_Association (M_Association):
+
+    __slots__ = [
+        'end'
+    ]
+
+    def __init__(self, name, visibility, end):
+        super().__init__(name, visibility)
+        assert isinstance(end, M_End)
+        self.end = end
+
+    def is_one_way(self):
+        return True
+
+
+class M_Two_Way_Association (M_Association):
+
+    __slots__ = [ 'attrs' ]
+
+    def __init__(self, name, visibility):
+        super().__init__(name, visibility)
+
+    def is_one_way(self):
+        return False
+
+    def set_attrs(self, attrs):
+        assert len(attrs) == 2
+        for attr in attrs:
+            assert isinstance(attr, M_Attribute)
+        self.attrs = attrs
+
+    def get_other_attr(self, index):
+        return self.attrs[1 - index]
 

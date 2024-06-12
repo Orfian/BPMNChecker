@@ -1,4 +1,4 @@
-
+ 
 from cmof_parsed_classes import *
 from cmof_model import *
 from utils import is_ident, is_int
@@ -10,6 +10,7 @@ def build_model(t, err):
     process_top_level_node(b, t)
     # show_ids(b)
     process_classes(b)
+    process_associations(b)
     model = b.build()
     return model
 
@@ -137,10 +138,35 @@ def preprocess_Attribute(b, tmp_cl, c):
     par_name = tmp_cl.get_id()
     name = process_item_id(b, par_name, c, "Attribute")
     typ = read_class_attr_type(b, tmp_cl, c)
-    card = read_cardinality(b, c.cardinality, attribute_descr(tmp_cl, c))
-    tmp = Tmp_Attribute(tmp_cl, name, typ, card)
+    s = attribute_descr(tmp_cl, c)
+    card = read_cardinality(b, c.cardinality, s)
+    visibility = read_visibility(b, c.visibility, s)
+    props = preprocess_attribute_props(b, c, s)
+    assoc = c.association
+    tmp = Tmp_Attribute(tmp_cl, name, typ, card, visibility, props, assoc)
     tmp_cl.add_attribute(tmp)
     b.add_Attribute(tmp)
+
+
+def read_attr_prop_true(b, v, name, s):
+    return read_bool_true(b, v, s + " --- " + name)
+
+def read_attr_prop_false(b, v, name, s):
+    return read_bool_false(b, v, s + " --- " + name)
+
+
+def preprocess_attribute_props(b, attr, s):
+    props = attr.bool_props
+    assert isinstance(props, Attr_bool_props)
+    isComposite = read_attr_prop_true(b, props.isComposite, "isComposite", s)
+    isReadOnly = read_attr_prop_true(b, props.isReadOnly, "isReadOnly", s)
+    isDerived = read_attr_prop_true(b, props.isDerived, "isDerived", s)
+    isDerivedUnion = read_attr_prop_true(b, props.isDerivedUnion, "isDerivedUnion", s)
+    isOrdered = read_attr_prop_true(b, props.isOrdered, "isOrdered", s)
+    isUnique = read_attr_prop_false(b, props.isUnique, "isUnique", s)
+    default = attr.default
+    return M_Attr_props(isComposite, isReadOnly, isDerived, isDerivedUnion,
+                        isOrdered, isUnique, default)
 
 
 def read_class_attr_type(b, tmp_cl, c):
@@ -158,6 +184,18 @@ def read_class_attr_type(b, tmp_cl, c):
         else:
             b.error("Missing type in " + attribute_descr(tmp_cl, c))
     return typ
+
+
+def read_assoc_end_type(b, assoc_name, c):
+    t = c.type
+    if t is None:
+        b.error("Missing type in end of association " + repr(reassoc_name))
+        typ = None
+    else:
+        assert isinstance(t, str)
+        typ = Tmp_TypeRef_name(t)
+    return typ
+
 
 
 def read_href_type(b, href, s):
@@ -227,6 +265,7 @@ def process_one_class(b, cl):
     for attr in cl.get_attributes():
         obj = process_class_attribute(b, cl, attr)
         attrs.append(obj)
+        attr.set_obj_attribute(obj)
     cl.set_obj_attributes(attrs)
 
 
@@ -234,7 +273,20 @@ def process_class_attribute(b, cl, attr):
     name = attr.get_name()
     typ = find_class_attribute_type(b, cl, attr)
     card = attr.get_cardinality()
-    obj = M_Attribute(name, typ, card)
+    props = attr.get_props()
+    vis = attr.get_visibility()
+    obj = M_Attribute(name, typ, card, vis, props)
+    return obj
+
+
+def process_End(b, assoc_name, end):
+    assert isinstance(end, Tmp_End)
+    name = end.get_name()
+    typ = find_assoc_end_type(b, assoc_name, end)
+    card = end.get_cardinality()
+    props = end.get_props()
+    vis = end.get_visibility()
+    obj = M_End(name, typ, card, vis, props)
     return obj
 
 
@@ -271,6 +323,25 @@ def find_class_attribute_type(b, cl, attr):
         typ = b.find_type_by_name(tname)
         if typ is None:
             b.error("Attribute " + class_attr_name(cl, attr) + " --- " +
+            "type " + repr(tname) + " not found")
+    return typ
+
+
+def find_assoc_end_type(b, assoc_name, attr):
+    t = attr.get_type()
+    assert isinstance(t, Tmp_TypeRef)
+    if t.is_href():
+        assert isinstance(t, Tmp_TypeRef_href)
+        tname = t.name
+        kind = t.kind
+        uri = t.href
+        typ = b.add_href_type(tname, uri, kind)
+    else:
+        assert isinstance(t, Tmp_TypeRef_name)
+        tname = t.name
+        typ = b.find_type_by_name(tname)
+        if typ is None:
+            b.error("End of association " + repr(assoc_name) + " --- " +
             "type " + repr(tname) + " not found")
     return typ
 
@@ -346,10 +417,46 @@ def process_Association(b, c):
     assert isinstance(c, P_Association)
     assert c.xmi_type == 'cmof:Association'
     name = process_member_id(b, c, "Association")
-    # if c.end is None:
-    #     obj = process_two_way_Association(name, b, c)
-    # else:
-    #     obj = process_one_way_Association(name, b, c)
+
+    assert isinstance(c.memberEnd, str)
+    member_ends = c.memberEnd.split(' ')
+    if len(member_ends) != 2:
+        b.error("Two ends of association " + repr(name) + " were expected: " +
+                "got " + repr(c.memberEnd))
+
+    assert isinstance(c.visibility, str)
+    visibility = read_visibility(b, c.visibility, "Association " + name)
+
+    if c.end is None:
+        # print("Processing two-way association " + repr(name))
+        tmp = Tmp_Two_Way_Association(name, member_ends, visibility)
+        b.add_Two_Way_Association(tmp)
+    else:
+        end = preprocess_End(b, c.end, name, member_ends)
+        tmp = Tmp_One_Way_Association(name, member_ends, visibility, end)
+        b.add_One_Way_Association(tmp)
+
+
+def preprocess_End(b, c, assoc_name, member_ends):
+    assert isinstance(c, P_End)
+    assert c.xmi_type == 'cmof:Property'
+    name = process_item_id(b, assoc_name, c, "Attribute")
+    xid = c.xmi_id
+    if member_ends[1] == xid:
+        i = 0
+    elif member_ends[0] == xid:
+        i = 1
+    else:
+        b.error("End " + repr(xid) + " is not a member of association " +
+                 repr(assoc_name) + ".")
+
+    typ = read_assoc_end_type(b, assoc_name, c)
+    s = "End of association " + repr(assoc_name)
+    card = read_cardinality(b, c.cardinality, s)
+    visibility = read_visibility(b, c.visibility, s)
+    props = None
+    tmp = Tmp_End(name, i, typ, card, visibility, props)
+    return tmp
 
 
 def show_ids(b):
@@ -366,6 +473,13 @@ def read_bool_true(b, v, s):
     if v == 'true': return True
     b.error(s + ": \'true\' expected, got " + repr(v))
     return False
+
+
+def read_bool_false(b, v, s):
+    if v is None: return True
+    if v == 'false': return False
+    b.error(s + ": \'false\' expected, got " + repr(v))
+    return True
 
 
 def read_card_num(b, d, s):
@@ -391,6 +505,96 @@ def read_cardinality(b, c, s):
     return M_Cardinality(l, u)
 
 
+def read_visibility(b, vis, s):
+    if vis is None:
+        return Visibility.Unknown
+
+    assert isinstance(vis, str)
+
+    match vis:
+
+        case "public":
+            return Visibility.Public
+
+        case "private":
+            return Visibility.Private
+
+        case _:
+            b.error(s + ": unknown visibility " + repr(vis))
+            return Visibility.Unknown
+
+    assert False
+
+
+def process_associations(b):
+    for assoc in b.get_one_way_associations():
+        process_one_way_assoc(b, assoc)
+
+    for assoc in b.get_two_way_associations():
+        process_two_way_assoc(b, assoc)
+
+
+def find_attr_by_id(b, assoc_name, xid):
+    attr = b.find_by_id(xid)
+    if attr is None:
+        b.error("Association " + repr(assoc_name) + ": id = " + repr(xid) +
+                " not found")
+    if not attr.is_class_attribute():
+        b.error("Association " + repr(assoc_name) +
+                " should refer to a class attribute --- it refers to " +
+                assoc.get_short_descr())
+    assert isinstance(attr, Tmp_Attribute)
+    assert attr.get_id() == xid
+    return attr
+
+
+def process_one_way_assoc(b, assoc):
+    assert isinstance(assoc, Tmp_One_Way_Association)
+    name = assoc.get_name()
+    end_obj = process_End (b, name, assoc.get_end())
+    obj = M_One_Way_Association (name, assoc.get_visibility(), end_obj)
+    assoc.set_obj(obj)
+
+    xid = assoc.get_attr_id()
+    attr = find_attr_by_id(b, name, xid)
+    attr_assoc = attr.get_assoc_id()
+    if attr_assoc is None:
+        b.error("Association of " + attr.get_short_descr() + " is not set.")
+    if attr_assoc != name:
+        b.error("Association of " + attr.get_short_descr() + " should be " +
+                repr(name) + " but it is " + repr(attr_assoc))
+    attr.set_one_way_assoc(obj)
+
+
+def process_two_way_assoc(b, assoc):
+    assert isinstance(assoc, Tmp_Two_Way_Association)
+    name = assoc.get_name()
+    # print ("Processing two-way association " + repr(name))
+    obj = M_Two_Way_Association (name, assoc.get_visibility())
+    assoc.set_obj(obj)
+    xids = assoc.get_attr_ids()
+    assert len(xids) == 2
+
+    attrs = [ None ] * 2
+
+    for i, xid in enumerate(xids):
+        attr = find_attr_by_id(b, name, xid)
+        assert isinstance(attr, Tmp_Attribute)
+        attr_assoc = attr.get_assoc_id()
+        if attr_assoc is None:
+            b.error("Association of " + attr.get_short_descr() + " is not set.")
+        if attr_assoc != name:
+            b.error("Association of " + attr.get_short_descr() + " should be " +
+                    repr(name) + " but it is " + repr(attr_assoc))
+        attr.set_two_way_assoc(obj, i)
+
+        attrs[i] = attr.get_obj_attribute()
+        assert isinstance(attrs[i], M_Attribute)
+
+    obj.set_attrs(attrs)
+
+
+
 class ModelBuilder (object):
 
     __slots__ = [
@@ -403,7 +607,8 @@ class ModelBuilder (object):
         '__type_table',
         '__external_types',
         '__ext_types_table',
-        '__associations',
+        '__one_way_associations',
+        '__two_way_associations',
         '__assoc_table'
     ]
 
@@ -417,7 +622,8 @@ class ModelBuilder (object):
         self.__type_table = {}
         self.__external_types = []
         self.__ext_types_table = {}
-        self.__associations = []
+        self.__one_way_associations = []
+        self.__two_way_associations = []
         self.__assoc_table = {}
 
     def warning(self, msg):
@@ -433,6 +639,11 @@ class ModelBuilder (object):
     def get_id_table(self):
         return self.__id_table
 
+    def find_by_id(self, xid):
+        h = self.__id_table
+        if xid not in h: return None
+        return h[xid]
+
     def __add_to_id_table(self, xid, tmp):
         h = self.__id_table
         assert xid not in h
@@ -442,6 +653,13 @@ class ModelBuilder (object):
         # print ("Adding to type table: " + repr(xid) + " ==> " + 
         #         tmp.get_short_descr())
         h = self.__type_table
+        assert xid not in h
+        h[xid] = tmp
+
+    def __add_to_assoc_table(self, xid, tmp):
+        # print ("Adding to assoc table: " + repr(xid) + " ==> " +
+        #         tmp.get_short_descr())
+        h = self.__assoc_table
         assert xid not in h
         h[xid] = tmp
 
@@ -506,18 +724,34 @@ class ModelBuilder (object):
         h[href] = typ
         return typ
 
-    def add_Association(self, c, obj):
-        name = obj.name
-        xid = c.xmi_id
+    def add_Two_Way_Association(self, tmp):
+        assert isinstance(tmp, Tmp_Two_Way_Association)
+        xid = tmp.get_id()
+        name = tmp.get_name()
         assert xid == name
-        tmp = Tmp_Association(c, obj)
-        self.__associations.append(tmp)
+        self.__two_way_associations.append(tmp)
+        self.__add_to_assoc_table(xid, tmp)
+        self.__add_to_id_table(xid, tmp)
+        return tmp
+
+    def add_One_Way_Association(self, tmp):
+        assert isinstance(tmp, Tmp_One_Way_Association)
+        xid = tmp.get_id()
+        name = tmp.get_name()
+        assert xid == name
+        self.__one_way_associations.append(tmp)
         self.__add_to_assoc_table(xid, tmp)
         self.__add_to_id_table(xid, tmp)
         return tmp
 
     def get_classes(self):
         return self.__classes
+
+    def get_one_way_associations(self):
+        return self.__one_way_associations
+
+    def get_two_way_associations(self):
+        return self.__two_way_associations
 
     def build (self):
         classes = [ tmp.get_obj() for tmp in self.__classes ]
@@ -567,6 +801,9 @@ class Tmp_Object (object):
 
     def get_short_descr(self):
         assert False
+
+    def is_class_attribute(self):
+        return False
 
 
 class Tmp_Class (Tmp_Object):
@@ -619,16 +856,35 @@ class Tmp_Class (Tmp_Object):
 
 class Tmp_Attribute(Tmp_Object):
 
-    __slots__ = [ '__parent', '__name', '__type', '__cardinality' ]
+    __slots__ = [
+        '__obj',
+        '__parent',
+        '__name',
+        '__type',
+        '__cardinality',
+        '__visibility',
+        '__props',
+        '__assoc',
+        '__assoc_set'
+    ]
 
-    def __init__(self, parent, name, typ, card):
+    def __init__(self, parent, name, typ, card, vis, props, assoc):
         assert isinstance(parent, Tmp_Class)
         assert isinstance(name, str)
         assert isinstance(card, M_Cardinality)
+        assert isinstance(props, M_Attr_props)
         self.__parent = parent
         self.__name = name
         self.__type = typ
         self.__cardinality = card
+        self.__visibility = vis
+        self.__props = props
+        self.__assoc = assoc
+        self.__assoc_set = False
+        self.__obj = None
+
+    def is_class_attribute(self):
+        return True
 
     def get_parent(self):
         return self.__parent
@@ -648,9 +904,77 @@ class Tmp_Attribute(Tmp_Object):
     def get_cardinality(self):
         return self.__cardinality
 
+    def get_visibility(self):
+        return self.__visibility
+
+    def get_props(self):
+        return self.__props
+
+    def get_assoc_id(self):
+        return self.__assoc
+
+    def set_obj_attribute(self, obj):
+        assert isinstance(obj, M_Attribute)
+        assert self.__obj is None
+        self.__obj = obj
+
+    def get_obj_attribute(self):
+        return self.__obj
+
+    def set_one_way_assoc(self, obj):
+        assert not self.__assoc_set
+        assert isinstance(obj, M_One_Way_Association)
+        self.__obj.set_one_way_assoc(obj)
+        self.__assoc_set= True
+
+    def set_two_way_assoc(self, obj, index):
+        assert not self.__assoc_set
+        assert isinstance(obj, M_Two_Way_Association)
+        self.__obj.set_two_way_assoc(obj, index)
+        self.__assoc_set= True
+
     def get_short_descr(self):
         return "attribute " + self.get_long_name()
 
+
+class Tmp_End (Tmp_Object):
+
+    __slots__ = [
+        '__name',
+        '__index',
+        '__type',
+        '__cardinality',
+        '__visibility',
+        '__cardinality',
+        '__visibility',
+        '__props'
+    ]
+
+    def __init__(self, name, index, typ, card, visibility, props):
+        self.__name = name
+        self.__index = index
+        self.__type = typ
+        self.__cardinality = card
+        self.__visibility = visibility
+        self.__props = props
+
+    def get_name(self):
+        return self.__name
+
+    def get_index(self):
+        return self.__index
+
+    def get_type(self):
+        return self.__type
+
+    def get_cardinality(self):
+        return self.__cardinality
+
+    def get_visibility(self):
+        return self.__visibility
+
+    def get_props(self):
+        return self.__props
 
 
 
@@ -736,9 +1060,81 @@ class Tmp_PrimitiveType(Tmp_Object):
         return "primitive type " + self.get_name()
 
 
-class Tmp_OneWay_Association(Tmp_Object):
 
-    pass
+class Tmp_Association (Tmp_Object):
+
+    __slots__ = [
+        '__name',
+        '__member_ends',
+        '__visibility'
+    ]
+
+    def __init__(self, name, member_ends, visibility):
+        assert isinstance(name, str)
+        assert len(member_ends) == 2
+        assert isinstance(visibility, Visibility)
+        self.__name = name
+        self.__member_ends = member_ends
+        self.__visibility = visibility
+
+    def get_id(self):
+        return self.__name
+
+    def get_name(self):
+        return self.__name
+
+    def get_member_end(self, i):
+        return self.__member_ends[i]
+
+    def get_member_ends(self):
+        return self.__member_ends
+
+    def get_visibility(self):
+        return self.__visibility
+
+
+class Tmp_Two_Way_Association(Tmp_Association):
+
+    __slots__ = [ '__obj' ]
+
+    def __init__(self, name, member_ends, visibility):
+        super().__init__(name, member_ends, visibility)
+        self.__obj = None
+
+    def get_short_descr(self):
+        return "two-way association " + self.get_name()
+
+    def get_attr_ids(self):
+        return self.get_member_ends()
+
+    def set_obj(self, obj):
+        assert isinstance(obj, M_Two_Way_Association)
+        assert self.__obj is None
+        self.__obj = obj
+
+
+class Tmp_One_Way_Association(Tmp_Association):
+
+    __slots__ = [ '__obj', '__end' ]
+
+    def __init__(self, name, member_ends, visibility, end):
+        super().__init__(name, member_ends, visibility)
+        self.__end = end
+        self.__obj = None
+
+    def get_short_descr(self):
+        return "one-way association " + self.get_name()
+
+    def get_end(self):
+        return self.__end
+
+    def get_attr_id(self):
+        return self.get_member_end(self.__end.get_index())
+
+    def set_obj(self, obj):
+        assert isinstance(obj, M_One_Way_Association)
+        assert self.__obj is None
+        self.__obj = obj
 
 
 class Tmp_TypeRef(object):
@@ -768,7 +1164,6 @@ class Tmp_TypeRef_href(Tmp_TypeRef):
         super().__init__(name)
         self.href = href
         self.kind = kind
-
 
     def is_href(self):
         return True
