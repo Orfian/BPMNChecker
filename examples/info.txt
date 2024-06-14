@@ -79,3 +79,8 @@ Monthly Invoicing
 		- This example illustrates a very common modeling scenario. It’s not the steps of the processes that are difficult, it’s the structure of the diagram.
 	- MonthlyInvoicing-solution.bpmn
 	- MonthlyInvoicing-wrongWay.bpmn
+	
+	
+https://github.com/camunda/camunda-bpm-examples.git	
+-----------------------------------------------
+xslt-example.bpmn - external script

@@ -22,7 +22,7 @@
       <bpmn:incoming>SequenceFlow_1fp17al</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_16gzt2m</bpmn:outgoing>
       <bpmn:multiInstanceLoopCharacteristics>
-        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">#{Iterations}</bpmn:loopCardinality>
+        <bpmn:loopC	ardinality xsi:type="bpmn:tFormalExpression">#{Iterations}</bpmn:loopCardinality>
       </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:callActivity>
     <bpmn:boundaryEvent id="Event_0l1dgjz" name="Graceful Shutdown" cancelActivity="false" attachedToRef="say-hello">
