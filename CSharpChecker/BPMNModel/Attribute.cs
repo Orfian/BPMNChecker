@@ -62,6 +62,7 @@ namespace BPMNModel
 
         public (XmlParserAttribute? Result, string? Error) CreateAndCheck(XElement element, XmlParser parser)
         {
+
             var attributeFromXml = element.Attribute(Name);
 
             if (attributeFromXml == null)

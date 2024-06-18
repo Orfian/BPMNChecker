@@ -1,23 +1,19 @@
-﻿
-using BPMNModel;
+﻿using BPMNModel;
+using BPMNModel.Camunda;
 using BPMNModel.Model;
 
 //using BPMNModel.Model;
-using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting.Json;
 using System.Xml.Linq;
 using Utility;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Testing
 {
     internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
                            // add console as logging target
@@ -33,11 +29,15 @@ namespace Testing
             .CreateLogger();
 
             var generator = Generator.CreateGenerator(Log.Logger);
+
+            CamundaExtensions.EnrichGenerator(Log.Logger, generator);
+
+            //return;
             /*
             int count = 0;
             using var writer = new StreamWriter(@"d:\extracted.types");
             writer.WriteLine("extracted = {");
-            
+
             foreach(var item in generator.Types) {
                 if (item.Value is ComplexType c) {
                     (List<BPMNModel.Attribute>  Attributes, List<string> Elements) GetAll(ComplexType current)
@@ -52,13 +52,13 @@ namespace Testing
                         }
                         attributes.AddRange(current.Attributes);
                         var currentElements = current.InnerElement?.InnerElements.Select(x => $"\"{x.Name}\"").ToList();
-                         
+
                         if (currentElements is not null && currentElements.Any()) elements.AddRange(currentElements);
 
                         return (attributes, elements);
                     }
                     var (allAttributes, allElements) = GetAll(c);
- 
+
                     var required = allAttributes.Where(x => x.Use == AttributeUse.Required).Select(x => $"\"{x.Name}\"").ToList();
                     var optional = allAttributes.Where(x => x.Use == AttributeUse.Optional).Select(x => $"\"{x.Name}\"").ToList();
                     writer.WriteLine($"\t\"{c.Name.Substring(1)}\": ([{string.Join(", ", required)}], [{string.Join(", ", optional)}], [{string.Join(", ", allElements ?? [])}]),");
@@ -95,8 +95,8 @@ namespace Testing
 
                 if (parser.Root is not null)
                 {
-                    var model = Factory.ProcessModel(Log.Logger, parser);
-                    model.DumpModel("processedCMOF.cmof");
+                    //var model = Factory.ProcessModel(Log.Logger, parser);
+                    //model.DumpModel("processedCMOF.cmof");
                 }
             }
         }

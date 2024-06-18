@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.Text.Json;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace Utility
@@ -29,6 +30,11 @@ namespace Utility
             var ret = XDocument.Load(src, LoadOptions.SetLineInfo);
             return ret;
         }
-
+        public static JsonDocument LoadResourceAsJsonDocument(string path)
+        {
+            Stream src = LoadResource(path);
+            var result = JsonDocument.Parse(src);
+            return result;
+        }
     }
 }

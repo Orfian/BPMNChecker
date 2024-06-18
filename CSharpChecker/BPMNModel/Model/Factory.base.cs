@@ -234,13 +234,13 @@ namespace BPMNModel.Model
             var newIndent = indent + "  ";
             var emptyProperties = new List<string>();
 
-            string? getId(object item)
+            string? getId(object value)
             {
-                Type itemType = item.GetType();
+                Type itemType = value.GetType();
                 PropertyInfo? idProperty = itemType.GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-                if (idProperty != null && idProperty.PropertyType == Type.GetType("System.String"))
+                if (idProperty != null && idProperty.PropertyType == typeof(string))
                 {
-                    return (string?)idProperty.GetValue(item);
+                    return (string?)idProperty.GetValue(value);
                 }
                 return null;
             }
@@ -338,16 +338,18 @@ namespace BPMNModel.Model
             }
 
             Type itemType = item.GetType();
-            writer.WriteLine(indent+ itemType.Name);
-            writer.WriteLine(indent + "{");
-            
-            var id = getId(itemType);
+
+            var id = getId(item);
             if (id != null )
             {
-                writer.WriteLine($"{newIndent}Id = {id}");
+                writer.WriteLine($"{indent}{itemType.Name} ({id})");
+            }else
+            {
+                writer.WriteLine($"{indent}{itemType.Name}");
             }
+            writer.WriteLine(indent + "{");
 
-            foreach(var property in itemType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).OrderBy(x=>x.Name))
+            foreach (var property in itemType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).OrderBy(x=>x.Name))
             {
                 if (property.Name != "Id")
                 {
