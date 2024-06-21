@@ -62,8 +62,9 @@ namespace BPMNModel
 
         public (XmlParserAttribute? Result, string? Error) CreateAndCheck(XElement element, XmlParser parser)
         {
+            var convertedName = parser.GetXName(Name);
 
-            var attributeFromXml = element.Attribute(Name);
+            var attributeFromXml = element.Attribute(convertedName);
 
             if (attributeFromXml == null)
             {
@@ -78,7 +79,7 @@ namespace BPMNModel
             }
 
             string realValue = attributeFromXml is null ? Default ?? String.Empty : attributeFromXml.Value;
-            var resultingAttribute = new XmlParserAttribute(Name, realValue, Type.Category);
+            var resultingAttribute = new XmlParserAttribute(Name, convertedName ,realValue, Type.Category);
             var realValueinLowerCase = realValue.ToLower();
 
             switch (this.Type.Category)

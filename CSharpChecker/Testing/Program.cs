@@ -73,10 +73,10 @@ namespace Testing
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/single_user_task.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/subprocesses.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/MonthlyInvoicing-solution.bpmn");
-            //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn");
+            XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/all_tasks.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/all_icons.bpmn");
-            XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/BookHolidaySagaPatternV2.bpmn");
+            //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/BookHolidaySagaPatternV2.bpmn");
             Log.Logger.Debug("Opening file: diagrams/single_user_task.bpmn");
 
             var parser = XmlParser.Parse(Log.Logger, generator, doc);

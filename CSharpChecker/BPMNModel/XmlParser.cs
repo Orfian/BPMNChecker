@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using BPMNModel.Model;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -13,16 +14,14 @@ namespace BPMNModel
 {
     public class XmlParser
     {
-        private XNamespace bpmnNamespace;
         private Generator generator;
         private ILogger logger;
-        private XNamespace xsiNamespace;
-        private XmlParser(ILogger logger, Generator generator, XNamespace bpmnNamespace, XNamespace xsiNamespace)
+        public Dictionary<string, XNamespace> namespaces;
+        private XmlParser(ILogger logger, Generator generator, Dictionary<string, XNamespace> namespaces)
         {
             this.logger = logger;
             this.generator = generator;
-            this.bpmnNamespace = bpmnNamespace;
-            this.xsiNamespace = xsiNamespace;
+            this.namespaces = namespaces;
         }
 
         public Dictionary<string, XmlParserComplexNode> Cache { get; } = new();
@@ -40,20 +39,21 @@ namespace BPMNModel
             {
                 diagramElement.Remove();
             }
-
-            var bpmnNamespaceString = document.Root.Attribute(XNamespace.Xmlns + "bpmn")?.Value;
-            var xsiNamespaceString = document.Root.Attribute(XNamespace.Xmlns + "xsi")?.Value;
-            if (xsiNamespaceString is null) xsiNamespaceString = "http://www.w3.org/2001/XMLSchema-instance";
-
-            if (string.IsNullOrEmpty(bpmnNamespaceString) || string.IsNullOrEmpty(xsiNamespaceString))
+            var namespaces = new Dictionary<string, XNamespace>
             {
-                throw new BPMNCheckerExceptions($"There are no required namespaces attributes: {"xmlns:bpmn"} and {"xmlns:xsi"}");
+                { "bpmn", XNamespace.Get("http://www.omg.org/spec/BPMN/20100524/MODEL") },
+                { "xsi", XNamespace.Get("http://www.w3.org/2001/XMLSchema-instance") },
+                { "camunda", XNamespace.Get("http://camunda.org/schema/1.0/bpmn") }
+            };
+
+            var namespacesInXml = document.Root.Attributes().Where(x=>x.Name.NamespaceName == XNamespace.Xmlns);
+
+            foreach(var xmlnsAttribute in namespacesInXml)
+            {
+                namespaces[xmlnsAttribute.Name.LocalName] = xmlnsAttribute.Value;
             }
 
-            XNamespace bpmnNamespace = XNamespace.Get(bpmnNamespaceString);
-            XNamespace xsiNamespace = XNamespace.Get(xsiNamespaceString);
-
-            XmlParser parser = new XmlParser(logger, generator, bpmnNamespace, xsiNamespace);
+            XmlParser parser = new XmlParser(logger, generator, namespaces);
             parser.Root = parser.LoadAndCheck(document.Root, generator.Elements["definitions"]);
 
             var error = parser.CheckReferencesWithoutDefinitions();
@@ -114,6 +114,26 @@ namespace BPMNModel
             }
         }
 
+        public XName GetXName(string name)
+        {
+            if (name.Contains(':'))
+            {
+                var namespaceString = name.Substring(0, name.IndexOf(':'));
+                var localName = name.Substring(name.IndexOf(":")+1);
+                if (namespaces.ContainsKey(namespaceString))
+                {
+                    return namespaces[namespaceString] + localName;
+                }else
+                {
+                    throw new BPMNCheckerExceptions($"In the model, there should be no unknown namespacesl like: {namespaceString}.");
+                }
+            }
+            else
+            {
+                return name;
+            }
+        }
+
         private string GetNiceMessage(XElement element, string text)
         {
             if (element is IXmlLineInfo info && info.HasLineInfo())
@@ -133,10 +153,14 @@ namespace BPMNModel
 
         private string GetNiceNamespace(XNamespace @namespace)
         {
-            if (@namespace == bpmnNamespace) return "bpmn:";
-            if (@namespace == xsiNamespace) return "xsi:";
-            return @namespace.NamespaceName;
+            if (namespaces.Values.Contains(@namespace))
+            {
+                var item = namespaces.Where(x => x.Value == @namespace).First();
+                return item.Key;
+            }
+             return @namespace.NamespaceName;
         }
+
         private XmlParserComplexNode? LoadAndCheck(XElement element, RootElement type)
         {
             logger.Debug(GetNiceMessage(element, $"Starting to load {GetNiceName(element.Name)}"));
@@ -156,11 +180,15 @@ namespace BPMNModel
                 Log.Debug(GetNiceMessage(element, $"    {attribute}"));
             }
 
+            var allXMLAttributes = element.Attributes().Select(x=>x.Name).ToList();
+
             foreach (var attribute in allAttributes)
             {
                 var (xmlAttribute, message) = attribute.CreateAndCheck(element, this);
                 if (xmlAttribute != null)
                 {
+                    var resultOfRemoval = allXMLAttributes.Remove(xmlAttribute.XmlName);
+                    
                     Log.Debug(GetNiceMessage(element, $"  Created attribute: {xmlAttribute}"));
                     processedAttributes.Add(xmlAttribute);
                 }
@@ -168,6 +196,11 @@ namespace BPMNModel
                 {
                     Errors.Add(GetNiceMessage(element, message));
                 }
+            }
+
+            foreach (var xmlAttribute in allXMLAttributes.Where(x => x.NamespaceName != XNamespace.Xmlns))
+            {
+                Errors.Add(GetNiceMessage(element, $"Attribute {xmlAttribute} is not processed."));
             }
 
             var idAttributes = processedAttributes.Where(x => x.Name == "id");
@@ -254,7 +287,7 @@ namespace BPMNModel
                                         throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({namedElement.Name} refers to nonexisting complex type).");
                                     }
 
-                                    var castAttribute = currentElement.Attribute(xsiNamespace + "type");
+                                    var castAttribute = currentElement.Attribute(namespaces["xsi"] + "type");
                                     if (castAttribute is not null)
                                     {
                                         var castType = castAttribute.Value;
