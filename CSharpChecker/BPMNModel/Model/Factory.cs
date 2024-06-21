@@ -1174,7 +1174,7 @@ namespace BPMNModel.Model
             if (_textFormatAttribute is not null) result.TextFormat = (string)_textFormatAttribute;
 
             // missing: string text (1, 1)
-
+            ManualySolve_text_in_Documentation(result, node);
             return result;
         }
 
@@ -2960,7 +2960,7 @@ namespace BPMNModel.Model
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
             // missing: Element body (1, 1)
-
+            ManualySolve_body_in_FormalExpression(result, node);
             return result;
         }
 
@@ -5240,7 +5240,7 @@ namespace BPMNModel.Model
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
             // missing: string protocol (0, 1)
-
+            ManualySolve_protocol_in_Transaction(result, node);
             return result;
         }
 

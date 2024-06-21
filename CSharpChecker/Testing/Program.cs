@@ -76,8 +76,8 @@ namespace Testing
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/all_tasks.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/all_icons.bpmn");
-            XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/BookHolidaySagaPatternV2.bpmn");
-            //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/CamundaModeler_almost_all_set.bpmn");
+            //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/BookHolidaySagaPatternV2.bpmn");
+            XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/CamundaModeler_almost_all_set.bpmn");
             Log.Logger.Debug("Opening file: diagrams/single_user_task.bpmn");
 
             var parser = XmlParser.Parse(Log.Logger, generator, doc);

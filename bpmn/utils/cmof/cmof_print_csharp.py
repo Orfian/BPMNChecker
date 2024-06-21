@@ -456,6 +456,7 @@ def print_factory(out, c, mappings):
                 association = attr.association
                 if association is None:
                     out.write("// missing: "+ itemType + " "+ itemName + get_arity(l,h)).nl()
+                    out.write("ManualySolve_"+itemName+"_in_"+c.name+"(result, node);")
                 elif association.is_one_way():
                     assert isinstance(association, M_One_Way_Association)
                     out.write("// empty: "+ itemType + " "+ itemName + get_arity(l,h)).nl()

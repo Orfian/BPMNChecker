@@ -90,6 +90,31 @@ namespace BPMNModel.Model
 
         #endregion
 
+        #region Solving missing attributes
+
+        void ManualySolve_body_in_FormalExpression(FormalExpression result, XmlParserComplexNode node)
+        {
+            if (node.MixedContent != null)
+            {
+                result.Body = new Element(node.MixedContent);
+            }
+        }
+
+        void ManualySolve_protocol_in_Transaction(Transaction result, XmlParserComplexNode node)
+        {
+
+        }
+
+        void ManualySolve_text_in_Documentation(Documentation result, XmlParserComplexNode node)
+        {
+            if (node.MixedContent != null)
+            {
+                result.Text = node.MixedContent;
+            }
+        }
+
+        #endregion
+
         public static Factory ProcessModel(ILogger logger, XmlParser parser)
         {
             Factory factory = new Factory(Log.Logger, parser);
