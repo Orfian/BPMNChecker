@@ -10,6 +10,7 @@ namespace BPMNModel.Model
         public string? Name { get; set; }
         public List<Operation> Operations { get; } = new();
         public Element? ImplementationRef { get; set; }
+
         public Interface()
         {
         }
@@ -23,6 +24,7 @@ namespace BPMNModel.Model
         public Message? OutMessageRef { get; set; }
         public List<Error> ErrorRefs { get; } = new();
         public Element? ImplementationRef { get; set; }
+
         public Operation()
         {
         }
@@ -31,6 +33,7 @@ namespace BPMNModel.Model
 
     public class EndPoint : RootElement
     {
+
         public EndPoint()
         {
         }
@@ -39,6 +42,7 @@ namespace BPMNModel.Model
 
     public class Auditing : BaseElement
     {
+
         public Auditing()
         {
         }
@@ -48,6 +52,7 @@ namespace BPMNModel.Model
     public class GlobalTask : CallableElement
     {
         public List<ResourceRole> Resources { get; } = new();
+
         public GlobalTask()
         {
         }
@@ -56,6 +61,7 @@ namespace BPMNModel.Model
 
     public class Monitoring : BaseElement
     {
+
         public Monitoring()
         {
         }
@@ -64,6 +70,7 @@ namespace BPMNModel.Model
 
     public class Performer : ResourceRole
     {
+
         public Performer()
         {
         }
@@ -84,9 +91,22 @@ namespace BPMNModel.Model
         public List<Artifact> Artifacts { get; } = new();
         public List<CorrelationSubscription> CorrelationSubscriptions { get; } = new();
 
+
         #region Implementing: FlowElementsContainer
         public List<FlowElement> FlowElements { get; } = new();
         public List<LaneSet> LaneSets { get; } = new();
+        #endregion
+
+        #region Camunda attributes
+        public string? Camunda_jobPriority { get; set; }
+        public string? Camunda_modelerTemplate { get; set; }
+        public long? Camunda_modelerTemplateVersion { get; set; }
+        public string? Camunda_candidateStarterGroups { get; set; }
+        public string? Camunda_candidateStarterUsers { get; set; }
+        public string? Camunda_versionTag { get; set; }
+        public string? Camunda_historyTimeToLive { get; set; }
+        public bool? Camunda_isStartableInTasklist { get; set; }
+        public string? Camunda_taskPriority { get; set; }
         #endregion
 
         public Process()
@@ -99,6 +119,7 @@ namespace BPMNModel.Model
     {
         public List<Lane> Lanes { get; } = new();
         public string? Name { get; set; }
+
         public LaneSet()
         {
         }
@@ -112,6 +133,7 @@ namespace BPMNModel.Model
         public BaseElement? PartitionElementRef { get; set; }
         public List<FlowNode> FlowNodeRefs { get; } = new();
         public BaseElement? PartitionElement { get; set; }
+
         public Lane()
         {
         }
@@ -120,6 +142,7 @@ namespace BPMNModel.Model
 
     public class GlobalManualTask : GlobalTask
     {
+
         public GlobalManualTask()
         {
         }
@@ -128,6 +151,7 @@ namespace BPMNModel.Model
 
     public class ManualTask : Task
     {
+
         public ManualTask()
         {
         }
@@ -138,6 +162,21 @@ namespace BPMNModel.Model
     {
         public List<Rendering> Renderings { get; } = new();
         public string? Implementation { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_formHandlerClass { get; set; }
+        public string? Camunda_formKey { get; set; }
+        public string? Camunda_formRef { get; set; }
+        public string? Camunda_formRefBinding { get; set; }
+        public string? Camunda_formRefVersion { get; set; }
+        public string? Camunda_assignee { get; set; }
+        public string? Camunda_candidateUsers { get; set; }
+        public string? Camunda_candidateGroups { get; set; }
+        public string? Camunda_dueDate { get; set; }
+        public string? Camunda_followUpDate { get; set; }
+        public string? Camunda_priority { get; set; }
+        #endregion
+
         public UserTask()
         {
         }
@@ -146,6 +185,7 @@ namespace BPMNModel.Model
 
     public class Rendering : BaseElement
     {
+
         public Rendering()
         {
         }
@@ -154,6 +194,7 @@ namespace BPMNModel.Model
 
     public class HumanPerformer : Performer
     {
+
         public HumanPerformer()
         {
         }
@@ -162,6 +203,7 @@ namespace BPMNModel.Model
 
     public class PotentialOwner : HumanPerformer
     {
+
         public PotentialOwner()
         {
         }
@@ -172,6 +214,7 @@ namespace BPMNModel.Model
     {
         public string? Implementation { get; set; }
         public List<Rendering> Renderings { get; } = new();
+
         public GlobalUserTask()
         {
         }
@@ -181,6 +224,15 @@ namespace BPMNModel.Model
     public abstract class Gateway : FlowNode
     {
         public GatewayDirection? GatewayDirection { get; set; }
+
+        #region Camunda attributes
+        public bool? Camunda_async { get; set; }
+        public bool? Camunda_asyncBefore { get; set; }
+        public bool? Camunda_asyncAfter { get; set; }
+        public bool? Camunda_exclusive { get; set; }
+        public string? Camunda_jobPriority { get; set; }
+        #endregion
+
         public Gateway()
         {
         }
@@ -191,6 +243,7 @@ namespace BPMNModel.Model
     {
         public bool? Instantiate { get; set; }
         public EventBasedGatewayType? EventGatewayType { get; set; }
+
         public EventBasedGateway()
         {
         }
@@ -201,6 +254,7 @@ namespace BPMNModel.Model
     {
         public Expression? ActivationCondition { get; set; }
         public SequenceFlow? Default { get; set; }
+
         public ComplexGateway()
         {
         }
@@ -210,6 +264,7 @@ namespace BPMNModel.Model
     public class ExclusiveGateway : Gateway
     {
         public SequenceFlow? Default { get; set; }
+
         public ExclusiveGateway()
         {
         }
@@ -219,6 +274,7 @@ namespace BPMNModel.Model
     public class InclusiveGateway : Gateway
     {
         public SequenceFlow? Default { get; set; }
+
         public InclusiveGateway()
         {
         }
@@ -227,6 +283,7 @@ namespace BPMNModel.Model
 
     public class ParallelGateway : Gateway
     {
+
         public ParallelGateway()
         {
         }
@@ -235,6 +292,7 @@ namespace BPMNModel.Model
 
     public abstract class RootElement : BaseElement
     {
+
         public RootElement()
         {
         }
@@ -247,6 +305,7 @@ namespace BPMNModel.Model
         public RelationshipDirection? Direction { get; set; }
         public List<Element> Sources { get; } = new();
         public List<Element> Targets { get; } = new();
+
         public Relationship()
         {
         }
@@ -259,6 +318,7 @@ namespace BPMNModel.Model
         public List<ExtensionDefinition> ExtensionDefinitions { get; } = new();
         public List<ExtensionAttributeValue> ExtensionValues { get; } = new();
         public List<Documentation> Documentation { get; } = new();
+
         public BaseElement()
         {
         }
@@ -269,6 +329,7 @@ namespace BPMNModel.Model
     {
         public bool? MustUnderstand { get; set; }
         public ExtensionDefinition? Definition { get; set; }
+
         public Extension()
         {
         }
@@ -279,6 +340,7 @@ namespace BPMNModel.Model
     {
         public string? Name { get; set; }
         public List<ExtensionAttributeDefinition> ExtensionAttributeDefinitions { get; } = new();
+
         public ExtensionDefinition()
         {
         }
@@ -291,6 +353,7 @@ namespace BPMNModel.Model
         public string? Type { get; set; }
         public bool? IsReference { get; set; }
         public ExtensionDefinition? ExtensionDefinition { get; set; }
+
         public ExtensionAttributeDefinition()
         {
         }
@@ -302,6 +365,7 @@ namespace BPMNModel.Model
         public Element? ValueRef { get; set; }
         public Element? Value { get; set; }
         public ExtensionAttributeDefinition? ExtensionAttributeDefinition { get; set; }
+
         public ExtensionAttributeValue()
         {
         }
@@ -312,6 +376,7 @@ namespace BPMNModel.Model
     {
         public string? Text { get; set; }
         public string? TextFormat { get; set; }
+
         public Documentation()
         {
         }
@@ -322,9 +387,18 @@ namespace BPMNModel.Model
     {
         public List<Property> Properties { get; } = new();
 
+
         #region Implementing: InteractionNode
         public List<ConversationLink> IncomingConversationLinks { get; } = new();
         public List<ConversationLink> OutgoingConversationLinks { get; } = new();
+        #endregion
+
+        #region Camunda attributes
+        public bool? Camunda_async { get; set; }
+        public bool? Camunda_asyncBefore { get; set; }
+        public bool? Camunda_asyncAfter { get; set; }
+        public bool? Camunda_exclusive { get; set; }
+        public string? Camunda_jobPriority { get; set; }
         #endregion
 
         public Event()
@@ -335,6 +409,7 @@ namespace BPMNModel.Model
 
     public class IntermediateCatchEvent : CatchEvent
     {
+
         public IntermediateCatchEvent()
         {
         }
@@ -343,6 +418,7 @@ namespace BPMNModel.Model
 
     public class IntermediateThrowEvent : ThrowEvent
     {
+
         public IntermediateThrowEvent()
         {
         }
@@ -351,6 +427,7 @@ namespace BPMNModel.Model
 
     public class EndEvent : ThrowEvent
     {
+
         public EndEvent()
         {
         }
@@ -360,6 +437,16 @@ namespace BPMNModel.Model
     public class StartEvent : CatchEvent
     {
         public bool? IsInterrupting { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_formHandlerClass { get; set; }
+        public string? Camunda_formKey { get; set; }
+        public string? Camunda_formRef { get; set; }
+        public string? Camunda_formRefBinding { get; set; }
+        public string? Camunda_formRefVersion { get; set; }
+        public string? Camunda_initiator { get; set; }
+        #endregion
+
         public StartEvent()
         {
         }
@@ -373,6 +460,7 @@ namespace BPMNModel.Model
         public List<DataInputAssociation> DataInputAssociation { get; } = new();
         public List<DataInput> DataInputs { get; } = new();
         public List<EventDefinition> EventDefinitions { get; } = new();
+
         public ThrowEvent()
         {
         }
@@ -387,6 +475,7 @@ namespace BPMNModel.Model
         public List<DataOutputAssociation> DataOutputAssociation { get; } = new();
         public List<DataOutput> DataOutputs { get; } = new();
         public List<EventDefinition> EventDefinitions { get; } = new();
+
         public CatchEvent()
         {
         }
@@ -397,6 +486,7 @@ namespace BPMNModel.Model
     {
         public bool? CancelActivity { get; set; }
         public Activity? AttachedToRef { get; set; }
+
         public BoundaryEvent()
         {
         }
@@ -405,6 +495,7 @@ namespace BPMNModel.Model
 
     public abstract class EventDefinition : RootElement
     {
+
         public EventDefinition()
         {
         }
@@ -413,6 +504,7 @@ namespace BPMNModel.Model
 
     public class CancelEventDefinition : EventDefinition
     {
+
         public CancelEventDefinition()
         {
         }
@@ -422,6 +514,12 @@ namespace BPMNModel.Model
     public class ErrorEventDefinition : EventDefinition
     {
         public Error? ErrorRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_errorCodeVariable { get; set; }
+        public string? Camunda_errorMessageVariable { get; set; }
+        #endregion
+
         public ErrorEventDefinition()
         {
         }
@@ -430,6 +528,7 @@ namespace BPMNModel.Model
 
     public class TerminateEventDefinition : EventDefinition
     {
+
         public TerminateEventDefinition()
         {
         }
@@ -439,6 +538,11 @@ namespace BPMNModel.Model
     public class EscalationEventDefinition : EventDefinition
     {
         public Escalation? EscalationRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_escalationCodeVariable { get; set; }
+        #endregion
+
         public EscalationEventDefinition()
         {
         }
@@ -450,6 +554,7 @@ namespace BPMNModel.Model
         public ItemDefinition? StructureRef { get; set; }
         public string? Name { get; set; }
         public string? EscalationCode { get; set; }
+
         public Escalation()
         {
         }
@@ -460,6 +565,7 @@ namespace BPMNModel.Model
     {
         public bool? WaitForCompletion { get; set; }
         public Activity? ActivityRef { get; set; }
+
         public CompensateEventDefinition()
         {
         }
@@ -471,6 +577,7 @@ namespace BPMNModel.Model
         public Expression? TimeDate { get; set; }
         public Expression? TimeCycle { get; set; }
         public Expression? TimeDuration { get; set; }
+
         public TimerEventDefinition()
         {
         }
@@ -482,6 +589,7 @@ namespace BPMNModel.Model
         public string? Name { get; set; }
         public LinkEventDefinition? Target { get; set; }
         public List<LinkEventDefinition> Source { get; } = new();
+
         public LinkEventDefinition()
         {
         }
@@ -492,6 +600,16 @@ namespace BPMNModel.Model
     {
         public Message? MessageRef { get; set; }
         public Operation? OperationRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_expression { get; set; }
+        public string? Camunda_class { get; set; }
+        public string? Camunda_delegateExpression { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_type { get; set; }
+        public string? Camunda_topic { get; set; }
+        #endregion
+
         public MessageEventDefinition()
         {
         }
@@ -501,6 +619,12 @@ namespace BPMNModel.Model
     public class ConditionalEventDefinition : EventDefinition
     {
         public Expression? Condition { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_variableName { get; set; }
+        public string? Camunda_variableEvents { get; set; }
+        #endregion
+
         public ConditionalEventDefinition()
         {
         }
@@ -510,6 +634,11 @@ namespace BPMNModel.Model
     public class SignalEventDefinition : EventDefinition
     {
         public Signal? SignalRef { get; set; }
+
+        #region Camunda attributes
+        public bool? Camunda_async { get; set; }
+        #endregion
+
         public SignalEventDefinition()
         {
         }
@@ -520,6 +649,7 @@ namespace BPMNModel.Model
     {
         public ItemDefinition? StructureRef { get; set; }
         public string? Name { get; set; }
+
         public Signal()
         {
         }
@@ -528,6 +658,7 @@ namespace BPMNModel.Model
 
     public class ImplicitThrowEvent : ThrowEvent
     {
+
         public ImplicitThrowEvent()
         {
         }
@@ -537,6 +668,7 @@ namespace BPMNModel.Model
     public class DataState : BaseElement
     {
         public string? Name { get; set; }
+
         public DataState()
         {
         }
@@ -547,6 +679,7 @@ namespace BPMNModel.Model
     {
         ItemDefinition? ItemSubjectRef { get; set; }
         DataState? DataState { get; set; }
+
     }
 
     public class DataAssociation : BaseElement
@@ -555,6 +688,7 @@ namespace BPMNModel.Model
         public List<Assignment> Assignment { get; } = new();
         public ItemAwareElement? TargetRef { get; set; }
         public List<ItemAwareElement> SourceRef { get; } = new();
+
         public DataAssociation()
         {
         }
@@ -568,6 +702,7 @@ namespace BPMNModel.Model
         public List<InputSet> InputSetRefs { get; } = new();
         public List<InputSet> InputSetWithOptional { get; } = new();
         public List<InputSet> InputSetWithWhileExecuting { get; } = new();
+
 
         #region Implementing: ItemAwareElement
         public ItemDefinition? ItemSubjectRef { get; set; }
@@ -588,6 +723,7 @@ namespace BPMNModel.Model
         public List<OutputSet> OutputSetWithOptional { get; } = new();
         public List<OutputSet> OutputSetWithWhileExecuting { get; } = new();
 
+
         #region Implementing: ItemAwareElement
         public ItemDefinition? ItemSubjectRef { get; set; }
         public DataState? DataState { get; set; }
@@ -606,6 +742,7 @@ namespace BPMNModel.Model
         public List<DataInput> OptionalInputRefs { get; } = new();
         public List<DataInput> WhileExecutingInputRefs { get; } = new();
         public List<OutputSet> OutputSetRefs { get; } = new();
+
         public InputSet()
         {
         }
@@ -619,6 +756,7 @@ namespace BPMNModel.Model
         public List<InputSet> InputSetRefs { get; } = new();
         public List<DataOutput> OptionalOutputRefs { get; } = new();
         public List<DataOutput> WhileExecutingOutputRefs { get; } = new();
+
         public OutputSet()
         {
         }
@@ -628,6 +766,7 @@ namespace BPMNModel.Model
     public class Property : BaseElement, ItemAwareElement
     {
         public string? Name { get; set; }
+
 
         #region Implementing: ItemAwareElement
         public ItemDefinition? ItemSubjectRef { get; set; }
@@ -642,6 +781,7 @@ namespace BPMNModel.Model
 
     public class DataInputAssociation : DataAssociation
     {
+
         public DataInputAssociation()
         {
         }
@@ -650,6 +790,7 @@ namespace BPMNModel.Model
 
     public class DataOutputAssociation : DataAssociation
     {
+
         public DataOutputAssociation()
         {
         }
@@ -662,6 +803,7 @@ namespace BPMNModel.Model
         public List<OutputSet> OutputSets { get; } = new();
         public List<DataInput> DataInputs { get; } = new();
         public List<DataOutput> DataOutputs { get; } = new();
+
         public InputOutputSpecification()
         {
         }
@@ -671,6 +813,7 @@ namespace BPMNModel.Model
     public class DataObject : FlowElement, ItemAwareElement
     {
         public bool? IsCollection { get; set; }
+
 
         #region Implementing: ItemAwareElement
         public ItemDefinition? ItemSubjectRef { get; set; }
@@ -688,6 +831,7 @@ namespace BPMNModel.Model
         public InputSet? InputDataRef { get; set; }
         public OutputSet? OutputDataRef { get; set; }
         public Operation? OperationRef { get; set; }
+
         public InputOutputBinding()
         {
         }
@@ -698,6 +842,7 @@ namespace BPMNModel.Model
     {
         public Expression? From { get; set; }
         public Expression? To { get; set; }
+
         public Assignment()
         {
         }
@@ -707,8 +852,9 @@ namespace BPMNModel.Model
     public class DataStore : RootElement, ItemAwareElement
     {
         public string? Name { get; set; }
-        public int? Capacity { get; set; }
+        public long? Capacity { get; set; }
         public bool? IsUnlimited { get; set; }
+
 
         #region Implementing: ItemAwareElement
         public ItemDefinition? ItemSubjectRef { get; set; }
@@ -725,6 +871,7 @@ namespace BPMNModel.Model
     {
         public DataStore? DataStoreRef { get; set; }
 
+
         #region Implementing: ItemAwareElement
         public ItemDefinition? ItemSubjectRef { get; set; }
         public DataState? DataState { get; set; }
@@ -739,6 +886,7 @@ namespace BPMNModel.Model
     public class DataObjectReference : FlowElement, ItemAwareElement
     {
         public DataObject? DataObjectRef { get; set; }
+
 
         #region Implementing: ItemAwareElement
         public ItemDefinition? ItemSubjectRef { get; set; }
@@ -756,6 +904,7 @@ namespace BPMNModel.Model
         public InteractionNode? SourceRef { get; set; }
         public InteractionNode? TargetRef { get; set; }
         public string? Name { get; set; }
+
         public ConversationLink()
         {
         }
@@ -766,6 +915,7 @@ namespace BPMNModel.Model
     {
         public ConversationNode? InnerConversationNodeRef { get; set; }
         public ConversationNode? OuterConversationNodeRef { get; set; }
+
         public ConversationAssociation()
         {
         }
@@ -776,6 +926,7 @@ namespace BPMNModel.Model
     {
         public Collaboration? CalledCollaborationRef { get; set; }
         public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
+
         public CallConversation()
         {
         }
@@ -784,6 +935,7 @@ namespace BPMNModel.Model
 
     public class Conversation : ConversationNode
     {
+
         public Conversation()
         {
         }
@@ -793,6 +945,7 @@ namespace BPMNModel.Model
     public class SubConversation : ConversationNode
     {
         public List<ConversationNode> ConversationNodes { get; } = new();
+
         public SubConversation()
         {
         }
@@ -805,6 +958,7 @@ namespace BPMNModel.Model
         public List<Participant> ParticipantRefs { get; } = new();
         public List<MessageFlow> MessageFlowRefs { get; } = new();
         public List<CorrelationKey> CorrelationKeys { get; } = new();
+
 
         #region Implementing: InteractionNode
         public List<ConversationLink> IncomingConversationLinks { get; } = new();
@@ -819,6 +973,7 @@ namespace BPMNModel.Model
 
     public class GlobalConversation : Collaboration
     {
+
         public GlobalConversation()
         {
         }
@@ -829,6 +984,7 @@ namespace BPMNModel.Model
     {
         public string? Name { get; set; }
         public List<Participant> ParticipantRef { get; } = new();
+
         public PartnerEntity()
         {
         }
@@ -839,6 +995,7 @@ namespace BPMNModel.Model
     {
         public string? Name { get; set; }
         public List<Participant> ParticipantRef { get; } = new();
+
         public PartnerRole()
         {
         }
@@ -850,6 +1007,7 @@ namespace BPMNModel.Model
         public List<CorrelationPropertyRetrievalExpression> CorrelationPropertyRetrievalExpression { get; } = new();
         public string? Name { get; set; }
         public ItemDefinition? Type { get; set; }
+
         public CorrelationProperty()
         {
         }
@@ -861,6 +1019,11 @@ namespace BPMNModel.Model
         public ItemDefinition? StructureRef { get; set; }
         public string? Name { get; set; }
         public string? ErrorCode { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_errorMessage { get; set; }
+        #endregion
+
         public Error()
         {
         }
@@ -871,6 +1034,7 @@ namespace BPMNModel.Model
     {
         public List<CorrelationProperty> CorrelationPropertyRef { get; } = new();
         public string? Name { get; set; }
+
         public CorrelationKey()
         {
         }
@@ -879,6 +1043,7 @@ namespace BPMNModel.Model
 
     public class Expression : BaseElement
     {
+
         public Expression()
         {
         }
@@ -890,6 +1055,11 @@ namespace BPMNModel.Model
         public string? Language { get; set; }
         public Element? Body { get; set; }
         public ItemDefinition? EvaluatesToTypeRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_resource { get; set; }
+        #endregion
+
         public FormalExpression()
         {
         }
@@ -900,6 +1070,7 @@ namespace BPMNModel.Model
     {
         public string? Name { get; set; }
         public ItemDefinition? ItemRef { get; set; }
+
         public Message()
         {
         }
@@ -912,6 +1083,7 @@ namespace BPMNModel.Model
         public Element? StructureRef { get; set; }
         public bool? IsCollection { get; set; }
         public Import? Import { get; set; }
+
         public ItemDefinition()
         {
         }
@@ -924,6 +1096,12 @@ namespace BPMNModel.Model
         public Auditing? Auditing { get; set; }
         public Monitoring? Monitoring { get; set; }
         public List<CategoryValue> CategoryValueRef { get; } = new();
+
+        #region Camunda attributes
+        public string? Camunda_modelerTemplate { get; set; }
+        public long? Camunda_modelerTemplateVersion { get; set; }
+        #endregion
+
         public FlowElement()
         {
         }
@@ -936,6 +1114,7 @@ namespace BPMNModel.Model
         public Expression? ConditionExpression { get; set; }
         public FlowNode? SourceRef { get; set; }
         public FlowNode? TargetRef { get; set; }
+
         public SequenceFlow()
         {
         }
@@ -946,6 +1125,7 @@ namespace BPMNModel.Model
     {
         List<FlowElement> FlowElements { get; }
         List<LaneSet> LaneSets { get; }
+
     }
 
     public abstract class CallableElement : RootElement
@@ -954,6 +1134,7 @@ namespace BPMNModel.Model
         public InputOutputSpecification? IoSpecification { get; set; }
         public List<Interface> SupportedInterfaceRefs { get; } = new();
         public List<InputOutputBinding> IoBinding { get; } = new();
+
         public CallableElement()
         {
         }
@@ -965,6 +1146,7 @@ namespace BPMNModel.Model
         public List<SequenceFlow> Outgoing { get; } = new();
         public List<SequenceFlow> Incoming { get; } = new();
         public List<Lane> Lanes { get; } = new();
+
         public FlowNode()
         {
         }
@@ -975,6 +1157,7 @@ namespace BPMNModel.Model
     {
         public FormalExpression? MessagePath { get; set; }
         public Message? MessageRef { get; set; }
+
         public CorrelationPropertyRetrievalExpression()
         {
         }
@@ -985,6 +1168,7 @@ namespace BPMNModel.Model
     {
         public FormalExpression? DataPath { get; set; }
         public CorrelationProperty? CorrelationPropertyRef { get; set; }
+
         public CorrelationPropertyBinding()
         {
         }
@@ -995,6 +1179,7 @@ namespace BPMNModel.Model
     {
         public string? Name { get; set; }
         public List<ResourceParameter> ResourceParameters { get; } = new();
+
         public Resource()
         {
         }
@@ -1006,6 +1191,7 @@ namespace BPMNModel.Model
         public string? Name { get; set; }
         public bool? IsRequired { get; set; }
         public ItemDefinition? Type { get; set; }
+
         public ResourceParameter()
         {
         }
@@ -1016,6 +1202,7 @@ namespace BPMNModel.Model
     {
         public CorrelationKey? CorrelationKeyRef { get; set; }
         public List<CorrelationPropertyBinding> CorrelationPropertyBinding { get; } = new();
+
         public CorrelationSubscription()
         {
         }
@@ -1028,6 +1215,7 @@ namespace BPMNModel.Model
         public InteractionNode? SourceRef { get; set; }
         public InteractionNode? TargetRef { get; set; }
         public Message? MessageRef { get; set; }
+
         public MessageFlow()
         {
         }
@@ -1038,6 +1226,7 @@ namespace BPMNModel.Model
     {
         public MessageFlow? InnerMessageFlowRef { get; set; }
         public MessageFlow? OuterMessageFlowRef { get; set; }
+
         public MessageFlowAssociation()
         {
         }
@@ -1048,6 +1237,7 @@ namespace BPMNModel.Model
     {
         List<ConversationLink> IncomingConversationLinks { get; }
         List<ConversationLink> OutgoingConversationLinks { get; }
+
     }
 
     public class Participant : BaseElement, InteractionNode
@@ -1057,6 +1247,7 @@ namespace BPMNModel.Model
         public ParticipantMultiplicity? ParticipantMultiplicity { get; set; }
         public List<EndPoint> EndPointRefs { get; } = new();
         public Process? ProcessRef { get; set; }
+
 
         #region Implementing: InteractionNode
         public List<ConversationLink> IncomingConversationLinks { get; } = new();
@@ -1073,6 +1264,7 @@ namespace BPMNModel.Model
     {
         public Participant? InnerParticipantRef { get; set; }
         public Participant? OuterParticipantRef { get; set; }
+
         public ParticipantAssociation()
         {
         }
@@ -1081,8 +1273,9 @@ namespace BPMNModel.Model
 
     public class ParticipantMultiplicity
     {
-        public int? Minimum { get; set; }
-        public int? Maximum { get; set; }
+        public long? Minimum { get; set; }
+        public long? Maximum { get; set; }
+
         public ParticipantMultiplicity()
         {
         }
@@ -1103,6 +1296,12 @@ namespace BPMNModel.Model
         public List<CorrelationKey> CorrelationKeys { get; } = new();
         public List<ConversationNode> Conversations { get; } = new();
         public List<ConversationLink> ConversationLinks { get; } = new();
+
+        #region Camunda attributes
+        public string? Camunda_modelerTemplate { get; set; }
+        public long? Camunda_modelerTemplateVersion { get; set; }
+        #endregion
+
         public Collaboration()
         {
         }
@@ -1115,6 +1314,7 @@ namespace BPMNModel.Model
         public Participant? InitiatingParticipantRef { get; set; }
         public List<CorrelationKey> CorrelationKeys { get; } = new();
         public ChoreographyLoopType? LoopType { get; set; }
+
         public ChoreographyActivity()
         {
         }
@@ -1125,6 +1325,7 @@ namespace BPMNModel.Model
     {
         public Choreography? CalledChoreographyRef { get; set; }
         public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
+
         public CallChoreography()
         {
         }
@@ -1134,6 +1335,7 @@ namespace BPMNModel.Model
     public class SubChoreography : ChoreographyActivity, FlowElementsContainer
     {
         public List<Artifact> Artifacts { get; } = new();
+
 
         #region Implementing: FlowElementsContainer
         public List<FlowElement> FlowElements { get; } = new();
@@ -1149,6 +1351,7 @@ namespace BPMNModel.Model
     public class ChoreographyTask : ChoreographyActivity
     {
         public List<MessageFlow> MessageFlowRef { get; } = new();
+
         public ChoreographyTask()
         {
         }
@@ -1157,6 +1360,7 @@ namespace BPMNModel.Model
 
     public class Choreography : Collaboration, FlowElementsContainer
     {
+
 
         #region Implementing: FlowElementsContainer
         public List<FlowElement> FlowElements { get; } = new();
@@ -1172,6 +1376,7 @@ namespace BPMNModel.Model
     public class GlobalChoreographyTask : Choreography
     {
         public Participant? InitiatingParticipantRef { get; set; }
+
         public GlobalChoreographyTask()
         {
         }
@@ -1182,6 +1387,7 @@ namespace BPMNModel.Model
     {
         public string? Text { get; set; }
         public string? TextFormat { get; set; }
+
         public TextAnnotation()
         {
         }
@@ -1191,6 +1397,7 @@ namespace BPMNModel.Model
     public class Group : Artifact
     {
         public CategoryValue? CategoryValueRef { get; set; }
+
         public Group()
         {
         }
@@ -1202,6 +1409,7 @@ namespace BPMNModel.Model
         public AssociationDirection? AssociationDirection { get; set; }
         public BaseElement? SourceRef { get; set; }
         public BaseElement? TargetRef { get; set; }
+
         public Association()
         {
         }
@@ -1212,6 +1420,7 @@ namespace BPMNModel.Model
     {
         public List<CategoryValue> CategoryValue { get; } = new();
         public string? Name { get; set; }
+
         public Category()
         {
         }
@@ -1220,6 +1429,7 @@ namespace BPMNModel.Model
 
     public abstract class Artifact : BaseElement
     {
+
         public Artifact()
         {
         }
@@ -1230,6 +1440,7 @@ namespace BPMNModel.Model
     {
         public List<FlowElement> CategorizedFlowElements { get; } = new();
         public string? Value { get; set; }
+
         public CategoryValue()
         {
         }
@@ -1247,8 +1458,17 @@ namespace BPMNModel.Model
         public List<BoundaryEvent> BoundaryEventRefs { get; } = new();
         public List<DataInputAssociation> DataInputAssociations { get; } = new();
         public List<DataOutputAssociation> DataOutputAssociations { get; } = new();
-        public int? StartQuantity { get; set; }
-        public int? CompletionQuantity { get; set; }
+        public long? StartQuantity { get; set; }
+        public long? CompletionQuantity { get; set; }
+
+        #region Camunda attributes
+        public bool? Camunda_async { get; set; }
+        public bool? Camunda_asyncBefore { get; set; }
+        public bool? Camunda_asyncAfter { get; set; }
+        public bool? Camunda_exclusive { get; set; }
+        public string? Camunda_jobPriority { get; set; }
+        #endregion
+
         public Activity()
         {
         }
@@ -1259,6 +1479,16 @@ namespace BPMNModel.Model
     {
         public string? Implementation { get; set; }
         public Operation? OperationRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_expression { get; set; }
+        public string? Camunda_class { get; set; }
+        public string? Camunda_delegateExpression { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_type { get; set; }
+        public string? Camunda_topic { get; set; }
+        #endregion
+
         public ServiceTask()
         {
         }
@@ -1269,6 +1499,7 @@ namespace BPMNModel.Model
     {
         public bool? TriggeredByEvent { get; set; }
         public List<Artifact> Artifacts { get; } = new();
+
 
         #region Implementing: FlowElementsContainer
         public List<FlowElement> FlowElements { get; } = new();
@@ -1283,6 +1514,7 @@ namespace BPMNModel.Model
 
     public abstract class LoopCharacteristics : BaseElement
     {
+
         public LoopCharacteristics()
         {
         }
@@ -1302,6 +1534,16 @@ namespace BPMNModel.Model
         public List<ComplexBehaviorDefinition> ComplexBehaviorDefinition { get; } = new();
         public EventDefinition? OneBehaviorEventRef { get; set; }
         public EventDefinition? NoneBehaviorEventRef { get; set; }
+
+        #region Camunda attributes
+        public bool? Camunda_async { get; set; }
+        public bool? Camunda_asyncBefore { get; set; }
+        public bool? Camunda_asyncAfter { get; set; }
+        public bool? Camunda_exclusive { get; set; }
+        public string? Camunda_collection { get; set; }
+        public string? Camunda_elementVariable { get; set; }
+        #endregion
+
         public MultiInstanceLoopCharacteristics()
         {
         }
@@ -1313,6 +1555,7 @@ namespace BPMNModel.Model
         public bool? TestBefore { get; set; }
         public Expression? LoopCondition { get; set; }
         public Expression? LoopMaximum { get; set; }
+
         public StandardLoopCharacteristics()
         {
         }
@@ -1322,6 +1565,20 @@ namespace BPMNModel.Model
     public class CallActivity : Activity
     {
         public CallableElement? CalledElementRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_calledElementBinding { get; set; }
+        public string? Camunda_calledElementVersion { get; set; }
+        public string? Camunda_calledElementVersionTag { get; set; }
+        public string? Camunda_calledElementTenantId { get; set; }
+        public string? Camunda_caseRef { get; set; }
+        public string? Camunda_caseBinding { get; set; }
+        public string? Camunda_caseVersion { get; set; }
+        public string? Camunda_caseTenantId { get; set; }
+        public string? Camunda_variableMappingClass { get; set; }
+        public string? Camunda_variableMappingDelegateExpression { get; set; }
+        #endregion
+
         public CallActivity()
         {
         }
@@ -1330,6 +1587,7 @@ namespace BPMNModel.Model
 
     public class Task : Activity, InteractionNode
     {
+
 
         #region Implementing: InteractionNode
         public List<ConversationLink> IncomingConversationLinks { get; } = new();
@@ -1347,6 +1605,16 @@ namespace BPMNModel.Model
         public string? Implementation { get; set; }
         public Operation? OperationRef { get; set; }
         public Message? MessageRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_expression { get; set; }
+        public string? Camunda_class { get; set; }
+        public string? Camunda_delegateExpression { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_type { get; set; }
+        public string? Camunda_topic { get; set; }
+        #endregion
+
         public SendTask()
         {
         }
@@ -1359,6 +1627,7 @@ namespace BPMNModel.Model
         public bool? Instantiate { get; set; }
         public Operation? OperationRef { get; set; }
         public Message? MessageRef { get; set; }
+
         public ReceiveTask()
         {
         }
@@ -1369,6 +1638,12 @@ namespace BPMNModel.Model
     {
         public string? ScriptFormat { get; set; }
         public string? Script { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_resource { get; set; }
+        #endregion
+
         public ScriptTask()
         {
         }
@@ -1378,6 +1653,21 @@ namespace BPMNModel.Model
     public class BusinessRuleTask : Task
     {
         public string? Implementation { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_expression { get; set; }
+        public string? Camunda_class { get; set; }
+        public string? Camunda_delegateExpression { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_type { get; set; }
+        public string? Camunda_topic { get; set; }
+        public string? Camunda_decisionRef { get; set; }
+        public string? Camunda_decisionRefBinding { get; set; }
+        public string? Camunda_decisionRefVersion { get; set; }
+        public string? Camunda_mapDecisionResult { get; set; }
+        public string? Camunda_decisionRefTenantId { get; set; }
+        #endregion
+
         public BusinessRuleTask()
         {
         }
@@ -1389,6 +1679,7 @@ namespace BPMNModel.Model
         public Expression? CompletionCondition { get; set; }
         public AdHocOrdering? Ordering { get; set; }
         public bool? CancelRemainingInstances { get; set; }
+
         public AdHocSubProcess()
         {
         }
@@ -1399,6 +1690,7 @@ namespace BPMNModel.Model
     {
         public string? Protocol { get; set; }
         public string? Method { get; set; }
+
         public Transaction()
         {
         }
@@ -1409,6 +1701,7 @@ namespace BPMNModel.Model
     {
         public string? ScriptLanguage { get; set; }
         public string? Script { get; set; }
+
         public GlobalScriptTask()
         {
         }
@@ -1418,6 +1711,7 @@ namespace BPMNModel.Model
     public class GlobalBusinessRuleTask : GlobalTask
     {
         public string? Implementation { get; set; }
+
         public GlobalBusinessRuleTask()
         {
         }
@@ -1428,6 +1722,7 @@ namespace BPMNModel.Model
     {
         public FormalExpression? Condition { get; set; }
         public ImplicitThrowEvent? Event { get; set; }
+
         public ComplexBehaviorDefinition()
         {
         }
@@ -1440,6 +1735,7 @@ namespace BPMNModel.Model
         public List<ResourceParameterBinding> ResourceParameterBindings { get; } = new();
         public ResourceAssignmentExpression? ResourceAssignmentExpression { get; set; }
         public string? Name { get; set; }
+
         public ResourceRole()
         {
         }
@@ -1450,6 +1746,7 @@ namespace BPMNModel.Model
     {
         public Expression? Expression { get; set; }
         public ResourceParameter? ParameterRef { get; set; }
+
         public ResourceParameterBinding()
         {
         }
@@ -1459,6 +1756,7 @@ namespace BPMNModel.Model
     public class ResourceAssignmentExpression
     {
         public Expression? Expression { get; set; }
+
         public ResourceAssignmentExpression()
         {
         }
@@ -1470,6 +1768,7 @@ namespace BPMNModel.Model
         public string? ImportType { get; set; }
         public string? Location { get; set; }
         public string? Namespace { get; set; }
+
         public Import()
         {
         }
@@ -1488,6 +1787,11 @@ namespace BPMNModel.Model
         public List<RootElement> RootElements { get; } = new();
         public string? Exporter { get; set; }
         public string? ExporterVersion { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_diagramRelationId { get; set; }
+        #endregion
+
         public Definitions()
         {
         }

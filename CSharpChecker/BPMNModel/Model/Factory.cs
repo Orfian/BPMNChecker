@@ -201,6 +201,42 @@ namespace BPMNModel.Model
             var _isExecutableAttribute = node.Attributes.ContainsKey("isExecutable") ? node.Attributes["isExecutable"].ProcessedValue : null;
             if (_isExecutableAttribute is not null) result.IsExecutable = (bool)_isExecutableAttribute;
 
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:candidateStarterGroups -> string camunda_candidateStarterGroups (0, 1)
+            var _camunda_candidateStarterGroupsAttribute = node.Attributes.ContainsKey("camunda:candidateStarterGroups") ? node.Attributes["camunda:candidateStarterGroups"].ProcessedValue : null;
+            if (_camunda_candidateStarterGroupsAttribute is not null) result.Camunda_candidateStarterGroups = (string)_camunda_candidateStarterGroupsAttribute;
+
+            // optional: camunda:candidateStarterUsers -> string camunda_candidateStarterUsers (0, 1)
+            var _camunda_candidateStarterUsersAttribute = node.Attributes.ContainsKey("camunda:candidateStarterUsers") ? node.Attributes["camunda:candidateStarterUsers"].ProcessedValue : null;
+            if (_camunda_candidateStarterUsersAttribute is not null) result.Camunda_candidateStarterUsers = (string)_camunda_candidateStarterUsersAttribute;
+
+            // optional: camunda:versionTag -> string camunda_versionTag (0, 1)
+            var _camunda_versionTagAttribute = node.Attributes.ContainsKey("camunda:versionTag") ? node.Attributes["camunda:versionTag"].ProcessedValue : null;
+            if (_camunda_versionTagAttribute is not null) result.Camunda_versionTag = (string)_camunda_versionTagAttribute;
+
+            // optional: camunda:historyTimeToLive -> string camunda_historyTimeToLive (0, 1)
+            var _camunda_historyTimeToLiveAttribute = node.Attributes.ContainsKey("camunda:historyTimeToLive") ? node.Attributes["camunda:historyTimeToLive"].ProcessedValue : null;
+            if (_camunda_historyTimeToLiveAttribute is not null) result.Camunda_historyTimeToLive = (string)_camunda_historyTimeToLiveAttribute;
+
+            // optional: camunda:isStartableInTasklist -> bool camunda_isStartableInTasklist (0, 1)
+            var _camunda_isStartableInTasklistAttribute = node.Attributes.ContainsKey("camunda:isStartableInTasklist") ? node.Attributes["camunda:isStartableInTasklist"].ProcessedValue : null;
+            if (_camunda_isStartableInTasklistAttribute is not null) result.Camunda_isStartableInTasklist = (bool)_camunda_isStartableInTasklistAttribute;
+
+            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
+            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
+            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
+
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
@@ -341,6 +377,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: isForCompensation -> bool isForCompensation (1, 1)
             var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
             if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
@@ -349,13 +393,33 @@ namespace BPMNModel.Model
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
             if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
 
-            // optional: startQuantity -> int startQuantity (1, 1)
+            // optional: startQuantity -> long startQuantity (1, 1)
             var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (int)_startQuantityAttribute;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
 
-            // optional: completionQuantity -> int completionQuantity (1, 1)
+            // optional: completionQuantity -> long completionQuantity (1, 1)
             var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (int)_completionQuantityAttribute;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -421,6 +485,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: isForCompensation -> bool isForCompensation (1, 1)
             var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
             if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
@@ -429,17 +501,81 @@ namespace BPMNModel.Model
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
             if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
 
-            // optional: startQuantity -> int startQuantity (1, 1)
+            // optional: startQuantity -> long startQuantity (1, 1)
             var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (int)_startQuantityAttribute;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
 
-            // optional: completionQuantity -> int completionQuantity (1, 1)
+            // optional: completionQuantity -> long completionQuantity (1, 1)
             var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (int)_completionQuantityAttribute;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: implementation -> string implementation (1, 1)
             var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
             if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
+
+            // optional: camunda:formHandlerClass -> string camunda_formHandlerClass (0, 1)
+            var _camunda_formHandlerClassAttribute = node.Attributes.ContainsKey("camunda:formHandlerClass") ? node.Attributes["camunda:formHandlerClass"].ProcessedValue : null;
+            if (_camunda_formHandlerClassAttribute is not null) result.Camunda_formHandlerClass = (string)_camunda_formHandlerClassAttribute;
+
+            // optional: camunda:formKey -> string camunda_formKey (0, 1)
+            var _camunda_formKeyAttribute = node.Attributes.ContainsKey("camunda:formKey") ? node.Attributes["camunda:formKey"].ProcessedValue : null;
+            if (_camunda_formKeyAttribute is not null) result.Camunda_formKey = (string)_camunda_formKeyAttribute;
+
+            // optional: camunda:formRef -> string camunda_formRef (0, 1)
+            var _camunda_formRefAttribute = node.Attributes.ContainsKey("camunda:formRef") ? node.Attributes["camunda:formRef"].ProcessedValue : null;
+            if (_camunda_formRefAttribute is not null) result.Camunda_formRef = (string)_camunda_formRefAttribute;
+
+            // optional: camunda:formRefBinding -> string camunda_formRefBinding (0, 1)
+            var _camunda_formRefBindingAttribute = node.Attributes.ContainsKey("camunda:formRefBinding") ? node.Attributes["camunda:formRefBinding"].ProcessedValue : null;
+            if (_camunda_formRefBindingAttribute is not null) result.Camunda_formRefBinding = (string)_camunda_formRefBindingAttribute;
+
+            // optional: camunda:formRefVersion -> string camunda_formRefVersion (0, 1)
+            var _camunda_formRefVersionAttribute = node.Attributes.ContainsKey("camunda:formRefVersion") ? node.Attributes["camunda:formRefVersion"].ProcessedValue : null;
+            if (_camunda_formRefVersionAttribute is not null) result.Camunda_formRefVersion = (string)_camunda_formRefVersionAttribute;
+
+            // optional: camunda:assignee -> string camunda_assignee (0, 1)
+            var _camunda_assigneeAttribute = node.Attributes.ContainsKey("camunda:assignee") ? node.Attributes["camunda:assignee"].ProcessedValue : null;
+            if (_camunda_assigneeAttribute is not null) result.Camunda_assignee = (string)_camunda_assigneeAttribute;
+
+            // optional: camunda:candidateUsers -> string camunda_candidateUsers (0, 1)
+            var _camunda_candidateUsersAttribute = node.Attributes.ContainsKey("camunda:candidateUsers") ? node.Attributes["camunda:candidateUsers"].ProcessedValue : null;
+            if (_camunda_candidateUsersAttribute is not null) result.Camunda_candidateUsers = (string)_camunda_candidateUsersAttribute;
+
+            // optional: camunda:candidateGroups -> string camunda_candidateGroups (0, 1)
+            var _camunda_candidateGroupsAttribute = node.Attributes.ContainsKey("camunda:candidateGroups") ? node.Attributes["camunda:candidateGroups"].ProcessedValue : null;
+            if (_camunda_candidateGroupsAttribute is not null) result.Camunda_candidateGroups = (string)_camunda_candidateGroupsAttribute;
+
+            // optional: camunda:dueDate -> string camunda_dueDate (0, 1)
+            var _camunda_dueDateAttribute = node.Attributes.ContainsKey("camunda:dueDate") ? node.Attributes["camunda:dueDate"].ProcessedValue : null;
+            if (_camunda_dueDateAttribute is not null) result.Camunda_dueDate = (string)_camunda_dueDateAttribute;
+
+            // optional: camunda:followUpDate -> string camunda_followUpDate (0, 1)
+            var _camunda_followUpDateAttribute = node.Attributes.ContainsKey("camunda:followUpDate") ? node.Attributes["camunda:followUpDate"].ProcessedValue : null;
+            if (_camunda_followUpDateAttribute is not null) result.Camunda_followUpDate = (string)_camunda_followUpDateAttribute;
+
+            // optional: camunda:priority -> string camunda_priority (0, 1)
+            var _camunda_priorityAttribute = node.Attributes.ContainsKey("camunda:priority") ? node.Attributes["camunda:priority"].ProcessedValue : null;
+            if (_camunda_priorityAttribute is not null) result.Camunda_priority = (string)_camunda_priorityAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -618,9 +754,37 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
             var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
             if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: instantiate -> bool instantiate (1, 1)
             var _instantiateAttribute = node.Attributes.ContainsKey("instantiate") ? node.Attributes["instantiate"].ProcessedValue : null;
@@ -667,9 +831,37 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
             var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
             if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: default -> SequenceFlow default (0, 1)
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
@@ -715,9 +907,37 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
             var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
             if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: default -> SequenceFlow default (0, 1)
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
@@ -760,9 +980,37 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
             var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
             if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: default -> SequenceFlow default (0, 1)
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
@@ -805,9 +1053,37 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
             var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
             if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -916,6 +1192,34 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
             // optional: parallelMultiple -> bool parallelMultiple (1, 1)
             var _parallelMultipleAttribute = node.Attributes.ContainsKey("parallelMultiple") ? node.Attributes["parallelMultiple"].ProcessedValue : null;
             if (_parallelMultipleAttribute is not null) result.ParallelMultiple = (bool)_parallelMultipleAttribute;
@@ -981,6 +1285,34 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
@@ -1041,6 +1373,34 @@ namespace BPMNModel.Model
             // optional: name -> string name (1, 1)
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -1103,6 +1463,34 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
             // optional: parallelMultiple -> bool parallelMultiple (1, 1)
             var _parallelMultipleAttribute = node.Attributes.ContainsKey("parallelMultiple") ? node.Attributes["parallelMultiple"].ProcessedValue : null;
             if (_parallelMultipleAttribute is not null) result.ParallelMultiple = (bool)_parallelMultipleAttribute;
@@ -1110,6 +1498,30 @@ namespace BPMNModel.Model
             // optional: isInterrupting -> bool isInterrupting (1, 1)
             var _isInterruptingAttribute = node.Attributes.ContainsKey("isInterrupting") ? node.Attributes["isInterrupting"].ProcessedValue : null;
             if (_isInterruptingAttribute is not null) result.IsInterrupting = (bool)_isInterruptingAttribute;
+
+            // optional: camunda:formHandlerClass -> string camunda_formHandlerClass (0, 1)
+            var _camunda_formHandlerClassAttribute = node.Attributes.ContainsKey("camunda:formHandlerClass") ? node.Attributes["camunda:formHandlerClass"].ProcessedValue : null;
+            if (_camunda_formHandlerClassAttribute is not null) result.Camunda_formHandlerClass = (string)_camunda_formHandlerClassAttribute;
+
+            // optional: camunda:formKey -> string camunda_formKey (0, 1)
+            var _camunda_formKeyAttribute = node.Attributes.ContainsKey("camunda:formKey") ? node.Attributes["camunda:formKey"].ProcessedValue : null;
+            if (_camunda_formKeyAttribute is not null) result.Camunda_formKey = (string)_camunda_formKeyAttribute;
+
+            // optional: camunda:formRef -> string camunda_formRef (0, 1)
+            var _camunda_formRefAttribute = node.Attributes.ContainsKey("camunda:formRef") ? node.Attributes["camunda:formRef"].ProcessedValue : null;
+            if (_camunda_formRefAttribute is not null) result.Camunda_formRef = (string)_camunda_formRefAttribute;
+
+            // optional: camunda:formRefBinding -> string camunda_formRefBinding (0, 1)
+            var _camunda_formRefBindingAttribute = node.Attributes.ContainsKey("camunda:formRefBinding") ? node.Attributes["camunda:formRefBinding"].ProcessedValue : null;
+            if (_camunda_formRefBindingAttribute is not null) result.Camunda_formRefBinding = (string)_camunda_formRefBindingAttribute;
+
+            // optional: camunda:formRefVersion -> string camunda_formRefVersion (0, 1)
+            var _camunda_formRefVersionAttribute = node.Attributes.ContainsKey("camunda:formRefVersion") ? node.Attributes["camunda:formRefVersion"].ProcessedValue : null;
+            if (_camunda_formRefVersionAttribute is not null) result.Camunda_formRefVersion = (string)_camunda_formRefVersionAttribute;
+
+            // optional: camunda:initiator -> string camunda_initiator (0, 1)
+            var _camunda_initiatorAttribute = node.Attributes.ContainsKey("camunda:initiator") ? node.Attributes["camunda:initiator"].ProcessedValue : null;
+            if (_camunda_initiatorAttribute is not null) result.Camunda_initiator = (string)_camunda_initiatorAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -1178,6 +1590,34 @@ namespace BPMNModel.Model
             // optional: name -> string name (1, 1)
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: parallelMultiple -> bool parallelMultiple (1, 1)
             var _parallelMultipleAttribute = node.Attributes.ContainsKey("parallelMultiple") ? node.Attributes["parallelMultiple"].ProcessedValue : null;
@@ -1264,6 +1704,14 @@ namespace BPMNModel.Model
             var _errorRefAttribute = node.Attributes.ContainsKey("errorRef") ? node.Attributes["errorRef"].ProcessedValue : null;
             if (_errorRefAttribute is not null) result.ErrorRef = Load<Error>((XmlParserComplexNode)_errorRefAttribute);
 
+            // optional: camunda:errorCodeVariable -> string camunda_errorCodeVariable (0, 1)
+            var _camunda_errorCodeVariableAttribute = node.Attributes.ContainsKey("camunda:errorCodeVariable") ? node.Attributes["camunda:errorCodeVariable"].ProcessedValue : null;
+            if (_camunda_errorCodeVariableAttribute is not null) result.Camunda_errorCodeVariable = (string)_camunda_errorCodeVariableAttribute;
+
+            // optional: camunda:errorMessageVariable -> string camunda_errorMessageVariable (0, 1)
+            var _camunda_errorMessageVariableAttribute = node.Attributes.ContainsKey("camunda:errorMessageVariable") ? node.Attributes["camunda:errorMessageVariable"].ProcessedValue : null;
+            if (_camunda_errorMessageVariableAttribute is not null) result.Camunda_errorMessageVariable = (string)_camunda_errorMessageVariableAttribute;
+
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
@@ -1297,6 +1745,10 @@ namespace BPMNModel.Model
             // optional: escalationRef -> Escalation escalationRef (0, 1)
             var _escalationRefAttribute = node.Attributes.ContainsKey("escalationRef") ? node.Attributes["escalationRef"].ProcessedValue : null;
             if (_escalationRefAttribute is not null) result.EscalationRef = Load<Escalation>((XmlParserComplexNode)_escalationRefAttribute);
+
+            // optional: camunda:escalationCodeVariable -> string camunda_escalationCodeVariable (0, 1)
+            var _camunda_escalationCodeVariableAttribute = node.Attributes.ContainsKey("camunda:escalationCodeVariable") ? node.Attributes["camunda:escalationCodeVariable"].ProcessedValue : null;
+            if (_camunda_escalationCodeVariableAttribute is not null) result.Camunda_escalationCodeVariable = (string)_camunda_escalationCodeVariableAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -1410,6 +1862,30 @@ namespace BPMNModel.Model
             var _messageRefAttribute = node.Attributes.ContainsKey("messageRef") ? node.Attributes["messageRef"].ProcessedValue : null;
             if (_messageRefAttribute is not null) result.MessageRef = Load<Message>((XmlParserComplexNode)_messageRefAttribute);
 
+            // optional: camunda:expression -> string camunda_expression (0, 1)
+            var _camunda_expressionAttribute = node.Attributes.ContainsKey("camunda:expression") ? node.Attributes["camunda:expression"].ProcessedValue : null;
+            if (_camunda_expressionAttribute is not null) result.Camunda_expression = (string)_camunda_expressionAttribute;
+
+            // optional: camunda:class -> string camunda_class (0, 1)
+            var _camunda_classAttribute = node.Attributes.ContainsKey("camunda:class") ? node.Attributes["camunda:class"].ProcessedValue : null;
+            if (_camunda_classAttribute is not null) result.Camunda_class = (string)_camunda_classAttribute;
+
+            // optional: camunda:delegateExpression -> string camunda_delegateExpression (0, 1)
+            var _camunda_delegateExpressionAttribute = node.Attributes.ContainsKey("camunda:delegateExpression") ? node.Attributes["camunda:delegateExpression"].ProcessedValue : null;
+            if (_camunda_delegateExpressionAttribute is not null) result.Camunda_delegateExpression = (string)_camunda_delegateExpressionAttribute;
+
+            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
+            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
+            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
+
+            // optional: camunda:type -> string camunda_type (0, 1)
+            var _camunda_typeAttribute = node.Attributes.ContainsKey("camunda:type") ? node.Attributes["camunda:type"].ProcessedValue : null;
+            if (_camunda_typeAttribute is not null) result.Camunda_type = (string)_camunda_typeAttribute;
+
+            // optional: camunda:topic -> string camunda_topic (0, 1)
+            var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
+            if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
+
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
@@ -1427,6 +1903,14 @@ namespace BPMNModel.Model
             // optional: id -> string id (1, 1)
             var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
             if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: camunda:variableName -> string camunda_variableName (0, 1)
+            var _camunda_variableNameAttribute = node.Attributes.ContainsKey("camunda:variableName") ? node.Attributes["camunda:variableName"].ProcessedValue : null;
+            if (_camunda_variableNameAttribute is not null) result.Camunda_variableName = (string)_camunda_variableNameAttribute;
+
+            // optional: camunda:variableEvents -> string camunda_variableEvents (0, 1)
+            var _camunda_variableEventsAttribute = node.Attributes.ContainsKey("camunda:variableEvents") ? node.Attributes["camunda:variableEvents"].ProcessedValue : null;
+            if (_camunda_variableEventsAttribute is not null) result.Camunda_variableEvents = (string)_camunda_variableEventsAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -1449,6 +1933,10 @@ namespace BPMNModel.Model
             // optional: signalRef -> Signal signalRef (0, 1)
             var _signalRefAttribute = node.Attributes.ContainsKey("signalRef") ? node.Attributes["signalRef"].ProcessedValue : null;
             if (_signalRefAttribute is not null) result.SignalRef = Load<Signal>((XmlParserComplexNode)_signalRefAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -1491,6 +1979,34 @@ namespace BPMNModel.Model
             // optional: name -> string name (1, 1)
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -1847,6 +2363,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
             var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
             if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
@@ -1934,9 +2458,9 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
-            // optional: capacity -> int capacity (1, 1)
+            // optional: capacity -> long capacity (1, 1)
             var _capacityAttribute = node.Attributes.ContainsKey("capacity") ? node.Attributes["capacity"].ProcessedValue : null;
-            if (_capacityAttribute is not null) result.Capacity = (int)_capacityAttribute;
+            if (_capacityAttribute is not null) result.Capacity = (long)_capacityAttribute;
 
             // optional: isUnlimited -> bool isUnlimited (1, 1)
             var _isUnlimitedAttribute = node.Attributes.ContainsKey("isUnlimited") ? node.Attributes["isUnlimited"].ProcessedValue : null;
@@ -1967,6 +2491,14 @@ namespace BPMNModel.Model
             // optional: name -> string name (1, 1)
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
 
             // optional: dataStoreRef -> DataStore dataStoreRef (0, 1)
             var _dataStoreRefAttribute = node.Attributes.ContainsKey("dataStoreRef") ? node.Attributes["dataStoreRef"].ProcessedValue : null;
@@ -2006,6 +2538,14 @@ namespace BPMNModel.Model
             // optional: name -> string name (1, 1)
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
 
             // optional: dataObjectRef -> DataObject dataObjectRef (1, 1)
             var _dataObjectRefAttribute = node.Attributes.ContainsKey("dataObjectRef") ? node.Attributes["dataObjectRef"].ProcessedValue : null;
@@ -2213,6 +2753,14 @@ namespace BPMNModel.Model
             var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
             if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
@@ -2340,6 +2888,10 @@ namespace BPMNModel.Model
             var _errorCodeAttribute = node.Attributes.ContainsKey("errorCode") ? node.Attributes["errorCode"].ProcessedValue : null;
             if (_errorCodeAttribute is not null) result.ErrorCode = (string)_errorCodeAttribute;
 
+            // optional: camunda:errorMessage -> string camunda_errorMessage (0, 1)
+            var _camunda_errorMessageAttribute = node.Attributes.ContainsKey("camunda:errorMessage") ? node.Attributes["camunda:errorMessage"].ProcessedValue : null;
+            if (_camunda_errorMessageAttribute is not null) result.Camunda_errorMessage = (string)_camunda_errorMessageAttribute;
+
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
@@ -2399,6 +2951,10 @@ namespace BPMNModel.Model
             // optional: evaluatesToTypeRef -> ItemDefinition evaluatesToTypeRef (1, 1)
             var _evaluatesToTypeRefAttribute = node.Attributes.ContainsKey("evaluatesToTypeRef") ? node.Attributes["evaluatesToTypeRef"].ProcessedValue : null;
             if (_evaluatesToTypeRefAttribute is not null) result.EvaluatesToTypeRef = Load<ItemDefinition>((XmlParserComplexNode)_evaluatesToTypeRefAttribute);
+
+            // optional: camunda:resource -> string camunda_resource (0, 1)
+            var _camunda_resourceAttribute = node.Attributes.ContainsKey("camunda:resource") ? node.Attributes["camunda:resource"].ProcessedValue : null;
+            if (_camunda_resourceAttribute is not null) result.Camunda_resource = (string)_camunda_resourceAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -2483,6 +3039,14 @@ namespace BPMNModel.Model
             // optional: name -> string name (1, 1)
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
 
             // optional: isImmediate -> bool isImmediate (0, 1)
             var _isImmediateAttribute = node.Attributes.ContainsKey("isImmediate") ? node.Attributes["isImmediate"].ProcessedValue : null;
@@ -2751,13 +3315,13 @@ namespace BPMNModel.Model
         {
              var result = GetOrCreate<ParticipantMultiplicity>(node);
 
-            // optional: minimum -> int minimum (1, 1)
+            // optional: minimum -> long minimum (1, 1)
             var _minimumAttribute = node.Attributes.ContainsKey("minimum") ? node.Attributes["minimum"].ProcessedValue : null;
-            if (_minimumAttribute is not null) result.Minimum = (int)_minimumAttribute;
+            if (_minimumAttribute is not null) result.Minimum = (long)_minimumAttribute;
 
-            // optional: maximum -> int maximum (0, 1)
+            // optional: maximum -> long maximum (0, 1)
             var _maximumAttribute = node.Attributes.ContainsKey("maximum") ? node.Attributes["maximum"].ProcessedValue : null;
-            if (_maximumAttribute is not null) result.Maximum = (int)_maximumAttribute;
+            if (_maximumAttribute is not null) result.Maximum = (long)_maximumAttribute;
 
             return result;
         }
@@ -2778,6 +3342,14 @@ namespace BPMNModel.Model
             // optional: isClosed -> bool isClosed (1, 1)
             var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
             if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -2833,6 +3405,14 @@ namespace BPMNModel.Model
             // optional: name -> string name (1, 1)
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
 
             // optional: loopType -> ChoreographyLoopType loopType (1, 1)
             var _loopTypeAttribute = node.Attributes.ContainsKey("loopType") ? node.Attributes["loopType"].ProcessedValue : null;
@@ -2892,6 +3472,14 @@ namespace BPMNModel.Model
             // optional: name -> string name (1, 1)
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
 
             // optional: loopType -> ChoreographyLoopType loopType (1, 1)
             var _loopTypeAttribute = node.Attributes.ContainsKey("loopType") ? node.Attributes["loopType"].ProcessedValue : null;
@@ -2953,6 +3541,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: loopType -> ChoreographyLoopType loopType (1, 1)
             var _loopTypeAttribute = node.Attributes.ContainsKey("loopType") ? node.Attributes["loopType"].ProcessedValue : null;
             if (_loopTypeAttribute is not null) result.LoopType = CreateEnum<ChoreographyLoopType>((string)_loopTypeAttribute);
@@ -3006,6 +3602,14 @@ namespace BPMNModel.Model
             // optional: isClosed -> bool isClosed (1, 1)
             var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
             if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -3064,6 +3668,14 @@ namespace BPMNModel.Model
             // optional: isClosed -> bool isClosed (1, 1)
             var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
             if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
 
             // optional: initiatingParticipantRef -> Participant initiatingParticipantRef (1, 1)
             var _initiatingParticipantRefAttribute = node.Attributes.ContainsKey("initiatingParticipantRef") ? node.Attributes["initiatingParticipantRef"].ProcessedValue : null;
@@ -3239,6 +3851,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: isForCompensation -> bool isForCompensation (1, 1)
             var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
             if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
@@ -3247,13 +3867,33 @@ namespace BPMNModel.Model
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
             if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
 
-            // optional: startQuantity -> int startQuantity (1, 1)
+            // optional: startQuantity -> long startQuantity (1, 1)
             var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (int)_startQuantityAttribute;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
 
-            // optional: completionQuantity -> int completionQuantity (1, 1)
+            // optional: completionQuantity -> long completionQuantity (1, 1)
             var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (int)_completionQuantityAttribute;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: implementation -> string implementation (1, 1)
             var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
@@ -3262,6 +3902,30 @@ namespace BPMNModel.Model
             // optional: operationRef -> Operation operationRef (0, 1)
             var _operationRefAttribute = node.Attributes.ContainsKey("operationRef") ? node.Attributes["operationRef"].ProcessedValue : null;
             if (_operationRefAttribute is not null) result.OperationRef = Load<Operation>((XmlParserComplexNode)_operationRefAttribute);
+
+            // optional: camunda:expression -> string camunda_expression (0, 1)
+            var _camunda_expressionAttribute = node.Attributes.ContainsKey("camunda:expression") ? node.Attributes["camunda:expression"].ProcessedValue : null;
+            if (_camunda_expressionAttribute is not null) result.Camunda_expression = (string)_camunda_expressionAttribute;
+
+            // optional: camunda:class -> string camunda_class (0, 1)
+            var _camunda_classAttribute = node.Attributes.ContainsKey("camunda:class") ? node.Attributes["camunda:class"].ProcessedValue : null;
+            if (_camunda_classAttribute is not null) result.Camunda_class = (string)_camunda_classAttribute;
+
+            // optional: camunda:delegateExpression -> string camunda_delegateExpression (0, 1)
+            var _camunda_delegateExpressionAttribute = node.Attributes.ContainsKey("camunda:delegateExpression") ? node.Attributes["camunda:delegateExpression"].ProcessedValue : null;
+            if (_camunda_delegateExpressionAttribute is not null) result.Camunda_delegateExpression = (string)_camunda_delegateExpressionAttribute;
+
+            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
+            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
+            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
+
+            // optional: camunda:type -> string camunda_type (0, 1)
+            var _camunda_typeAttribute = node.Attributes.ContainsKey("camunda:type") ? node.Attributes["camunda:type"].ProcessedValue : null;
+            if (_camunda_typeAttribute is not null) result.Camunda_type = (string)_camunda_typeAttribute;
+
+            // optional: camunda:topic -> string camunda_topic (0, 1)
+            var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
+            if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -3327,6 +3991,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: isForCompensation -> bool isForCompensation (1, 1)
             var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
             if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
@@ -3335,13 +4007,33 @@ namespace BPMNModel.Model
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
             if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
 
-            // optional: startQuantity -> int startQuantity (1, 1)
+            // optional: startQuantity -> long startQuantity (1, 1)
             var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (int)_startQuantityAttribute;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
 
-            // optional: completionQuantity -> int completionQuantity (1, 1)
+            // optional: completionQuantity -> long completionQuantity (1, 1)
             var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (int)_completionQuantityAttribute;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: triggeredByEvent -> bool triggeredByEvent (1, 1)
             var _triggeredByEventAttribute = node.Attributes.ContainsKey("triggeredByEvent") ? node.Attributes["triggeredByEvent"].ProcessedValue : null;
@@ -3427,6 +4119,30 @@ namespace BPMNModel.Model
             var _noneBehaviorEventRefAttribute = node.Attributes.ContainsKey("noneBehaviorEventRef") ? node.Attributes["noneBehaviorEventRef"].ProcessedValue : null;
             if (_noneBehaviorEventRefAttribute is not null) result.NoneBehaviorEventRef = Load<EventDefinition>((XmlParserComplexNode)_noneBehaviorEventRefAttribute);
 
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:collection -> string camunda_collection (0, 1)
+            var _camunda_collectionAttribute = node.Attributes.ContainsKey("camunda:collection") ? node.Attributes["camunda:collection"].ProcessedValue : null;
+            if (_camunda_collectionAttribute is not null) result.Camunda_collection = (string)_camunda_collectionAttribute;
+
+            // optional: camunda:elementVariable -> string camunda_elementVariable (0, 1)
+            var _camunda_elementVariableAttribute = node.Attributes.ContainsKey("camunda:elementVariable") ? node.Attributes["camunda:elementVariable"].ProcessedValue : null;
+            if (_camunda_elementVariableAttribute is not null) result.Camunda_elementVariable = (string)_camunda_elementVariableAttribute;
+
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
@@ -3493,6 +4209,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: isForCompensation -> bool isForCompensation (1, 1)
             var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
             if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
@@ -3501,17 +4225,77 @@ namespace BPMNModel.Model
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
             if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
 
-            // optional: startQuantity -> int startQuantity (1, 1)
+            // optional: startQuantity -> long startQuantity (1, 1)
             var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (int)_startQuantityAttribute;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
 
-            // optional: completionQuantity -> int completionQuantity (1, 1)
+            // optional: completionQuantity -> long completionQuantity (1, 1)
             var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (int)_completionQuantityAttribute;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: calledElement -> CallableElement calledElementRef (0, 1)
             var _calledElementRefAttribute = node.Attributes.ContainsKey("calledElement") ? node.Attributes["calledElement"].ProcessedValue : null;
             if (_calledElementRefAttribute is not null) result.CalledElementRef = Load<CallableElement>((XmlParserComplexNode)_calledElementRefAttribute);
+
+            // optional: camunda:calledElementBinding -> string camunda_calledElementBinding (0, 1)
+            var _camunda_calledElementBindingAttribute = node.Attributes.ContainsKey("camunda:calledElementBinding") ? node.Attributes["camunda:calledElementBinding"].ProcessedValue : null;
+            if (_camunda_calledElementBindingAttribute is not null) result.Camunda_calledElementBinding = (string)_camunda_calledElementBindingAttribute;
+
+            // optional: camunda:calledElementVersion -> string camunda_calledElementVersion (0, 1)
+            var _camunda_calledElementVersionAttribute = node.Attributes.ContainsKey("camunda:calledElementVersion") ? node.Attributes["camunda:calledElementVersion"].ProcessedValue : null;
+            if (_camunda_calledElementVersionAttribute is not null) result.Camunda_calledElementVersion = (string)_camunda_calledElementVersionAttribute;
+
+            // optional: camunda:calledElementVersionTag -> string camunda_calledElementVersionTag (0, 1)
+            var _camunda_calledElementVersionTagAttribute = node.Attributes.ContainsKey("camunda:calledElementVersionTag") ? node.Attributes["camunda:calledElementVersionTag"].ProcessedValue : null;
+            if (_camunda_calledElementVersionTagAttribute is not null) result.Camunda_calledElementVersionTag = (string)_camunda_calledElementVersionTagAttribute;
+
+            // optional: camunda:calledElementTenantId -> string camunda_calledElementTenantId (0, 1)
+            var _camunda_calledElementTenantIdAttribute = node.Attributes.ContainsKey("camunda:calledElementTenantId") ? node.Attributes["camunda:calledElementTenantId"].ProcessedValue : null;
+            if (_camunda_calledElementTenantIdAttribute is not null) result.Camunda_calledElementTenantId = (string)_camunda_calledElementTenantIdAttribute;
+
+            // optional: camunda:caseRef -> string camunda_caseRef (0, 1)
+            var _camunda_caseRefAttribute = node.Attributes.ContainsKey("camunda:caseRef") ? node.Attributes["camunda:caseRef"].ProcessedValue : null;
+            if (_camunda_caseRefAttribute is not null) result.Camunda_caseRef = (string)_camunda_caseRefAttribute;
+
+            // optional: camunda:caseBinding -> string camunda_caseBinding (0, 1)
+            var _camunda_caseBindingAttribute = node.Attributes.ContainsKey("camunda:caseBinding") ? node.Attributes["camunda:caseBinding"].ProcessedValue : null;
+            if (_camunda_caseBindingAttribute is not null) result.Camunda_caseBinding = (string)_camunda_caseBindingAttribute;
+
+            // optional: camunda:caseVersion -> string camunda_caseVersion (0, 1)
+            var _camunda_caseVersionAttribute = node.Attributes.ContainsKey("camunda:caseVersion") ? node.Attributes["camunda:caseVersion"].ProcessedValue : null;
+            if (_camunda_caseVersionAttribute is not null) result.Camunda_caseVersion = (string)_camunda_caseVersionAttribute;
+
+            // optional: camunda:caseTenantId -> string camunda_caseTenantId (0, 1)
+            var _camunda_caseTenantIdAttribute = node.Attributes.ContainsKey("camunda:caseTenantId") ? node.Attributes["camunda:caseTenantId"].ProcessedValue : null;
+            if (_camunda_caseTenantIdAttribute is not null) result.Camunda_caseTenantId = (string)_camunda_caseTenantIdAttribute;
+
+            // optional: camunda:variableMappingClass -> string camunda_variableMappingClass (0, 1)
+            var _camunda_variableMappingClassAttribute = node.Attributes.ContainsKey("camunda:variableMappingClass") ? node.Attributes["camunda:variableMappingClass"].ProcessedValue : null;
+            if (_camunda_variableMappingClassAttribute is not null) result.Camunda_variableMappingClass = (string)_camunda_variableMappingClassAttribute;
+
+            // optional: camunda:variableMappingDelegateExpression -> string camunda_variableMappingDelegateExpression (0, 1)
+            var _camunda_variableMappingDelegateExpressionAttribute = node.Attributes.ContainsKey("camunda:variableMappingDelegateExpression") ? node.Attributes["camunda:variableMappingDelegateExpression"].ProcessedValue : null;
+            if (_camunda_variableMappingDelegateExpressionAttribute is not null) result.Camunda_variableMappingDelegateExpression = (string)_camunda_variableMappingDelegateExpressionAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -3571,6 +4355,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: isForCompensation -> bool isForCompensation (1, 1)
             var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
             if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
@@ -3579,13 +4371,33 @@ namespace BPMNModel.Model
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
             if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
 
-            // optional: startQuantity -> int startQuantity (1, 1)
+            // optional: startQuantity -> long startQuantity (1, 1)
             var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (int)_startQuantityAttribute;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
 
-            // optional: completionQuantity -> int completionQuantity (1, 1)
+            // optional: completionQuantity -> long completionQuantity (1, 1)
             var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (int)_completionQuantityAttribute;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -3651,6 +4463,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: isForCompensation -> bool isForCompensation (1, 1)
             var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
             if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
@@ -3659,13 +4479,33 @@ namespace BPMNModel.Model
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
             if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
 
-            // optional: startQuantity -> int startQuantity (1, 1)
+            // optional: startQuantity -> long startQuantity (1, 1)
             var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (int)_startQuantityAttribute;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
 
-            // optional: completionQuantity -> int completionQuantity (1, 1)
+            // optional: completionQuantity -> long completionQuantity (1, 1)
             var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (int)_completionQuantityAttribute;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: implementation -> string implementation (1, 1)
             var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
@@ -3678,6 +4518,30 @@ namespace BPMNModel.Model
             // optional: messageRef -> Message messageRef (0, 1)
             var _messageRefAttribute = node.Attributes.ContainsKey("messageRef") ? node.Attributes["messageRef"].ProcessedValue : null;
             if (_messageRefAttribute is not null) result.MessageRef = Load<Message>((XmlParserComplexNode)_messageRefAttribute);
+
+            // optional: camunda:expression -> string camunda_expression (0, 1)
+            var _camunda_expressionAttribute = node.Attributes.ContainsKey("camunda:expression") ? node.Attributes["camunda:expression"].ProcessedValue : null;
+            if (_camunda_expressionAttribute is not null) result.Camunda_expression = (string)_camunda_expressionAttribute;
+
+            // optional: camunda:class -> string camunda_class (0, 1)
+            var _camunda_classAttribute = node.Attributes.ContainsKey("camunda:class") ? node.Attributes["camunda:class"].ProcessedValue : null;
+            if (_camunda_classAttribute is not null) result.Camunda_class = (string)_camunda_classAttribute;
+
+            // optional: camunda:delegateExpression -> string camunda_delegateExpression (0, 1)
+            var _camunda_delegateExpressionAttribute = node.Attributes.ContainsKey("camunda:delegateExpression") ? node.Attributes["camunda:delegateExpression"].ProcessedValue : null;
+            if (_camunda_delegateExpressionAttribute is not null) result.Camunda_delegateExpression = (string)_camunda_delegateExpressionAttribute;
+
+            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
+            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
+            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
+
+            // optional: camunda:type -> string camunda_type (0, 1)
+            var _camunda_typeAttribute = node.Attributes.ContainsKey("camunda:type") ? node.Attributes["camunda:type"].ProcessedValue : null;
+            if (_camunda_typeAttribute is not null) result.Camunda_type = (string)_camunda_typeAttribute;
+
+            // optional: camunda:topic -> string camunda_topic (0, 1)
+            var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
+            if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -3743,6 +4607,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: isForCompensation -> bool isForCompensation (1, 1)
             var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
             if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
@@ -3751,13 +4623,33 @@ namespace BPMNModel.Model
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
             if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
 
-            // optional: startQuantity -> int startQuantity (1, 1)
+            // optional: startQuantity -> long startQuantity (1, 1)
             var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (int)_startQuantityAttribute;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
 
-            // optional: completionQuantity -> int completionQuantity (1, 1)
+            // optional: completionQuantity -> long completionQuantity (1, 1)
             var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (int)_completionQuantityAttribute;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: implementation -> string implementation (1, 1)
             var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
@@ -3839,6 +4731,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: isForCompensation -> bool isForCompensation (1, 1)
             var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
             if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
@@ -3847,17 +4747,45 @@ namespace BPMNModel.Model
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
             if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
 
-            // optional: startQuantity -> int startQuantity (1, 1)
+            // optional: startQuantity -> long startQuantity (1, 1)
             var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (int)_startQuantityAttribute;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
 
-            // optional: completionQuantity -> int completionQuantity (1, 1)
+            // optional: completionQuantity -> long completionQuantity (1, 1)
             var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (int)_completionQuantityAttribute;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: scriptFormat -> string scriptFormat (1, 1)
             var _scriptFormatAttribute = node.Attributes.ContainsKey("scriptFormat") ? node.Attributes["scriptFormat"].ProcessedValue : null;
             if (_scriptFormatAttribute is not null) result.ScriptFormat = (string)_scriptFormatAttribute;
+
+            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
+            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
+            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
+
+            // optional: camunda:resource -> string camunda_resource (0, 1)
+            var _camunda_resourceAttribute = node.Attributes.ContainsKey("camunda:resource") ? node.Attributes["camunda:resource"].ProcessedValue : null;
+            if (_camunda_resourceAttribute is not null) result.Camunda_resource = (string)_camunda_resourceAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -3926,6 +4854,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: isForCompensation -> bool isForCompensation (1, 1)
             var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
             if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
@@ -3934,17 +4870,81 @@ namespace BPMNModel.Model
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
             if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
 
-            // optional: startQuantity -> int startQuantity (1, 1)
+            // optional: startQuantity -> long startQuantity (1, 1)
             var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (int)_startQuantityAttribute;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
 
-            // optional: completionQuantity -> int completionQuantity (1, 1)
+            // optional: completionQuantity -> long completionQuantity (1, 1)
             var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (int)_completionQuantityAttribute;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: implementation -> string implementation (1, 1)
             var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
             if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
+
+            // optional: camunda:expression -> string camunda_expression (0, 1)
+            var _camunda_expressionAttribute = node.Attributes.ContainsKey("camunda:expression") ? node.Attributes["camunda:expression"].ProcessedValue : null;
+            if (_camunda_expressionAttribute is not null) result.Camunda_expression = (string)_camunda_expressionAttribute;
+
+            // optional: camunda:class -> string camunda_class (0, 1)
+            var _camunda_classAttribute = node.Attributes.ContainsKey("camunda:class") ? node.Attributes["camunda:class"].ProcessedValue : null;
+            if (_camunda_classAttribute is not null) result.Camunda_class = (string)_camunda_classAttribute;
+
+            // optional: camunda:delegateExpression -> string camunda_delegateExpression (0, 1)
+            var _camunda_delegateExpressionAttribute = node.Attributes.ContainsKey("camunda:delegateExpression") ? node.Attributes["camunda:delegateExpression"].ProcessedValue : null;
+            if (_camunda_delegateExpressionAttribute is not null) result.Camunda_delegateExpression = (string)_camunda_delegateExpressionAttribute;
+
+            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
+            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
+            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
+
+            // optional: camunda:type -> string camunda_type (0, 1)
+            var _camunda_typeAttribute = node.Attributes.ContainsKey("camunda:type") ? node.Attributes["camunda:type"].ProcessedValue : null;
+            if (_camunda_typeAttribute is not null) result.Camunda_type = (string)_camunda_typeAttribute;
+
+            // optional: camunda:topic -> string camunda_topic (0, 1)
+            var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
+            if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
+
+            // optional: camunda:decisionRef -> string camunda_decisionRef (0, 1)
+            var _camunda_decisionRefAttribute = node.Attributes.ContainsKey("camunda:decisionRef") ? node.Attributes["camunda:decisionRef"].ProcessedValue : null;
+            if (_camunda_decisionRefAttribute is not null) result.Camunda_decisionRef = (string)_camunda_decisionRefAttribute;
+
+            // optional: camunda:decisionRefBinding -> string camunda_decisionRefBinding (0, 1)
+            var _camunda_decisionRefBindingAttribute = node.Attributes.ContainsKey("camunda:decisionRefBinding") ? node.Attributes["camunda:decisionRefBinding"].ProcessedValue : null;
+            if (_camunda_decisionRefBindingAttribute is not null) result.Camunda_decisionRefBinding = (string)_camunda_decisionRefBindingAttribute;
+
+            // optional: camunda:decisionRefVersion -> string camunda_decisionRefVersion (0, 1)
+            var _camunda_decisionRefVersionAttribute = node.Attributes.ContainsKey("camunda:decisionRefVersion") ? node.Attributes["camunda:decisionRefVersion"].ProcessedValue : null;
+            if (_camunda_decisionRefVersionAttribute is not null) result.Camunda_decisionRefVersion = (string)_camunda_decisionRefVersionAttribute;
+
+            // optional: camunda:mapDecisionResult -> string camunda_mapDecisionResult (0, 1)
+            var _camunda_mapDecisionResultAttribute = node.Attributes.ContainsKey("camunda:mapDecisionResult") ? node.Attributes["camunda:mapDecisionResult"].ProcessedValue : null;
+            if (_camunda_mapDecisionResultAttribute is not null) result.Camunda_mapDecisionResult = (string)_camunda_mapDecisionResultAttribute;
+
+            // optional: camunda:decisionRefTenantId -> string camunda_decisionRefTenantId (0, 1)
+            var _camunda_decisionRefTenantIdAttribute = node.Attributes.ContainsKey("camunda:decisionRefTenantId") ? node.Attributes["camunda:decisionRefTenantId"].ProcessedValue : null;
+            if (_camunda_decisionRefTenantIdAttribute is not null) result.Camunda_decisionRefTenantId = (string)_camunda_decisionRefTenantIdAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -4010,6 +5010,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: isForCompensation -> bool isForCompensation (1, 1)
             var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
             if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
@@ -4018,13 +5026,33 @@ namespace BPMNModel.Model
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
             if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
 
-            // optional: startQuantity -> int startQuantity (1, 1)
+            // optional: startQuantity -> long startQuantity (1, 1)
             var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (int)_startQuantityAttribute;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
 
-            // optional: completionQuantity -> int completionQuantity (1, 1)
+            // optional: completionQuantity -> long completionQuantity (1, 1)
             var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (int)_completionQuantityAttribute;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: triggeredByEvent -> bool triggeredByEvent (1, 1)
             var _triggeredByEventAttribute = node.Attributes.ContainsKey("triggeredByEvent") ? node.Attributes["triggeredByEvent"].ProcessedValue : null;
@@ -4108,6 +5136,14 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
             // optional: isForCompensation -> bool isForCompensation (1, 1)
             var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
             if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
@@ -4116,13 +5152,33 @@ namespace BPMNModel.Model
             var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
             if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
 
-            // optional: startQuantity -> int startQuantity (1, 1)
+            // optional: startQuantity -> long startQuantity (1, 1)
             var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (int)_startQuantityAttribute;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
 
-            // optional: completionQuantity -> int completionQuantity (1, 1)
+            // optional: completionQuantity -> long completionQuantity (1, 1)
             var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (int)_completionQuantityAttribute;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
             // optional: triggeredByEvent -> bool triggeredByEvent (1, 1)
             var _triggeredByEventAttribute = node.Attributes.ContainsKey("triggeredByEvent") ? node.Attributes["triggeredByEvent"].ProcessedValue : null;
@@ -4393,6 +5449,10 @@ namespace BPMNModel.Model
             // optional: exporterVersion -> string exporterVersion (1, 1)
             var _exporterVersionAttribute = node.Attributes.ContainsKey("exporterVersion") ? node.Attributes["exporterVersion"].ProcessedValue : null;
             if (_exporterVersionAttribute is not null) result.ExporterVersion = (string)_exporterVersionAttribute;
+
+            // optional: camunda:diagramRelationId -> string camunda_diagramRelationId (0, 1)
+            var _camunda_diagramRelationIdAttribute = node.Attributes.ContainsKey("camunda:diagramRelationId") ? node.Attributes["camunda:diagramRelationId"].ProcessedValue : null;
+            if (_camunda_diagramRelationIdAttribute is not null) result.Camunda_diagramRelationId = (string)_camunda_diagramRelationIdAttribute;
 
             // element: import -> Import imports (0, *)
             FillElements(node.ChildNodes["import"], result.Imports);

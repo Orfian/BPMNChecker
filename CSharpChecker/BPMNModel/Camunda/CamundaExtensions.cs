@@ -121,6 +121,9 @@ namespace BPMNModel.Camunda
                 camundaTypes.Add(camundaType.Name, camundaType);
             }
             using var dump = new StreamWriter("camundaProcessed");
+
+            var bpmnCamundaAttributes = new Dictionary<string, List<(string Type, string Name)>>();
+            
             foreach (var (name, camundaType) in camundaTypes)
             {
                 //camundaType.Dump(dump);
@@ -153,7 +156,7 @@ namespace BPMNModel.Camunda
 
                 if (camundaType.Extends.Any())
                 {
-                    dump.WriteLine(camundaType.Name + " "+ camundaType.IsAbstract);
+                    dump.WriteLine(camundaType.Name);
                     //camunda extends were processed, remaining BPMN extends
                     foreach (var extension in camundaType.Extends.Where(x=>!x.StartsWith("camunda")))
                     {
@@ -167,6 +170,8 @@ namespace BPMNModel.Camunda
 
                         if (xmlType is ComplexType complexType)
                         {
+                            var attributesToAdd = new List<(string, string)>();
+
                             foreach (var (attName, attType, attDefault) in attributes) 
                             {
                                 AttributeXMLType attXmlType = attType switch
@@ -178,7 +183,18 @@ namespace BPMNModel.Camunda
                                 };
                                 var xmlAttribute = new Attribute(ConvertName(attName), (attXmlType, null));
                                 complexType.Attributes.Add(xmlAttribute);
+
+                                attributesToAdd.Add((attType, ConvertName(attName)));
                             }
+                            if (bpmnCamundaAttributes.ContainsKey(xmlTypeName))
+                            {
+                                bpmnCamundaAttributes[xmlTypeName].AddRange(attributesToAdd);
+                            }
+                            else
+                            {
+                                bpmnCamundaAttributes.Add(xmlTypeName, attributesToAdd);
+                            }
+
                         }else
                         {
                             throw new BPMNCheckerExceptions($"In camunda.json, {camundaType.Name} is extending wrong type in BMPN.");
@@ -209,6 +225,17 @@ namespace BPMNModel.Camunda
                 }
                
             }
+
+            using var toPython = new StreamWriter("camundaProcessed_types");
+            toPython.WriteLine("camundaAttributes = {");
+            foreach (var (bpmnType, attributes)  in bpmnCamundaAttributes)
+            {
+                toPython.Write($"  \"{bpmnType.Substring(1)}\" : [");
+                toPython.Write(string.Join(", ", attributes.Select(x => $"(\"{x.Type}\",\"{x.Name}\")")));
+                toPython.WriteLine("],");
+            }
+            toPython.WriteLine("}");
+
         }
     }
 }

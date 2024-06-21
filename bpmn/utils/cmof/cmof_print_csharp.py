@@ -3,32 +3,32 @@ from cmof_model import *
 from utils import Output
 
 extracted = {
-	"Activity": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
-	"AdHocSubProcess": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "triggeredByEvent", "cancelRemainingInstances", "ordering"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "laneSet", "flowElement", "artifact", "completionCondition"]),
+	"Activity": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"AdHocSubProcess": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "triggeredByEvent", "cancelRemainingInstances", "ordering"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "laneSet", "flowElement", "artifact", "completionCondition"]),
 	"Artifact": ([], ["id"], ["documentation", "extensionElements"]),
 	"Assignment": ([], ["id"], ["documentation", "extensionElements", "from", "to"]),
 	"Association": (["sourceRef", "targetRef"], ["id", "associationDirection"], ["documentation", "extensionElements"]),
 	"Auditing": ([], ["id"], ["documentation", "extensionElements"]),
 	"BaseElement": ([], ["id"], ["documentation", "extensionElements"]),
 	"BaseElementWithMixedContent": ([], ["id"], ["documentation", "extensionElements"]),
-	"BoundaryEvent": (["attachedToRef"], ["id", "name", "parallelMultiple", "cancelActivity"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataOutput", "dataOutputAssociation", "outputSet", "eventDefinition", "eventDefinitionRef"]),
-	"BusinessRuleTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "implementation"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"BoundaryEvent": (["attachedToRef"], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "parallelMultiple", "cancelActivity"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataOutput", "dataOutputAssociation", "outputSet", "eventDefinition", "eventDefinitionRef"]),
+	"BusinessRuleTask": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "implementation", "camunda:expression", "camunda:class", "camunda:delegateExpression", "camunda:resultVariable", "camunda:type", "camunda:topic", "camunda:decisionRef", "camunda:decisionRefBinding", "camunda:decisionRefVersion", "camunda:mapDecisionResult", "camunda:decisionRefTenantId"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
 	"CallableElement": ([], ["id", "name"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding"]),
-	"CallActivity": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "calledElement"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
-	"CallChoreography": (["initiatingParticipantRef"], ["id", "name", "loopType", "calledChoreographyRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "participantRef", "correlationKey", "participantAssociation"]),
+	"CallActivity": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "calledElement", "camunda:calledElementBinding", "camunda:calledElementVersion", "camunda:calledElementVersionTag", "camunda:calledElementTenantId", "camunda:caseRef", "camunda:caseBinding", "camunda:caseVersion", "camunda:caseTenantId", "camunda:variableMappingClass", "camunda:variableMappingDelegateExpression"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"CallChoreography": (["initiatingParticipantRef"], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "loopType", "calledChoreographyRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "participantRef", "correlationKey", "participantAssociation"]),
 	"CallConversation": ([], ["id", "name", "calledCollaborationRef"], ["documentation", "extensionElements", "participantRef", "messageFlowRef", "correlationKey", "participantAssociation"]),
 	"CancelEventDefinition": ([], ["id"], ["documentation", "extensionElements"]),
-	"CatchEvent": ([], ["id", "name", "parallelMultiple"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataOutput", "dataOutputAssociation", "outputSet", "eventDefinition", "eventDefinitionRef"]),
+	"CatchEvent": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "parallelMultiple"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataOutput", "dataOutputAssociation", "outputSet", "eventDefinition", "eventDefinitionRef"]),
 	"Category": ([], ["id", "name"], ["documentation", "extensionElements", "categoryValue"]),
 	"CategoryValue": ([], ["id", "value"], ["documentation", "extensionElements"]),
-	"Choreography": ([], ["id", "name", "isClosed"], ["documentation", "extensionElements", "participant", "messageFlow", "artifact", "conversationNode", "conversationAssociation", "participantAssociation", "messageFlowAssociation", "correlationKey", "choreographyRef", "conversationLink", "flowElement"]),
-	"ChoreographyActivity": (["initiatingParticipantRef"], ["id", "name", "loopType"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "participantRef", "correlationKey"]),
-	"ChoreographyTask": (["initiatingParticipantRef"], ["id", "name", "loopType"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "participantRef", "correlationKey", "messageFlowRef"]),
-	"Collaboration": ([], ["id", "name", "isClosed"], ["documentation", "extensionElements", "participant", "messageFlow", "artifact", "conversationNode", "conversationAssociation", "participantAssociation", "messageFlowAssociation", "correlationKey", "choreographyRef", "conversationLink"]),
+	"Choreography": ([], ["id", "name", "isClosed", "camunda:modelerTemplate", "camunda:modelerTemplateVersion"], ["documentation", "extensionElements", "participant", "messageFlow", "artifact", "conversationNode", "conversationAssociation", "participantAssociation", "messageFlowAssociation", "correlationKey", "choreographyRef", "conversationLink", "flowElement"]),
+	"ChoreographyActivity": (["initiatingParticipantRef"], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "loopType"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "participantRef", "correlationKey"]),
+	"ChoreographyTask": (["initiatingParticipantRef"], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "loopType"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "participantRef", "correlationKey", "messageFlowRef"]),
+	"Collaboration": ([], ["id", "name", "isClosed", "camunda:modelerTemplate", "camunda:modelerTemplateVersion"], ["documentation", "extensionElements", "participant", "messageFlow", "artifact", "conversationNode", "conversationAssociation", "participantAssociation", "messageFlowAssociation", "correlationKey", "choreographyRef", "conversationLink"]),
 	"CompensateEventDefinition": ([], ["id", "waitForCompletion", "activityRef"], ["documentation", "extensionElements"]),
 	"ComplexBehaviorDefinition": ([], ["id"], ["documentation", "extensionElements", "condition", "event"]),
-	"ComplexGateway": ([], ["id", "name", "gatewayDirection", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "activationCondition"]),
-	"ConditionalEventDefinition": ([], ["id"], ["documentation", "extensionElements", "condition"]),
+	"ComplexGateway": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "gatewayDirection", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "activationCondition"]),
+	"ConditionalEventDefinition": ([], ["id", "camunda:variableName", "camunda:variableEvents"], ["documentation", "extensionElements", "condition"]),
 	"Conversation": ([], ["id", "name"], ["documentation", "extensionElements", "participantRef", "messageFlowRef", "correlationKey"]),
 	"ConversationAssociation": (["innerConversationNodeRef", "outerConversationNodeRef"], ["id"], ["documentation", "extensionElements"]),
 	"ConversationLink": (["sourceRef", "targetRef"], ["id", "name"], ["documentation", "extensionElements"]),
@@ -41,46 +41,46 @@ extracted = {
 	"DataAssociation": ([], ["id"], ["documentation", "extensionElements", "sourceRef", "targetRef", "transformation", "assignment"]),
 	"DataInput": ([], ["id", "name", "itemSubjectRef", "isCollection"], ["documentation", "extensionElements", "dataState"]),
 	"DataInputAssociation": ([], ["id"], ["documentation", "extensionElements", "sourceRef", "targetRef", "transformation", "assignment"]),
-	"DataObject": ([], ["id", "name", "itemSubjectRef", "isCollection"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "dataState"]),
-	"DataObjectReference": ([], ["id", "name", "itemSubjectRef", "dataObjectRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "dataState"]),
+	"DataObject": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "itemSubjectRef", "isCollection"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "dataState"]),
+	"DataObjectReference": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "itemSubjectRef", "dataObjectRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "dataState"]),
 	"DataOutput": ([], ["id", "name", "itemSubjectRef", "isCollection"], ["documentation", "extensionElements", "dataState"]),
 	"DataOutputAssociation": ([], ["id"], ["documentation", "extensionElements", "sourceRef", "targetRef", "transformation", "assignment"]),
 	"DataState": ([], ["id", "name"], ["documentation", "extensionElements"]),
 	"DataStore": ([], ["id", "name", "capacity", "isUnlimited", "itemSubjectRef"], ["documentation", "extensionElements", "dataState"]),
-	"DataStoreReference": ([], ["id", "name", "itemSubjectRef", "dataStoreRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "dataState"]),
+	"DataStoreReference": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "itemSubjectRef", "dataStoreRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "dataState"]),
 	"Documentation": ([], ["id", "textFormat"], ["any"]),
-	"EndEvent": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataInput", "dataInputAssociation", "inputSet", "eventDefinition", "eventDefinitionRef"]),
+	"EndEvent": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataInput", "dataInputAssociation", "inputSet", "eventDefinition", "eventDefinitionRef"]),
 	"EndPoint": ([], ["id"], ["documentation", "extensionElements"]),
-	"Error": ([], ["id", "name", "errorCode", "structureRef"], ["documentation", "extensionElements"]),
-	"ErrorEventDefinition": ([], ["id", "errorRef"], ["documentation", "extensionElements"]),
+	"Error": ([], ["id", "name", "errorCode", "structureRef", "camunda:errorMessage"], ["documentation", "extensionElements"]),
+	"ErrorEventDefinition": ([], ["id", "errorRef", "camunda:errorCodeVariable", "camunda:errorMessageVariable"], ["documentation", "extensionElements"]),
 	"Escalation": ([], ["id", "name", "escalationCode", "structureRef"], ["documentation", "extensionElements"]),
-	"EscalationEventDefinition": ([], ["id", "escalationRef"], ["documentation", "extensionElements"]),
-	"Event": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property"]),
-	"EventBasedGateway": ([], ["id", "name", "gatewayDirection", "instantiate", "eventGatewayType"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
+	"EscalationEventDefinition": ([], ["id", "escalationRef", "camunda:escalationCodeVariable"], ["documentation", "extensionElements"]),
+	"Event": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property"]),
+	"EventBasedGateway": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "gatewayDirection", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "instantiate", "eventGatewayType"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
 	"EventDefinition": ([], ["id"], ["documentation", "extensionElements"]),
-	"ExclusiveGateway": ([], ["id", "name", "gatewayDirection", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
+	"ExclusiveGateway": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "gatewayDirection", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
 	"Expression": ([], ["id"], ["documentation", "extensionElements"]),
 	"Extension": ([], ["definition", "mustUnderstand"], ["documentation"]),
 	"ExtensionElements": ([], [], ["any"]),
-	"FlowElement": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef"]),
-	"FlowNode": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
-	"FormalExpression": ([], ["id", "language", "evaluatesToTypeRef"], ["documentation", "extensionElements"]),
-	"Gateway": ([], ["id", "name", "gatewayDirection"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
+	"FlowElement": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef"]),
+	"FlowNode": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
+	"FormalExpression": ([], ["id", "language", "evaluatesToTypeRef", "camunda:resource"], ["documentation", "extensionElements"]),
+	"Gateway": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "gatewayDirection", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
 	"GlobalBusinessRuleTask": ([], ["id", "name", "implementation"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "resourceRole"]),
-	"GlobalChoreographyTask": ([], ["id", "name", "isClosed", "initiatingParticipantRef"], ["documentation", "extensionElements", "participant", "messageFlow", "artifact", "conversationNode", "conversationAssociation", "participantAssociation", "messageFlowAssociation", "correlationKey", "choreographyRef", "conversationLink", "flowElement"]),
-	"GlobalConversation": ([], ["id", "name", "isClosed"], ["documentation", "extensionElements", "participant", "messageFlow", "artifact", "conversationNode", "conversationAssociation", "participantAssociation", "messageFlowAssociation", "correlationKey", "choreographyRef", "conversationLink"]),
+	"GlobalChoreographyTask": ([], ["id", "name", "isClosed", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "initiatingParticipantRef"], ["documentation", "extensionElements", "participant", "messageFlow", "artifact", "conversationNode", "conversationAssociation", "participantAssociation", "messageFlowAssociation", "correlationKey", "choreographyRef", "conversationLink", "flowElement"]),
+	"GlobalConversation": ([], ["id", "name", "isClosed", "camunda:modelerTemplate", "camunda:modelerTemplateVersion"], ["documentation", "extensionElements", "participant", "messageFlow", "artifact", "conversationNode", "conversationAssociation", "participantAssociation", "messageFlowAssociation", "correlationKey", "choreographyRef", "conversationLink"]),
 	"GlobalManualTask": ([], ["id", "name"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "resourceRole"]),
 	"GlobalScriptTask": ([], ["id", "name", "scriptLanguage"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "resourceRole", "script"]),
 	"GlobalTask": ([], ["id", "name"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "resourceRole"]),
 	"GlobalUserTask": ([], ["id", "name", "implementation"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "resourceRole", "rendering"]),
 	"Group": ([], ["id", "categoryValueRef"], ["documentation", "extensionElements"]),
 	"HumanPerformer": ([], ["id", "name"], ["documentation", "extensionElements", "resourceRef", "resourceParameterBinding", "resourceAssignmentExpression"]),
-	"ImplicitThrowEvent": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataInput", "dataInputAssociation", "inputSet", "eventDefinition", "eventDefinitionRef"]),
-	"InclusiveGateway": ([], ["id", "name", "gatewayDirection", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
+	"ImplicitThrowEvent": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataInput", "dataInputAssociation", "inputSet", "eventDefinition", "eventDefinitionRef"]),
+	"InclusiveGateway": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "gatewayDirection", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
 	"InputSet": ([], ["id", "name"], ["documentation", "extensionElements", "dataInputRefs", "optionalInputRefs", "whileExecutingInputRefs", "outputSetRefs"]),
 	"Interface": (["name"], ["id", "implementationRef"], ["documentation", "extensionElements", "operation"]),
-	"IntermediateCatchEvent": ([], ["id", "name", "parallelMultiple"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataOutput", "dataOutputAssociation", "outputSet", "eventDefinition", "eventDefinitionRef"]),
-	"IntermediateThrowEvent": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataInput", "dataInputAssociation", "inputSet", "eventDefinition", "eventDefinitionRef"]),
+	"IntermediateCatchEvent": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "parallelMultiple"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataOutput", "dataOutputAssociation", "outputSet", "eventDefinition", "eventDefinitionRef"]),
+	"IntermediateThrowEvent": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataInput", "dataInputAssociation", "inputSet", "eventDefinition", "eventDefinitionRef"]),
 	"InputOutputBinding": (["operationRef", "inputDataRef", "outputDataRef"], ["id"], ["documentation", "extensionElements"]),
 	"InputOutputSpecification": ([], ["id"], ["documentation", "extensionElements", "dataInput", "dataOutput", "inputSet", "outputSet"]),
 	"ItemDefinition": ([], ["id", "structureRef", "isCollection", "itemKind"], ["documentation", "extensionElements"]),
@@ -88,16 +88,16 @@ extracted = {
 	"LaneSet": ([], ["id", "name"], ["documentation", "extensionElements", "lane"]),
 	"LinkEventDefinition": (["name"], ["id"], ["documentation", "extensionElements", "source", "target"]),
 	"LoopCharacteristics": ([], ["id"], ["documentation", "extensionElements"]),
-	"ManualTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"ManualTask": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
 	"Message": ([], ["id", "name", "itemRef"], ["documentation", "extensionElements"]),
-	"MessageEventDefinition": ([], ["id", "messageRef"], ["documentation", "extensionElements", "operationRef"]),
+	"MessageEventDefinition": ([], ["id", "messageRef", "camunda:expression", "camunda:class", "camunda:delegateExpression", "camunda:resultVariable", "camunda:type", "camunda:topic"], ["documentation", "extensionElements", "operationRef"]),
 	"MessageFlow": (["sourceRef", "targetRef"], ["id", "name", "messageRef"], ["documentation", "extensionElements"]),
 	"MessageFlowAssociation": (["innerMessageFlowRef", "outerMessageFlowRef"], ["id"], ["documentation", "extensionElements"]),
 	"Monitoring": ([], ["id"], ["documentation", "extensionElements"]),
-	"MultiInstanceLoopCharacteristics": ([], ["id", "isSequential", "behavior", "oneBehaviorEventRef", "noneBehaviorEventRef"], ["documentation", "extensionElements", "loopCardinality", "loopDataInputRef", "loopDataOutputRef", "inputDataItem", "outputDataItem", "complexBehaviorDefinition", "completionCondition"]),
+	"MultiInstanceLoopCharacteristics": ([], ["id", "isSequential", "behavior", "oneBehaviorEventRef", "noneBehaviorEventRef", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:collection", "camunda:elementVariable"], ["documentation", "extensionElements", "loopCardinality", "loopDataInputRef", "loopDataOutputRef", "inputDataItem", "outputDataItem", "complexBehaviorDefinition", "completionCondition"]),
 	"Operation": (["name"], ["id", "implementationRef"], ["documentation", "extensionElements", "inMessageRef", "outMessageRef", "errorRef"]),
 	"OutputSet": ([], ["id", "name"], ["documentation", "extensionElements", "dataOutputRefs", "optionalOutputRefs", "whileExecutingOutputRefs", "inputSetRefs"]),
-	"ParallelGateway": ([], ["id", "name", "gatewayDirection"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
+	"ParallelGateway": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "gatewayDirection", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing"]),
 	"Participant": ([], ["id", "name", "processRef"], ["documentation", "extensionElements", "interfaceRef", "endPointRef", "participantMultiplicity"]),
 	"ParticipantAssociation": ([], ["id"], ["documentation", "extensionElements", "innerParticipantRef", "outerParticipantRef"]),
 	"ParticipantMultiplicity": ([], ["id", "minimum", "maximum"], ["documentation", "extensionElements"]),
@@ -105,9 +105,9 @@ extracted = {
 	"PartnerRole": ([], ["id", "name"], ["documentation", "extensionElements", "participantRef"]),
 	"Performer": ([], ["id", "name"], ["documentation", "extensionElements", "resourceRef", "resourceParameterBinding", "resourceAssignmentExpression"]),
 	"PotentialOwner": ([], ["id", "name"], ["documentation", "extensionElements", "resourceRef", "resourceParameterBinding", "resourceAssignmentExpression"]),
-	"Process": ([], ["id", "name", "processType", "isClosed", "isExecutable", "definitionalCollaborationRef"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "auditing", "monitoring", "property", "laneSet", "flowElement", "artifact", "resourceRole", "correlationSubscription", "supports"]),
+	"Process": ([], ["id", "name", "processType", "isClosed", "isExecutable", "definitionalCollaborationRef", "camunda:jobPriority", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "camunda:candidateStarterGroups", "camunda:candidateStarterUsers", "camunda:versionTag", "camunda:historyTimeToLive", "camunda:isStartableInTasklist", "camunda:taskPriority"], ["documentation", "extensionElements", "supportedInterfaceRef", "ioSpecification", "ioBinding", "auditing", "monitoring", "property", "laneSet", "flowElement", "artifact", "resourceRole", "correlationSubscription", "supports"]),
 	"Property": ([], ["id", "name", "itemSubjectRef"], ["documentation", "extensionElements", "dataState"]),
-	"ReceiveTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "implementation", "instantiate", "messageRef", "operationRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"ReceiveTask": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "implementation", "instantiate", "messageRef", "operationRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
 	"Relationship": (["type"], ["id", "direction"], ["documentation", "extensionElements", "source", "target"]),
 	"Rendering": ([], ["id"], ["documentation", "extensionElements"]),
 	"Resource": (["name"], ["id"], ["documentation", "extensionElements", "resourceParameter"]),
@@ -116,29 +116,55 @@ extracted = {
 	"ResourceParameterBinding": (["parameterRef"], ["id"], ["documentation", "extensionElements", "expression"]),
 	"ResourceRole": ([], ["id", "name"], ["documentation", "extensionElements", "resourceRef", "resourceParameterBinding", "resourceAssignmentExpression"]),
 	"RootElement": ([], ["id"], ["documentation", "extensionElements"]),
-	"ScriptTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "scriptFormat"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "script"]),
+	"ScriptTask": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "scriptFormat", "camunda:resultVariable", "camunda:resource"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "script"]),
 	"Script": ([], [], ["any"]),
-	"SendTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "implementation", "messageRef", "operationRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
-	"SequenceFlow": (["sourceRef", "targetRef"], ["id", "name", "isImmediate"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "conditionExpression"]),
-	"ServiceTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "implementation", "operationRef"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"SendTask": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "implementation", "messageRef", "operationRef", "camunda:expression", "camunda:class", "camunda:delegateExpression", "camunda:resultVariable", "camunda:type", "camunda:topic"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"SequenceFlow": (["sourceRef", "targetRef"], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isImmediate"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "conditionExpression"]),
+	"ServiceTask": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "implementation", "operationRef", "camunda:expression", "camunda:class", "camunda:delegateExpression", "camunda:resultVariable", "camunda:type", "camunda:topic"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
 	"Signal": ([], ["id", "name", "structureRef"], ["documentation", "extensionElements"]),
-	"SignalEventDefinition": ([], ["id", "signalRef"], ["documentation", "extensionElements"]),
+	"SignalEventDefinition": ([], ["id", "signalRef", "camunda:async"], ["documentation", "extensionElements"]),
 	"StandardLoopCharacteristics": ([], ["id", "testBefore", "loopMaximum"], ["documentation", "extensionElements", "loopCondition"]),
-	"StartEvent": ([], ["id", "name", "parallelMultiple", "isInterrupting"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataOutput", "dataOutputAssociation", "outputSet", "eventDefinition", "eventDefinitionRef"]),
-	"SubChoreography": (["initiatingParticipantRef"], ["id", "name", "loopType"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "participantRef", "correlationKey", "flowElement", "artifact"]),
+	"StartEvent": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "parallelMultiple", "isInterrupting", "camunda:formHandlerClass", "camunda:formKey", "camunda:formRef", "camunda:formRefBinding", "camunda:formRefVersion", "camunda:initiator"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataOutput", "dataOutputAssociation", "outputSet", "eventDefinition", "eventDefinitionRef"]),
+	"SubChoreography": (["initiatingParticipantRef"], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "loopType"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "participantRef", "correlationKey", "flowElement", "artifact"]),
 	"SubConversation": ([], ["id", "name"], ["documentation", "extensionElements", "participantRef", "messageFlowRef", "correlationKey", "conversationNode"]),
-	"SubProcess": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "triggeredByEvent"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "laneSet", "flowElement", "artifact"]),
-	"Task": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
+	"SubProcess": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "triggeredByEvent"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "laneSet", "flowElement", "artifact"]),
+	"Task": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
 	"TerminateEventDefinition": ([], ["id"], ["documentation", "extensionElements"]),
 	"TextAnnotation": ([], ["id", "textFormat"], ["documentation", "extensionElements", "text"]),
 	"Text": ([], [], ["any"]),
-	"ThrowEvent": ([], ["id", "name"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataInput", "dataInputAssociation", "inputSet", "eventDefinition", "eventDefinitionRef"]),
+	"ThrowEvent": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "property", "dataInput", "dataInputAssociation", "inputSet", "eventDefinition", "eventDefinitionRef"]),
 	"TimerEventDefinition": ([], ["id"], ["documentation", "extensionElements", "timeDate", "timeDuration", "timeCycle"]),
-	"Transaction": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "triggeredByEvent", "method"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "laneSet", "flowElement", "artifact"]),
-	"UserTask": ([], ["id", "name", "isForCompensation", "startQuantity", "completionQuantity", "default", "implementation"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "rendering"]),
-	"Definitions": (["targetNamespace"], ["id", "name", "expressionLanguage", "typeLanguage", "exporter", "exporterVersion"], ["import", "extension", "rootElement", "relationship"]),
+	"Transaction": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "triggeredByEvent", "method"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "laneSet", "flowElement", "artifact"]),
+	"UserTask": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "implementation", "camunda:formHandlerClass", "camunda:formKey", "camunda:formRef", "camunda:formRefBinding", "camunda:formRefVersion", "camunda:assignee", "camunda:candidateUsers", "camunda:candidateGroups", "camunda:dueDate", "camunda:followUpDate", "camunda:priority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "rendering"]),
+	"Definitions": (["targetNamespace"], ["id", "name", "expressionLanguage", "typeLanguage", "exporter", "exporterVersion", "camunda:diagramRelationId"], ["import", "extension", "rootElement", "relationship"]),
 	"Import": (["namespace", "location", "importType"], [], []),
 	}
+
+camundaAttributes = {
+  "Definitions" : [("String","camunda:diagramRelationId")],
+  "Activity" : [("Boolean","camunda:async"), ("Boolean","camunda:asyncBefore"), ("Boolean","camunda:asyncAfter"), ("Boolean","camunda:exclusive"), ("String","camunda:jobPriority")],
+  "Gateway" : [("Boolean","camunda:async"), ("Boolean","camunda:asyncBefore"), ("Boolean","camunda:asyncAfter"), ("Boolean","camunda:exclusive"), ("String","camunda:jobPriority")],
+  "Event" : [("Boolean","camunda:async"), ("Boolean","camunda:asyncBefore"), ("Boolean","camunda:asyncAfter"), ("Boolean","camunda:exclusive"), ("String","camunda:jobPriority")],
+  "Process" : [("String","camunda:jobPriority"), ("String","camunda:modelerTemplate"), ("Integer","camunda:modelerTemplateVersion"), ("String","camunda:candidateStarterGroups"), ("String","camunda:candidateStarterUsers"), ("String","camunda:versionTag"), ("String","camunda:historyTimeToLive"), ("Boolean","camunda:isStartableInTasklist"), ("String","camunda:taskPriority")],
+  "SignalEventDefinition" : [("Boolean","camunda:async")],
+  "ErrorEventDefinition" : [("String","camunda:errorCodeVariable"), ("String","camunda:errorMessageVariable")],
+  "Error" : [("String","camunda:errorMessage")],
+  "StartEvent" : [("String","camunda:formHandlerClass"), ("String","camunda:formKey"), ("String","camunda:formRef"), ("String","camunda:formRefBinding"), ("String","camunda:formRefVersion"), ("String","camunda:initiator")],
+  "UserTask" : [("String","camunda:formHandlerClass"), ("String","camunda:formKey"), ("String","camunda:formRef"), ("String","camunda:formRefBinding"), ("String","camunda:formRefVersion"), ("String","camunda:assignee"), ("String","camunda:candidateUsers"), ("String","camunda:candidateGroups"), ("String","camunda:dueDate"), ("String","camunda:followUpDate"), ("String","camunda:priority")],
+  "Collaboration" : [("String","camunda:modelerTemplate"), ("Integer","camunda:modelerTemplateVersion")],
+  "FlowElement" : [("String","camunda:modelerTemplate"), ("Integer","camunda:modelerTemplateVersion")],
+  "ScriptTask" : [("String","camunda:resultVariable"), ("String","camunda:resource")],
+  "EscalationEventDefinition" : [("String","camunda:escalationCodeVariable")],
+  "FormalExpression" : [("String","camunda:resource")],
+  "CallActivity" : [("String","camunda:calledElementBinding"), ("String","camunda:calledElementVersion"), ("String","camunda:calledElementVersionTag"), ("String","camunda:calledElementTenantId"), ("String","camunda:caseRef"), ("String","camunda:caseBinding"), ("String","camunda:caseVersion"), ("String","camunda:caseTenantId"), ("String","camunda:variableMappingClass"), ("String","camunda:variableMappingDelegateExpression")],
+  "ServiceTask" : [("String","camunda:expression"), ("String","camunda:class"), ("String","camunda:delegateExpression"), ("String","camunda:resultVariable"), ("String","camunda:type"), ("String","camunda:topic")],
+  "BusinessRuleTask" : [("String","camunda:expression"), ("String","camunda:class"), ("String","camunda:delegateExpression"), ("String","camunda:resultVariable"), ("String","camunda:type"), ("String","camunda:topic"), ("String","camunda:decisionRef"), ("String","camunda:decisionRefBinding"), ("String","camunda:decisionRefVersion"), ("String","camunda:mapDecisionResult"), ("String","camunda:decisionRefTenantId")],
+  "SendTask" : [("String","camunda:expression"), ("String","camunda:class"), ("String","camunda:delegateExpression"), ("String","camunda:resultVariable"), ("String","camunda:type"), ("String","camunda:topic")],
+  "MessageEventDefinition" : [("String","camunda:expression"), ("String","camunda:class"), ("String","camunda:delegateExpression"), ("String","camunda:resultVariable"), ("String","camunda:type"), ("String","camunda:topic")],
+  "MultiInstanceLoopCharacteristics" : [("Boolean","camunda:async"), ("Boolean","camunda:asyncBefore"), ("Boolean","camunda:asyncAfter"), ("Boolean","camunda:exclusive"), ("String","camunda:collection"), ("String","camunda:elementVariable")],
+  "ConditionalEventDefinition" : [("String","camunda:variableName"), ("String","camunda:variableEvents")],
+}
+
 
 #InteractionNode - no parent
 #FlowElementsContainer (BaseElement) vs 
@@ -156,6 +182,8 @@ enumNames = []
 def capitalize_first_letter(s):
     if not s:
         return s
+    if s.startswith("camunda:"):
+        return s.replace("camunda:", "Camunda_", 1)
     return s[0].upper() + s[1:]
 
 def print_file_header(out):
@@ -374,7 +402,7 @@ def print_factory(out, c, mappings):
                 out.write("// required: " + requiredXMLName + " -> " + requiredType+ " " + requiredName + get_arity(l,h)).nl()
                 out.write("var _"+requiredName+"Attribute = node.Attributes[\""+requiredXMLName+"\"]?.ProcessedValue;").nl()
                 out.write("if (_"+requiredName+"Attribute is null) throw new BPMNCheckerExceptions($\"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : \"\")}) is missing required attribute "+requiredXMLName+"\");").nl()
-                if requiredType == "string" or requiredType == "int" or requiredType == "bool":
+                if requiredType == "string" or requiredType == "long" or requiredType == "bool":
                     out.write("result."+ capitalize_first_letter(requiredName) + " = ("+requiredType+ ")_"+requiredName+"Attribute;").nl()
                 elif requiredType in enumNames:
                     out.write("result."+ capitalize_first_letter(requiredName) +" = CreateEnum<"+requiredType+ ">((string)_"+requiredName+"Attribute);").nl()
@@ -390,7 +418,7 @@ def print_factory(out, c, mappings):
                 out.write("// optional: "+ optionalXmlName + " -> " +optionalType + " "+ optionalName + get_arity(l,h)).nl()
                 out.write("var _"+optionalName+"Attribute = node.Attributes.ContainsKey(\"" + optionalXmlName +"\") ? node.Attributes[\""+optionalXmlName+"\"].ProcessedValue : null;").nl()
                 out.write("if (_"+optionalName+"Attribute is not null) ")
-                if optionalType == "string" or optionalType == "int" or optionalType == "bool":
+                if optionalType == "string" or optionalType == "long" or optionalType == "bool":
                     out.write("result."+ capitalize_first_letter(optionalName) +" = ("+optionalType+ ")_"+optionalName+"Attribute;").nl()
                 elif optionalType in enumNames:
                     out.write("result."+ capitalize_first_letter(optionalName) +" = CreateEnum<"+optionalType+ ">((string)_"+optionalName+"Attribute);").nl()
@@ -422,7 +450,7 @@ def print_factory(out, c, mappings):
             if itemName not in processed + ["diagrams", "extensionValues", "extensionDefinitions", "documentation"]:
                 #expecting just unlinked attributes
                 if itemXmlName is not None:
-                    raise "Expecting no xml name, but have:"+ itemXmlName
+                    raise Exception("Expecting no xml name, but have:"+ itemXmlName);
 
                 assert isinstance(attr, M_Attribute)
                 association = attr.association
@@ -461,7 +489,7 @@ def print_factory(out, c, mappings):
         for  xmlName in requiredXmlNames + optionalXmlNames + elementXmlNames:
             #TODO: Solve known attributes
             if xmlName not in processedXML + [ "extensionElements", "id", "any", "documentation"]:
-                raise "Error: not attached: "+ xmlName
+                raise Exception("Error: not attached: "+ xmlName)
         out.write("return result;").nl()
         out.dec()
         out.write("}").nl().nl()
@@ -526,6 +554,7 @@ def print_Class(out, c, mappings):
 
     for attr in c.attributes:
         print_Attribute(out, attr,isInterface)
+    out.nl()
 
     if implementedInterface != None:
         out.nl();
@@ -535,6 +564,13 @@ def print_Class(out, c, mappings):
         out.write("#endregion").nl()
         out.nl();
     
+    if c.name in camundaAttributes:
+        out.write("#region Camunda attributes").nl()
+        for (camundaType, camundaName) in camundaAttributes[c.name]:
+            out.write("public "+print_csharp_type(camundaType)+"? " + capitalize_first_letter(camundaName) + " { get; set; }").nl()
+        out.write("#endregion").nl()
+        out.nl();
+
     if not isInterface:
                 
         out.write("public "+c.name+"()").nl()
@@ -585,6 +621,10 @@ def get_all_attributes_names(currentClass):
     for attr in currentClass.attributes:
         if attr.name not in result:
             result.append(attr.name)
+
+    if currentClass.name in camundaAttributes:
+        for (_, camundaName) in camundaAttributes[currentClass.name]:
+            result.append(camundaName)
     return result
 
 def get_all_attributes(currentClass):
@@ -604,6 +644,10 @@ def get_all_attributes(currentClass):
             lower = card.lower
             upper = card.upper
             result[attr.name] = (print_csharp_type(attr.type), lower, upper, attr)
+
+    if currentClass.name in camundaAttributes:
+        for (camundaType, camundaName) in camundaAttributes[currentClass.name]:
+            result[camundaName] = (print_csharp_type(camundaType), 0, 1, None) 
     return result
 
 def get_all_attributes_with_Xml_names(currentClass, mappings):
@@ -618,7 +662,7 @@ def get_all_attributes_with_Xml_names(currentClass, mappings):
         xmlName = None
         if fromCmofToXml is not None and attName in fromCmofToXml:
             xmlName = fromCmofToXml[attName]
-        result[attName] = (attType,xmlName, l, u, attr)
+        result[attName.replace(":", "_")] = (attType,xmlName, l, u, attr)
     return result
 
 # def get_all_required_attributes(currentClass, mappings):
@@ -666,14 +710,17 @@ def get_all_attributes_with_Xml_names(currentClass, mappings):
 
 
 def print_csharp_type(type):
-    assert isinstance(type, M_Type)
-    if type.name == "String":
+    if isinstance(type, M_Type):
+        convert = type.name
+    else: 
+        convert = type
+    if convert == "String":
         return "string"
-    if type.name == "Boolean":
+    if convert == "Boolean":
         return "bool"
-    if type.name == "Integer":
-        return "int"
-    return type.name
+    if convert == "Integer":
+        return "long"
+    return convert
 
 def print_Attribute(out, c, isInInterface):
     #TODO Override for diagrams.

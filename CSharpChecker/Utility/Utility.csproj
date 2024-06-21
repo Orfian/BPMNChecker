@@ -16,6 +16,7 @@
     <None Remove="diagrams\all_icons.bpmn" />
     <None Remove="diagrams\all_tasks.bpmn" />
     <None Remove="diagrams\BookHolidaySagaPatternV2.bpmn" />
+    <None Remove="diagrams\CamundaModeler_almost_all_set.bpmn" />
     <None Remove="diagrams\MonthlyInvoicing-solution.bpmn" />
     <None Remove="diagrams\Multi-instanceMessagingBetweenProcesses-Doctor.bpmn" />
     <None Remove="diagrams\single_user_task.bpmn" />
@@ -32,6 +33,7 @@
     <EmbeddedResource Include="diagrams\all_icons.bpmn" />
     <EmbeddedResource Include="diagrams\all_tasks.bpmn" />
     <EmbeddedResource Include="diagrams\BookHolidaySagaPatternV2.bpmn" />
+    <EmbeddedResource Include="diagrams\CamundaModeler_almost_all_set.bpmn" />
     <EmbeddedResource Include="diagrams\MonthlyInvoicing-solution.bpmn">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>

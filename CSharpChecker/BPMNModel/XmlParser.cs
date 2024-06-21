@@ -197,8 +197,16 @@ namespace BPMNModel
                     Errors.Add(GetNiceMessage(element, message));
                 }
             }
+            
+            allXMLAttributes = allXMLAttributes.Where(x => x.NamespaceName != XNamespace.Xmlns).ToList();
 
-            foreach (var xmlAttribute in allXMLAttributes.Where(x => x.NamespaceName != XNamespace.Xmlns))
+            //TODO: Modeler attributes are removed now.
+            if (namespaces.ContainsKey("modeler"))
+            {
+                allXMLAttributes = allXMLAttributes.Where(x => x.NamespaceName != namespaces["modeler"]).ToList();
+            }
+
+            foreach (var xmlAttribute in allXMLAttributes)
             {
                 Errors.Add(GetNiceMessage(element, $"Attribute {xmlAttribute} is not processed."));
             }

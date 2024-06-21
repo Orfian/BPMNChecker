@@ -92,7 +92,7 @@ namespace BPMNModel
                     return (resultingAttribute, null);
 
                 case AttributeXMLType.Integer:
-                    if (int.TryParse(realValue, out int value))
+                    if (long.TryParse(realValue, out long value))
                     {
                         resultingAttribute.ProcessedValue = value;
                         return (resultingAttribute, null);

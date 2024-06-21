@@ -265,7 +265,7 @@ namespace BPMNModel.Model
             {
                 var nullableString = isNulable ? "?" : "";
 
-                if (propertyRealType == typeof(string) || propertyRealType == typeof(int) || propertyRealType == typeof(bool))
+                if (propertyRealType == typeof(string) || propertyRealType == typeof(long) || propertyRealType == typeof(bool))
                 {
                     var value = property.GetValue(item);
                     if (value != null)
