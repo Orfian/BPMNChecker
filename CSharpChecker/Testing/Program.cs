@@ -32,7 +32,7 @@ namespace Testing
 
             CamundaExtensions.EnrichGenerator(Log.Logger, generator);
 
-            //return;
+            return;
             /*
             int count = 0;
             using var writer = new StreamWriter(@"d:\extracted.types");

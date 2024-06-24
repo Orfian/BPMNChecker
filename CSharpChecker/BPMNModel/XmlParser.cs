@@ -221,7 +221,7 @@ namespace BPMNModel
 
             XmlParserComplexNode node = idAttributes.Any() ? CreateOrGet(idAttributes.First().Value, type.Type) : XmlParserComplexNode.CreatePlaceholderForAnyNodes(type.Type);
 
-            if (type.Type.HasMixedContent)
+            if (type.Type.HasOrParentMixedContent)
             {
                 //TODO: Processing mixed content right?
                 node.MixedContent = element.Value;

@@ -23,6 +23,17 @@ namespace BPMNModel
 
         public List<Attribute> Attributes { get; } = new();
         public bool HasMixedContent { get; init; }
+
+        public bool HasOrParentMixedContent
+        {
+            get
+            {
+                if (HasMixedContent) return true;
+                if (ParentType != null) return ParentType.HasOrParentMixedContent;
+                return false;
+            }
+        }
+
         public ContainerElement? InnerElement { get; private set; }
         public bool IsAbstract { get; init; }
         public string Name { get; init; }

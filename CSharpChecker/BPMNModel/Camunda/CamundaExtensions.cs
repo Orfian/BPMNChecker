@@ -156,7 +156,6 @@ namespace BPMNModel.Camunda
 
                 if (camundaType.Extends.Any())
                 {
-                    dump.WriteLine(camundaType.Name);
                     //camunda extends were processed, remaining BPMN extends
                     foreach (var extension in camundaType.Extends.Where(x=>!x.StartsWith("camunda")))
                     {
@@ -199,33 +198,36 @@ namespace BPMNModel.Camunda
                         {
                             throw new BPMNCheckerExceptions($"In camunda.json, {camundaType.Name} is extending wrong type in BMPN.");
                         }
-
-                        /*
-                        dump.WriteLine("  "+extension);
-                        if (attributes.Any())
-                        {
-                            dump.WriteLine("  All Attributes:");
-                            foreach (var (attName, attType, attDefault) in attributes)
-                            {
-                                dump.WriteLine($"    {attType} {attName}{(attDefault != null ? " = " + attDefault : "")}");
-                            }
-                        }
-
-                        if (extensionElements.Any())
-                        {
-                            dump.WriteLine("  All Extension Elements:");
-                            foreach (var (elName, elType, elIsBody, elIsMany) in extensionElements)
-                            {
-                                dump.WriteLine($"    {elType} {elName}{(elIsBody ? " (Body)" : "")}{(elIsMany ? " (Many)" : "")}");
-                            }
-                        }
-                        dump.WriteLine();
-                        */
                     }
                 }
-               
-            }
 
+                if (camundaType.AllowedIn.Any())
+                {
+
+                    dump.WriteLine($"{camundaType.Name}  allowed: {string.Join(",", camundaType.AllowedIn)}");
+                    if (attributes.Any())
+                    {
+                        dump.WriteLine("  All Attributes:");
+                        foreach (var (attName, attType, attDefault) in attributes)
+                        {
+                            dump.WriteLine($"    {attType} {attName}{(attDefault != null ? " = " + attDefault : "")}");
+                        }
+                    }
+
+                    if (extensionElements.Any())
+                    {
+                        dump.WriteLine("  All Extension Elements:");
+                        foreach (var (elName, elType, elIsBody, elIsMany) in extensionElements)
+                        {
+                            dump.WriteLine($"    {elType} {elName}{(elIsBody ? " (Body)" : "")}{(elIsMany ? " (Many)" : "")}");
+                        }
+                    }
+                    dump.WriteLine();
+
+                }
+
+            }
+            /*
             using var toPython = new StreamWriter("camundaProcessed_types");
             toPython.WriteLine("camundaAttributes = {");
             foreach (var (bpmnType, attributes)  in bpmnCamundaAttributes)
@@ -235,7 +237,7 @@ namespace BPMNModel.Camunda
                 toPython.WriteLine("],");
             }
             toPython.WriteLine("}");
-
+            */
         }
     }
 }
