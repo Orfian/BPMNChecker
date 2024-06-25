@@ -16,16 +16,148 @@ namespace BPMNModel.Camunda
 {
     public class CamundaExtensions
     {
-        public static void EnrichGenerator(ILogger logger, Generator generator)
+        private static void GenerateCamundaClasses(Dictionary<string, CamundaType> data)
         {
-            string ConvertName(string name)
+            var typesToGenerate = new SortedSet<string>();
+
+            foreach (var (name, camundaType) in data)
             {
-                if (name.StartsWith("bpmn:") || name.StartsWith("camunda:")) return name;
-                return "camunda:" + name;
+                if (camundaType.AllowedIn.Any(x => x.StartsWith("bpmn") || x.StartsWith("*")))
+                {
+                    typesToGenerate.Add(name);
+                }
+            }
+
+            int size = typesToGenerate.Count;
+
+            do
+            {
+                size = typesToGenerate.Count;
+
+                foreach (var typeName in typesToGenerate.ToList())
+                {
+                    var camundaType = data[typeName];
+
+                    if (camundaType.SuperClass is not null && !typesToGenerate.Contains(camundaType.SuperClass) &&
+                        camundaType.SuperClass != "Element" && camundaType.SuperClass.StartsWith("camunda"))                     
+                    {
+                        typesToGenerate.Add(camundaType.SuperClass);
+                    }
+
+                    foreach(var (_,(fieldType,_)) in camundaType.Attributes)
+                    {
+                        var realFieldType = ConvertName(fieldType);
+
+                        if (!typesToGenerate.Contains(realFieldType) &&
+                            fieldType != "String" && fieldType != "Integer" && fieldType != "Boolean" && !fieldType.StartsWith("bpmn"))
+                        {
+                            typesToGenerate.Add(realFieldType);
+                        }
+                    }
+
+                    foreach (var (_, (elementType,_, _)) in camundaType.ExtensionElements)
+                    {
+                        var realElementType = ConvertName(elementType);
+
+                        if (!typesToGenerate.Contains(realElementType) &&
+                            elementType != "String" && elementType != "Integer" && elementType != "Boolean" && !elementType.StartsWith("bpmn"))
+                        {
+                            typesToGenerate.Add(realElementType);
+                        }
+                    }
+                }
+
+                foreach (var (_,camundaType) in data.ToList())
+                {
+                    if (camundaType.SuperClass is not null && typesToGenerate.Contains(camundaType.SuperClass) && !typesToGenerate.Contains(camundaType.Name))
+                    {
+                        typesToGenerate.Add(camundaType.Name);
+                    }
+                    //Just checking, not realy adding anything.
+                    foreach(var extendsName in camundaType.Extends)
+                    {
+                        if (typesToGenerate.Contains(extendsName) && !typesToGenerate.Contains(camundaType.Name))
+                        {
+                            typesToGenerate.Add(camundaType.Name);
+                        }
+                    }
+                    //Just checking, not realy adding anything.
+                    foreach (var allowedInName in camundaType.AllowedIn)
+                    {
+                        if (typesToGenerate.Contains(allowedInName) && !typesToGenerate.Contains(camundaType.Name))
+                        {
+                            typesToGenerate.Add(camundaType.Name);
+                        }
+                    }
+                }
+
+            } while (typesToGenerate.Count > size);
+
+            var projectdirectory = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.Parent;
+            if (projectdirectory == null) throw new BPMNCheckerExceptions("Something went wrong, project structure changed.");
+            using var file = new StreamWriter(projectdirectory.FullName + @"\BPMNModel\Camunda\CamundaClasses.cs");
+
+            file.WriteLine("using BPMNModel.Model;");
+            file.WriteLine("namespace BPMNModel.Camunda");
+            file.WriteLine("{");
+
+            foreach (var typeName in typesToGenerate)
+            {
+                var camundaType = data[typeName];
+
+                file.WriteLine($"  public {(camundaType.IsAbstract ? "abstract ": "")}{ConvertCSName(camundaType.Name)} {(camundaType.SuperClass is not null?": "+ConvertCSName(camundaType.SuperClass) : "")}");
+                file.WriteLine("  {");
+                /*
+                writer.WriteLine($"Extends: {string.Join(", ", Extends)}");
+                writer.WriteLine($"Allowed: {string.Join(", ", AllowedIn)}");
+                writer.WriteLine("{");
+                if (Attributes.Any())
+                {
+                    writer.WriteLine("  Attributes:");
+                    foreach (var (attName, (attType, attDefault)) in Attributes)
+                    {
+                        writer.WriteLine($"    {attType} {attName}{(attDefault != null ? " = " + attDefault : "")}");
+                    }
+                }
+
+                if (ExtensionElements.Any())
+                {
+                    if (Attributes.Any()) writer.WriteLine();
+                    writer.WriteLine("  Extension Elements:");
+                    foreach (var (elName, (elType, elIsBody, elIsMany)) in ExtensionElements)
+                    {
+                        writer.WriteLine($"    {elType} {elName}{(elIsBody ? " (Body)" : "")}{(elIsMany ? " (Many)" : "")}");
+                    }
+                }
+                */
+                file.WriteLine("  }\n");
             }
 
 
+            file.WriteLine("}");
+        }
 
+        private static string ConvertCSName(string name)
+        {
+            if (name == "Element") return name;
+            if (name == "String") return "string";
+            if (name == "Integer") return "long";
+            if (name == "Boolean") return "bool";
+            if (name.StartsWith("bpmn")) return name.Replace("bpmn:", "");
+            //camunda name
+            return name.Replace("camunda:","Camunda");
+        }
+
+
+        private static string ConvertName(string name)
+        {
+            if (name == "Element") return name;
+            if (name.StartsWith("bpmn:") || name.StartsWith("camunda:")) return name;
+            return "camunda:" + name;
+        }
+
+        public static void EnrichGenerator(ILogger logger, Generator generator)
+        {
 
             var camundaTypes = new Dictionary<string, CamundaType>();
 
@@ -123,7 +255,9 @@ namespace BPMNModel.Camunda
             using var dump = new StreamWriter("camundaProcessed");
 
             var bpmnCamundaAttributes = new Dictionary<string, List<(string Type, string Name)>>();
-            
+
+            GenerateCamundaClasses(camundaTypes);
+
             foreach (var (name, camundaType) in camundaTypes)
             {
                 //camundaType.Dump(dump);
@@ -201,7 +335,7 @@ namespace BPMNModel.Camunda
                     }
                 }
 
-                if (camundaType.AllowedIn.Any())
+                if (camundaType.AllowedIn.Any(x => x.StartsWith("camunda")))
                 {
 
                     dump.WriteLine($"{camundaType.Name}  allowed: {string.Join(",", camundaType.AllowedIn)}");
