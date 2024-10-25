@@ -18,6 +18,7 @@ namespace BPMNModel
             var xmlWriter = new XmlTextWriter(writer);
             xmlWriter.Formatting = Formatting.Indented;
             AnyNode.WriteTo(xmlWriter);
+            writer.WriteLine();
             writer.WriteLine($"{indent}</any>");
         }
 

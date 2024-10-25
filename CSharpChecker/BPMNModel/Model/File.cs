@@ -312,7 +312,7 @@ namespace BPMNModel.Model
 
     }
 
-    public abstract class BaseElement
+    public abstract class BaseElement : CamundaExtensionBaseElement
     {
         public string? Id { get; set; }
         public List<ExtensionDefinition> ExtensionDefinitions { get; } = new();

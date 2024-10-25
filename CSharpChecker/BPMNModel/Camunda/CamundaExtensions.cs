@@ -97,7 +97,12 @@ namespace BPMNModel.Camunda
             if (projectdirectory == null) throw new BPMNCheckerExceptions("Something went wrong, project structure changed.");
             using var file = new StreamWriter(projectdirectory.FullName + @"\BPMNModel\Camunda\CamundaClasses.cs");
 
+
+            file.WriteLine("// -------------------------------------------------------");
+            file.WriteLine("// Do not modify directly, this file was generated.");
+            file.WriteLine("// -------------------------------------------------------");
             file.WriteLine("using BPMNModel.Model;");
+            file.WriteLine();
             file.WriteLine("namespace BPMNModel.Camunda");
             file.WriteLine("{");
 
@@ -105,36 +110,91 @@ namespace BPMNModel.Camunda
             {
                 var camundaType = data[typeName];
 
-                file.WriteLine($"  public {(camundaType.IsAbstract ? "abstract ": "")}{ConvertCSName(camundaType.Name)} {(camundaType.SuperClass is not null?": "+ConvertCSName(camundaType.SuperClass) : "")}");
-                file.WriteLine("  {");
-                /*
-                writer.WriteLine($"Extends: {string.Join(", ", Extends)}");
-                writer.WriteLine($"Allowed: {string.Join(", ", AllowedIn)}");
-                writer.WriteLine("{");
-                if (Attributes.Any())
+                file.Write($"\tpublic {(camundaType.IsAbstract ? "abstract " : "")}class {ConvertCSName(camundaType.Name)}");
+
+                var toExtend = new List<string>();
+
+                if (camundaType.SuperClass is not null)
                 {
-                    writer.WriteLine("  Attributes:");
-                    foreach (var (attName, (attType, attDefault)) in Attributes)
-                    {
-                        writer.WriteLine($"    {attType} {attName}{(attDefault != null ? " = " + attDefault : "")}");
-                    }
+                    toExtend.Add(ConvertCSName(camundaType.SuperClass));
                 }
 
-                if (ExtensionElements.Any())
+                if (camundaType.AllowedIn.Any())
                 {
-                    if (Attributes.Any()) writer.WriteLine();
-                    writer.WriteLine("  Extension Elements:");
-                    foreach (var (elName, (elType, elIsBody, elIsMany)) in ExtensionElements)
+                    toExtend.Add("ICamundaBaseElement");
+                }
+
+                if (toExtend.Any())
+                {
+                    file.Write($" : {string.Join(", ", toExtend)}");
+                }
+                file.WriteLine();
+                file.WriteLine("\t{");
+                if (camundaType.Extends.Any())
+                {
+                    file.WriteLine($"\t\t// Extends: {string.Join(", ", camundaType.Extends)}");
+                }
+                if (camundaType.AllowedIn.Any())
+                {
+                    file.WriteLine($"\t\t// Allowed: {string.Join(", ", camundaType.AllowedIn)}");
+                }
+                file.WriteLine();
+                
+                if (camundaType.Attributes.Any())
+                {
+                    file.WriteLine("\t\t//Attributes:");
+                    foreach (var (attName, (attType, attDefault)) in camundaType.Attributes)
                     {
-                        writer.WriteLine($"    {elType} {elName}{(elIsBody ? " (Body)" : "")}{(elIsMany ? " (Many)" : "")}");
+                        file.Write($"\t\tpublic {ConvertCSName(attType)}? {CapitalizeFirstLetter(attName)}");
+                        file.Write(" {get; set;} ");
+                        if (attDefault != null)
+                        {
+                            file.Write(" = "+ ConvertDefaultValue(attDefault)+ ";");
+                        }
+                        file.WriteLine();
+                    }
+                    file.WriteLine();
+                }
+                
+                if (camundaType.ExtensionElements.Any())
+                {
+                    if (camundaType.Attributes.Any()) file.WriteLine();
+                    file.WriteLine("\t\t//Extension Elements:");
+                    foreach (var (elName, (elType, elIsBody, elIsMany)) in camundaType.ExtensionElements)
+                    {
+                        if (elIsBody)
+                        {
+                            file.Write($"\t\tpublic {ConvertCSName(elType)}? {CapitalizeFirstLetter(elName)}");
+                            file.Write(" { get; set; } ");
+                            file.WriteLine();
+                        }
+                        else if (elIsMany)
+                        {
+                            file.Write($"\t\tpublic List<{ConvertCSName(ConvertName(elType))}> {CapitalizeFirstLetter(elName)}");
+                            file.Write(" { get; } = new();");
+                            file.WriteLine();
+                        }
+                        else
+                        {
+                            file.Write($"\t\tpublic {ConvertCSName(ConvertName(elType))}? {CapitalizeFirstLetter(elName)}");
+                            file.Write(" { get; set; } ");
+                            file.WriteLine();
+                        }
                     }
                 }
-                */
-                file.WriteLine("  }\n");
+                
+                file.WriteLine("\t}\n");
             }
 
 
             file.WriteLine("}");
+        }
+
+        private static string ConvertDefaultValue(string defaultValue)
+        {
+            if (defaultValue == "False") return "false";
+
+            throw new BPMNCheckerExceptions("Something went wrong, there is unsupported default camunda value: " + defaultValue);
         }
 
         private static string ConvertCSName(string name)
@@ -148,15 +208,23 @@ namespace BPMNModel.Camunda
             return name.Replace("camunda:","Camunda");
         }
 
+        private static string CapitalizeFirstLetter(string name)
+        {
+            if (name != null && name.Length > 0 && char.IsLower(name[0]))
+            {
+                return char.ToUpper(name[0]) + name.Substring(1);
+            }
+            return string.Empty;
+        }
 
         private static string ConvertName(string name)
         {
-            if (name == "Element") return name;
+            if (name == "Element" || name == "String" || name == "Integer" || name == "Boolean") return name;
             if (name.StartsWith("bpmn:") || name.StartsWith("camunda:")) return name;
             return "camunda:" + name;
         }
 
-        public static void EnrichGenerator(ILogger logger, Generator generator)
+        public static void EnrichGenerator(ILogger logger, Generator generator, bool generateCamundaClasses = false, string? toPythonFileName = null)
         {
 
             var camundaTypes = new Dictionary<string, CamundaType>();
@@ -256,7 +324,7 @@ namespace BPMNModel.Camunda
 
             var bpmnCamundaAttributes = new Dictionary<string, List<(string Type, string Name)>>();
 
-            GenerateCamundaClasses(camundaTypes);
+            if (generateCamundaClasses) GenerateCamundaClasses(camundaTypes);
 
             foreach (var (name, camundaType) in camundaTypes)
             {
@@ -335,8 +403,10 @@ namespace BPMNModel.Camunda
                     }
                 }
 
-                if (camundaType.AllowedIn.Any(x => x.StartsWith("camunda")))
+                if (camundaType.AllowedIn.Any())
                 {
+
+
 
                     dump.WriteLine($"{camundaType.Name}  allowed: {string.Join(",", camundaType.AllowedIn)}");
                     if (attributes.Any())
@@ -361,17 +431,18 @@ namespace BPMNModel.Camunda
                 }
 
             }
-            /*
-            using var toPython = new StreamWriter("camundaProcessed_types");
-            toPython.WriteLine("camundaAttributes = {");
-            foreach (var (bpmnType, attributes)  in bpmnCamundaAttributes)
+            if (toPythonFileName != null)
             {
-                toPython.Write($"  \"{bpmnType.Substring(1)}\" : [");
-                toPython.Write(string.Join(", ", attributes.Select(x => $"(\"{x.Type}\",\"{x.Name}\")")));
-                toPython.WriteLine("],");
+                using var toPython = new StreamWriter(toPythonFileName);
+                toPython.WriteLine("camundaAttributes = {");
+                foreach (var (bpmnType, attributes)  in bpmnCamundaAttributes)
+                {
+                    toPython.Write($"  \"{bpmnType.Substring(1)}\" : [");
+                    toPython.Write(string.Join(", ", attributes.Select(x => $"(\"{x.Type}\",\"{x.Name}\")")));
+                    toPython.WriteLine("],");
+                }
+                toPython.WriteLine("}");
             }
-            toPython.WriteLine("}");
-            */
         }
     }
 }

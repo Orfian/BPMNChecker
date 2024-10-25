@@ -237,6 +237,10 @@ namespace BPMNModel.Model
 
             if (result is T realResult)
             {
+                if (result is CamundaExtensionBaseElement camunda)
+                {
+                    LoadCamunda(complexNode, camunda);
+                }
                 indent = indent.Substring(2);
 
                 logger.Debug($"{indent}{complexNode.ToString()} - Finished loading");
@@ -245,6 +249,37 @@ namespace BPMNModel.Model
             else
             {
                 throw new BPMNCheckerExceptions($"Error in data, data element of type {realName} can not be cast to {typeof(T).Name}.");
+            }
+        }
+
+        private void LoadCamunda(XmlParserComplexNode complexNode, CamundaExtensionBaseElement target) 
+        {
+            if (complexNode.ChildNodes.ContainsKey("extensionElements")) 
+            {
+                if (complexNode.ChildNodes["extensionElements"].Any())
+                {
+                    if (complexNode.ChildNodes["extensionElements"].Count != 1) throw new BPMNCheckerExceptions("There is at most one extension section.");
+
+                    var extensionBlock = complexNode.ChildNodes["extensionElements"][0];
+
+                    if (extensionBlock is XmlParserComplexNode complexBlock && complexBlock.Type is not null && complexBlock.Type.Name == "tExtensionElements")
+                    {
+                        foreach(var item in complexBlock.ChildNodes["any"])
+                        {
+                            if (item is XmlParserAnyNode anyNode)
+                            {
+
+
+                            }else
+                            {
+                                throw new BPMNCheckerExceptions("Processing error, there are only anyNodes inside extension elements.");
+                            }
+                        }
+                    }else
+                    {
+                        throw new BPMNCheckerExceptions("In extensionElements, there should be complex type: tExtensionElements");
+                    }
+                }
             }
         }
 

@@ -27,6 +27,11 @@
               <camunda:script scriptFormat="javascript">execution.getVariable('doctor');</camunda:script>
             </camunda:inputParameter>
           </camunda:inputOutput>
+		  <camunda:inputOutput>
+			<camunda:inputParameter name="doctor2">
+			  <camunda:script scriptFormat="javascript">execution.getVariable('doctor2');</camunda:script>
+			</camunda:inputParameter>
+	      </camunda:inputOutput>
         </bpmn:extensionElements>
         <bpmn:incoming>Flow_0ubmgho</bpmn:incoming>
         <bpmn:outgoing>Flow_1iq05t0</bpmn:outgoing>

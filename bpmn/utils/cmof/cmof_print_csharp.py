@@ -549,6 +549,10 @@ def print_Class(out, c, mappings):
             out.write("BaseElement, "+implementedInterface.name)
         else:
             out.write(", ".join([x.name for x in parentClasses] + [x.name for x in implementedInterfaces] ))
+
+    if c.name == "BaseElement":
+        out.write(" : CamundaExtensionBaseElement")            
+
     out.nl()
     out.write("{").nl()
     out.inc()
