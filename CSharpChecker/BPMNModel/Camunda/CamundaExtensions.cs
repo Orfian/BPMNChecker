@@ -366,14 +366,7 @@ namespace BPMNModel.Camunda
 
                 } while (allExtendingItLength < allExtendingIt.Count);
 
-
-                /*
-                var camundaInExtends = camundaTypes.Values.Where(x => x.Extends.Contains(camundaType.Name)).Select(x=>x.Name);
-                if (camundaInExtends.Any())
-                {
-                    allInInheritance.AddRange(camundaInExtends);
-                }
-                */
+               
                 foreach (var typeName in allInInheritance.Union(allExtendingIt))
                 {
                     if (typeName.StartsWith("camunda"))
@@ -475,6 +468,40 @@ namespace BPMNModel.Camunda
             if (toPythonFileName != null)
             {
                 using var toPython = new StreamWriter(toPythonFileName);
+
+                toPython.WriteLine("extracted = {");
+
+                foreach (var item in generator.Types)
+                {
+                    if (item.Value is ComplexType c)
+                    {
+                        (List<BPMNModel.Attribute> Attributes, List<string> Elements) GetAll(ComplexType current)
+                        {
+                            List<BPMNModel.Attribute> attributes = new();
+                            List<string> elements = new();
+                            if (current.ParentType is not null)
+                            {
+                                var parent = GetAll(current.ParentType);
+                                attributes.AddRange(parent.Attributes);
+                                elements.AddRange(parent.Elements);
+                            }
+                            attributes.AddRange(current.Attributes);
+                            var currentElements = current.InnerElement?.InnerElements.Select(x => $"\"{x.Name}\"").ToList();
+
+                            if (currentElements is not null && currentElements.Any()) elements.AddRange(currentElements);
+
+                            return (attributes, elements);
+                        }
+                        var (allAttributes, allElements) = GetAll(c);
+
+                        var required = allAttributes.Where(x => x.Use == AttributeUse.Required).Select(x => $"\"{x.Name}\"").ToList();
+                        var optional = allAttributes.Where(x => x.Use == AttributeUse.Optional).Select(x => $"\"{x.Name}\"").ToList();
+                        toPython.WriteLine($"\t\"{c.Name.Substring(1)}\": ([{string.Join(", ", required)}], [{string.Join(", ", optional)}], [{string.Join(", ", allElements ?? [])}]),");
+                    }
+                }
+                toPython.WriteLine("\t}\n");
+
+
                 toPython.WriteLine("camundaAttributes = {");
                 foreach (var (bpmnType, attributes)  in bpmnCamundaAttributes)
                 {

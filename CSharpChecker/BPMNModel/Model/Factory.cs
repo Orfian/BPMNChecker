@@ -1886,6 +1886,10 @@ namespace BPMNModel.Model
             var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
             if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
 
+            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
+            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
+            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
+
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
@@ -3927,6 +3931,10 @@ namespace BPMNModel.Model
             var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
             if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
 
+            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
+            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
+            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
+
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
@@ -4543,6 +4551,10 @@ namespace BPMNModel.Model
             var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
             if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
 
+            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
+            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
+            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
+
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
@@ -4925,6 +4937,10 @@ namespace BPMNModel.Model
             // optional: camunda:topic -> string camunda_topic (0, 1)
             var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
             if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
+
+            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
+            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
+            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
 
             // optional: camunda:decisionRef -> string camunda_decisionRef (0, 1)
             var _camunda_decisionRefAttribute = node.Attributes.ContainsKey("camunda:decisionRef") ? node.Attributes["camunda:decisionRef"].ProcessedValue : null;

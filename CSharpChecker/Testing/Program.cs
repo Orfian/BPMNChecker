@@ -33,7 +33,6 @@ namespace Testing
             CamundaExtensions.EnrichGenerator(Log.Logger, generator, true, @"d:\toPython");
 
             /*
-            int count = 0;
             using var writer = new StreamWriter(@"d:\extracted.types");
             writer.WriteLine("extracted = {");
 
@@ -61,7 +60,6 @@ namespace Testing
                     var required = allAttributes.Where(x => x.Use == AttributeUse.Required).Select(x => $"\"{x.Name}\"").ToList();
                     var optional = allAttributes.Where(x => x.Use == AttributeUse.Optional).Select(x => $"\"{x.Name}\"").ToList();
                     writer.WriteLine($"\t\"{c.Name.Substring(1)}\": ([{string.Join(", ", required)}], [{string.Join(", ", optional)}], [{string.Join(", ", allElements ?? [])}]),");
-                    count++;
                 }
             }
             writer.WriteLine("\t}\n");

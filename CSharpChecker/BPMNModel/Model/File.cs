@@ -608,6 +608,7 @@ namespace BPMNModel.Model
         public string? Camunda_resultVariable { get; set; }
         public string? Camunda_type { get; set; }
         public string? Camunda_topic { get; set; }
+        public string? Camunda_taskPriority { get; set; }
         #endregion
 
         public MessageEventDefinition()
@@ -1487,6 +1488,7 @@ namespace BPMNModel.Model
         public string? Camunda_resultVariable { get; set; }
         public string? Camunda_type { get; set; }
         public string? Camunda_topic { get; set; }
+        public string? Camunda_taskPriority { get; set; }
         #endregion
 
         public ServiceTask()
@@ -1613,6 +1615,7 @@ namespace BPMNModel.Model
         public string? Camunda_resultVariable { get; set; }
         public string? Camunda_type { get; set; }
         public string? Camunda_topic { get; set; }
+        public string? Camunda_taskPriority { get; set; }
         #endregion
 
         public SendTask()
@@ -1661,6 +1664,7 @@ namespace BPMNModel.Model
         public string? Camunda_resultVariable { get; set; }
         public string? Camunda_type { get; set; }
         public string? Camunda_topic { get; set; }
+        public string? Camunda_taskPriority { get; set; }
         public string? Camunda_decisionRef { get; set; }
         public string? Camunda_decisionRefBinding { get; set; }
         public string? Camunda_decisionRefVersion { get; set; }
