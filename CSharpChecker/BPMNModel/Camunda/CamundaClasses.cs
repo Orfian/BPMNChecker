@@ -1,14 +1,33 @@
 // -------------------------------------------------------
 // Do not modify directly, this file was generated.
 // -------------------------------------------------------
+// While generating Camunda classes following types were used as if they were abstract:
+// camunda:PotentialStarter
+// camunda:Assignable
+// camunda:CallActivity
+// camunda:ServiceTaskLike
+// camunda:DmnCapable
+// camunda:ExternalCapable
+// camunda:TaskPriorized
+// (Just extending attributes were generated for base types.)
+// -------------------------------------------------------
 using BPMNModel.Model;
 
 namespace BPMNModel.Camunda
 {
+	public class CamundaConnector : ICamundaBaseElement
+	{
+		// Allowed: camunda:ServiceTaskLike
+
+		// Extension Elements:
+		public CamundaInputOutput? InputOutput { get; set; } 
+		public string? ConnectorId { get; set; } 
+	}
+
 	public class CamundaConstraint
 	{
 
-		//Attributes:
+		// Attributes:
 		public string? Name {get; set;} 
 		public string? Config {get; set;} 
 
@@ -17,11 +36,11 @@ namespace BPMNModel.Camunda
 	public class CamundaEntry
 	{
 
-		//Attributes:
+		// Attributes:
 		public string? Key {get; set;} 
 
 
-		//Extension Elements:
+		// Extension Elements:
 		public string? Value { get; set; } 
 		public CamundaInputOutputParameterDefinition? Definition { get; set; } 
 	}
@@ -30,7 +49,7 @@ namespace BPMNModel.Camunda
 	{
 		// Allowed: bpmn:ServiceTask
 
-		//Attributes:
+		// Attributes:
 		public string? Expression {get; set;} 
 
 	}
@@ -39,14 +58,14 @@ namespace BPMNModel.Camunda
 	{
 		// Allowed: bpmn:Task, bpmn:ServiceTask, bpmn:UserTask, bpmn:BusinessRuleTask, bpmn:ScriptTask, bpmn:ReceiveTask, bpmn:ManualTask, bpmn:ExclusiveGateway, bpmn:SequenceFlow, bpmn:ParallelGateway, bpmn:InclusiveGateway, bpmn:EventBasedGateway, bpmn:StartEvent, bpmn:IntermediateCatchEvent, bpmn:IntermediateThrowEvent, bpmn:EndEvent, bpmn:BoundaryEvent, bpmn:CallActivity, bpmn:SubProcess, bpmn:Process
 
-		//Attributes:
+		// Attributes:
 		public string? Expression {get; set;} 
 		public string? Class {get; set;} 
 		public string? DelegateExpression {get; set;} 
 		public string? Event {get; set;} 
 
 
-		//Extension Elements:
+		// Extension Elements:
 		public CamundaScript? Script { get; set; } 
 		public List<CamundaField> Fields { get; } = new();
 	}
@@ -55,7 +74,7 @@ namespace BPMNModel.Camunda
 	{
 		// Allowed: camunda:AsyncCapable, bpmn:MultiInstanceLoopCharacteristics
 
-		//Extension Elements:
+		// Extension Elements:
 		public string? Body { get; set; } 
 	}
 
@@ -63,12 +82,12 @@ namespace BPMNModel.Camunda
 	{
 		// Allowed: camunda:ServiceTaskLike, camunda:ExecutionListener, camunda:TaskListener
 
-		//Attributes:
+		// Attributes:
 		public string? Name {get; set;} 
 		public string? StringValue {get; set;} 
 
 
-		//Extension Elements:
+		// Extension Elements:
 		public string? Expression { get; set; } 
 		public string? String { get; set; } 
 	}
@@ -77,18 +96,18 @@ namespace BPMNModel.Camunda
 	{
 		// Allowed: bpmn:StartEvent, bpmn:UserTask
 
-		//Attributes:
+		// Attributes:
 		public string? BusinessKey {get; set;} 
 
 
-		//Extension Elements:
+		// Extension Elements:
 		public List<CamundaFormField> Fields { get; } = new();
 	}
 
 	public class CamundaFormField
 	{
 
-		//Attributes:
+		// Attributes:
 		public string? Id {get; set;} 
 		public string? Label {get; set;} 
 		public string? Type {get; set;} 
@@ -96,7 +115,7 @@ namespace BPMNModel.Camunda
 		public string? DefaultValue {get; set;} 
 
 
-		//Extension Elements:
+		// Extension Elements:
 		public CamundaProperties? Properties { get; set; } 
 		public CamundaValidation? Validation { get; set; } 
 		public List<CamundaValue> Values { get; } = new();
@@ -106,7 +125,7 @@ namespace BPMNModel.Camunda
 	{
 		// Allowed: bpmn:StartEvent, bpmn:UserTask
 
-		//Attributes:
+		// Attributes:
 		public string? Id {get; set;} 
 		public string? Name {get; set;} 
 		public string? Type {get; set;} 
@@ -119,7 +138,7 @@ namespace BPMNModel.Camunda
 		public string? Default {get; set;} 
 
 
-		//Extension Elements:
+		// Extension Elements:
 		public List<CamundaValue> Values { get; } = new();
 	}
 
@@ -132,7 +151,7 @@ namespace BPMNModel.Camunda
 	public abstract class CamundaInOutBinding
 	{
 
-		//Attributes:
+		// Attributes:
 		public string? Source {get; set;} 
 		public string? SourceExpression {get; set;} 
 		public string? Target {get; set;} 
@@ -146,7 +165,7 @@ namespace BPMNModel.Camunda
 	{
 		// Allowed: bpmn:FlowNode, camunda:Connector
 
-		//Extension Elements:
+		// Extension Elements:
 		public CamundaInputOutput? InputOutput { get; set; } 
 		public string? ConnectorId { get; set; } 
 		public List<CamundaInputParameter> InputParameters { get; } = new();
@@ -156,11 +175,11 @@ namespace BPMNModel.Camunda
 	public class CamundaInputOutputParameter
 	{
 
-		//Attributes:
+		// Attributes:
 		public string? Name {get; set;} 
 
 
-		//Extension Elements:
+		// Extension Elements:
 		public string? Value { get; set; } 
 		public CamundaInputOutputParameterDefinition? Definition { get; set; } 
 	}
@@ -178,14 +197,14 @@ namespace BPMNModel.Camunda
 	public class CamundaList : CamundaInputOutputParameterDefinition
 	{
 
-		//Extension Elements:
+		// Extension Elements:
 		public List<CamundaInputOutputParameterDefinition> Items { get; } = new();
 	}
 
 	public class CamundaMap : CamundaInputOutputParameterDefinition
 	{
 
-		//Extension Elements:
+		// Extension Elements:
 		public List<CamundaEntry> Entries { get; } = new();
 	}
 
@@ -204,14 +223,14 @@ namespace BPMNModel.Camunda
 	{
 		// Allowed: *
 
-		//Extension Elements:
+		// Extension Elements:
 		public List<CamundaProperty> Values { get; } = new();
 	}
 
 	public class CamundaProperty
 	{
 
-		//Attributes:
+		// Attributes:
 		public string? Id {get; set;} 
 		public string? Name {get; set;} 
 		public string? Value {get; set;} 
@@ -221,12 +240,12 @@ namespace BPMNModel.Camunda
 	public class CamundaScript : CamundaInputOutputParameterDefinition
 	{
 
-		//Attributes:
+		// Attributes:
 		public string? ScriptFormat {get; set;} 
 		public string? Resource {get; set;} 
 
 
-		//Extension Elements:
+		// Extension Elements:
 		public string? Value { get; set; } 
 	}
 
@@ -234,7 +253,7 @@ namespace BPMNModel.Camunda
 	{
 		// Allowed: bpmn:UserTask
 
-		//Attributes:
+		// Attributes:
 		public string? Expression {get; set;} 
 		public string? Class {get; set;} 
 		public string? DelegateExpression {get; set;} 
@@ -242,7 +261,7 @@ namespace BPMNModel.Camunda
 		public string? Id {get; set;} 
 
 
-		//Extension Elements:
+		// Extension Elements:
 		public CamundaScript? Script { get; set; } 
 		public List<CamundaField> Fields { get; } = new();
 		public List<TimerEventDefinition> EventDefinitions { get; } = new();
@@ -251,19 +270,19 @@ namespace BPMNModel.Camunda
 	public class CamundaValidation
 	{
 
-		//Extension Elements:
+		// Extension Elements:
 		public List<CamundaConstraint> Constraints { get; } = new();
 	}
 
 	public class CamundaValue : CamundaInputOutputParameterDefinition
 	{
 
-		//Attributes:
+		// Attributes:
 		public string? Id {get; set;} 
 		public string? Name {get; set;} 
 
 
-		//Extension Elements:
+		// Extension Elements:
 		public string? Value { get; set; } 
 	}
 

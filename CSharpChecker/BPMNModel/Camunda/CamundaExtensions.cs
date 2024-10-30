@@ -22,7 +22,8 @@ namespace BPMNModel.Camunda
 
             foreach (var (name, camundaType) in data)
             {
-                if (camundaType.AllowedIn.Any(x => x.StartsWith("bpmn") || x.StartsWith("*")))
+                //directly allowed in BPMN type
+                if (camundaType.AllowedIn.Any(x => x.StartsWith("bpmn") || x.StartsWith("*") || x.StartsWith("camunda")))
                 {
                     typesToGenerate.Add(name);
                 }
@@ -97,10 +98,17 @@ namespace BPMNModel.Camunda
             if (projectdirectory == null) throw new BPMNCheckerExceptions("Something went wrong, project structure changed.");
             using var file = new StreamWriter(projectdirectory.FullName + @"\BPMNModel\Camunda\CamundaClasses.cs");
 
-
             file.WriteLine("// -------------------------------------------------------");
             file.WriteLine("// Do not modify directly, this file was generated.");
             file.WriteLine("// -------------------------------------------------------");
+            var missing = data.Where(x => !x.Value.IsAbstract).Where(x => !typesToGenerate.Contains(x.Key)).ToList();
+            file.WriteLine("// While generating Camunda classes following types were used as if they were abstract:");
+            file.WriteLine($"{string.Join("\n",missing.Select(x=>"// "+x.Key))}");
+            file.WriteLine("// (Just extending attributes were generated for base types.)");
+            file.WriteLine("// -------------------------------------------------------");
+
+
+
             file.WriteLine("using BPMNModel.Model;");
             file.WriteLine();
             file.WriteLine("namespace BPMNModel.Camunda");
@@ -142,7 +150,7 @@ namespace BPMNModel.Camunda
                 
                 if (camundaType.Attributes.Any())
                 {
-                    file.WriteLine("\t\t//Attributes:");
+                    file.WriteLine("\t\t// Attributes:");
                     foreach (var (attName, (attType, attDefault)) in camundaType.Attributes)
                     {
                         file.Write($"\t\tpublic {ConvertCSName(attType)}? {CapitalizeFirstLetter(attName)}");
@@ -159,7 +167,7 @@ namespace BPMNModel.Camunda
                 if (camundaType.ExtensionElements.Any())
                 {
                     if (camundaType.Attributes.Any()) file.WriteLine();
-                    file.WriteLine("\t\t//Extension Elements:");
+                    file.WriteLine("\t\t// Extension Elements:");
                     foreach (var (elName, (elType, elIsBody, elIsMany)) in camundaType.ExtensionElements)
                     {
                         if (elIsBody)
@@ -328,21 +336,45 @@ namespace BPMNModel.Camunda
 
             foreach (var (name, camundaType) in camundaTypes)
             {
-                //camundaType.Dump(dump);
+                camundaType.Dump(dump);
                 var allInInheritance = camundaType.GetAllInInheritance(camundaTypes);
-                //if (allInInheritance.Count > 1) dump.WriteLine(">>>");
-                //dump.WriteLine(string.Join(", ", allInInheritance));
+                /*
+                if (allInInheritance.Count > 1)
+                {
+                    dump.Write(">>> ");
+                    dump.WriteLine(string.Join(", ", allInInheritance));
+                }
+                */
                 var attributes = new List<(string Name, string Type, string? Default)>();
                 var extensionElements = new List<(string Name, string Type, bool IsBody, bool IsMany)>();
 
+                var allExtendingIt = new HashSet<string>() { name };
                 // camunda types are sometime extending other camunda types
+                int allExtendingItLength = allExtendingIt.Count;
+                do
+                {
+                    allExtendingItLength = allExtendingIt.Count;
+
+                    foreach(var currentName in allExtendingIt.ToHashSet())
+                    {
+                        var currentExtends = camundaTypes.Values.Where(x => x.Extends.Contains(currentName)).Select(x => x.Name);
+                        foreach(var currentExtendingIt in currentExtends)
+                        {
+                            allExtendingIt.Add(currentExtendingIt);
+                        }
+                    }
+
+                } while (allExtendingItLength < allExtendingIt.Count);
+
+
+                /*
                 var camundaInExtends = camundaTypes.Values.Where(x => x.Extends.Contains(camundaType.Name)).Select(x=>x.Name);
                 if (camundaInExtends.Any())
                 {
                     allInInheritance.AddRange(camundaInExtends);
                 }
-
-                foreach(var typeName in allInInheritance)
+                */
+                foreach (var typeName in allInInheritance.Union(allExtendingIt))
                 {
                     if (typeName.StartsWith("camunda"))
                     {
@@ -350,7 +382,12 @@ namespace BPMNModel.Camunda
                         extensionElements.AddRange(camundaTypes[typeName].ExtensionElements.Select(x=>(x.Key, x.Value.Type, x.Value.IsBody, x.Value.IsMany)));
                     }else
                     {
-                        //TODO: bpmn:ErrorEventDefinition
+                        //Assuming there is just one type: bpmn:ErrorEventDefinition
+                        if (!typeName.Equals("bpmn:ErrorEventDefinition"))
+                        {
+                            throw new BPMNCheckerExceptions("In camunda.json, Camunda elements are extending only one BPMN element ErrorEventDefinition.");
+                        }
+                        
                         attributes.Add(("id", "String", null));
                         attributes.Add(("errorRef", "Error", null));
                     }
@@ -358,7 +395,7 @@ namespace BPMNModel.Camunda
 
                 if (camundaType.Extends.Any())
                 {
-                    //camunda extends were processed, remaining BPMN extends
+                    
                     foreach (var extension in camundaType.Extends.Where(x=>!x.StartsWith("camunda")))
                     {
                         if  (extensionElements.Any())
@@ -403,12 +440,13 @@ namespace BPMNModel.Camunda
                     }
                 }
 
-                if (camundaType.AllowedIn.Any())
+                //if (camundaType.IsAbstract==false)
                 {
 
-
-
-                    dump.WriteLine($"{camundaType.Name}  allowed: {string.Join(",", camundaType.AllowedIn)}");
+                    dump.WriteLine($"{camundaType.Name}");
+                    dump.WriteLine($"Inheritance :  {string.Join(", ", allInInheritance)}");
+                    dump.WriteLine($"Extended by :  {string.Join(", ", allExtendingIt)}");
+                    dump.WriteLine($"Allowed in  : {string.Join(",", camundaType.AllowedIn)}");
                     if (attributes.Any())
                     {
                         dump.WriteLine("  All Attributes:");
@@ -431,6 +469,9 @@ namespace BPMNModel.Camunda
                 }
 
             }
+
+            dump.WriteLine($"Processed: {camundaTypes.Count(x => x.Value.IsAbstract)} abstract types extending BPMN types and {camundaTypes.Count(x => !x.Value.IsAbstract)} Camunda types.");
+
             if (toPythonFileName != null)
             {
                 using var toPython = new StreamWriter(toPythonFileName);
