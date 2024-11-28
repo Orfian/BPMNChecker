@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BPMNModel.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,11 +9,6 @@ using Utility;
 
 namespace BPMNModel
 {
-    /*
-    public interface IElement
-    {
-    }
-    */
 
     public enum AnyElementNamespace
     {
@@ -25,22 +21,6 @@ namespace BPMNModel
         QName,
         IDRef,
         ComplexType,
-    }
-    public class AnyElement : Element
-    {
-        public AnyElement(AnyElementNamespace @namespace, int? minOccurs, int? maxOccurs)
-        {
-            Namespace = @namespace;
-            MinOccurs = minOccurs;
-            MaxOccurs = maxOccurs;
-        }
-
-        public override string Name => "any";
-        public AnyElementNamespace Namespace { get; init; }
-        public override string ToString()
-        {
-            return $"<any namespace={Namespace} min={MinOccurs} max={MaxOccurs}>";
-        }
     }
 
     public abstract class Element
@@ -107,62 +87,6 @@ namespace BPMNModel
             };
 
             return new NamedElement(name, valueType, null, minOccurs, maxOccurs);
-        }
-    }
-
-    public class NamedElement : Element
-    {
-        private string name;
-        public NamedElement(string name, ElementXMLType category, ComplexType? innerComplexType, int? minOccurs, int? maxOccurs)
-        {
-            this.name = name;
-            Category = category;
-            InnerComplexType = innerComplexType;
-            MinOccurs = minOccurs;
-            MaxOccurs = maxOccurs;
-        }
-
-        public ElementXMLType Category { get; init; }
-        public ComplexType? InnerComplexType { get; init; }
-        public override string Name => name;
-        public override string ToString()
-        {
-            return $"<{Name} category={Category}, {(InnerComplexType is null ? "" : "type=" + InnerComplexType.Name)}, min={MinOccurs},  max={MaxOccurs}>";
-        }
-    }
-
-    public class ReferenceElement : Element
-    {
-        public ReferenceElement(RootElement referencedElement, int? minOccurs, int? maxOccurs)
-        {
-            this.ReferencedElement = referencedElement;
-            MinOccurs = minOccurs;
-            MaxOccurs = maxOccurs;
-        }
-
-        public override string Name => ReferencedElement.Name;
-        public RootElement ReferencedElement { get; init; }
-        public override string ToString()
-        {
-            return $"<refToRootElement {ReferencedElement.Name} min={MinOccurs} max={MaxOccurs}>";
-        }
-    }
-    public class RootElement : NamedElement
-    {
-        public RootElement(string name, ComplexType innerType, string? group) : base(name, ElementXMLType.ComplexType, innerType, null, null)
-        {
-            Group = group;
-        }
-
-        public string? Group { get; init; }
-
-        public ComplexType Type
-        {
-            get
-            {
-                if (InnerComplexType == null) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (root element should have a complex type).");
-                return InnerComplexType;
-            }
         }
     }
 }

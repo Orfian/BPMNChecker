@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http.Json;
 using System.Net.Http.Metrics;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace BPMNModel.Camunda
 {
     public class CamundaExtensions
     {
-        private static void GenerateCamundaClasses(Dictionary<string, CamundaType> data)
+        private static void GenerateCamundaClasses(Dictionary<string, CamundaJSonType> data)
         {
             var typesToGenerate = new SortedSet<string>();
 
@@ -225,17 +226,33 @@ namespace BPMNModel.Camunda
             return string.Empty;
         }
 
+        private static string LowercaseFirstLetter(string name)
+        {
+
+            return char.ToLower(name[0]) + name.Substring(1);
+
+        }
+
         private static string ConvertName(string name)
         {
             if (name == "Element" || name == "String" || name == "Integer" || name == "Boolean") return name;
             if (name.StartsWith("bpmn:") || name.StartsWith("camunda:")) return name;
             return "camunda:" + name;
         }
+        private static string ConvertTypeNameToElementName(string typeName)
+        {
+            if (typeName.StartsWith("camunda:"))
+            {
+                return "camunda:" + LowercaseFirstLetter(typeName.Replace("camunda:", ""));
+            }
+            throw new BPMNCheckerExceptions($"Converting to element name wrong Camunda name: {typeName}.");
+        }
+
 
         public static void EnrichGenerator(ILogger logger, Generator generator, bool generateCamundaClasses = false, string? toPythonFileName = null)
         {
 
-            var camundaTypes = new Dictionary<string, CamundaType>();
+            var camundaJsonTypes = new Dictionary<string, CamundaJSonType>();
 
             JsonDocument definitions = ResourcesUtility.LoadResourceAsJsonDocument($@"definitions/camunda.json");
 
@@ -262,11 +279,11 @@ namespace BPMNModel.Camunda
                     }
                 }
 
-                var camundaType = new CamundaType(ConvertName(typeName), isAbstract, superClass);
+                var camundaJsonType = new CamundaJSonType(ConvertName(typeName), isAbstract, superClass);
 
                 if (typeJSON.TryGetProperty("extends", out JsonElement extendsProperty))
                 {
-                    camundaType.Extends.AddRange(extendsProperty.EnumerateArray().Select(x => x.GetString()).Where(x => x != null).Cast<string>());
+                    camundaJsonType.Extends.AddRange(extendsProperty.EnumerateArray().Select(x => x.GetString()).Where(x => x != null).Cast<string>());
                 }
 
                 if (typeJSON.TryGetProperty("properties", out JsonElement properties))
@@ -286,7 +303,7 @@ namespace BPMNModel.Camunda
                                 attDefault = attDefaultProperty.ToString();
                             }
 
-                            camundaType.Attributes.Add(attName, (attType, attDefault));
+                            camundaJsonType.Attributes.Add(attName, (attType, attDefault));
 
                             foreach (JsonProperty item in property.EnumerateObject())
                             {
@@ -313,7 +330,7 @@ namespace BPMNModel.Camunda
                                 attIsMany = attIsManyProperty.GetBoolean();
                             }
 
-                            camundaType.ExtensionElements.Add(attName, (attType, attIsBody, attIsMany));
+                            camundaJsonType.ExtensionElements.Add(attName, (attType, attIsBody, attIsMany));
                         }
                     }
                 }
@@ -322,22 +339,26 @@ namespace BPMNModel.Camunda
                 {
                     if (metaProperty.TryGetProperty("allowedIn", out JsonElement allowedProperty))
                     {
-                        camundaType.AllowedIn.AddRange(allowedProperty.EnumerateArray().Select(x => x.GetString()).Where(x => x != null).Cast<string>());
+                        camundaJsonType.AllowedIn.AddRange(allowedProperty.EnumerateArray().Select(x => x.GetString()).Where(x => x != null).Cast<string>());
                     }
                 }
 
-                camundaTypes.Add(camundaType.Name, camundaType);
+                camundaJsonTypes.Add(camundaJsonType.Name, camundaJsonType);
             }
             using var dump = new StreamWriter("camundaProcessed");
 
             var bpmnCamundaAttributes = new Dictionary<string, List<(string Type, string Name)>>();
 
-            if (generateCamundaClasses) GenerateCamundaClasses(camundaTypes);
+            var uniqueTypesList = new SortedSet<string>();
 
-            foreach (var (name, camundaType) in camundaTypes)
+            if (generateCamundaClasses) GenerateCamundaClasses(camundaJsonTypes);
+
+            var allCamundaTypes = new Dictionary<string, CamundaElementType>();
+
+            foreach (var (name, camundaJsonType) in camundaJsonTypes)
             {
-                camundaType.Dump(dump);
-                var allInInheritance = camundaType.GetAllInInheritance(camundaTypes);
+                //camundaType.Dump(dump);
+                var allInInheritance = camundaJsonType.GetAllInInheritance(camundaJsonTypes);
                 /*
                 if (allInInheritance.Count > 1)
                 {
@@ -357,7 +378,7 @@ namespace BPMNModel.Camunda
 
                     foreach(var currentName in allExtendingIt.ToHashSet())
                     {
-                        var currentExtends = camundaTypes.Values.Where(x => x.Extends.Contains(currentName)).Select(x => x.Name);
+                        var currentExtends = camundaJsonTypes.Values.Where(x => x.Extends.Contains(currentName)).Select(x => x.Name);
                         foreach(var currentExtendingIt in currentExtends)
                         {
                             allExtendingIt.Add(currentExtendingIt);
@@ -371,8 +392,8 @@ namespace BPMNModel.Camunda
                 {
                     if (typeName.StartsWith("camunda"))
                     {
-                        attributes.AddRange(camundaTypes[typeName].Attributes.Select(x=> (x.Key, x.Value.Type, x.Value.Default)));
-                        extensionElements.AddRange(camundaTypes[typeName].ExtensionElements.Select(x=>(x.Key, x.Value.Type, x.Value.IsBody, x.Value.IsMany)));
+                        attributes.AddRange(camundaJsonTypes[typeName].Attributes.Select(x=> (x.Key, x.Value.Type, x.Value.Default)));
+                        extensionElements.AddRange(camundaJsonTypes[typeName].ExtensionElements.Select(x=>(x.Key, x.Value.Type, x.Value.IsBody, x.Value.IsMany)));
                     }else
                     {
                         //Assuming there is just one type: bpmn:ErrorEventDefinition
@@ -386,14 +407,14 @@ namespace BPMNModel.Camunda
                     }
                 }
 
-                if (camundaType.Extends.Any())
+                if (camundaJsonType.Extends.Any())
                 {
                     
-                    foreach (var extension in camundaType.Extends.Where(x=>!x.StartsWith("camunda")))
+                    foreach (var extension in camundaJsonType.Extends.Where(x=>!x.StartsWith("camunda")))
                     {
                         if  (extensionElements.Any())
                         {
-                            throw new BPMNCheckerExceptions($"In camunda.json, all Camunda types extending BPMN types assumes to have just attributes ({camundaType.Name} have Extension Elements).");
+                            throw new BPMNCheckerExceptions($"In camunda.json, all Camunda types extending BPMN types assumes to have just attributes ({camundaJsonType.Name} have Extension Elements).");
                         }
 
                         var xmlTypeName = extension.Replace("bpmn:", "t");
@@ -410,7 +431,7 @@ namespace BPMNModel.Camunda
                                     "String" => AttributeXMLType.String,
                                     "Boolean" => AttributeXMLType.Boolean,
                                     "Integer" => AttributeXMLType.Integer,
-                                    _ => throw new BPMNCheckerExceptions($"In camunda.json, unexpected attribute: {attType} in {camundaType.Name}")
+                                    _ => throw new BPMNCheckerExceptions($"In camunda.json, unexpected attribute: {attType} in {camundaJsonType.Name}")
                                 };
                                 var xmlAttribute = new Attribute(ConvertName(attName), (attXmlType, null));
                                 complexType.Attributes.Add(xmlAttribute);
@@ -428,25 +449,76 @@ namespace BPMNModel.Camunda
 
                         }else
                         {
-                            throw new BPMNCheckerExceptions($"In camunda.json, {camundaType.Name} is extending wrong type in BMPN.");
+                            throw new BPMNCheckerExceptions($"In camunda.json, {camundaJsonType.Name} is extending wrong type in BMPN.");
                         }
                     }
                 }
 
-                //if (camundaType.IsAbstract==false)
+                if (camundaJsonType.AllowedIn.Any())
                 {
 
-                    dump.WriteLine($"{camundaType.Name}");
+                    foreach (var allowedIn in camundaJsonType.AllowedIn)
+                    {
+                        if (allowedIn.StartsWith("bpmn") || allowedIn.Equals("*"))
+                        {
+                            var xmlTypeName = allowedIn.Equals("*") ? "tBaseElement" : allowedIn.Replace("bpmn:", "t");
+                            var xmlType = generator.Types[xmlTypeName];
+
+                            if (xmlType is ComplexType complexType)
+                            {
+                                complexType.AllowedCamundaElements.Add(camundaJsonType);
+                            }
+                            else
+                            {
+                                throw new BPMNCheckerExceptions($"In camunda.json, {camundaJsonType.Name} is extending wrong type in BMPN.");
+                            }
+                        }else
+                        {
+                            //TODO: Camunda elements by it self has no extension elements, Camunda type allowedIn attribute has no meaning (right?).
+                        }
+                    }
+                }
+
+                camundaJsonType.AllExtensionElements.AddRange(extensionElements);
+
+                var camundaElementType = new CamundaElementType(camundaJsonType);
+
+                foreach (var attribute in attributes)
+                {
+                    AttributeXMLType xmlAttType = attribute.Type switch
+                    {
+                        "String" => AttributeXMLType.String,
+                        "Boolean" => AttributeXMLType.Boolean,
+                        "Integer" => AttributeXMLType.Integer,
+                        //For camunda:ErrorEventDefinition, it is refering  bpmn:ErrorEventDefinition
+                        "Error" => AttributeXMLType.IDRef,
+                        _ => throw new BPMNCheckerExceptions($"In camunda.json, unknown attribute type {attribute.Type}."),
+                    };
+                    var processedAttribute = new Attribute(attribute.Name, (xmlAttType, null));
+                    if (attribute.Default!=null)
+                    {
+                        processedAttribute.Default = attribute.Default;
+                    }
+                    camundaElementType.Attributes.Add(processedAttribute);
+                }
+
+                allCamundaTypes.Add(camundaJsonType.Name, camundaElementType);
+
+                if (camundaJsonType.IsAbstract == false)
+                {
+                    //for next processing using only non-abstract types
+                    camundaJsonType.Dump(dump);
+
+                    generator.CamundaTypes.Add(ConvertTypeNameToElementName(camundaElementType.CamundaJSonType.Name), camundaElementType);
+
+                    dump.WriteLine($"{camundaJsonType.Name}");
                     dump.WriteLine($"Inheritance :  {string.Join(", ", allInInheritance)}");
                     dump.WriteLine($"Extended by :  {string.Join(", ", allExtendingIt)}");
-                    dump.WriteLine($"Allowed in  : {string.Join(",", camundaType.AllowedIn)}");
-                    if (attributes.Any())
+                    dump.WriteLine($"Allowed in  : {string.Join(",", camundaJsonType.AllowedIn)}");
+                    dump.WriteLine("  All Processed Attributes:");
+                    foreach (var attribute in camundaElementType.Attributes)
                     {
-                        dump.WriteLine("  All Attributes:");
-                        foreach (var (attName, attType, attDefault) in attributes)
-                        {
-                            dump.WriteLine($"    {attType} {attName}{(attDefault != null ? " = " + attDefault : "")}");
-                        }
+                        dump.WriteLine($"    {attribute}");
                     }
 
                     if (extensionElements.Any())
@@ -458,12 +530,71 @@ namespace BPMNModel.Camunda
                         }
                     }
                     dump.WriteLine();
-
                 }
-
             }
 
-            dump.WriteLine($"Processed: {camundaTypes.Count(x => x.Value.IsAbstract)} abstract types extending BPMN types and {camundaTypes.Count(x => !x.Value.IsAbstract)} Camunda types.");
+
+            foreach (var (elementName, camundaType) in allCamundaTypes) {
+
+                if (camundaType.CamundaJSonType.SuperClass is not null)
+                {
+                    if (camundaType.CamundaJSonType.SuperClass.StartsWith("bpmn:"))
+                    {
+                        //TODO: Solving bpmn:ErrorEventDefinition in inheritance. Do I need to do anything?
+                    }
+                    else
+                    {
+
+                        var superCamundaType = allCamundaTypes[camundaType.CamundaJSonType.SuperClass];
+                        camundaType.Parent = superCamundaType;
+                    }
+                }
+
+                foreach (var (elName, elType, elIsBody, elIsMany) in camundaType.CamundaJSonType.AllExtensionElements)
+                {
+                    //dump.WriteLine($"    {elType} {elName}{(elIsBody ? " (Body)" : "")}{(elIsMany ? " (Many)" : "")}");
+                    if (elIsBody)
+                    {
+                        if (elType != "String") throw new BPMNCheckerExceptions($"In camunda.json, element with attribute Body=true should be String, but it is {elType}.");
+                        camundaType.BodyElementName = elName;
+                    }
+                    else
+                    {
+                        if (elType.StartsWith("bpmn:"))
+                        {
+                            //TODO: Figure out what the BPMN elements look like here - NamedElement?
+                        }
+                        else if (elType == "String")
+                        {
+                            if (elIsMany) throw new BPMNCheckerExceptions($"In camunda.json, element of type String can not have attribute Many=true.");
+                            var convertedElementName = ConvertName(elName);
+                            camundaType.InnerElementsByTypeElementName.Add(convertedElementName,new CamundaValueElement(convertedElementName));
+                        }
+                        else
+                        {
+                            var camundaTypeName = ConvertName(elType);
+                            if (allCamundaTypes.ContainsKey(camundaTypeName))
+                            {
+                                var innerElementType = allCamundaTypes[camundaTypeName];
+                                var convertedElementName = ConvertName(camundaTypeName);
+                                camundaType.InnerElementsByTypeElementName.Add(ConvertTypeNameToElementName(convertedElementName), new CamundaElement(ConvertName(elName), innerElementType, elIsMany));
+
+                            }else
+                            {
+                                throw new BPMNCheckerExceptions($"In camunda.json, Camunda type: {camundaType.CamundaJSonType.Name} reference unknown type: {elType}.");
+                            }
+                        }
+                    }
+                }
+            }
+            
+            dump.WriteLine($"Processed: {camundaJsonTypes.Count(x => x.Value.IsAbstract)} abstract types extending BPMN types and {camundaJsonTypes.Count(x => !x.Value.IsAbstract)} Camunda types.");
+
+            foreach (var complexType in generator.Types.Values.Where(x => x is ComplexType).Cast<ComplexType>())
+            {
+                var allowedCamundaTypes = complexType.GetAllAllowedCamundaElements().Select(x => x.Name).ToList();
+                dump.WriteLine($"{complexType.Name} - {string.Join(", ", allowedCamundaTypes)}");
+            }
 
             if (toPythonFileName != null)
             {

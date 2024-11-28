@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BPMNModel.Camunda
 {
-    public class CamundaType
+    public class CamundaJSonType
     {
         public string Name { get; init; }
 
@@ -20,16 +20,18 @@ namespace BPMNModel.Camunda
 
         public Dictionary<string, (string Type, bool IsBody, bool IsMany)> ExtensionElements { get; } = new();
 
+        public List<(string Name, string Type, bool IsBody, bool IsMany)> AllExtensionElements { get; } = new();
+
         public List<string> AllowedIn { get; } = new();
 
-        public CamundaType(string name, bool isAbstract, string? superClass)
+        public CamundaJSonType(string name, bool isAbstract, string? superClass)
         {
             Name = name;
             IsAbstract = isAbstract;
             SuperClass = superClass;
         }
 
-        public List<string> GetAllInInheritance(Dictionary<string, CamundaType> camuntaTypes)
+        public List<string> GetAllInInheritance(Dictionary<string, CamundaJSonType> camuntaTypes)
         {
             if (SuperClass==null) return new List<string> { this.Name };
             else

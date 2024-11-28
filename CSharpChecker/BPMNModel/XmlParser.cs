@@ -1,13 +1,18 @@
-﻿using BPMNModel.Model;
+﻿using BPMNModel.Camunda;
+using BPMNModel.Model;
+using Microsoft.Extensions.Logging.Abstractions;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 using Utility;
 
 namespace BPMNModel
@@ -27,7 +32,10 @@ namespace BPMNModel
         public Dictionary<string, XmlParserComplexNode> Cache { get; } = new();
 
         public List<string> Errors { get; } = new List<string>();
+        public List<string> Warnings { get; } = new List<string>();
         public bool HasErrors { get => Errors.Any(); }
+        public bool HasWarnings { get => Warnings.Any(); }
+
         public XmlParserComplexNode? Root { get; private set; }
         public static XmlParser Parse(ILogger logger, Generator generator, XDocument document)
         {
@@ -46,9 +54,9 @@ namespace BPMNModel
                 { "camunda", XNamespace.Get("http://camunda.org/schema/1.0/bpmn") }
             };
 
-            var namespacesInXml = document.Root.Attributes().Where(x=>x.Name.NamespaceName == XNamespace.Xmlns);
+            var namespacesInXml = document.Root.Attributes().Where(x => x.Name.NamespaceName == XNamespace.Xmlns);
 
-            foreach(var xmlnsAttribute in namespacesInXml)
+            foreach (var xmlnsAttribute in namespacesInXml)
             {
                 namespaces[xmlnsAttribute.Name.LocalName] = xmlnsAttribute.Value;
             }
@@ -108,7 +116,7 @@ namespace BPMNModel
         {
             using var writer = new StreamWriter(fileName);
 
-            foreach (var (_,item) in Cache)
+            foreach (var (_, item) in Cache)
             {
                 item.DumpNode(writer, "");
             }
@@ -119,11 +127,11 @@ namespace BPMNModel
             if (name.Contains(':'))
             {
                 var namespaceString = name.Substring(0, name.IndexOf(':'));
-                var localName = name.Substring(name.IndexOf(":")+1);
+                var localName = name.Substring(name.IndexOf(":") + 1);
                 if (namespaces.ContainsKey(namespaceString))
                 {
                     return namespaces[namespaceString] + localName;
-                }else
+                } else
                 {
                     throw new BPMNCheckerExceptions($"In the model, there should be no unknown namespacesl like: {namespaceString}.");
                 }
@@ -131,6 +139,19 @@ namespace BPMNModel
             else
             {
                 return name;
+            }
+        }
+
+        public string GetNameFromXName(XName name)
+        {
+            if (namespaces.ContainsValue(name.Namespace))
+            {
+                var namespaceName = namespaces.First(x => x.Value == name.Namespace).Key;
+                return namespaceName + ":" + name.LocalName;
+            }
+            else
+            {
+                return name.Namespace + ":" + name.LocalName;
             }
         }
 
@@ -148,7 +169,7 @@ namespace BPMNModel
 
         private string GetNiceName(XName name)
         {
-            return GetNiceNamespace(name.NamespaceName) + name.LocalName;
+            return GetNiceNamespace(name.NamespaceName) + ":" + name.LocalName;
         }
 
         private string GetNiceNamespace(XNamespace @namespace)
@@ -158,8 +179,9 @@ namespace BPMNModel
                 var item = namespaces.Where(x => x.Value == @namespace).First();
                 return item.Key;
             }
-             return @namespace.NamespaceName;
+            return @namespace.NamespaceName;
         }
+
 
         private XmlParserComplexNode? LoadAndCheck(XElement element, RootElement type)
         {
@@ -170,7 +192,7 @@ namespace BPMNModel
                 Errors.Add(GetNiceMessage(element, $"Expecting element {type.Name}."));
                 return null;
             }
-           
+
             var processedAttributes = new List<XmlParserAttribute>();
             var allAttributes = type.Type.GetAllAttributes();
 
@@ -180,7 +202,7 @@ namespace BPMNModel
                 Log.Debug(GetNiceMessage(element, $"    {attribute}"));
             }
 
-            var allXMLAttributes = element.Attributes().Select(x=>x.Name).ToList();
+            var allXMLAttributes = element.Attributes().Select(x => x.Name).ToList();
 
             foreach (var attribute in allAttributes)
             {
@@ -188,7 +210,7 @@ namespace BPMNModel
                 if (xmlAttribute != null)
                 {
                     var resultOfRemoval = allXMLAttributes.Remove(xmlAttribute.XmlName);
-                    
+
                     Log.Debug(GetNiceMessage(element, $"  Created attribute: {xmlAttribute}"));
                     processedAttributes.Add(xmlAttribute);
                 }
@@ -197,7 +219,7 @@ namespace BPMNModel
                     Errors.Add(GetNiceMessage(element, message));
                 }
             }
-            
+
             allXMLAttributes = allXMLAttributes.Where(x => x.NamespaceName != XNamespace.Xmlns).ToList();
 
             //TODO: Modeler attributes are removed now.
@@ -292,7 +314,7 @@ namespace BPMNModel
                                 {
                                     if (namedElement.InnerComplexType is null)
                                     {
-                                        throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({namedElement.Name} refers to nonexisting complex type).");
+                                        throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({namedElement.Name} refers to non-existing complex type).");
                                     }
 
                                     var castAttribute = currentElement.Attribute(namespaces["xsi"] + "type");
@@ -349,10 +371,29 @@ namespace BPMNModel
                         }
                         else if (currentCategory is AnyElement)
                         {
-                            //TODO: Use namespace
-                            var createdNode = new XmlParserAnyNode(currentElement);
-                            node.ChildNodes[currentCategory.Name].Add(createdNode);
-                            Log.Debug(GetNiceMessage(element, $"    {createdNode}"));
+                            //processing camunda XML elements
+                            if (type.InnerComplexType is not null && type.InnerComplexType is ComplexType ct && ct.Name.Equals("tExtensionElements") && currentElement.Name.Namespace == namespaces["camunda"])
+                            {
+                                var convertedName = GetNameFromXName(currentElement.Name);
+
+                                if (generator.CamundaTypes.ContainsKey(convertedName))
+                                {
+                                    var camundaNode = LoadAndCheckCamundaType(currentElement, generator.CamundaTypes[convertedName]);
+                                    if (!node.ChildNodes.ContainsKey("camunda")) node.ChildNodes.Add("camunda", new());
+                                    if (camundaNode != null)
+                                    {
+                                        node.ChildNodes["camunda"].Add(camundaNode);
+                                    }
+                                } else
+                                {
+                                    Errors.Add(GetNiceMessage(element, $"Extension elements contains unknown Camunda element: {currentElement.Name.LocalName}"));
+                                }
+                            } else {
+
+                                var createdNode = new XmlParserAnyNode(currentElement);
+                                node.ChildNodes[currentCategory.Name].Add(createdNode);
+                                Log.Debug(GetNiceMessage(element, $"    {createdNode}"));
+                            }
                             currentElementIndex++;
                             continue;
                         }
@@ -397,6 +438,126 @@ namespace BPMNModel
             }
 
             logger.Debug(GetNiceMessage(element, $"Finished loading {GetNiceName(element.Name)}: id={node.ID}, type={node.Type?.Name}, attributes: {node.Attributes.Count}, categories: {node.ChildNodes.Count} with {node.ChildNodes.Values.Select(x => x.Count).Sum()} elements."));
+            return node;
+        }
+
+        private XmlParserCamundaNode LoadAndCheckCamundaType(XElement element, CamundaElementType type)
+        {
+            logger.Debug(GetNiceMessage(element, $"Starting to load {GetNiceName(element.Name)}"));
+
+            var processedAttributes = new List<XmlParserAttribute>();
+
+            Log.Debug(GetNiceMessage(element, $"  All attributes: "));
+            foreach (var attribute in type.Attributes)
+            {
+                Log.Debug(GetNiceMessage(element, $"    {attribute}"));
+            }
+
+            var allXMLAttributes = element.Attributes().Select(x => x.Name).ToList();
+
+            foreach (var attribute in type.Attributes)
+            {
+                var (xmlAttribute, message) = attribute.CreateAndCheck(element, this);
+                if (xmlAttribute != null)
+                {
+                    var resultOfRemoval = allXMLAttributes.Remove(xmlAttribute.XmlName);
+
+                    Log.Debug(GetNiceMessage(element, $"  Created attribute: {xmlAttribute}"));
+                    processedAttributes.Add(xmlAttribute);
+                }
+                if (message != null)
+                {
+                    Errors.Add(GetNiceMessage(element, message));
+                }
+            }
+
+            allXMLAttributes = allXMLAttributes.Where(x => x.NamespaceName != XNamespace.Xmlns).ToList();
+
+            foreach (var xmlAttribute in allXMLAttributes)
+            {
+                Errors.Add(GetNiceMessage(element, $"Attribute {xmlAttribute} is not processed."));
+            }
+
+            XmlParserCamundaNode node = new XmlParserCamundaNode(type);
+
+            foreach (var item in processedAttributes)
+            {
+                node.Attributes.Add(item.Name, item);
+            }
+
+            logger.Debug(GetNiceMessage(element, $"  All elements: "));
+            foreach (var (elemenName,item) in type.InnerElementsByTypeElementName)
+            {
+                logger.Debug(GetNiceMessage(element, $"    {item}"));
+                node.ChildNodes.Add(item.Name, []);
+            }
+
+            if (!element.HasElements  && !string.IsNullOrWhiteSpace(element.Value))
+            {
+                var value = element.Value.Trim();
+                logger.Debug(GetNiceMessage(element, $"  Processing inner value: {value}"));
+                //Something is in the body
+                if (type.BodyElementName is not null)
+                {
+                    node.ChildNodes.Add(type.BodyElementName, [new XmlParserStringNode(type.BodyElementName, value)]);
+                }else
+                {
+                    Warnings.Add(GetNiceMessage(element, $"There is an inner value {value}, type {type.CamundaJSonType.Name} has no where to store it."));
+                }
+            }
+
+            var allElements = element.Elements().ToList();
+            foreach(var innerElement in allElements) {
+                var convertedName = GetNameFromXName(innerElement.Name); 
+                logger.Debug(GetNiceMessage(element, $"  Processing element: {convertedName}"));
+
+                if (type.InnerElementsByTypeElementName.ContainsKey(convertedName) && type.InnerElementsByTypeElementName[convertedName] is CamundaValueElement itemType)
+                {
+                    if (innerElement.HasElements || innerElement.HasAttributes)
+                    {
+                        Errors.Add(GetNiceMessage(element, $"Camunda element {convertedName} can contain a String value only (has: {innerElement.Elements().Count()} inner elements, {innerElement.Attributes().Count()} attributes)."));
+                    }
+                    else
+                    {
+                        var valueNode = new XmlParserStringNode(convertedName, innerElement.Value);
+                        logger.Debug(GetNiceMessage(innerElement, $"    Created node with value: {valueNode}"));
+                        node.ChildNodes[convertedName].Add(valueNode);
+                    }
+                }
+                else
+                {
+                    if (generator.CamundaTypes.ContainsKey(convertedName))
+                    {
+                        var targetType = generator.CamundaTypes[convertedName];
+
+                        var producedXMLNode = LoadAndCheckCamundaType(innerElement, targetType);
+
+                        var targetInCurrentInnerCategories =
+                            type.InnerElementsByTypeElementName.Where(x => x.Value is CamundaElement c);
+
+
+
+                        /*
+                        if (itemType is CamundaElement camundaElementType)
+                        {
+                            var producedXMLNode = LoadAndCheckCamundaType(innerElement, camundaElementType.Type);
+                            node.ChildNodes[itemType.Name].Add(producedXMLNode);
+                        }
+                        else
+                        {
+                            Errors.Add(GetNiceMessage(element, $"Internal error while processing {convertedName}, unexpected target type {itemType.Name}."));
+                        }
+                        */
+                    }
+                    else
+                    {
+                        Errors.Add(GetNiceMessage(element, $"Do not know how to process element {convertedName} inside of {type.CamundaJSonType.Name}."));
+                    }
+                }
+            }
+
+            logger.Debug(GetNiceMessage(element, $"Finished loading {GetNiceName(element.Name)}: type={node.Type.CamundaJSonType.Name}, attributes: {node.Attributes.Count}, categories: {node.ChildNodes.Count} with {node.ChildNodes.Values.Select(x => x.Count).Sum()} elements."));
+
             return node;
         }
     }

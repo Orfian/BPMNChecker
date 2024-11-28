@@ -30,54 +30,22 @@ namespace Testing
 
             var generator = Generator.CreateGenerator(Log.Logger);
 
-            CamundaExtensions.EnrichGenerator(Log.Logger, generator, true, @"d:\toPython");
-
-            /*
-            using var writer = new StreamWriter(@"d:\extracted.types");
-            writer.WriteLine("extracted = {");
-
-            foreach(var item in generator.Types) {
-                if (item.Value is ComplexType c) {
-                    (List<BPMNModel.Attribute>  Attributes, List<string> Elements) GetAll(ComplexType current)
-                    {
-                        List<BPMNModel.Attribute> attributes = new();
-                        List<string> elements = new();
-                        if (current.ParentType is not null)
-                        {
-                            var parent = GetAll(current.ParentType);
-                            attributes.AddRange(parent.Attributes);
-                            elements.AddRange(parent.Elements);
-                        }
-                        attributes.AddRange(current.Attributes);
-                        var currentElements = current.InnerElement?.InnerElements.Select(x => $"\"{x.Name}\"").ToList();
-
-                        if (currentElements is not null && currentElements.Any()) elements.AddRange(currentElements);
-
-                        return (attributes, elements);
-                    }
-                    var (allAttributes, allElements) = GetAll(c);
-
-                    var required = allAttributes.Where(x => x.Use == AttributeUse.Required).Select(x => $"\"{x.Name}\"").ToList();
-                    var optional = allAttributes.Where(x => x.Use == AttributeUse.Optional).Select(x => $"\"{x.Name}\"").ToList();
-                    writer.WriteLine($"\t\"{c.Name.Substring(1)}\": ([{string.Join(", ", required)}], [{string.Join(", ", optional)}], [{string.Join(", ", allElements ?? [])}]),");
-                }
-            }
-            writer.WriteLine("\t}\n");
-
-            return;
-            */
+            //CamundaExtensions.EnrichGenerator(Log.Logger, generator, true, @"d:\toPython");
+            CamundaExtensions.EnrichGenerator(Log.Logger, generator, true);
 
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/single_user_task.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/subprocesses.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/MonthlyInvoicing-solution.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn");
+            
             XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/httpConnector.bpmn");
+            
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/httpConnectorPOST.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/all_tasks.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/all_icons.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/BookHolidaySagaPatternV2.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/CamundaModeler_almost_all_set.bpmn");
-
+            //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/timing.bpmn");
             var parser = XmlParser.Parse(Log.Logger, generator, doc);
 
             if (parser.HasErrors)
@@ -90,6 +58,15 @@ namespace Testing
             }
             else
             {
+                if (parser.HasWarnings)
+                {
+                    Log.Debug("\nWARNINGS:");
+                    foreach (var warning in parser.Warnings)
+                    {
+                        Log.Warning(warning);
+                    }
+                }
+
                 parser.DumpXML("processedXML.xml");
 
                 if (parser.Root is not null)

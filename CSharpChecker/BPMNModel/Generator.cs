@@ -1,4 +1,5 @@
 ﻿
+using BPMNModel.Camunda;
 using Serilog;
 using System.Xml;
 using System.Xml.Linq;
@@ -18,6 +19,15 @@ namespace BPMNModel
 
         public Dictionary<string, RootElement> Elements { get; } = new();
         public Dictionary<string, ElementType> Types { get; } = new();
+
+        /// <summary>
+        /// Gets the camunda types based on element names, names are in format like: camunda:field
+        /// </summary>
+        /// <value>
+        /// (camunda:name - small letter at the begining , processed camunda types)
+        /// </value>
+        public Dictionary<string, CamundaElementType> CamundaTypes { get; } = new();
+
         public static Generator CreateGenerator(ILogger logger)
         {
             XNamespace xs = XNamespace.Get("http://www.w3.org/2001/XMLSchema");

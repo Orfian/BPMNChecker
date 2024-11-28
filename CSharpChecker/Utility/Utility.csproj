@@ -23,6 +23,7 @@
     <None Remove="diagrams\Multi-instanceMessagingBetweenProcesses-Doctor.bpmn" />
     <None Remove="diagrams\single_user_task.bpmn" />
     <None Remove="diagrams\subprocesses.bpmn" />
+    <None Remove="diagrams\timing.bpmn" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,6 +51,7 @@
     <EmbeddedResource Include="diagrams\subprocesses.bpmn">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="diagrams\timing.bpmn" />
   </ItemGroup>
 
   <ItemGroup>

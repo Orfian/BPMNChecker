@@ -1,5 +1,7 @@
-﻿using System;
+﻿using BPMNModel.Camunda;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -47,6 +49,22 @@ namespace BPMNModel
 
             ComplexType result = new ComplexType(name, isAbstract, isMixed, element);
 
+            return result;
+        }
+
+        public List<CamundaJSonType> AllowedCamundaElements { get; } = new();
+
+        public List<CamundaJSonType> GetAllAllowedCamundaElements()
+        {
+            var result = new List <CamundaJSonType>();
+            var current = ParentType;
+            while(current is not null)
+            {
+                result.AddRange(current.AllowedCamundaElements);
+                current = current.ParentType;
+            }
+
+            result.AddRange(AllowedCamundaElements);
             return result;
         }
 
