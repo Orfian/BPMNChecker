@@ -474,7 +474,24 @@ namespace BPMNModel.Camunda
                             }
                         }else
                         {
-                            //TODO: Camunda elements by it self has no extension elements, Camunda type allowedIn attribute has no meaning (right?).
+                            //what remains are only camunda elements in AllowedIn, adding BPMN elements listed in extending section of the target, no more inheritance present.
+                            //TODO: camunda:InputOutput in allowed in camunda:Connector, that has no effect right?
+                            var extendingCamundaType = camundaJsonTypes[allowedIn];
+                            foreach(var extendedBPMNType in extendingCamundaType.Extends)
+                            {
+                                var xmlTypeName = extendedBPMNType.Replace("bpmn:", "t");
+                                var xmlType = generator.Types[xmlTypeName];
+
+                                if (xmlType is ComplexType complexType)
+                                {
+                                    complexType.AllowedCamundaElements.Add(camundaJsonType);
+                                }
+                                else
+                                {
+                                    throw new BPMNCheckerExceptions($"In camunda.json, {extendingCamundaType.Name} is extending wrong type in BMPN.");
+                                }
+
+                            }
                         }
                     }
                 }

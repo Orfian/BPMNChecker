@@ -26,6 +26,7 @@
             <camunda:inputParameter name="headers">
               <camunda:map>
                 <camunda:entry key="Accept">application/json</camunda:entry>
+				<camunda:entry key="Accept2">application/json</camunda:entry>
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="url">https://reqres.in/api/users/${userId}</camunda:inputParameter>

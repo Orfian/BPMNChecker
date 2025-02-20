@@ -378,17 +378,24 @@ namespace BPMNModel
 
                                 if (generator.CamundaTypes.ContainsKey(convertedName))
                                 {
-                                    var camundaNode = LoadAndCheckCamundaType(currentElement, generator.CamundaTypes[convertedName]);
+                                    var camundaElementType = generator.CamundaTypes[convertedName];
+
+                                    var camundaNode = LoadAndCheckCamundaType(currentElement, camundaElementType);
+
                                     if (!node.ChildNodes.ContainsKey("camunda")) node.ChildNodes.Add("camunda", new());
+
                                     if (camundaNode != null)
                                     {
                                         node.ChildNodes["camunda"].Add(camundaNode);
                                     }
-                                } else
+                                }
+                                else
                                 {
                                     Errors.Add(GetNiceMessage(element, $"Extension elements contains unknown Camunda element: {currentElement.Name.LocalName}"));
                                 }
-                            } else {
+                            }
+                            else
+                            {
 
                                 var createdNode = new XmlParserAnyNode(currentElement);
                                 node.ChildNodes[currentCategory.Name].Add(createdNode);
@@ -432,6 +439,59 @@ namespace BPMNModel
                             {
                                 Errors.Add(GetNiceMessage(element, $"Elements {A} and {B} can not be used at the same time."));
                             }
+                        }
+                    }
+                }
+
+                //Post-processing camunda AllowedIn restriction - camunda nodes are inside tExtensionElements complex type, need to be checked later.
+                if (node.ChildNodes.ContainsKey("extensionElements"))
+                {
+                    if (node.ChildNodes["extensionElements"].Any())
+                    {
+                        var extensionBlock = node.ChildNodes["extensionElements"][0];
+
+                        if (extensionBlock is XmlParserComplexNode complexBlock && complexBlock.Type is not null && complexBlock.Type.Name == "tExtensionElements")
+                        {
+                            if (complexBlock.ChildNodes.ContainsKey("camunda") && complexBlock.ChildNodes["camunda"].Any())
+                            {
+                                foreach (var item in complexBlock.ChildNodes["camunda"])
+                                {
+                                    if (item is XmlParserCamundaNode camundaNode)
+                                    {
+                                        if (type.InnerComplexType is null) throw new BPMNCheckerExceptions("Processing error, there should be complex type present.");
+                                        var allAllowedCamundaElementTypes = type.InnerComplexType.GetAllAllowedCamundaElements();
+
+                                        bool atLeastOneAllowed = false;
+
+                                        foreach(var allowedCamundaTypeJSON in allAllowedCamundaElementTypes)
+                                        {
+                                            var matchingCamundaTypes = generator.CamundaTypes.Where(x => x.Value.Name == allowedCamundaTypeJSON.Name).ToList();
+                                            if (matchingCamundaTypes.Count != 1)
+                                            {
+                                                throw new BPMNCheckerExceptions($"Processing error, Camunda JSON name {allowedCamundaTypeJSON.Name} should be unique and present in processed types.");
+                                            }
+                                            var allowedCamundaType = matchingCamundaTypes[0].Value;
+                                            if (camundaNode.Type.CanBeCastInto(allowedCamundaType))
+                                            {
+                                                atLeastOneAllowed = true;
+                                            }
+                                        }
+
+                                        if  (!atLeastOneAllowed)
+                                        {
+                                            Errors.Add(GetNiceMessage(element, $"Camunda element {camundaNode.Type.Name} can not be present inside the BPMN element {element.Name.LocalName}."));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new BPMNCheckerExceptions("Processing error, there should be only XmlParserCamundaNodes inside camunda element in extension elements.");
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            throw new BPMNCheckerExceptions("In extensionElements, there should be complex type: tExtensionElements");
                         }
                     }
                 }
@@ -549,17 +609,6 @@ namespace BPMNModel
                             Errors.Add(GetNiceMessage(innerElement, $"Type {type.Name} have several [{string.Join(",", targetInCurrentInnerCategories.Select(x=>x.Value.Name))}] targets for type {targetType.Name} - do not know what is the target. "));
                         }
 
-                        /*
-                        if (itemType is CamundaElement camundaElementType)
-                        {
-                            var producedXMLNode = LoadAndCheckCamundaType(innerElement, camundaElementType.Type);
-                            node.ChildNodes[itemType.Name].Add(producedXMLNode);
-                        }
-                        else
-                        {
-                            Errors.Add(GetNiceMessage(element, $"Internal error while processing {convertedName}, unexpected target type {itemType.Name}."));
-                        }
-                        */
                     }
                     else
                     {

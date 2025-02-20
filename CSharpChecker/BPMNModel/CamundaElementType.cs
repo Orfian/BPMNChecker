@@ -25,6 +25,13 @@ namespace BPMNModel
 
         public string Name => CamundaJSonType.Name;
 
+        /// <summary>
+        /// Determines whether this instance [can be cast into] the specified type.
+        /// </summary>
+        /// <param name="type">The target, more general, type.</param>
+        /// <returns>
+        ///   <c>true</c> if this instance [can be cast into] the specified type; otherwise, <c>false</c>.
+        /// </returns>
         public bool CanBeCastInto(CamundaElementType type)
         {
             if (type.Name.Equals(this.Name))
