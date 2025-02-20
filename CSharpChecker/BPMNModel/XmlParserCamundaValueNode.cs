@@ -18,7 +18,7 @@
 
         public override void DumpNode(StreamWriter writer, string indent)
         {
-            writer.Write($"{indent}<{ElementName} = {Value} />");
+            writer.WriteLine($"{indent}<{ElementName} = {Value} />");
             
         }
     }

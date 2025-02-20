@@ -6,4 +6,5 @@ namespace BPMNModel.Model
     {
         public List<ICamundaBaseElement> CamundaElements { get; } = new();
     }
+
 }

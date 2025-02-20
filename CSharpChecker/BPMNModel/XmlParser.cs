@@ -533,9 +533,21 @@ namespace BPMNModel
                         var producedXMLNode = LoadAndCheckCamundaType(innerElement, targetType);
 
                         var targetInCurrentInnerCategories =
-                            type.InnerElementsByTypeElementName.Where(x => x.Value is CamundaElement c);
+                            type.InnerElementsByTypeElementName.Where(x => x.Value is CamundaElement c && targetType.CanBeCastInto(c.Type)).ToList();
 
-
+                        if (targetInCurrentInnerCategories.Count==0)
+                        {
+                            Errors.Add(GetNiceMessage(innerElement, $"Element {innerElement.Name} of type {targetType.Name} can not be placed in any element inside of type {type.Name}."));
+                        }
+                        else if (targetInCurrentInnerCategories.Count==1)
+                        {
+                            var targetForElement = targetInCurrentInnerCategories[0].Value;
+                            node.ChildNodes[targetForElement.Name].Add(producedXMLNode);
+                        }
+                        else
+                        {
+                            Errors.Add(GetNiceMessage(innerElement, $"Type {type.Name} have several [{string.Join(",", targetInCurrentInnerCategories.Select(x=>x.Value.Name))}] targets for type {targetType.Name} - do not know what is the target. "));
+                        }
 
                         /*
                         if (itemType is CamundaElement camundaElementType)

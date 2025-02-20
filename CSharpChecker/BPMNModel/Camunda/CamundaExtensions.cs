@@ -563,6 +563,7 @@ namespace BPMNModel.Camunda
                         if (elType.StartsWith("bpmn:"))
                         {
                             //TODO: Figure out what the BPMN elements look like here - NamedElement?
+                            //throw new BPMNCheckerExceptions($"Dont know what to do here, do not have an example.");
                         }
                         else if (elType == "String")
                         {

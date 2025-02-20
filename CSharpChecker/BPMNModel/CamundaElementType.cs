@@ -23,6 +23,21 @@ namespace BPMNModel
 
         public string? BodyElementName { get; set; }
 
+        public string Name => CamundaJSonType.Name;
+
+        public bool CanBeCastInto(CamundaElementType type)
+        {
+            if (type.Name.Equals(this.Name))
+            {
+                return true;
+            } else if (Parent == null) { 
+                return false; 
+            }
+            else
+            {
+                return Parent.CanBeCastInto(type);
+            }
+        }
 
     }
 }

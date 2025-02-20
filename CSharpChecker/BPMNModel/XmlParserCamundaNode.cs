@@ -26,7 +26,7 @@ namespace BPMNModel
             {
                 writer.Write($" {attribute.ToString()}");
             }
-            writer.WriteLine($"{newIndent}/>");
+            writer.WriteLine($"/>");
 
             foreach (var (name, items) in ChildNodes)
             {
@@ -36,7 +36,7 @@ namespace BPMNModel
                     item.DumpNode(writer, newIndent);
                 }
             }
-            writer.WriteLine($"{indent}<{Type.CamundaJSonType.Name}/>\n");
+            writer.WriteLine($"{indent}<{Type.CamundaJSonType.Name}/>");
         }
     }
 }
