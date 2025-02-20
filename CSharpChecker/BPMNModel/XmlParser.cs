@@ -617,6 +617,16 @@ namespace BPMNModel
                 }
             }
 
+            foreach (var (_, item) in type.InnerElementsByTypeElementName)
+            {
+                logger.Debug(GetNiceMessage(element, $"  Checking element: {item.Name}"));
+                
+                var countForField = node.ChildNodes[item.Name].Count;
+
+                if (countForField < item.MinOccurs) Errors.Add(GetNiceMessage(element, $"{item.Name} requires minimum {item.MinOccurs} occurences, but there are {countForField}."));
+                if (countForField > item.MaxOccurs) Errors.Add(GetNiceMessage(element, $"{item.Name} requires maximum {item.MaxOccurs} occurences, but there are {countForField}."));
+            }
+
             logger.Debug(GetNiceMessage(element, $"Finished loading {GetNiceName(element.Name)}: type={node.Type.CamundaJSonType.Name}, attributes: {node.Attributes.Count}, categories: {node.ChildNodes.Count} with {node.ChildNodes.Values.Select(x => x.Count).Sum()} elements."));
 
             return node;
