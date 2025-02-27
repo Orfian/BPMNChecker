@@ -1,18 +1,9 @@
 ﻿using BPMNModel.Camunda;
 using Serilog;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using Utility;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BPMNModel.Model
 {
@@ -277,6 +268,7 @@ namespace BPMNModel.Model
 
                                     if (loadedItem is ICamundaBaseElement camundaBase)
                                     {
+                                        logger.Debug($"{indent}Loaded Camunda node: {camundaNode.Type.Name}");
                                         target.CamundaElements.Add(camundaBase);
                                     }else
                                     {
