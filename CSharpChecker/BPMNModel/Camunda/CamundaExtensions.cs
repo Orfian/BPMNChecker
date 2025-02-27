@@ -128,6 +128,8 @@ namespace BPMNModel.Camunda
                     toExtend.Add(ConvertCSName(camundaType.SuperClass));
                 }
 
+                toExtend.Add("ICamundaLoaderBase");
+
                 if (camundaType.AllowedIn.Any())
                 {
                     toExtend.Add("ICamundaBaseElement");
@@ -191,7 +193,80 @@ namespace BPMNModel.Camunda
                         }
                     }
                 }
-                
+
+                file.WriteLine($"\t\tpublic {(camundaType.SuperClass is null || camundaType.SuperClass.StartsWith("bpmn:")? "" : "new")} void Load(XmlParserCamundaNode node)");
+                file.WriteLine("\t\t{");
+
+                if (camundaType.SuperClass is not null)
+                {
+                    if (camundaType.SuperClass.StartsWith("bpmn:"))
+                    {
+                        //TODO: Superclass is BPMN ErrorEventDefinition - do not have an example how to use it here - it is extended by camunda attributes i necessary.
+                        file.WriteLine("\t\t\tthrow new Utility.BPMNCheckerExceptions(\"Do not know how to solve this - need to implement it in the generator.\");");
+                    }
+                    else
+                    {
+                        file.WriteLine("\t\t\tbase.Load(node);");
+                    }
+                }
+                if (camundaType.SuperClass is null || !camundaType.SuperClass.StartsWith("bpmn:"))
+                {
+                    foreach (var (attName, (attType, attDefault)) in camundaType.Attributes)
+                    {
+                        file.WriteLine($"\t\t\t//Loading attribute: {attType} {attName}" + (attDefault is null ? "" : $"({attDefault})"));
+                        if (attType.Equals("String"))
+                        {
+                            file.WriteLine($"\t\t\tif (node.Attributes.ContainsKey(\"{attName}\")) {CapitalizeFirstLetter(attName)} = node.Attributes[\"{attName}\"].Value;");
+                            if (attDefault is not null)
+                            {
+                                file.WriteLine($"\t\t\telse {CapitalizeFirstLetter(attName)} = \"{attDefault}\";");
+                            }
+                        }
+                        else if (attType.Equals("Boolean"))
+                        {
+                            file.WriteLine($"\t\t\tif (node.Attributes.ContainsKey(\"{attName}\")) {CapitalizeFirstLetter(attName)} = string.Equals(node.Attributes[\"{attName}\"].Value, \"true\");");
+                            if (attDefault is not null)
+                            {
+                                file.WriteLine($"\t\t\telse {CapitalizeFirstLetter(attName)} = {(attDefault.Equals("true")?"true":"false")};");
+                            }
+                        }
+                        else
+                        {
+                            throw new BPMNCheckerExceptions("Something went wrong, encountered unexpected attribute type: " + attType);
+                        }
+                        file.WriteLine();
+                    }
+
+                    foreach (var (elNameJSON, (elType, elIsBody, elIsMany)) in camundaType.ExtensionElements)
+                    {
+                        var convertedName = ConvertName(elNameJSON);
+                        file.WriteLine($"\t\t\t//Loading element: {elType}{(elIsMany ? "*" : "")} {elNameJSON} - {convertedName}");
+
+                        if (elIsBody)
+                        {
+                            file.WriteLine($"\t\t\tif (node.ChildNodes.ContainsKey(\"{elNameJSON}\") && node.ChildNodes[\"{elNameJSON}\"].Count==1) {CapitalizeFirstLetter(elNameJSON)} = ((XmlParserStringNode)node.ChildNodes[\"{elNameJSON}\"][0]).Value;");
+                        }
+                        else if (elType.Equals("String"))
+                        {
+                            if (elIsMany) throw new BPMNCheckerExceptions($"Something went wrong, for attribute {elNameJSON} with type String - processing: isMany = true is not implemented.");
+                            file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count==1) {CapitalizeFirstLetter(elNameJSON)} = ((XmlParserStringNode)node.ChildNodes[\"{convertedName}\"][0]).Value;");
+                        }
+                        else if (elIsMany)
+                        {
+                            file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count>0) CamundaFactory.LoadElements<{ConvertCSName(ConvertName(elType))}>({CapitalizeFirstLetter(elNameJSON)}, node.ChildNodes[\"{convertedName}\"]);");
+                        }
+                        else
+                        {
+                            file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count==1) {CapitalizeFirstLetter(elNameJSON)} = ({ConvertCSName(ConvertName(elType))})CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes[\"{convertedName}\"][0]);");
+                        }
+
+
+                        file.WriteLine();
+                    }
+
+                }
+                file.WriteLine("\t\t}");
+
                 file.WriteLine("\t}\n");
             }
 
@@ -206,7 +281,7 @@ namespace BPMNModel.Camunda
             throw new BPMNCheckerExceptions("Something went wrong, there is unsupported default camunda value: " + defaultValue);
         }
 
-        private static string ConvertCSName(string name)
+        public static string ConvertCSName(string name)
         {
             if (name == "Element") return name;
             if (name == "String") return "string";

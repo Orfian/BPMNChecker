@@ -9,4 +9,9 @@ namespace BPMNModel.Camunda
     public interface ICamundaBaseElement
     {
     }
+
+    public interface ICamundaLoaderBase
+    {
+        void Load(XmlParserCamundaNode node);
+    }
 }

@@ -1,15 +1,18 @@
-﻿using Serilog;
+﻿using BPMNModel.Camunda;
+using Serilog;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Utility;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BPMNModel.Model
 {
@@ -264,18 +267,30 @@ namespace BPMNModel.Model
 
                     if (extensionBlock is XmlParserComplexNode complexBlock && complexBlock.Type is not null && complexBlock.Type.Name == "tExtensionElements")
                     {
-                        foreach(var item in complexBlock.ChildNodes["any"])
+                        if (complexBlock.ChildNodes.ContainsKey("camunda") && complexBlock.ChildNodes["camunda"].Any())
                         {
-                            if (item is XmlParserAnyNode anyNode)
+                            foreach (var item in complexBlock.ChildNodes["camunda"])
                             {
+                                if (item is XmlParserCamundaNode camundaNode)
+                                {
+                                    var loadedItem = CamundaFactory.Load(camundaNode);
 
-
-                            }else
-                            {
-                                throw new BPMNCheckerExceptions("Processing error, there are only anyNodes inside extension elements.");
+                                    if (loadedItem is ICamundaBaseElement camundaBase)
+                                    {
+                                        target.CamundaElements.Add(camundaBase);
+                                    }else
+                                    {
+                                        throw new BPMNCheckerExceptions("Processing error, expecting ICamundaBaseElement here.");
+                                    }
+                                }
+                                else
+                                {
+                                    throw new BPMNCheckerExceptions("Processing error, there should be only XmlParserCamundaNodes inside camunda element in extension elements.");
+                                }
                             }
                         }
-                    }else
+                    }
+                    else
                     {
                         throw new BPMNCheckerExceptions("In extensionElements, there should be complex type: tExtensionElements");
                     }
