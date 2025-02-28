@@ -1,4 +1,5 @@
-﻿using BPMNModel.Camunda;
+﻿using BPMNChecker;
+using BPMNModel.Camunda;
 using BPMNModel.Model;
 using BPMNModel.XMLElements;
 using BPMNModel.XMLParser;
@@ -74,6 +75,10 @@ namespace Testing
                 {
                     var model = Factory.ProcessModel(Log.Logger, parser);
                     model.DumpModel("processedCMOF.cmof");
+
+                    var analyzer = new StaticAnalysis();
+                    analyzer.ProcessAnalysis(model);
+
                 }
             }
         }
