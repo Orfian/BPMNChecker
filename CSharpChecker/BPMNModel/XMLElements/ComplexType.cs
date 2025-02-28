@@ -1,12 +1,4 @@
 ﻿using BPMNModel.Camunda;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using Utility;
 
@@ -15,6 +7,7 @@ namespace BPMNModel.XMLElements
     public class ComplexType : ElementType
     {
         private XElement element;
+
         private ComplexType(string name, bool isAbstract, bool hasMixedContent, XElement element)
         {
             Name = name;
@@ -23,6 +16,7 @@ namespace BPMNModel.XMLElements
             this.element = element;
         }
 
+        public List<CamundaJSonType> AllowedCamundaElements { get; } = new();
         public List<Attribute> Attributes { get; } = new();
         public bool HasMixedContent { get; init; }
 
@@ -40,6 +34,7 @@ namespace BPMNModel.XMLElements
         public bool IsAbstract { get; init; }
         public string Name { get; init; }
         public ComplexType? ParentType { get; private set; }
+
         public static ComplexType Create(XElement element)
         {
             var name = GetExpectedAttribute(element, "name");
@@ -49,22 +44,6 @@ namespace BPMNModel.XMLElements
 
             ComplexType result = new ComplexType(name, isAbstract, isMixed, element);
 
-            return result;
-        }
-
-        public List<CamundaJSonType> AllowedCamundaElements { get; } = new();
-
-        public List<CamundaJSonType> GetAllAllowedCamundaElements()
-        {
-            var result = new List<CamundaJSonType>();
-            var current = ParentType;
-            while (current is not null)
-            {
-                result.AddRange(current.AllowedCamundaElements);
-                current = current.ParentType;
-            }
-
-            result.AddRange(AllowedCamundaElements);
             return result;
         }
 
@@ -186,6 +165,20 @@ namespace BPMNModel.XMLElements
             {
                 ProcessInnerElements(element);
             }
+        }
+
+        public List<CamundaJSonType> GetAllAllowedCamundaElements()
+        {
+            var result = new List<CamundaJSonType>();
+            var current = ParentType;
+            while (current is not null)
+            {
+                result.AddRange(current.AllowedCamundaElements);
+                current = current.ParentType;
+            }
+
+            result.AddRange(AllowedCamundaElements);
+            return result;
         }
 
         public Attribute[] GetAllAttributes()

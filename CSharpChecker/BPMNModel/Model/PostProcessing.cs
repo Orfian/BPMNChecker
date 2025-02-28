@@ -39,7 +39,6 @@ namespace BPMNModel.Model
 
             // If OutputSet get whileExecutingOutputRefs for all elements used like DataOutput, put THIS into its List outputSetWithWhileExecuting
             if (item is OutputSet casted10) casted10.WhileExecutingOutputRefs.ForEach(x => x.OutputSetWithWhileExecuting.Add(casted10));
-
         }
     }
 }

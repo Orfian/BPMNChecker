@@ -13,11 +13,6 @@ namespace BPMNModel.XMLParser
         public Dictionary<string, List<XmlParserNode>> ChildNodes { get; } = new();
         public CamundaElementType Type { get; set; }
 
-        public override string ToString()
-        {
-            return $"<{Type.CamundaJSonType.Name} >";
-        }
-
         public override void DumpNode(StreamWriter writer, string indent)
         {
             var newIndent = indent + "  ";
@@ -37,6 +32,11 @@ namespace BPMNModel.XMLParser
                 }
             }
             writer.WriteLine($"{indent}<{Type.CamundaJSonType.Name}/>");
+        }
+
+        public override string ToString()
+        {
+            return $"<{Type.CamundaJSonType.Name} >";
         }
     }
 }

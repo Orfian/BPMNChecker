@@ -1,13 +1,9 @@
-﻿using System;
-using System.Xml;
-using BPMNModel.XMLElements;
+﻿using BPMNModel.XMLElements;
 
 namespace BPMNModel.XMLParser
 {
     public class XmlParserComplexNode : XmlParserNode
     {
-        public string? MixedContent { get; set; }
-
         public XmlParserComplexNode(string id)
         {
             ID = id;
@@ -21,15 +17,12 @@ namespace BPMNModel.XMLParser
 
         public Dictionary<string, List<XmlParserNode>> ChildNodes { get; } = new();
         public string ID { get; init; }
+        public string? MixedContent { get; set; }
         public ComplexType? Type { get; set; }
+
         public static XmlParserComplexNode CreatePlaceholderForAnyNodes(ComplexType type)
         {
             return new XmlParserComplexNode("any", type);
-        }
-
-        public override string ToString()
-        {
-            return $"<id={ID} {(Type is null ? "Stub" : Type.Name)} >";
         }
 
         public override void DumpNode(StreamWriter writer, string indent)
@@ -50,7 +43,6 @@ namespace BPMNModel.XMLParser
                 }
                 writer.WriteLine($"{newIndent}/>");
 
-
                 foreach (var (name, items) in ChildNodes)
                 {
                     writer.WriteLine($"{newIndent}<!--{name}-->");
@@ -68,6 +60,11 @@ namespace BPMNModel.XMLParser
                 }
                 writer.WriteLine($"{indent}<{Type.Name}/>\n");
             }
+        }
+
+        public override string ToString()
+        {
+            return $"<id={ID} {(Type is null ? "Stub" : Type.Name)} >";
         }
     }
 }

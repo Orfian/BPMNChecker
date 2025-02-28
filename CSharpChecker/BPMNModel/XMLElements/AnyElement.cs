@@ -11,6 +11,7 @@
 
         public override string Name => "any";
         public AnyElementNamespace Namespace { get; init; }
+
         public override string ToString()
         {
             return $"<any namespace={Namespace} min={MinOccurs} max={MaxOccurs}>";

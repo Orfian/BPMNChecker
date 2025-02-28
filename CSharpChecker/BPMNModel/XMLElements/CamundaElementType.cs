@@ -9,22 +9,18 @@ namespace BPMNModel.XMLElements
 {
     public class CamundaElementType : ElementType
     {
-        public List<Attribute> Attributes { get; } = new();
-
-        public Dictionary<string, Element> InnerElementsByTypeElementName { get; } = new();
-
-        public CamundaJSonType CamundaJSonType { get; init; }
-
         public CamundaElementType(CamundaJSonType camundaJSonType)
         {
             CamundaJSonType = camundaJSonType;
         }
 
-        public CamundaElementType? Parent { get; set; }
+        public List<Attribute> Attributes { get; } = new();
 
         public string? BodyElementName { get; set; }
-
+        public CamundaJSonType CamundaJSonType { get; init; }
+        public Dictionary<string, Element> InnerElementsByTypeElementName { get; } = new();
         public string Name => CamundaJSonType.Name;
+        public CamundaElementType? Parent { get; set; }
 
         /// <summary>
         /// Determines whether this instance [can be cast into] the specified type.
@@ -48,6 +44,5 @@ namespace BPMNModel.XMLElements
                 return Parent.CanBeCastInto(type);
             }
         }
-
     }
 }

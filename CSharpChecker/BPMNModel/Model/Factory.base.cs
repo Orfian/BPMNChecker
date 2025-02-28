@@ -1,8 +1,6 @@
 ﻿using BPMNModel.Camunda;
 using BPMNModel.XMLParser;
 using Serilog;
-using System.Collections;
-using System.Data;
 using System.Reflection;
 using Utility;
 
@@ -60,34 +58,34 @@ namespace BPMNModel.Model
         public Definitions? Definition { get; private set; }
 
         #region Missing types if CMOF
+
         private string LoadText(XmlParserComplexNode node)
         {
             //TODO: Omitting inner nodes
             return node.MixedContent ?? "";
         }
 
-        #endregion
+        #endregion Missing types if CMOF
 
         #region Known casts
 
         //TODO: Do real data conversion.
         private object SolveKnownCasts(XmlParserCastNode castNode)
         {
-
             if (castNode.Type.Name == "tFormalExpression")
             {
                 FormalExpression result = new FormalExpression();
                 result.Body = new Element(castNode.Value);
-                return result;   
+                return result;
             }
             throw new BPMNCheckerExceptions($"Unknown cast to type: {castNode.Type.Name}.");
         }
 
-        #endregion
+        #endregion Known casts
 
         #region Solving missing attributes
 
-        void ManualySolve_body_in_FormalExpression(FormalExpression result, XmlParserComplexNode node)
+        private void ManualySolve_body_in_FormalExpression(FormalExpression result, XmlParserComplexNode node)
         {
             if (node.MixedContent != null)
             {
@@ -95,12 +93,11 @@ namespace BPMNModel.Model
             }
         }
 
-        void ManualySolve_protocol_in_Transaction(Transaction result, XmlParserComplexNode node)
+        private void ManualySolve_protocol_in_Transaction(Transaction result, XmlParserComplexNode node)
         {
-
         }
 
-        void ManualySolve_text_in_Documentation(Documentation result, XmlParserComplexNode node)
+        private void ManualySolve_text_in_Documentation(Documentation result, XmlParserComplexNode node)
         {
             if (node.MixedContent != null)
             {
@@ -108,7 +105,7 @@ namespace BPMNModel.Model
             }
         }
 
-        #endregion
+        #endregion Solving missing attributes
 
         public static ModelRoot ProcessModel(ILogger logger, XmlParser parser)
         {
@@ -137,7 +134,8 @@ namespace BPMNModel.Model
                 var modelRoot = new ModelRoot(factory.Definition, baseElements);
 
                 return modelRoot;
-            }else
+            }
+            else
             {
                 throw new BPMNCheckerExceptions("Root element Definitions was nor loaded.");
             }
@@ -145,7 +143,6 @@ namespace BPMNModel.Model
 
         public T? FillElement<T>(List<XmlParserNode> data)
         {
-
             if (data.Count > 1) throw new BPMNCheckerExceptions($"There should be at most one element.");
             if (data.Count == 0) return default;
 
@@ -267,9 +264,9 @@ namespace BPMNModel.Model
             }
         }
 
-        private void LoadCamunda(XmlParserComplexNode complexNode, CamundaExtensionBaseElement target) 
+        private void LoadCamunda(XmlParserComplexNode complexNode, CamundaExtensionBaseElement target)
         {
-            if (complexNode.ChildNodes.ContainsKey("extensionElements")) 
+            if (complexNode.ChildNodes.ContainsKey("extensionElements"))
             {
                 if (complexNode.ChildNodes["extensionElements"].Any())
                 {
@@ -291,7 +288,8 @@ namespace BPMNModel.Model
                                     {
                                         logger.Debug($"{indent}Loaded Camunda node: {camundaNode.Type.Name}");
                                         target.CamundaElements.Add(camundaBase);
-                                    }else
+                                    }
+                                    else
                                     {
                                         throw new BPMNCheckerExceptions("Processing error, expecting ICamundaBaseElement here.");
                                     }

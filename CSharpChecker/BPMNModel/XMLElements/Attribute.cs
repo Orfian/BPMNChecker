@@ -1,5 +1,6 @@
-﻿using System.Xml.Linq;
-using BPMNModel.XMLParser;
+﻿using BPMNModel.XMLParser;
+
+using System.Xml.Linq;
 using Utility;
 
 namespace BPMNModel.XMLElements
@@ -37,6 +38,7 @@ namespace BPMNModel.XMLElements
         public (AttributeXMLType Category, SimpleType? Restriction) Type { get; init; }
 
         public AttributeUse Use { get; set; }
+
         public static (AttributeXMLType Category, SimpleType? Restriction) LoadTypeFromString(string type, Dictionary<string, ElementType> types)
         {
             if (types.ContainsKey(type))

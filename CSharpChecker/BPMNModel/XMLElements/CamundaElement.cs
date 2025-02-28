@@ -4,8 +4,6 @@
     {
         private string elementName;
 
-        public CamundaElementType Type { get; init; }
-
         public CamundaElement(string elementName, CamundaElementType type, bool isMany)
         {
             this.elementName = elementName;
@@ -16,6 +14,7 @@
         }
 
         public override string Name => elementName;
+        public CamundaElementType Type { get; init; }
 
         public override string ToString()
         {

@@ -16,12 +16,12 @@ namespace Utility
             }
             return result;
         }
-        public static XmlDocument LoadResourceAsXmlDocument(string path)
+
+        public static JsonDocument LoadResourceAsJsonDocument(string path)
         {
             Stream src = LoadResource(path);
-            var ret = new XmlDocument();
-            ret.Load(src);
-            return ret;
+            var result = JsonDocument.Parse(src);
+            return result;
         }
 
         public static XDocument LoadResourceAsXDocument(string path)
@@ -30,11 +30,13 @@ namespace Utility
             var ret = XDocument.Load(src, LoadOptions.SetLineInfo);
             return ret;
         }
-        public static JsonDocument LoadResourceAsJsonDocument(string path)
+
+        public static XmlDocument LoadResourceAsXmlDocument(string path)
         {
             Stream src = LoadResource(path);
-            var result = JsonDocument.Parse(src);
-            return result;
+            var ret = new XmlDocument();
+            ret.Load(src);
+            return ret;
         }
     }
 }

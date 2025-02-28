@@ -1,27 +1,17 @@
-﻿using BPMNModel.Camunda;
-using BPMNModel.XMLElements;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using BPMNModel.XMLElements;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
-using System.Xml.Serialization;
 using Utility;
 
 namespace BPMNModel.XMLParser
 {
     public class XmlParser
     {
+        public Dictionary<string, XNamespace> namespaces;
         private Generator generator;
         private ILogger logger;
-        public Dictionary<string, XNamespace> namespaces;
+
         private XmlParser(ILogger logger, Generator generator, Dictionary<string, XNamespace> namespaces)
         {
             this.logger = logger;
@@ -32,11 +22,11 @@ namespace BPMNModel.XMLParser
         public Dictionary<string, XmlParserComplexNode> Cache { get; } = new();
 
         public List<string> Errors { get; } = new List<string>();
-        public List<string> Warnings { get; } = new List<string>();
         public bool HasErrors { get => Errors.Any(); }
         public bool HasWarnings { get => Warnings.Any(); }
-
         public XmlParserComplexNode? Root { get; private set; }
+        public List<string> Warnings { get; } = new List<string>();
+
         public static XmlParser Parse(ILogger logger, Generator generator, XDocument document)
         {
             if (document.Root == null) throw new BPMNCheckerExceptions($"File has no root element.");
@@ -97,6 +87,29 @@ namespace BPMNModel.XMLParser
             }
         }
 
+        public void DumpXML(string fileName)
+        {
+            using var writer = new StreamWriter(fileName);
+
+            foreach (var (_, item) in Cache)
+            {
+                item.DumpNode(writer, "");
+            }
+        }
+
+        public string GetNameFromXName(XName name)
+        {
+            if (namespaces.ContainsValue(name.Namespace))
+            {
+                var namespaceName = namespaces.First(x => x.Value == name.Namespace).Key;
+                return namespaceName + ":" + name.LocalName;
+            }
+            else
+            {
+                return name.Namespace + ":" + name.LocalName;
+            }
+        }
+
         public XmlParserComplexNode GetReferecne(string id)
         {
             if (Cache.ContainsKey(id))
@@ -109,16 +122,6 @@ namespace BPMNModel.XMLParser
                 var cached = new XmlParserComplexNode(id);
                 Cache.Add(id, cached);
                 return cached;
-            }
-        }
-
-        public void DumpXML(string fileName)
-        {
-            using var writer = new StreamWriter(fileName);
-
-            foreach (var (_, item) in Cache)
-            {
-                item.DumpNode(writer, "");
             }
         }
 
@@ -140,19 +143,6 @@ namespace BPMNModel.XMLParser
             else
             {
                 return name;
-            }
-        }
-
-        public string GetNameFromXName(XName name)
-        {
-            if (namespaces.ContainsValue(name.Namespace))
-            {
-                var namespaceName = namespaces.First(x => x.Value == name.Namespace).Key;
-                return namespaceName + ":" + name.LocalName;
-            }
-            else
-            {
-                return name.Namespace + ":" + name.LocalName;
             }
         }
 
@@ -182,7 +172,6 @@ namespace BPMNModel.XMLParser
             }
             return @namespace.NamespaceName;
         }
-
 
         private XmlParserComplexNode? LoadAndCheck(XElement element, RootElement type)
         {
@@ -397,7 +386,6 @@ namespace BPMNModel.XMLParser
                             }
                             else
                             {
-
                                 var createdNode = new XmlParserAnyNode(currentElement);
                                 node.ChildNodes[currentCategory.Name].Add(createdNode);
                                 Log.Debug(GetNiceMessage(element, $"    {createdNode}"));
@@ -611,7 +599,6 @@ namespace BPMNModel.XMLParser
                         {
                             Errors.Add(GetNiceMessage(innerElement, $"Type {type.Name} have several [{string.Join(",", targetInCurrentInnerCategories.Select(x => x.Value.Name))}] targets for type {targetType.Name} - do not know what is the target. "));
                         }
-
                     }
                     else
                     {

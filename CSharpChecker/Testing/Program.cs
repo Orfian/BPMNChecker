@@ -3,8 +3,6 @@ using BPMNModel.Model;
 using BPMNModel.XMLElements;
 using BPMNModel.XMLParser;
 
-
-
 //using BPMNModel.Model;
 using Serilog;
 using Serilog.Events;
@@ -40,9 +38,9 @@ namespace Testing
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/subprocesses.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/MonthlyInvoicing-solution.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn");
-            
+
             XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/httpConnector.bpmn");
-            
+
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/httpConnectorPOST.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/all_tasks.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/all_icons.bpmn");
@@ -53,7 +51,7 @@ namespace Testing
 
             if (parser.HasErrors)
             {
-                Log.Debug("\nERRORS:");
+                Log.Error("\nERRORS:");
                 foreach (var error in parser.Errors)
                 {
                     Log.Error(error);
@@ -63,7 +61,7 @@ namespace Testing
             {
                 if (parser.HasWarnings)
                 {
-                    Log.Debug("\nWARNINGS:");
+                    Log.Warning("\nWARNINGS:");
                     foreach (var warning in parser.Warnings)
                     {
                         Log.Warning(warning);

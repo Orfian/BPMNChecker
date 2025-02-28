@@ -17,6 +17,5 @@
         {
             return $"<{Name} type=String min={MinOccurs} max={MaxOccurs}>";
         }
-
     }
 }

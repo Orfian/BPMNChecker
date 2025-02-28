@@ -9,6 +9,7 @@
         public List<Element> InnerElements { get; } = new();
 
         public List<(string A, string B)> Restrictions { get; } = new();
+
         public void AddWithRestriction(Element newElement)
         {
             foreach (var oldElement in InnerElements)

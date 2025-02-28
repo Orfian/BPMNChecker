@@ -5,1838 +5,1713 @@ namespace BPMNModel.Model
 {
     #region Classes (137 items)
 
-    public class Interface : RootElement
+    public interface FlowElementsContainer // abstract
     {
-        public string? Name { get; set; }
-        public List<Operation> Operations { get; } = new();
-        public Element? ImplementationRef { get; set; }
-
-        public Interface()
-        {
-        }
-
+        List<FlowElement> FlowElements { get; }
+        List<LaneSet> LaneSets { get; }
     }
 
-    public class Operation : BaseElement
+    public interface InteractionNode // abstract
     {
-        public string? Name { get; set; }
-        public Message? InMessageRef { get; set; }
-        public Message? OutMessageRef { get; set; }
-        public List<Error> ErrorRefs { get; } = new();
-        public Element? ImplementationRef { get; set; }
-
-        public Operation()
-        {
-        }
-
+        List<ConversationLink> IncomingConversationLinks { get; }
+        List<ConversationLink> OutgoingConversationLinks { get; }
     }
 
-    public class EndPoint : RootElement
+    public interface ItemAwareElement
     {
+        DataState? DataState { get; set; }
+        ItemDefinition? ItemSubjectRef { get; set; }
+    }
 
-        public EndPoint()
+    public abstract class Activity : FlowNode
+    {
+        public Activity()
         {
         }
 
+        public List<BoundaryEvent> BoundaryEventRefs { get; } = new();
+        public long? CompletionQuantity { get; set; }
+        public List<DataInputAssociation> DataInputAssociations { get; } = new();
+        public List<DataOutputAssociation> DataOutputAssociations { get; } = new();
+        public SequenceFlow? Default { get; set; }
+        public InputOutputSpecification? IoSpecification { get; set; }
+        public bool? IsForCompensation { get; set; }
+        public LoopCharacteristics? LoopCharacteristics { get; set; }
+        public List<Property> Properties { get; } = new();
+        public List<ResourceRole> Resources { get; } = new();
+        public long? StartQuantity { get; set; }
+
+        #region Camunda attributes
+
+        public bool? Camunda_async { get; set; }
+        public bool? Camunda_asyncAfter { get; set; }
+        public bool? Camunda_asyncBefore { get; set; }
+        public bool? Camunda_exclusive { get; set; }
+        public string? Camunda_jobPriority { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class AdHocSubProcess : SubProcess
+    {
+        public AdHocSubProcess()
+        {
+        }
+
+        public bool? CancelRemainingInstances { get; set; }
+        public Expression? CompletionCondition { get; set; }
+        public AdHocOrdering? Ordering { get; set; }
+    }
+
+    public abstract class Artifact : BaseElement
+    {
+        public Artifact()
+        {
+        }
+    }
+
+    public class Assignment : BaseElement
+    {
+        public Assignment()
+        {
+        }
+
+        public Expression? From { get; set; }
+        public Expression? To { get; set; }
+    }
+
+    public class Association : Artifact
+    {
+        public Association()
+        {
+        }
+
+        public AssociationDirection? AssociationDirection { get; set; }
+        public BaseElement? SourceRef { get; set; }
+        public BaseElement? TargetRef { get; set; }
     }
 
     public class Auditing : BaseElement
     {
-
         public Auditing()
         {
         }
-
-    }
-
-    public class GlobalTask : CallableElement
-    {
-        public List<ResourceRole> Resources { get; } = new();
-
-        public GlobalTask()
-        {
-        }
-
-    }
-
-    public class Monitoring : BaseElement
-    {
-
-        public Monitoring()
-        {
-        }
-
-    }
-
-    public class Performer : ResourceRole
-    {
-
-        public Performer()
-        {
-        }
-
-    }
-
-    public class Process : CallableElement, FlowElementsContainer
-    {
-        public ProcessType? ProcessType { get; set; }
-        public bool? IsClosed { get; set; }
-        public Auditing? Auditing { get; set; }
-        public Monitoring? Monitoring { get; set; }
-        public List<Property> Properties { get; } = new();
-        public List<Process> Supports { get; } = new();
-        public Collaboration? DefinitionalCollaborationRef { get; set; }
-        public bool? IsExecutable { get; set; }
-        public List<ResourceRole> Resources { get; } = new();
-        public List<Artifact> Artifacts { get; } = new();
-        public List<CorrelationSubscription> CorrelationSubscriptions { get; } = new();
-
-
-        #region Implementing: FlowElementsContainer
-        public List<FlowElement> FlowElements { get; } = new();
-        public List<LaneSet> LaneSets { get; } = new();
-        #endregion
-
-        #region Camunda attributes
-        public string? Camunda_jobPriority { get; set; }
-        public string? Camunda_modelerTemplate { get; set; }
-        public long? Camunda_modelerTemplateVersion { get; set; }
-        public string? Camunda_candidateStarterGroups { get; set; }
-        public string? Camunda_candidateStarterUsers { get; set; }
-        public string? Camunda_versionTag { get; set; }
-        public string? Camunda_historyTimeToLive { get; set; }
-        public bool? Camunda_isStartableInTasklist { get; set; }
-        public string? Camunda_taskPriority { get; set; }
-        #endregion
-
-        public Process()
-        {
-        }
-
-    }
-
-    public class LaneSet : BaseElement
-    {
-        public List<Lane> Lanes { get; } = new();
-        public string? Name { get; set; }
-
-        public LaneSet()
-        {
-        }
-
-    }
-
-    public class Lane : BaseElement
-    {
-        public string? Name { get; set; }
-        public LaneSet? ChildLaneSet { get; set; }
-        public BaseElement? PartitionElementRef { get; set; }
-        public List<FlowNode> FlowNodeRefs { get; } = new();
-        public BaseElement? PartitionElement { get; set; }
-
-        public Lane()
-        {
-        }
-
-    }
-
-    public class GlobalManualTask : GlobalTask
-    {
-
-        public GlobalManualTask()
-        {
-        }
-
-    }
-
-    public class ManualTask : Task
-    {
-
-        public ManualTask()
-        {
-        }
-
-    }
-
-    public class UserTask : Task
-    {
-        public List<Rendering> Renderings { get; } = new();
-        public string? Implementation { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_formHandlerClass { get; set; }
-        public string? Camunda_formKey { get; set; }
-        public string? Camunda_formRef { get; set; }
-        public string? Camunda_formRefBinding { get; set; }
-        public string? Camunda_formRefVersion { get; set; }
-        public string? Camunda_assignee { get; set; }
-        public string? Camunda_candidateUsers { get; set; }
-        public string? Camunda_candidateGroups { get; set; }
-        public string? Camunda_dueDate { get; set; }
-        public string? Camunda_followUpDate { get; set; }
-        public string? Camunda_priority { get; set; }
-        #endregion
-
-        public UserTask()
-        {
-        }
-
-    }
-
-    public class Rendering : BaseElement
-    {
-
-        public Rendering()
-        {
-        }
-
-    }
-
-    public class HumanPerformer : Performer
-    {
-
-        public HumanPerformer()
-        {
-        }
-
-    }
-
-    public class PotentialOwner : HumanPerformer
-    {
-
-        public PotentialOwner()
-        {
-        }
-
-    }
-
-    public class GlobalUserTask : GlobalTask
-    {
-        public string? Implementation { get; set; }
-        public List<Rendering> Renderings { get; } = new();
-
-        public GlobalUserTask()
-        {
-        }
-
-    }
-
-    public abstract class Gateway : FlowNode
-    {
-        public GatewayDirection? GatewayDirection { get; set; }
-
-        #region Camunda attributes
-        public bool? Camunda_async { get; set; }
-        public bool? Camunda_asyncBefore { get; set; }
-        public bool? Camunda_asyncAfter { get; set; }
-        public bool? Camunda_exclusive { get; set; }
-        public string? Camunda_jobPriority { get; set; }
-        #endregion
-
-        public Gateway()
-        {
-        }
-
-    }
-
-    public class EventBasedGateway : Gateway
-    {
-        public bool? Instantiate { get; set; }
-        public EventBasedGatewayType? EventGatewayType { get; set; }
-
-        public EventBasedGateway()
-        {
-        }
-
-    }
-
-    public class ComplexGateway : Gateway
-    {
-        public Expression? ActivationCondition { get; set; }
-        public SequenceFlow? Default { get; set; }
-
-        public ComplexGateway()
-        {
-        }
-
-    }
-
-    public class ExclusiveGateway : Gateway
-    {
-        public SequenceFlow? Default { get; set; }
-
-        public ExclusiveGateway()
-        {
-        }
-
-    }
-
-    public class InclusiveGateway : Gateway
-    {
-        public SequenceFlow? Default { get; set; }
-
-        public InclusiveGateway()
-        {
-        }
-
-    }
-
-    public class ParallelGateway : Gateway
-    {
-
-        public ParallelGateway()
-        {
-        }
-
-    }
-
-    public abstract class RootElement : BaseElement
-    {
-
-        public RootElement()
-        {
-        }
-
-    }
-
-    public class Relationship : BaseElement
-    {
-        public string? Type { get; set; }
-        public RelationshipDirection? Direction { get; set; }
-        public List<Element> Sources { get; } = new();
-        public List<Element> Targets { get; } = new();
-
-        public Relationship()
-        {
-        }
-
     }
 
     public abstract class BaseElement : CamundaExtensionBaseElement
     {
-        public string? Id { get; set; }
-        public List<ExtensionDefinition> ExtensionDefinitions { get; } = new();
-        public List<ExtensionAttributeValue> ExtensionValues { get; } = new();
-        public List<Documentation> Documentation { get; } = new();
-
         public BaseElement()
         {
         }
 
+        public List<Documentation> Documentation { get; } = new();
+        public List<ExtensionDefinition> ExtensionDefinitions { get; } = new();
+        public List<ExtensionAttributeValue> ExtensionValues { get; } = new();
+        public string? Id { get; set; }
     }
 
-    public class Extension
+    public class BoundaryEvent : CatchEvent
     {
-        public bool? MustUnderstand { get; set; }
-        public ExtensionDefinition? Definition { get; set; }
-
-        public Extension()
+        public BoundaryEvent()
         {
         }
 
+        public Activity? AttachedToRef { get; set; }
+        public bool? CancelActivity { get; set; }
     }
 
-    public class ExtensionDefinition
+    public class BusinessRuleTask : Task
     {
+        public BusinessRuleTask()
+        {
+        }
+
+        public string? Implementation { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_class { get; set; }
+        public string? Camunda_decisionRef { get; set; }
+        public string? Camunda_decisionRefBinding { get; set; }
+        public string? Camunda_decisionRefTenantId { get; set; }
+        public string? Camunda_decisionRefVersion { get; set; }
+        public string? Camunda_delegateExpression { get; set; }
+        public string? Camunda_expression { get; set; }
+        public string? Camunda_mapDecisionResult { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_taskPriority { get; set; }
+        public string? Camunda_topic { get; set; }
+        public string? Camunda_type { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public abstract class CallableElement : RootElement
+    {
+        public CallableElement()
+        {
+        }
+
+        public List<InputOutputBinding> IoBinding { get; } = new();
+        public InputOutputSpecification? IoSpecification { get; set; }
         public string? Name { get; set; }
-        public List<ExtensionAttributeDefinition> ExtensionAttributeDefinitions { get; } = new();
+        public List<Interface> SupportedInterfaceRefs { get; } = new();
+    }
 
-        public ExtensionDefinition()
+    public class CallActivity : Activity
+    {
+        public CallActivity()
         {
         }
 
+        public CallableElement? CalledElementRef { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_calledElementBinding { get; set; }
+        public string? Camunda_calledElementTenantId { get; set; }
+        public string? Camunda_calledElementVersion { get; set; }
+        public string? Camunda_calledElementVersionTag { get; set; }
+        public string? Camunda_caseBinding { get; set; }
+        public string? Camunda_caseRef { get; set; }
+        public string? Camunda_caseTenantId { get; set; }
+        public string? Camunda_caseVersion { get; set; }
+        public string? Camunda_variableMappingClass { get; set; }
+        public string? Camunda_variableMappingDelegateExpression { get; set; }
+
+        #endregion Camunda attributes
     }
 
-    public class ExtensionAttributeDefinition
+    public class CallChoreography : ChoreographyActivity
     {
+        public CallChoreography()
+        {
+        }
+
+        public Choreography? CalledChoreographyRef { get; set; }
+        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
+    }
+
+    public class CallConversation : ConversationNode
+    {
+        public CallConversation()
+        {
+        }
+
+        public Collaboration? CalledCollaborationRef { get; set; }
+        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
+    }
+
+    public class CancelEventDefinition : EventDefinition
+    {
+        public CancelEventDefinition()
+        {
+        }
+    }
+
+    public abstract class CatchEvent : Event
+    {
+        public CatchEvent()
+        {
+        }
+
+        public List<DataOutputAssociation> DataOutputAssociation { get; } = new();
+        public List<DataOutput> DataOutputs { get; } = new();
+        public List<EventDefinition> EventDefinitionRefs { get; } = new();
+        public List<EventDefinition> EventDefinitions { get; } = new();
+        public OutputSet? OutputSet { get; set; }
+        public bool? ParallelMultiple { get; set; }
+    }
+
+    public class Category : RootElement
+    {
+        public Category()
+        {
+        }
+
+        public List<CategoryValue> CategoryValue { get; } = new();
         public string? Name { get; set; }
-        public string? Type { get; set; }
-        public bool? IsReference { get; set; }
-        public ExtensionDefinition? ExtensionDefinition { get; set; }
-
-        public ExtensionAttributeDefinition()
-        {
-        }
-
     }
 
-    public class ExtensionAttributeValue
+    public class CategoryValue : BaseElement
     {
-        public Element? ValueRef { get; set; }
-        public Element? Value { get; set; }
-        public ExtensionAttributeDefinition? ExtensionAttributeDefinition { get; set; }
-
-        public ExtensionAttributeValue()
+        public CategoryValue()
         {
         }
 
+        public List<FlowElement> CategorizedFlowElements { get; } = new();
+        public string? Value { get; set; }
+    }
+
+    public class Choreography : Collaboration, FlowElementsContainer
+    {
+        #region Implementing: FlowElementsContainer
+
+        public List<FlowElement> FlowElements { get; } = new();
+        public List<LaneSet> LaneSets { get; } = new();
+
+        #endregion Implementing: FlowElementsContainer
+
+        public Choreography()
+        {
+        }
+    }
+
+    public abstract class ChoreographyActivity : FlowNode
+    {
+        public ChoreographyActivity()
+        {
+        }
+
+        public List<CorrelationKey> CorrelationKeys { get; } = new();
+        public Participant? InitiatingParticipantRef { get; set; }
+        public ChoreographyLoopType? LoopType { get; set; }
+        public List<Participant> ParticipantRefs { get; } = new();
+    }
+
+    public class ChoreographyTask : ChoreographyActivity
+    {
+        public ChoreographyTask()
+        {
+        }
+
+        public List<MessageFlow> MessageFlowRef { get; } = new();
+    }
+
+    public class Collaboration : RootElement
+    {
+        public Collaboration()
+        {
+        }
+
+        public List<Artifact> Artifacts { get; } = new();
+        public List<Choreography> ChoreographyRef { get; } = new();
+        public ConversationAssociation? ConversationAssociations { get; set; }
+        public List<ConversationLink> ConversationLinks { get; } = new();
+        public List<ConversationNode> Conversations { get; } = new();
+        public List<CorrelationKey> CorrelationKeys { get; } = new();
+        public bool? IsClosed { get; set; }
+        public List<MessageFlowAssociation> MessageFlowAssociations { get; } = new();
+        public List<MessageFlow> MessageFlows { get; } = new();
+        public string? Name { get; set; }
+        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
+        public List<Participant> Participants { get; } = new();
+
+        #region Camunda attributes
+
+        public string? Camunda_modelerTemplate { get; set; }
+        public long? Camunda_modelerTemplateVersion { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class CompensateEventDefinition : EventDefinition
+    {
+        public CompensateEventDefinition()
+        {
+        }
+
+        public Activity? ActivityRef { get; set; }
+        public bool? WaitForCompletion { get; set; }
+    }
+
+    public class ComplexBehaviorDefinition : BaseElement
+    {
+        public ComplexBehaviorDefinition()
+        {
+        }
+
+        public FormalExpression? Condition { get; set; }
+        public ImplicitThrowEvent? Event { get; set; }
+    }
+
+    public class ComplexGateway : Gateway
+    {
+        public ComplexGateway()
+        {
+        }
+
+        public Expression? ActivationCondition { get; set; }
+        public SequenceFlow? Default { get; set; }
+    }
+
+    public class ConditionalEventDefinition : EventDefinition
+    {
+        public ConditionalEventDefinition()
+        {
+        }
+
+        public Expression? Condition { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_variableEvents { get; set; }
+        public string? Camunda_variableName { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class Conversation : ConversationNode
+    {
+        public Conversation()
+        {
+        }
+    }
+
+    public class ConversationAssociation : BaseElement
+    {
+        public ConversationAssociation()
+        {
+        }
+
+        public ConversationNode? InnerConversationNodeRef { get; set; }
+        public ConversationNode? OuterConversationNodeRef { get; set; }
+    }
+
+    public class ConversationLink : BaseElement
+    {
+        public ConversationLink()
+        {
+        }
+
+        public string? Name { get; set; }
+        public InteractionNode? SourceRef { get; set; }
+        public InteractionNode? TargetRef { get; set; }
+    }
+
+    public abstract class ConversationNode : BaseElement, InteractionNode
+    {
+        public ConversationNode()
+        {
+        }
+
+        public List<CorrelationKey> CorrelationKeys { get; } = new();
+        public List<MessageFlow> MessageFlowRefs { get; } = new();
+        public string? Name { get; set; }
+        public List<Participant> ParticipantRefs { get; } = new();
+
+        #region Implementing: InteractionNode
+
+        public List<ConversationLink> IncomingConversationLinks { get; } = new();
+        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
+
+        #endregion Implementing: InteractionNode
+    }
+
+    public class CorrelationKey : BaseElement
+    {
+        public CorrelationKey()
+        {
+        }
+
+        public List<CorrelationProperty> CorrelationPropertyRef { get; } = new();
+        public string? Name { get; set; }
+    }
+
+    public class CorrelationProperty : RootElement
+    {
+        public CorrelationProperty()
+        {
+        }
+
+        public List<CorrelationPropertyRetrievalExpression> CorrelationPropertyRetrievalExpression { get; } = new();
+        public string? Name { get; set; }
+        public ItemDefinition? Type { get; set; }
+    }
+
+    public class CorrelationPropertyBinding : BaseElement
+    {
+        public CorrelationPropertyBinding()
+        {
+        }
+
+        public CorrelationProperty? CorrelationPropertyRef { get; set; }
+        public FormalExpression? DataPath { get; set; }
+    }
+
+    public class CorrelationPropertyRetrievalExpression : BaseElement
+    {
+        public CorrelationPropertyRetrievalExpression()
+        {
+        }
+
+        public FormalExpression? MessagePath { get; set; }
+        public Message? MessageRef { get; set; }
+    }
+
+    public class CorrelationSubscription : BaseElement
+    {
+        public CorrelationSubscription()
+        {
+        }
+
+        public CorrelationKey? CorrelationKeyRef { get; set; }
+        public List<CorrelationPropertyBinding> CorrelationPropertyBinding { get; } = new();
+    }
+
+    public class DataAssociation : BaseElement
+    {
+        public DataAssociation()
+        {
+        }
+
+        public List<Assignment> Assignment { get; } = new();
+        public List<ItemAwareElement> SourceRef { get; } = new();
+        public ItemAwareElement? TargetRef { get; set; }
+        public FormalExpression? Transformation { get; set; }
+    }
+
+    public class DataInput : BaseElement, ItemAwareElement
+    {
+        public DataInput()
+        {
+        }
+
+        public List<InputSet> InputSetRefs { get; } = new();
+        public List<InputSet> InputSetWithOptional { get; } = new();
+        public List<InputSet> InputSetWithWhileExecuting { get; } = new();
+        public bool? IsCollection { get; set; }
+        public string? Name { get; set; }
+
+        #region Implementing: ItemAwareElement
+
+        public DataState? DataState { get; set; }
+        public ItemDefinition? ItemSubjectRef { get; set; }
+
+        #endregion Implementing: ItemAwareElement
+    }
+
+    public class DataInputAssociation : DataAssociation
+    {
+        public DataInputAssociation()
+        {
+        }
+    }
+
+    public class DataObject : FlowElement, ItemAwareElement
+    {
+        public DataObject()
+        {
+        }
+
+        public bool? IsCollection { get; set; }
+
+        #region Implementing: ItemAwareElement
+
+        public DataState? DataState { get; set; }
+        public ItemDefinition? ItemSubjectRef { get; set; }
+
+        #endregion Implementing: ItemAwareElement
+    }
+
+    public class DataObjectReference : FlowElement, ItemAwareElement
+    {
+        public DataObjectReference()
+        {
+        }
+
+        public DataObject? DataObjectRef { get; set; }
+
+        #region Implementing: ItemAwareElement
+
+        public DataState? DataState { get; set; }
+        public ItemDefinition? ItemSubjectRef { get; set; }
+
+        #endregion Implementing: ItemAwareElement
+    }
+
+    public class DataOutput : BaseElement, ItemAwareElement
+    {
+        public DataOutput()
+        {
+        }
+
+        public bool? IsCollection { get; set; }
+        public string? Name { get; set; }
+        public List<OutputSet> OutputSetRefs { get; } = new();
+        public List<OutputSet> OutputSetWithOptional { get; } = new();
+        public List<OutputSet> OutputSetWithWhileExecuting { get; } = new();
+
+        #region Implementing: ItemAwareElement
+
+        public DataState? DataState { get; set; }
+        public ItemDefinition? ItemSubjectRef { get; set; }
+
+        #endregion Implementing: ItemAwareElement
+    }
+
+    public class DataOutputAssociation : DataAssociation
+    {
+        public DataOutputAssociation()
+        {
+        }
+    }
+
+    public class DataState : BaseElement
+    {
+        public DataState()
+        {
+        }
+
+        public string? Name { get; set; }
+    }
+
+    public class DataStore : RootElement, ItemAwareElement
+    {
+        public DataStore()
+        {
+        }
+
+        public long? Capacity { get; set; }
+        public bool? IsUnlimited { get; set; }
+        public string? Name { get; set; }
+
+        #region Implementing: ItemAwareElement
+
+        public DataState? DataState { get; set; }
+        public ItemDefinition? ItemSubjectRef { get; set; }
+
+        #endregion Implementing: ItemAwareElement
+    }
+
+    public class DataStoreReference : FlowElement, ItemAwareElement
+    {
+        public DataStoreReference()
+        {
+        }
+
+        public DataStore? DataStoreRef { get; set; }
+
+        #region Implementing: ItemAwareElement
+
+        public DataState? DataState { get; set; }
+        public ItemDefinition? ItemSubjectRef { get; set; }
+
+        #endregion Implementing: ItemAwareElement
+    }
+
+    public class Definitions : BaseElement
+    {
+        public Definitions()
+        {
+        }
+
+        public string? Exporter { get; set; }
+        public string? ExporterVersion { get; set; }
+        public string? ExpressionLanguage { get; set; }
+        public List<Extension> Extensions { get; } = new();
+        public List<Import> Imports { get; } = new();
+        public string? Name { get; set; }
+        public List<Relationship> Relationships { get; } = new();
+        public List<RootElement> RootElements { get; } = new();
+        public string? TargetNamespace { get; set; }
+        public string? TypeLanguage { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_diagramRelationId { get; set; }
+
+        #endregion Camunda attributes
     }
 
     public class Documentation : BaseElement
     {
-        public string? Text { get; set; }
-        public string? TextFormat { get; set; }
-
         public Documentation()
         {
         }
 
-    }
-
-    public abstract class Event : FlowNode, InteractionNode
-    {
-        public List<Property> Properties { get; } = new();
-
-
-        #region Implementing: InteractionNode
-        public List<ConversationLink> IncomingConversationLinks { get; } = new();
-        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
-        #endregion
-
-        #region Camunda attributes
-        public bool? Camunda_async { get; set; }
-        public bool? Camunda_asyncBefore { get; set; }
-        public bool? Camunda_asyncAfter { get; set; }
-        public bool? Camunda_exclusive { get; set; }
-        public string? Camunda_jobPriority { get; set; }
-        #endregion
-
-        public Event()
-        {
-        }
-
-    }
-
-    public class IntermediateCatchEvent : CatchEvent
-    {
-
-        public IntermediateCatchEvent()
-        {
-        }
-
-    }
-
-    public class IntermediateThrowEvent : ThrowEvent
-    {
-
-        public IntermediateThrowEvent()
-        {
-        }
-
+        public string? Text { get; set; }
+        public string? TextFormat { get; set; }
     }
 
     public class EndEvent : ThrowEvent
     {
-
         public EndEvent()
         {
         }
+    }
 
+    public class EndPoint : RootElement
+    {
+        public EndPoint()
+        {
+        }
+    }
+
+    public class Error : RootElement
+    {
+        public Error()
+        {
+        }
+
+        public string? ErrorCode { get; set; }
+        public string? Name { get; set; }
+        public ItemDefinition? StructureRef { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_errorMessage { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class ErrorEventDefinition : EventDefinition
+    {
+        public ErrorEventDefinition()
+        {
+        }
+
+        public Error? ErrorRef { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_errorCodeVariable { get; set; }
+        public string? Camunda_errorMessageVariable { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class Escalation
+    {
+        public Escalation()
+        {
+        }
+
+        public string? EscalationCode { get; set; }
+        public string? Name { get; set; }
+        public ItemDefinition? StructureRef { get; set; }
+    }
+
+    public class EscalationEventDefinition : EventDefinition
+    {
+        public EscalationEventDefinition()
+        {
+        }
+
+        public Escalation? EscalationRef { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_escalationCodeVariable { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public abstract class Event : FlowNode, InteractionNode
+    {
+        public Event()
+        {
+        }
+
+        public List<Property> Properties { get; } = new();
+
+        #region Implementing: InteractionNode
+
+        public List<ConversationLink> IncomingConversationLinks { get; } = new();
+        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
+
+        #endregion Implementing: InteractionNode
+
+        #region Camunda attributes
+
+        public bool? Camunda_async { get; set; }
+        public bool? Camunda_asyncAfter { get; set; }
+        public bool? Camunda_asyncBefore { get; set; }
+        public bool? Camunda_exclusive { get; set; }
+        public string? Camunda_jobPriority { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class EventBasedGateway : Gateway
+    {
+        public EventBasedGateway()
+        {
+        }
+
+        public EventBasedGatewayType? EventGatewayType { get; set; }
+        public bool? Instantiate { get; set; }
+    }
+
+    public abstract class EventDefinition : RootElement
+    {
+        public EventDefinition()
+        {
+        }
+    }
+
+    public class ExclusiveGateway : Gateway
+    {
+        public ExclusiveGateway()
+        {
+        }
+
+        public SequenceFlow? Default { get; set; }
+    }
+
+    public class Expression : BaseElement
+    {
+        public Expression()
+        {
+        }
+    }
+
+    public class Extension
+    {
+        public Extension()
+        {
+        }
+
+        public ExtensionDefinition? Definition { get; set; }
+        public bool? MustUnderstand { get; set; }
+    }
+
+    public class ExtensionAttributeDefinition
+    {
+        public ExtensionAttributeDefinition()
+        {
+        }
+
+        public ExtensionDefinition? ExtensionDefinition { get; set; }
+        public bool? IsReference { get; set; }
+        public string? Name { get; set; }
+        public string? Type { get; set; }
+    }
+
+    public class ExtensionAttributeValue
+    {
+        public ExtensionAttributeValue()
+        {
+        }
+
+        public ExtensionAttributeDefinition? ExtensionAttributeDefinition { get; set; }
+        public Element? Value { get; set; }
+        public Element? ValueRef { get; set; }
+    }
+
+    public class ExtensionDefinition
+    {
+        public ExtensionDefinition()
+        {
+        }
+
+        public List<ExtensionAttributeDefinition> ExtensionAttributeDefinitions { get; } = new();
+        public string? Name { get; set; }
+    }
+
+    public abstract class FlowElement : BaseElement
+    {
+        public FlowElement()
+        {
+        }
+
+        public Auditing? Auditing { get; set; }
+        public List<CategoryValue> CategoryValueRef { get; } = new();
+        public Monitoring? Monitoring { get; set; }
+        public string? Name { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_modelerTemplate { get; set; }
+        public long? Camunda_modelerTemplateVersion { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public abstract class FlowNode : FlowElement
+    {
+        public FlowNode()
+        {
+        }
+
+        public List<SequenceFlow> Incoming { get; } = new();
+        public List<Lane> Lanes { get; } = new();
+        public List<SequenceFlow> Outgoing { get; } = new();
+    }
+
+    public class FormalExpression : Expression
+    {
+        public FormalExpression()
+        {
+        }
+
+        public Element? Body { get; set; }
+        public ItemDefinition? EvaluatesToTypeRef { get; set; }
+        public string? Language { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_resource { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public abstract class Gateway : FlowNode
+    {
+        public Gateway()
+        {
+        }
+
+        public GatewayDirection? GatewayDirection { get; set; }
+
+        #region Camunda attributes
+
+        public bool? Camunda_async { get; set; }
+        public bool? Camunda_asyncAfter { get; set; }
+        public bool? Camunda_asyncBefore { get; set; }
+        public bool? Camunda_exclusive { get; set; }
+        public string? Camunda_jobPriority { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class GlobalBusinessRuleTask : GlobalTask
+    {
+        public GlobalBusinessRuleTask()
+        {
+        }
+
+        public string? Implementation { get; set; }
+    }
+
+    public class GlobalChoreographyTask : Choreography
+    {
+        public GlobalChoreographyTask()
+        {
+        }
+
+        public Participant? InitiatingParticipantRef { get; set; }
+    }
+
+    public class GlobalConversation : Collaboration
+    {
+        public GlobalConversation()
+        {
+        }
+    }
+
+    public class GlobalManualTask : GlobalTask
+    {
+        public GlobalManualTask()
+        {
+        }
+    }
+
+    public class GlobalScriptTask : GlobalTask
+    {
+        public GlobalScriptTask()
+        {
+        }
+
+        public string? Script { get; set; }
+        public string? ScriptLanguage { get; set; }
+    }
+
+    public class GlobalTask : CallableElement
+    {
+        public GlobalTask()
+        {
+        }
+
+        public List<ResourceRole> Resources { get; } = new();
+    }
+
+    public class GlobalUserTask : GlobalTask
+    {
+        public GlobalUserTask()
+        {
+        }
+
+        public string? Implementation { get; set; }
+        public List<Rendering> Renderings { get; } = new();
+    }
+
+    public class Group : Artifact
+    {
+        public Group()
+        {
+        }
+
+        public CategoryValue? CategoryValueRef { get; set; }
+    }
+
+    public class HumanPerformer : Performer
+    {
+        public HumanPerformer()
+        {
+        }
+    }
+
+    public class ImplicitThrowEvent : ThrowEvent
+    {
+        public ImplicitThrowEvent()
+        {
+        }
+    }
+
+    public class Import
+    {
+        public Import()
+        {
+        }
+
+        public string? ImportType { get; set; }
+        public string? Location { get; set; }
+        public string? Namespace { get; set; }
+    }
+
+    public class InclusiveGateway : Gateway
+    {
+        public InclusiveGateway()
+        {
+        }
+
+        public SequenceFlow? Default { get; set; }
+    }
+
+    public class InputOutputBinding
+    {
+        public InputOutputBinding()
+        {
+        }
+
+        public InputSet? InputDataRef { get; set; }
+        public Operation? OperationRef { get; set; }
+        public OutputSet? OutputDataRef { get; set; }
+    }
+
+    public class InputOutputSpecification : BaseElement
+    {
+        public InputOutputSpecification()
+        {
+        }
+
+        public List<DataInput> DataInputs { get; } = new();
+        public List<DataOutput> DataOutputs { get; } = new();
+        public List<InputSet> InputSets { get; } = new();
+        public List<OutputSet> OutputSets { get; } = new();
+    }
+
+    public class InputSet : BaseElement
+    {
+        public InputSet()
+        {
+        }
+
+        public List<DataInput> DataInputRefs { get; } = new();
+        public string? Name { get; set; }
+        public List<DataInput> OptionalInputRefs { get; } = new();
+        public List<OutputSet> OutputSetRefs { get; } = new();
+        public List<DataInput> WhileExecutingInputRefs { get; } = new();
+    }
+
+    public class Interface : RootElement
+    {
+        public Interface()
+        {
+        }
+
+        public Element? ImplementationRef { get; set; }
+        public string? Name { get; set; }
+        public List<Operation> Operations { get; } = new();
+    }
+
+    public class IntermediateCatchEvent : CatchEvent
+    {
+        public IntermediateCatchEvent()
+        {
+        }
+    }
+
+    public class IntermediateThrowEvent : ThrowEvent
+    {
+        public IntermediateThrowEvent()
+        {
+        }
+    }
+
+    public class ItemDefinition : RootElement
+    {
+        public ItemDefinition()
+        {
+        }
+
+        public Import? Import { get; set; }
+        public bool? IsCollection { get; set; }
+        public ItemKind? ItemKind { get; set; }
+        public Element? StructureRef { get; set; }
+    }
+
+    public class Lane : BaseElement
+    {
+        public Lane()
+        {
+        }
+
+        public LaneSet? ChildLaneSet { get; set; }
+        public List<FlowNode> FlowNodeRefs { get; } = new();
+        public string? Name { get; set; }
+        public BaseElement? PartitionElement { get; set; }
+        public BaseElement? PartitionElementRef { get; set; }
+    }
+
+    public class LaneSet : BaseElement
+    {
+        public LaneSet()
+        {
+        }
+
+        public List<Lane> Lanes { get; } = new();
+        public string? Name { get; set; }
+    }
+
+    public class LinkEventDefinition : EventDefinition
+    {
+        public LinkEventDefinition()
+        {
+        }
+
+        public string? Name { get; set; }
+        public List<LinkEventDefinition> Source { get; } = new();
+        public LinkEventDefinition? Target { get; set; }
+    }
+
+    public abstract class LoopCharacteristics : BaseElement
+    {
+        public LoopCharacteristics()
+        {
+        }
+    }
+
+    public class ManualTask : Task
+    {
+        public ManualTask()
+        {
+        }
+    }
+
+    public class Message : RootElement
+    {
+        public Message()
+        {
+        }
+
+        public ItemDefinition? ItemRef { get; set; }
+        public string? Name { get; set; }
+    }
+
+    public class MessageEventDefinition : EventDefinition
+    {
+        public MessageEventDefinition()
+        {
+        }
+
+        public Message? MessageRef { get; set; }
+        public Operation? OperationRef { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_class { get; set; }
+        public string? Camunda_delegateExpression { get; set; }
+        public string? Camunda_expression { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_taskPriority { get; set; }
+        public string? Camunda_topic { get; set; }
+        public string? Camunda_type { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class MessageFlow : BaseElement
+    {
+        public MessageFlow()
+        {
+        }
+
+        public Message? MessageRef { get; set; }
+        public string? Name { get; set; }
+        public InteractionNode? SourceRef { get; set; }
+        public InteractionNode? TargetRef { get; set; }
+    }
+
+    public class MessageFlowAssociation : BaseElement
+    {
+        public MessageFlowAssociation()
+        {
+        }
+
+        public MessageFlow? InnerMessageFlowRef { get; set; }
+        public MessageFlow? OuterMessageFlowRef { get; set; }
+    }
+
+    public class Monitoring : BaseElement
+    {
+        public Monitoring()
+        {
+        }
+    }
+
+    public class MultiInstanceLoopCharacteristics : LoopCharacteristics
+    {
+        public MultiInstanceLoopCharacteristics()
+        {
+        }
+
+        public MultiInstanceBehavior? Behavior { get; set; }
+        public Expression? CompletionCondition { get; set; }
+        public List<ComplexBehaviorDefinition> ComplexBehaviorDefinition { get; } = new();
+        public DataInput? InputDataItem { get; set; }
+        public bool? IsSequential { get; set; }
+        public Expression? LoopCardinality { get; set; }
+        public ItemAwareElement? LoopDataInputRef { get; set; }
+        public ItemAwareElement? LoopDataOutputRef { get; set; }
+        public EventDefinition? NoneBehaviorEventRef { get; set; }
+        public EventDefinition? OneBehaviorEventRef { get; set; }
+        public DataOutput? OutputDataItem { get; set; }
+
+        #region Camunda attributes
+
+        public bool? Camunda_async { get; set; }
+        public bool? Camunda_asyncAfter { get; set; }
+        public bool? Camunda_asyncBefore { get; set; }
+        public string? Camunda_collection { get; set; }
+        public string? Camunda_elementVariable { get; set; }
+        public bool? Camunda_exclusive { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class Operation : BaseElement
+    {
+        public Operation()
+        {
+        }
+
+        public List<Error> ErrorRefs { get; } = new();
+        public Element? ImplementationRef { get; set; }
+        public Message? InMessageRef { get; set; }
+        public string? Name { get; set; }
+        public Message? OutMessageRef { get; set; }
+    }
+
+    public class OutputSet : BaseElement
+    {
+        public OutputSet()
+        {
+        }
+
+        public List<DataOutput> DataOutputRefs { get; } = new();
+        public List<InputSet> InputSetRefs { get; } = new();
+        public string? Name { get; set; }
+        public List<DataOutput> OptionalOutputRefs { get; } = new();
+        public List<DataOutput> WhileExecutingOutputRefs { get; } = new();
+    }
+
+    public class ParallelGateway : Gateway
+    {
+        public ParallelGateway()
+        {
+        }
+    }
+
+    public class Participant : BaseElement, InteractionNode
+    {
+        public Participant()
+        {
+        }
+
+        public List<EndPoint> EndPointRefs { get; } = new();
+        public List<Interface> InterfaceRefs { get; } = new();
+        public string? Name { get; set; }
+        public ParticipantMultiplicity? ParticipantMultiplicity { get; set; }
+        public Process? ProcessRef { get; set; }
+
+        #region Implementing: InteractionNode
+
+        public List<ConversationLink> IncomingConversationLinks { get; } = new();
+        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
+
+        #endregion Implementing: InteractionNode
+    }
+
+    public class ParticipantAssociation : BaseElement
+    {
+        public ParticipantAssociation()
+        {
+        }
+
+        public Participant? InnerParticipantRef { get; set; }
+        public Participant? OuterParticipantRef { get; set; }
+    }
+
+    public class ParticipantMultiplicity
+    {
+        public ParticipantMultiplicity()
+        {
+        }
+
+        public long? Maximum { get; set; }
+        public long? Minimum { get; set; }
+    }
+
+    public class PartnerEntity : RootElement
+    {
+        public PartnerEntity()
+        {
+        }
+
+        public string? Name { get; set; }
+        public List<Participant> ParticipantRef { get; } = new();
+    }
+
+    public class PartnerRole : RootElement
+    {
+        public PartnerRole()
+        {
+        }
+
+        public string? Name { get; set; }
+        public List<Participant> ParticipantRef { get; } = new();
+    }
+
+    public class Performer : ResourceRole
+    {
+        public Performer()
+        {
+        }
+    }
+
+    public class PotentialOwner : HumanPerformer
+    {
+        public PotentialOwner()
+        {
+        }
+    }
+
+    public class Process : CallableElement, FlowElementsContainer
+    {
+        public Process()
+        {
+        }
+
+        public List<Artifact> Artifacts { get; } = new();
+        public Auditing? Auditing { get; set; }
+        public List<CorrelationSubscription> CorrelationSubscriptions { get; } = new();
+        public Collaboration? DefinitionalCollaborationRef { get; set; }
+        public bool? IsClosed { get; set; }
+        public bool? IsExecutable { get; set; }
+        public Monitoring? Monitoring { get; set; }
+        public ProcessType? ProcessType { get; set; }
+        public List<Property> Properties { get; } = new();
+        public List<ResourceRole> Resources { get; } = new();
+        public List<Process> Supports { get; } = new();
+
+        #region Implementing: FlowElementsContainer
+
+        public List<FlowElement> FlowElements { get; } = new();
+        public List<LaneSet> LaneSets { get; } = new();
+
+        #endregion Implementing: FlowElementsContainer
+
+        #region Camunda attributes
+
+        public string? Camunda_candidateStarterGroups { get; set; }
+        public string? Camunda_candidateStarterUsers { get; set; }
+        public string? Camunda_historyTimeToLive { get; set; }
+        public bool? Camunda_isStartableInTasklist { get; set; }
+        public string? Camunda_jobPriority { get; set; }
+        public string? Camunda_modelerTemplate { get; set; }
+        public long? Camunda_modelerTemplateVersion { get; set; }
+        public string? Camunda_taskPriority { get; set; }
+        public string? Camunda_versionTag { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class Property : BaseElement, ItemAwareElement
+    {
+        public Property()
+        {
+        }
+
+        public string? Name { get; set; }
+
+        #region Implementing: ItemAwareElement
+
+        public DataState? DataState { get; set; }
+        public ItemDefinition? ItemSubjectRef { get; set; }
+
+        #endregion Implementing: ItemAwareElement
+    }
+
+    public class ReceiveTask : Task
+    {
+        public ReceiveTask()
+        {
+        }
+
+        public string? Implementation { get; set; }
+        public bool? Instantiate { get; set; }
+        public Message? MessageRef { get; set; }
+        public Operation? OperationRef { get; set; }
+    }
+
+    public class Relationship : BaseElement
+    {
+        public Relationship()
+        {
+        }
+
+        public RelationshipDirection? Direction { get; set; }
+        public List<Element> Sources { get; } = new();
+        public List<Element> Targets { get; } = new();
+        public string? Type { get; set; }
+    }
+
+    public class Rendering : BaseElement
+    {
+        public Rendering()
+        {
+        }
+    }
+
+    public class Resource : RootElement
+    {
+        public Resource()
+        {
+        }
+
+        public string? Name { get; set; }
+        public List<ResourceParameter> ResourceParameters { get; } = new();
+    }
+
+    public class ResourceAssignmentExpression
+    {
+        public ResourceAssignmentExpression()
+        {
+        }
+
+        public Expression? Expression { get; set; }
+    }
+
+    public class ResourceParameter : BaseElement
+    {
+        public ResourceParameter()
+        {
+        }
+
+        public bool? IsRequired { get; set; }
+        public string? Name { get; set; }
+        public ItemDefinition? Type { get; set; }
+    }
+
+    public class ResourceParameterBinding
+    {
+        public ResourceParameterBinding()
+        {
+        }
+
+        public Expression? Expression { get; set; }
+        public ResourceParameter? ParameterRef { get; set; }
+    }
+
+    public class ResourceRole : BaseElement
+    {
+        public ResourceRole()
+        {
+        }
+
+        public string? Name { get; set; }
+        public ResourceAssignmentExpression? ResourceAssignmentExpression { get; set; }
+        public List<ResourceParameterBinding> ResourceParameterBindings { get; } = new();
+        public Resource? ResourceRef { get; set; }
+    }
+
+    public abstract class RootElement : BaseElement
+    {
+        public RootElement()
+        {
+        }
+    }
+
+    public class ScriptTask : Task
+    {
+        public ScriptTask()
+        {
+        }
+
+        public string? Script { get; set; }
+        public string? ScriptFormat { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_resource { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class SendTask : Task
+    {
+        public SendTask()
+        {
+        }
+
+        public string? Implementation { get; set; }
+        public Message? MessageRef { get; set; }
+        public Operation? OperationRef { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_class { get; set; }
+        public string? Camunda_delegateExpression { get; set; }
+        public string? Camunda_expression { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_taskPriority { get; set; }
+        public string? Camunda_topic { get; set; }
+        public string? Camunda_type { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class SequenceFlow : FlowElement
+    {
+        public SequenceFlow()
+        {
+        }
+
+        public Expression? ConditionExpression { get; set; }
+        public bool? IsImmediate { get; set; }
+        public FlowNode? SourceRef { get; set; }
+        public FlowNode? TargetRef { get; set; }
+    }
+
+    public class ServiceTask : Task
+    {
+        public ServiceTask()
+        {
+        }
+
+        public string? Implementation { get; set; }
+        public Operation? OperationRef { get; set; }
+
+        #region Camunda attributes
+
+        public string? Camunda_class { get; set; }
+        public string? Camunda_delegateExpression { get; set; }
+        public string? Camunda_expression { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_taskPriority { get; set; }
+        public string? Camunda_topic { get; set; }
+        public string? Camunda_type { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class Signal : RootElement
+    {
+        public Signal()
+        {
+        }
+
+        public string? Name { get; set; }
+        public ItemDefinition? StructureRef { get; set; }
+    }
+
+    public class SignalEventDefinition : EventDefinition
+    {
+        public SignalEventDefinition()
+        {
+        }
+
+        public Signal? SignalRef { get; set; }
+
+        #region Camunda attributes
+
+        public bool? Camunda_async { get; set; }
+
+        #endregion Camunda attributes
+    }
+
+    public class StandardLoopCharacteristics : LoopCharacteristics
+    {
+        public StandardLoopCharacteristics()
+        {
+        }
+
+        public Expression? LoopCondition { get; set; }
+        public Expression? LoopMaximum { get; set; }
+        public bool? TestBefore { get; set; }
     }
 
     public class StartEvent : CatchEvent
     {
+        public StartEvent()
+        {
+        }
+
         public bool? IsInterrupting { get; set; }
 
         #region Camunda attributes
+
         public string? Camunda_formHandlerClass { get; set; }
         public string? Camunda_formKey { get; set; }
         public string? Camunda_formRef { get; set; }
         public string? Camunda_formRefBinding { get; set; }
         public string? Camunda_formRefVersion { get; set; }
         public string? Camunda_initiator { get; set; }
-        #endregion
 
-        public StartEvent()
-        {
-        }
-
-    }
-
-    public abstract class ThrowEvent : Event
-    {
-        public InputSet? InputSet { get; set; }
-        public List<EventDefinition> EventDefinitionRefs { get; } = new();
-        public List<DataInputAssociation> DataInputAssociation { get; } = new();
-        public List<DataInput> DataInputs { get; } = new();
-        public List<EventDefinition> EventDefinitions { get; } = new();
-
-        public ThrowEvent()
-        {
-        }
-
-    }
-
-    public abstract class CatchEvent : Event
-    {
-        public bool? ParallelMultiple { get; set; }
-        public OutputSet? OutputSet { get; set; }
-        public List<EventDefinition> EventDefinitionRefs { get; } = new();
-        public List<DataOutputAssociation> DataOutputAssociation { get; } = new();
-        public List<DataOutput> DataOutputs { get; } = new();
-        public List<EventDefinition> EventDefinitions { get; } = new();
-
-        public CatchEvent()
-        {
-        }
-
-    }
-
-    public class BoundaryEvent : CatchEvent
-    {
-        public bool? CancelActivity { get; set; }
-        public Activity? AttachedToRef { get; set; }
-
-        public BoundaryEvent()
-        {
-        }
-
-    }
-
-    public abstract class EventDefinition : RootElement
-    {
-
-        public EventDefinition()
-        {
-        }
-
-    }
-
-    public class CancelEventDefinition : EventDefinition
-    {
-
-        public CancelEventDefinition()
-        {
-        }
-
-    }
-
-    public class ErrorEventDefinition : EventDefinition
-    {
-        public Error? ErrorRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_errorCodeVariable { get; set; }
-        public string? Camunda_errorMessageVariable { get; set; }
-        #endregion
-
-        public ErrorEventDefinition()
-        {
-        }
-
-    }
-
-    public class TerminateEventDefinition : EventDefinition
-    {
-
-        public TerminateEventDefinition()
-        {
-        }
-
-    }
-
-    public class EscalationEventDefinition : EventDefinition
-    {
-        public Escalation? EscalationRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_escalationCodeVariable { get; set; }
-        #endregion
-
-        public EscalationEventDefinition()
-        {
-        }
-
-    }
-
-    public class Escalation
-    {
-        public ItemDefinition? StructureRef { get; set; }
-        public string? Name { get; set; }
-        public string? EscalationCode { get; set; }
-
-        public Escalation()
-        {
-        }
-
-    }
-
-    public class CompensateEventDefinition : EventDefinition
-    {
-        public bool? WaitForCompletion { get; set; }
-        public Activity? ActivityRef { get; set; }
-
-        public CompensateEventDefinition()
-        {
-        }
-
-    }
-
-    public class TimerEventDefinition : EventDefinition
-    {
-        public Expression? TimeDate { get; set; }
-        public Expression? TimeCycle { get; set; }
-        public Expression? TimeDuration { get; set; }
-
-        public TimerEventDefinition()
-        {
-        }
-
-    }
-
-    public class LinkEventDefinition : EventDefinition
-    {
-        public string? Name { get; set; }
-        public LinkEventDefinition? Target { get; set; }
-        public List<LinkEventDefinition> Source { get; } = new();
-
-        public LinkEventDefinition()
-        {
-        }
-
-    }
-
-    public class MessageEventDefinition : EventDefinition
-    {
-        public Message? MessageRef { get; set; }
-        public Operation? OperationRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_expression { get; set; }
-        public string? Camunda_class { get; set; }
-        public string? Camunda_delegateExpression { get; set; }
-        public string? Camunda_resultVariable { get; set; }
-        public string? Camunda_type { get; set; }
-        public string? Camunda_topic { get; set; }
-        public string? Camunda_taskPriority { get; set; }
-        #endregion
-
-        public MessageEventDefinition()
-        {
-        }
-
-    }
-
-    public class ConditionalEventDefinition : EventDefinition
-    {
-        public Expression? Condition { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_variableName { get; set; }
-        public string? Camunda_variableEvents { get; set; }
-        #endregion
-
-        public ConditionalEventDefinition()
-        {
-        }
-
-    }
-
-    public class SignalEventDefinition : EventDefinition
-    {
-        public Signal? SignalRef { get; set; }
-
-        #region Camunda attributes
-        public bool? Camunda_async { get; set; }
-        #endregion
-
-        public SignalEventDefinition()
-        {
-        }
-
-    }
-
-    public class Signal : RootElement
-    {
-        public ItemDefinition? StructureRef { get; set; }
-        public string? Name { get; set; }
-
-        public Signal()
-        {
-        }
-
-    }
-
-    public class ImplicitThrowEvent : ThrowEvent
-    {
-
-        public ImplicitThrowEvent()
-        {
-        }
-
-    }
-
-    public class DataState : BaseElement
-    {
-        public string? Name { get; set; }
-
-        public DataState()
-        {
-        }
-
-    }
-
-    public interface ItemAwareElement
-    {
-        ItemDefinition? ItemSubjectRef { get; set; }
-        DataState? DataState { get; set; }
-
-    }
-
-    public class DataAssociation : BaseElement
-    {
-        public FormalExpression? Transformation { get; set; }
-        public List<Assignment> Assignment { get; } = new();
-        public ItemAwareElement? TargetRef { get; set; }
-        public List<ItemAwareElement> SourceRef { get; } = new();
-
-        public DataAssociation()
-        {
-        }
-
-    }
-
-    public class DataInput : BaseElement, ItemAwareElement
-    {
-        public string? Name { get; set; }
-        public bool? IsCollection { get; set; }
-        public List<InputSet> InputSetRefs { get; } = new();
-        public List<InputSet> InputSetWithOptional { get; } = new();
-        public List<InputSet> InputSetWithWhileExecuting { get; } = new();
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public DataInput()
-        {
-        }
-
-    }
-
-    public class DataOutput : BaseElement, ItemAwareElement
-    {
-        public string? Name { get; set; }
-        public bool? IsCollection { get; set; }
-        public List<OutputSet> OutputSetRefs { get; } = new();
-        public List<OutputSet> OutputSetWithOptional { get; } = new();
-        public List<OutputSet> OutputSetWithWhileExecuting { get; } = new();
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public DataOutput()
-        {
-        }
-
-    }
-
-    public class InputSet : BaseElement
-    {
-        public string? Name { get; set; }
-        public List<DataInput> DataInputRefs { get; } = new();
-        public List<DataInput> OptionalInputRefs { get; } = new();
-        public List<DataInput> WhileExecutingInputRefs { get; } = new();
-        public List<OutputSet> OutputSetRefs { get; } = new();
-
-        public InputSet()
-        {
-        }
-
-    }
-
-    public class OutputSet : BaseElement
-    {
-        public List<DataOutput> DataOutputRefs { get; } = new();
-        public string? Name { get; set; }
-        public List<InputSet> InputSetRefs { get; } = new();
-        public List<DataOutput> OptionalOutputRefs { get; } = new();
-        public List<DataOutput> WhileExecutingOutputRefs { get; } = new();
-
-        public OutputSet()
-        {
-        }
-
-    }
-
-    public class Property : BaseElement, ItemAwareElement
-    {
-        public string? Name { get; set; }
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public Property()
-        {
-        }
-
-    }
-
-    public class DataInputAssociation : DataAssociation
-    {
-
-        public DataInputAssociation()
-        {
-        }
-
-    }
-
-    public class DataOutputAssociation : DataAssociation
-    {
-
-        public DataOutputAssociation()
-        {
-        }
-
-    }
-
-    public class InputOutputSpecification : BaseElement
-    {
-        public List<InputSet> InputSets { get; } = new();
-        public List<OutputSet> OutputSets { get; } = new();
-        public List<DataInput> DataInputs { get; } = new();
-        public List<DataOutput> DataOutputs { get; } = new();
-
-        public InputOutputSpecification()
-        {
-        }
-
-    }
-
-    public class DataObject : FlowElement, ItemAwareElement
-    {
-        public bool? IsCollection { get; set; }
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public DataObject()
-        {
-        }
-
-    }
-
-    public class InputOutputBinding
-    {
-        public InputSet? InputDataRef { get; set; }
-        public OutputSet? OutputDataRef { get; set; }
-        public Operation? OperationRef { get; set; }
-
-        public InputOutputBinding()
-        {
-        }
-
-    }
-
-    public class Assignment : BaseElement
-    {
-        public Expression? From { get; set; }
-        public Expression? To { get; set; }
-
-        public Assignment()
-        {
-        }
-
-    }
-
-    public class DataStore : RootElement, ItemAwareElement
-    {
-        public string? Name { get; set; }
-        public long? Capacity { get; set; }
-        public bool? IsUnlimited { get; set; }
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public DataStore()
-        {
-        }
-
-    }
-
-    public class DataStoreReference : FlowElement, ItemAwareElement
-    {
-        public DataStore? DataStoreRef { get; set; }
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public DataStoreReference()
-        {
-        }
-
-    }
-
-    public class DataObjectReference : FlowElement, ItemAwareElement
-    {
-        public DataObject? DataObjectRef { get; set; }
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public DataObjectReference()
-        {
-        }
-
-    }
-
-    public class ConversationLink : BaseElement
-    {
-        public InteractionNode? SourceRef { get; set; }
-        public InteractionNode? TargetRef { get; set; }
-        public string? Name { get; set; }
-
-        public ConversationLink()
-        {
-        }
-
-    }
-
-    public class ConversationAssociation : BaseElement
-    {
-        public ConversationNode? InnerConversationNodeRef { get; set; }
-        public ConversationNode? OuterConversationNodeRef { get; set; }
-
-        public ConversationAssociation()
-        {
-        }
-
-    }
-
-    public class CallConversation : ConversationNode
-    {
-        public Collaboration? CalledCollaborationRef { get; set; }
-        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
-
-        public CallConversation()
-        {
-        }
-
-    }
-
-    public class Conversation : ConversationNode
-    {
-
-        public Conversation()
-        {
-        }
-
-    }
-
-    public class SubConversation : ConversationNode
-    {
-        public List<ConversationNode> ConversationNodes { get; } = new();
-
-        public SubConversation()
-        {
-        }
-
-    }
-
-    public abstract class ConversationNode : BaseElement, InteractionNode
-    {
-        public string? Name { get; set; }
-        public List<Participant> ParticipantRefs { get; } = new();
-        public List<MessageFlow> MessageFlowRefs { get; } = new();
-        public List<CorrelationKey> CorrelationKeys { get; } = new();
-
-
-        #region Implementing: InteractionNode
-        public List<ConversationLink> IncomingConversationLinks { get; } = new();
-        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
-        #endregion
-
-        public ConversationNode()
-        {
-        }
-
-    }
-
-    public class GlobalConversation : Collaboration
-    {
-
-        public GlobalConversation()
-        {
-        }
-
-    }
-
-    public class PartnerEntity : RootElement
-    {
-        public string? Name { get; set; }
-        public List<Participant> ParticipantRef { get; } = new();
-
-        public PartnerEntity()
-        {
-        }
-
-    }
-
-    public class PartnerRole : RootElement
-    {
-        public string? Name { get; set; }
-        public List<Participant> ParticipantRef { get; } = new();
-
-        public PartnerRole()
-        {
-        }
-
-    }
-
-    public class CorrelationProperty : RootElement
-    {
-        public List<CorrelationPropertyRetrievalExpression> CorrelationPropertyRetrievalExpression { get; } = new();
-        public string? Name { get; set; }
-        public ItemDefinition? Type { get; set; }
-
-        public CorrelationProperty()
-        {
-        }
-
-    }
-
-    public class Error : RootElement
-    {
-        public ItemDefinition? StructureRef { get; set; }
-        public string? Name { get; set; }
-        public string? ErrorCode { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_errorMessage { get; set; }
-        #endregion
-
-        public Error()
-        {
-        }
-
-    }
-
-    public class CorrelationKey : BaseElement
-    {
-        public List<CorrelationProperty> CorrelationPropertyRef { get; } = new();
-        public string? Name { get; set; }
-
-        public CorrelationKey()
-        {
-        }
-
-    }
-
-    public class Expression : BaseElement
-    {
-
-        public Expression()
-        {
-        }
-
-    }
-
-    public class FormalExpression : Expression
-    {
-        public string? Language { get; set; }
-        public Element? Body { get; set; }
-        public ItemDefinition? EvaluatesToTypeRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_resource { get; set; }
-        #endregion
-
-        public FormalExpression()
-        {
-        }
-
-    }
-
-    public class Message : RootElement
-    {
-        public string? Name { get; set; }
-        public ItemDefinition? ItemRef { get; set; }
-
-        public Message()
-        {
-        }
-
-    }
-
-    public class ItemDefinition : RootElement
-    {
-        public ItemKind? ItemKind { get; set; }
-        public Element? StructureRef { get; set; }
-        public bool? IsCollection { get; set; }
-        public Import? Import { get; set; }
-
-        public ItemDefinition()
-        {
-        }
-
-    }
-
-    public abstract class FlowElement : BaseElement
-    {
-        public string? Name { get; set; }
-        public Auditing? Auditing { get; set; }
-        public Monitoring? Monitoring { get; set; }
-        public List<CategoryValue> CategoryValueRef { get; } = new();
-
-        #region Camunda attributes
-        public string? Camunda_modelerTemplate { get; set; }
-        public long? Camunda_modelerTemplateVersion { get; set; }
-        #endregion
-
-        public FlowElement()
-        {
-        }
-
-    }
-
-    public class SequenceFlow : FlowElement
-    {
-        public bool? IsImmediate { get; set; }
-        public Expression? ConditionExpression { get; set; }
-        public FlowNode? SourceRef { get; set; }
-        public FlowNode? TargetRef { get; set; }
-
-        public SequenceFlow()
-        {
-        }
-
-    }
-
-    public interface FlowElementsContainer // abstract 
-    {
-        List<FlowElement> FlowElements { get; }
-        List<LaneSet> LaneSets { get; }
-
-    }
-
-    public abstract class CallableElement : RootElement
-    {
-        public string? Name { get; set; }
-        public InputOutputSpecification? IoSpecification { get; set; }
-        public List<Interface> SupportedInterfaceRefs { get; } = new();
-        public List<InputOutputBinding> IoBinding { get; } = new();
-
-        public CallableElement()
-        {
-        }
-
-    }
-
-    public abstract class FlowNode : FlowElement
-    {
-        public List<SequenceFlow> Outgoing { get; } = new();
-        public List<SequenceFlow> Incoming { get; } = new();
-        public List<Lane> Lanes { get; } = new();
-
-        public FlowNode()
-        {
-        }
-
-    }
-
-    public class CorrelationPropertyRetrievalExpression : BaseElement
-    {
-        public FormalExpression? MessagePath { get; set; }
-        public Message? MessageRef { get; set; }
-
-        public CorrelationPropertyRetrievalExpression()
-        {
-        }
-
-    }
-
-    public class CorrelationPropertyBinding : BaseElement
-    {
-        public FormalExpression? DataPath { get; set; }
-        public CorrelationProperty? CorrelationPropertyRef { get; set; }
-
-        public CorrelationPropertyBinding()
-        {
-        }
-
-    }
-
-    public class Resource : RootElement
-    {
-        public string? Name { get; set; }
-        public List<ResourceParameter> ResourceParameters { get; } = new();
-
-        public Resource()
-        {
-        }
-
-    }
-
-    public class ResourceParameter : BaseElement
-    {
-        public string? Name { get; set; }
-        public bool? IsRequired { get; set; }
-        public ItemDefinition? Type { get; set; }
-
-        public ResourceParameter()
-        {
-        }
-
-    }
-
-    public class CorrelationSubscription : BaseElement
-    {
-        public CorrelationKey? CorrelationKeyRef { get; set; }
-        public List<CorrelationPropertyBinding> CorrelationPropertyBinding { get; } = new();
-
-        public CorrelationSubscription()
-        {
-        }
-
-    }
-
-    public class MessageFlow : BaseElement
-    {
-        public string? Name { get; set; }
-        public InteractionNode? SourceRef { get; set; }
-        public InteractionNode? TargetRef { get; set; }
-        public Message? MessageRef { get; set; }
-
-        public MessageFlow()
-        {
-        }
-
-    }
-
-    public class MessageFlowAssociation : BaseElement
-    {
-        public MessageFlow? InnerMessageFlowRef { get; set; }
-        public MessageFlow? OuterMessageFlowRef { get; set; }
-
-        public MessageFlowAssociation()
-        {
-        }
-
-    }
-
-    public interface InteractionNode // abstract 
-    {
-        List<ConversationLink> IncomingConversationLinks { get; }
-        List<ConversationLink> OutgoingConversationLinks { get; }
-
-    }
-
-    public class Participant : BaseElement, InteractionNode
-    {
-        public string? Name { get; set; }
-        public List<Interface> InterfaceRefs { get; } = new();
-        public ParticipantMultiplicity? ParticipantMultiplicity { get; set; }
-        public List<EndPoint> EndPointRefs { get; } = new();
-        public Process? ProcessRef { get; set; }
-
-
-        #region Implementing: InteractionNode
-        public List<ConversationLink> IncomingConversationLinks { get; } = new();
-        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
-        #endregion
-
-        public Participant()
-        {
-        }
-
-    }
-
-    public class ParticipantAssociation : BaseElement
-    {
-        public Participant? InnerParticipantRef { get; set; }
-        public Participant? OuterParticipantRef { get; set; }
-
-        public ParticipantAssociation()
-        {
-        }
-
-    }
-
-    public class ParticipantMultiplicity
-    {
-        public long? Minimum { get; set; }
-        public long? Maximum { get; set; }
-
-        public ParticipantMultiplicity()
-        {
-        }
-
-    }
-
-    public class Collaboration : RootElement
-    {
-        public string? Name { get; set; }
-        public bool? IsClosed { get; set; }
-        public List<Choreography> ChoreographyRef { get; } = new();
-        public List<Artifact> Artifacts { get; } = new();
-        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
-        public List<MessageFlowAssociation> MessageFlowAssociations { get; } = new();
-        public ConversationAssociation? ConversationAssociations { get; set; }
-        public List<Participant> Participants { get; } = new();
-        public List<MessageFlow> MessageFlows { get; } = new();
-        public List<CorrelationKey> CorrelationKeys { get; } = new();
-        public List<ConversationNode> Conversations { get; } = new();
-        public List<ConversationLink> ConversationLinks { get; } = new();
-
-        #region Camunda attributes
-        public string? Camunda_modelerTemplate { get; set; }
-        public long? Camunda_modelerTemplateVersion { get; set; }
-        #endregion
-
-        public Collaboration()
-        {
-        }
-
-    }
-
-    public abstract class ChoreographyActivity : FlowNode
-    {
-        public List<Participant> ParticipantRefs { get; } = new();
-        public Participant? InitiatingParticipantRef { get; set; }
-        public List<CorrelationKey> CorrelationKeys { get; } = new();
-        public ChoreographyLoopType? LoopType { get; set; }
-
-        public ChoreographyActivity()
-        {
-        }
-
-    }
-
-    public class CallChoreography : ChoreographyActivity
-    {
-        public Choreography? CalledChoreographyRef { get; set; }
-        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
-
-        public CallChoreography()
-        {
-        }
-
+        #endregion Camunda attributes
     }
 
     public class SubChoreography : ChoreographyActivity, FlowElementsContainer
     {
-        public List<Artifact> Artifacts { get; } = new();
-
-
-        #region Implementing: FlowElementsContainer
-        public List<FlowElement> FlowElements { get; } = new();
-        public List<LaneSet> LaneSets { get; } = new();
-        #endregion
-
         public SubChoreography()
         {
         }
 
-    }
-
-    public class ChoreographyTask : ChoreographyActivity
-    {
-        public List<MessageFlow> MessageFlowRef { get; } = new();
-
-        public ChoreographyTask()
-        {
-        }
-
-    }
-
-    public class Choreography : Collaboration, FlowElementsContainer
-    {
-
+        public List<Artifact> Artifacts { get; } = new();
 
         #region Implementing: FlowElementsContainer
+
         public List<FlowElement> FlowElements { get; } = new();
         public List<LaneSet> LaneSets { get; } = new();
-        #endregion
 
-        public Choreography()
-        {
-        }
-
+        #endregion Implementing: FlowElementsContainer
     }
 
-    public class GlobalChoreographyTask : Choreography
+    public class SubConversation : ConversationNode
     {
-        public Participant? InitiatingParticipantRef { get; set; }
-
-        public GlobalChoreographyTask()
+        public SubConversation()
         {
         }
 
-    }
-
-    public class TextAnnotation : Artifact
-    {
-        public string? Text { get; set; }
-        public string? TextFormat { get; set; }
-
-        public TextAnnotation()
-        {
-        }
-
-    }
-
-    public class Group : Artifact
-    {
-        public CategoryValue? CategoryValueRef { get; set; }
-
-        public Group()
-        {
-        }
-
-    }
-
-    public class Association : Artifact
-    {
-        public AssociationDirection? AssociationDirection { get; set; }
-        public BaseElement? SourceRef { get; set; }
-        public BaseElement? TargetRef { get; set; }
-
-        public Association()
-        {
-        }
-
-    }
-
-    public class Category : RootElement
-    {
-        public List<CategoryValue> CategoryValue { get; } = new();
-        public string? Name { get; set; }
-
-        public Category()
-        {
-        }
-
-    }
-
-    public abstract class Artifact : BaseElement
-    {
-
-        public Artifact()
-        {
-        }
-
-    }
-
-    public class CategoryValue : BaseElement
-    {
-        public List<FlowElement> CategorizedFlowElements { get; } = new();
-        public string? Value { get; set; }
-
-        public CategoryValue()
-        {
-        }
-
-    }
-
-    public abstract class Activity : FlowNode
-    {
-        public bool? IsForCompensation { get; set; }
-        public LoopCharacteristics? LoopCharacteristics { get; set; }
-        public List<ResourceRole> Resources { get; } = new();
-        public SequenceFlow? Default { get; set; }
-        public List<Property> Properties { get; } = new();
-        public InputOutputSpecification? IoSpecification { get; set; }
-        public List<BoundaryEvent> BoundaryEventRefs { get; } = new();
-        public List<DataInputAssociation> DataInputAssociations { get; } = new();
-        public List<DataOutputAssociation> DataOutputAssociations { get; } = new();
-        public long? StartQuantity { get; set; }
-        public long? CompletionQuantity { get; set; }
-
-        #region Camunda attributes
-        public bool? Camunda_async { get; set; }
-        public bool? Camunda_asyncBefore { get; set; }
-        public bool? Camunda_asyncAfter { get; set; }
-        public bool? Camunda_exclusive { get; set; }
-        public string? Camunda_jobPriority { get; set; }
-        #endregion
-
-        public Activity()
-        {
-        }
-
-    }
-
-    public class ServiceTask : Task
-    {
-        public string? Implementation { get; set; }
-        public Operation? OperationRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_expression { get; set; }
-        public string? Camunda_class { get; set; }
-        public string? Camunda_delegateExpression { get; set; }
-        public string? Camunda_resultVariable { get; set; }
-        public string? Camunda_type { get; set; }
-        public string? Camunda_topic { get; set; }
-        public string? Camunda_taskPriority { get; set; }
-        #endregion
-
-        public ServiceTask()
-        {
-        }
-
+        public List<ConversationNode> ConversationNodes { get; } = new();
     }
 
     public class SubProcess : Activity, FlowElementsContainer
     {
-        public bool? TriggeredByEvent { get; set; }
-        public List<Artifact> Artifacts { get; } = new();
-
-
-        #region Implementing: FlowElementsContainer
-        public List<FlowElement> FlowElements { get; } = new();
-        public List<LaneSet> LaneSets { get; } = new();
-        #endregion
-
         public SubProcess()
         {
         }
 
-    }
+        public List<Artifact> Artifacts { get; } = new();
+        public bool? TriggeredByEvent { get; set; }
 
-    public abstract class LoopCharacteristics : BaseElement
-    {
+        #region Implementing: FlowElementsContainer
 
-        public LoopCharacteristics()
-        {
-        }
+        public List<FlowElement> FlowElements { get; } = new();
+        public List<LaneSet> LaneSets { get; } = new();
 
-    }
-
-    public class MultiInstanceLoopCharacteristics : LoopCharacteristics
-    {
-        public bool? IsSequential { get; set; }
-        public MultiInstanceBehavior? Behavior { get; set; }
-        public Expression? LoopCardinality { get; set; }
-        public ItemAwareElement? LoopDataInputRef { get; set; }
-        public ItemAwareElement? LoopDataOutputRef { get; set; }
-        public DataInput? InputDataItem { get; set; }
-        public DataOutput? OutputDataItem { get; set; }
-        public Expression? CompletionCondition { get; set; }
-        public List<ComplexBehaviorDefinition> ComplexBehaviorDefinition { get; } = new();
-        public EventDefinition? OneBehaviorEventRef { get; set; }
-        public EventDefinition? NoneBehaviorEventRef { get; set; }
-
-        #region Camunda attributes
-        public bool? Camunda_async { get; set; }
-        public bool? Camunda_asyncBefore { get; set; }
-        public bool? Camunda_asyncAfter { get; set; }
-        public bool? Camunda_exclusive { get; set; }
-        public string? Camunda_collection { get; set; }
-        public string? Camunda_elementVariable { get; set; }
-        #endregion
-
-        public MultiInstanceLoopCharacteristics()
-        {
-        }
-
-    }
-
-    public class StandardLoopCharacteristics : LoopCharacteristics
-    {
-        public bool? TestBefore { get; set; }
-        public Expression? LoopCondition { get; set; }
-        public Expression? LoopMaximum { get; set; }
-
-        public StandardLoopCharacteristics()
-        {
-        }
-
-    }
-
-    public class CallActivity : Activity
-    {
-        public CallableElement? CalledElementRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_calledElementBinding { get; set; }
-        public string? Camunda_calledElementVersion { get; set; }
-        public string? Camunda_calledElementVersionTag { get; set; }
-        public string? Camunda_calledElementTenantId { get; set; }
-        public string? Camunda_caseRef { get; set; }
-        public string? Camunda_caseBinding { get; set; }
-        public string? Camunda_caseVersion { get; set; }
-        public string? Camunda_caseTenantId { get; set; }
-        public string? Camunda_variableMappingClass { get; set; }
-        public string? Camunda_variableMappingDelegateExpression { get; set; }
-        #endregion
-
-        public CallActivity()
-        {
-        }
-
+        #endregion Implementing: FlowElementsContainer
     }
 
     public class Task : Activity, InteractionNode
     {
-
-
         #region Implementing: InteractionNode
+
         public List<ConversationLink> IncomingConversationLinks { get; } = new();
         public List<ConversationLink> OutgoingConversationLinks { get; } = new();
-        #endregion
+
+        #endregion Implementing: InteractionNode
 
         public Task()
         {
         }
-
     }
 
-    public class SendTask : Task
+    public class TerminateEventDefinition : EventDefinition
     {
-        public string? Implementation { get; set; }
-        public Operation? OperationRef { get; set; }
-        public Message? MessageRef { get; set; }
+        public TerminateEventDefinition()
+        {
+        }
+    }
 
-        #region Camunda attributes
-        public string? Camunda_expression { get; set; }
-        public string? Camunda_class { get; set; }
-        public string? Camunda_delegateExpression { get; set; }
-        public string? Camunda_resultVariable { get; set; }
-        public string? Camunda_type { get; set; }
-        public string? Camunda_topic { get; set; }
-        public string? Camunda_taskPriority { get; set; }
-        #endregion
-
-        public SendTask()
+    public class TextAnnotation : Artifact
+    {
+        public TextAnnotation()
         {
         }
 
+        public string? Text { get; set; }
+        public string? TextFormat { get; set; }
     }
 
-    public class ReceiveTask : Task
+    public abstract class ThrowEvent : Event
     {
-        public string? Implementation { get; set; }
-        public bool? Instantiate { get; set; }
-        public Operation? OperationRef { get; set; }
-        public Message? MessageRef { get; set; }
-
-        public ReceiveTask()
+        public ThrowEvent()
         {
         }
 
+        public List<DataInputAssociation> DataInputAssociation { get; } = new();
+        public List<DataInput> DataInputs { get; } = new();
+        public List<EventDefinition> EventDefinitionRefs { get; } = new();
+        public List<EventDefinition> EventDefinitions { get; } = new();
+        public InputSet? InputSet { get; set; }
     }
 
-    public class ScriptTask : Task
+    public class TimerEventDefinition : EventDefinition
     {
-        public string? ScriptFormat { get; set; }
-        public string? Script { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_resultVariable { get; set; }
-        public string? Camunda_resource { get; set; }
-        #endregion
-
-        public ScriptTask()
+        public TimerEventDefinition()
         {
         }
 
-    }
-
-    public class BusinessRuleTask : Task
-    {
-        public string? Implementation { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_expression { get; set; }
-        public string? Camunda_class { get; set; }
-        public string? Camunda_delegateExpression { get; set; }
-        public string? Camunda_resultVariable { get; set; }
-        public string? Camunda_type { get; set; }
-        public string? Camunda_topic { get; set; }
-        public string? Camunda_taskPriority { get; set; }
-        public string? Camunda_decisionRef { get; set; }
-        public string? Camunda_decisionRefBinding { get; set; }
-        public string? Camunda_decisionRefVersion { get; set; }
-        public string? Camunda_mapDecisionResult { get; set; }
-        public string? Camunda_decisionRefTenantId { get; set; }
-        #endregion
-
-        public BusinessRuleTask()
-        {
-        }
-
-    }
-
-    public class AdHocSubProcess : SubProcess
-    {
-        public Expression? CompletionCondition { get; set; }
-        public AdHocOrdering? Ordering { get; set; }
-        public bool? CancelRemainingInstances { get; set; }
-
-        public AdHocSubProcess()
-        {
-        }
-
+        public Expression? TimeCycle { get; set; }
+        public Expression? TimeDate { get; set; }
+        public Expression? TimeDuration { get; set; }
     }
 
     public class Transaction : SubProcess
     {
-        public string? Protocol { get; set; }
-        public string? Method { get; set; }
-
         public Transaction()
         {
         }
 
+        public string? Method { get; set; }
+        public string? Protocol { get; set; }
     }
 
-    public class GlobalScriptTask : GlobalTask
+    public class UserTask : Task
     {
-        public string? ScriptLanguage { get; set; }
-        public string? Script { get; set; }
-
-        public GlobalScriptTask()
+        public UserTask()
         {
         }
 
-    }
-
-    public class GlobalBusinessRuleTask : GlobalTask
-    {
         public string? Implementation { get; set; }
-
-        public GlobalBusinessRuleTask()
-        {
-        }
-
-    }
-
-    public class ComplexBehaviorDefinition : BaseElement
-    {
-        public FormalExpression? Condition { get; set; }
-        public ImplicitThrowEvent? Event { get; set; }
-
-        public ComplexBehaviorDefinition()
-        {
-        }
-
-    }
-
-    public class ResourceRole : BaseElement
-    {
-        public Resource? ResourceRef { get; set; }
-        public List<ResourceParameterBinding> ResourceParameterBindings { get; } = new();
-        public ResourceAssignmentExpression? ResourceAssignmentExpression { get; set; }
-        public string? Name { get; set; }
-
-        public ResourceRole()
-        {
-        }
-
-    }
-
-    public class ResourceParameterBinding
-    {
-        public Expression? Expression { get; set; }
-        public ResourceParameter? ParameterRef { get; set; }
-
-        public ResourceParameterBinding()
-        {
-        }
-
-    }
-
-    public class ResourceAssignmentExpression
-    {
-        public Expression? Expression { get; set; }
-
-        public ResourceAssignmentExpression()
-        {
-        }
-
-    }
-
-    public class Import
-    {
-        public string? ImportType { get; set; }
-        public string? Location { get; set; }
-        public string? Namespace { get; set; }
-
-        public Import()
-        {
-        }
-
-    }
-
-    public class Definitions : BaseElement
-    {
-        public string? Name { get; set; }
-        public string? TargetNamespace { get; set; }
-        public string? ExpressionLanguage { get; set; }
-        public string? TypeLanguage { get; set; }
-        public List<Import> Imports { get; } = new();
-        public List<Extension> Extensions { get; } = new();
-        public List<Relationship> Relationships { get; } = new();
-        public List<RootElement> RootElements { get; } = new();
-        public string? Exporter { get; set; }
-        public string? ExporterVersion { get; set; }
+        public List<Rendering> Renderings { get; } = new();
 
         #region Camunda attributes
-        public string? Camunda_diagramRelationId { get; set; }
-        #endregion
 
-        public Definitions()
-        {
-        }
+        public string? Camunda_assignee { get; set; }
+        public string? Camunda_candidateGroups { get; set; }
+        public string? Camunda_candidateUsers { get; set; }
+        public string? Camunda_dueDate { get; set; }
+        public string? Camunda_followUpDate { get; set; }
+        public string? Camunda_formHandlerClass { get; set; }
+        public string? Camunda_formKey { get; set; }
+        public string? Camunda_formRef { get; set; }
+        public string? Camunda_formRefBinding { get; set; }
+        public string? Camunda_formRefVersion { get; set; }
+        public string? Camunda_priority { get; set; }
 
+        #endregion Camunda attributes
     }
-    #endregion
+
+    #endregion Classes (137 items)
 
     #region Enumerations (9 items)
-    public enum ProcessType
-    {
-        None,
-        Public,
-        Private,
-    }
 
-    public enum GatewayDirection
-    {
-        Unspecified,
-        Converging,
-        Diverging,
-        Mixed,
-    }
-
-    public enum EventBasedGatewayType
+    public enum AdHocOrdering
     {
         Parallel,
-        Exclusive,
+        Sequential,
     }
 
-    public enum RelationshipDirection
+    public enum AssociationDirection
     {
         None,
-        Forward,
-        Backward,
+        One,
         Both,
-    }
-
-    public enum ItemKind
-    {
-        Physical,
-        Information,
     }
 
     public enum ChoreographyLoopType
@@ -1847,11 +1722,24 @@ namespace BPMNModel.Model
         MultiInstanceParallel,
     }
 
-    public enum AssociationDirection
+    public enum EventBasedGatewayType
     {
-        None,
-        One,
-        Both,
+        Parallel,
+        Exclusive,
+    }
+
+    public enum GatewayDirection
+    {
+        Unspecified,
+        Converging,
+        Diverging,
+        Mixed,
+    }
+
+    public enum ItemKind
+    {
+        Physical,
+        Information,
     }
 
     public enum MultiInstanceBehavior
@@ -1862,11 +1750,20 @@ namespace BPMNModel.Model
         Complex,
     }
 
-    public enum AdHocOrdering
+    public enum ProcessType
     {
-        Parallel,
-        Sequential,
+        None,
+        Public,
+        Private,
     }
 
-    #endregion
+    public enum RelationshipDirection
+    {
+        None,
+        Forward,
+        Backward,
+        Both,
+    }
+
+    #endregion Enumerations (9 items)
 }

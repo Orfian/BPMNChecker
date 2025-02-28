@@ -11,6 +11,7 @@
 
         public override string Name => ReferencedElement.Name;
         public RootElement ReferencedElement { get; init; }
+
         public override string ToString()
         {
             return $"<refToRootElement {ReferencedElement.Name} min={MinOccurs} max={MaxOccurs}>";

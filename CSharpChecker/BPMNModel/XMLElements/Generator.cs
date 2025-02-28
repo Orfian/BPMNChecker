@@ -1,6 +1,4 @@
-﻿using BPMNModel.Camunda;
-using Serilog;
-using System.Xml;
+﻿using Serilog;
 using System.Xml.Linq;
 using Utility;
 
@@ -8,16 +6,12 @@ namespace BPMNModel.XMLElements
 {
     public class Generator
     {
-
         private ILogger logger;
 
         private Generator(ILogger logger)
         {
             this.logger = logger;
         }
-
-        public Dictionary<string, RootElement> Elements { get; } = new();
-        public Dictionary<string, ElementType> Types { get; } = new();
 
         /// <summary>
         /// Gets the camunda types based on element names, names are in format like: camunda:field
@@ -26,6 +20,9 @@ namespace BPMNModel.XMLElements
         /// (camunda:name - small letter at the begining , processed camunda types)
         /// </value>
         public Dictionary<string, CamundaElementType> CamundaTypes { get; } = new();
+
+        public Dictionary<string, RootElement> Elements { get; } = new();
+        public Dictionary<string, ElementType> Types { get; } = new();
 
         public static Generator CreateGenerator(ILogger logger)
         {
@@ -76,7 +73,6 @@ namespace BPMNModel.XMLElements
             XDocument bpmn20 = ResourcesUtility.LoadResourceAsXDocument($@"definitions/BPMN20.xsd");
 
             Load(bpmn20, result);
-
 
             foreach (var type in result.Types)
             {

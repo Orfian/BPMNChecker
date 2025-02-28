@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BPMNModel.XMLElements;
 using System.Xml.Linq;
-using BPMNModel.XMLElements;
 using Utility;
 
 namespace BPMNModel.XMLParser
@@ -12,6 +7,7 @@ namespace BPMNModel.XMLParser
     public class XmlParserAttribute
     {
         private object? processedValue = null;
+
         public XmlParserAttribute(string name, XName xmlName, string value, AttributeXMLType type)
         {
             Value = value;
@@ -19,8 +15,9 @@ namespace BPMNModel.XMLParser
             Type = type;
             XmlName = xmlName;
         }
-        public XName XmlName { get; set; }
+
         public string Name { get; init; }
+
         public object? ProcessedValue
         {
             get
@@ -53,6 +50,8 @@ namespace BPMNModel.XMLParser
 
         public AttributeXMLType Type { get; init; }
         public string Value { get; init; }
+        public XName XmlName { get; set; }
+
         public override string ToString()
         {
             if ((Type == AttributeXMLType.IDRef || Type == AttributeXMLType.QName) && ProcessedValue is not null)
