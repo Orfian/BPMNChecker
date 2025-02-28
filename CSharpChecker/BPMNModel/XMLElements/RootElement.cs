@@ -1,6 +1,6 @@
 ﻿using Utility;
 
-namespace BPMNModel
+namespace BPMNModel.XMLElements
 {
     public class RootElement : NamedElement
     {

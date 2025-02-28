@@ -1,4 +1,4 @@
-﻿namespace BPMNModel
+﻿namespace BPMNModel.XMLElements
 {
     public class NamedElement : Element
     {

@@ -3,6 +3,7 @@
 /// </summary>
 namespace BPMNModel.Model
 {
+    using BPMNModel.XMLParser;
     using Utility;
 
     public partial class Factory

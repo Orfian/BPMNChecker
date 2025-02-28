@@ -1,5 +1,5 @@
 ﻿using BPMNModel.Camunda;
-using BPMNModel.Model;
+using BPMNModel.XMLElements;
 using Microsoft.Extensions.Logging.Abstractions;
 using Serilog;
 using System;
@@ -15,7 +15,7 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 using Utility;
 
-namespace BPMNModel
+namespace BPMNModel.XMLParser
 {
     public class XmlParser
     {
@@ -131,7 +131,8 @@ namespace BPMNModel
                 if (namespaces.ContainsKey(namespaceString))
                 {
                     return namespaces[namespaceString] + localName;
-                } else
+                }
+                else
                 {
                     throw new BPMNCheckerExceptions($"In the model, there should be no unknown namespacesl like: {namespaceString}.");
                 }
@@ -288,7 +289,7 @@ namespace BPMNModel
                                 var realElementCategory = generator.Elements[localName];
 
                                 if (reference.ReferencedElement == realElementCategory ||
-                                    (realElementCategory.Group is not null && realElementCategory.Group == reference.Name))
+                                    realElementCategory.Group is not null && realElementCategory.Group == reference.Name)
                                 {
                                     var createdNode = LoadAndCheck(currentElement, generator.Elements[localName]);
                                     if (createdNode != null)
@@ -463,7 +464,7 @@ namespace BPMNModel
 
                                         bool atLeastOneAllowed = false;
 
-                                        foreach(var allowedCamundaTypeJSON in allAllowedCamundaElementTypes)
+                                        foreach (var allowedCamundaTypeJSON in allAllowedCamundaElementTypes)
                                         {
                                             var matchingCamundaTypes = generator.CamundaTypes.Where(x => x.Value.Name == allowedCamundaTypeJSON.Name).ToList();
                                             if (matchingCamundaTypes.Count != 1)
@@ -477,7 +478,7 @@ namespace BPMNModel
                                             }
                                         }
 
-                                        if  (!atLeastOneAllowed)
+                                        if (!atLeastOneAllowed)
                                         {
                                             Errors.Add(GetNiceMessage(element, $"Camunda element {camundaNode.Type.Name} can not be present inside the BPMN element {element.Name.LocalName}."));
                                         }
@@ -546,13 +547,13 @@ namespace BPMNModel
             }
 
             logger.Debug(GetNiceMessage(element, $"  All elements: "));
-            foreach (var (elemenName,item) in type.InnerElementsByTypeElementName)
+            foreach (var (elemenName, item) in type.InnerElementsByTypeElementName)
             {
                 logger.Debug(GetNiceMessage(element, $"    {item}"));
                 node.ChildNodes.Add(item.Name, []);
             }
 
-            if (!element.HasElements  && !string.IsNullOrWhiteSpace(element.Value))
+            if (!element.HasElements && !string.IsNullOrWhiteSpace(element.Value))
             {
                 var value = element.Value.Trim();
                 logger.Debug(GetNiceMessage(element, $"  Processing inner value: {value}"));
@@ -560,15 +561,17 @@ namespace BPMNModel
                 if (type.BodyElementName is not null)
                 {
                     node.ChildNodes.Add(type.BodyElementName, [new XmlParserStringNode(type.BodyElementName, value)]);
-                }else
+                }
+                else
                 {
                     Warnings.Add(GetNiceMessage(element, $"There is an inner value {value}, type {type.CamundaJSonType.Name} has no where to store it."));
                 }
             }
 
             var allElements = element.Elements().ToList();
-            foreach(var innerElement in allElements) {
-                var convertedName = GetNameFromXName(innerElement.Name); 
+            foreach (var innerElement in allElements)
+            {
+                var convertedName = GetNameFromXName(innerElement.Name);
                 logger.Debug(GetNiceMessage(element, $"  Processing element: {convertedName}"));
 
                 if (type.InnerElementsByTypeElementName.ContainsKey(convertedName) && type.InnerElementsByTypeElementName[convertedName] is CamundaValueElement itemType)
@@ -595,18 +598,18 @@ namespace BPMNModel
                         var targetInCurrentInnerCategories =
                             type.InnerElementsByTypeElementName.Where(x => x.Value is CamundaElement c && targetType.CanBeCastInto(c.Type)).ToList();
 
-                        if (targetInCurrentInnerCategories.Count==0)
+                        if (targetInCurrentInnerCategories.Count == 0)
                         {
                             Errors.Add(GetNiceMessage(innerElement, $"Element {innerElement.Name} of type {targetType.Name} can not be placed in any element inside of type {type.Name}."));
                         }
-                        else if (targetInCurrentInnerCategories.Count==1)
+                        else if (targetInCurrentInnerCategories.Count == 1)
                         {
                             var targetForElement = targetInCurrentInnerCategories[0].Value;
                             node.ChildNodes[targetForElement.Name].Add(producedXMLNode);
                         }
                         else
                         {
-                            Errors.Add(GetNiceMessage(innerElement, $"Type {type.Name} have several [{string.Join(",", targetInCurrentInnerCategories.Select(x=>x.Value.Name))}] targets for type {targetType.Name} - do not know what is the target. "));
+                            Errors.Add(GetNiceMessage(innerElement, $"Type {type.Name} have several [{string.Join(",", targetInCurrentInnerCategories.Select(x => x.Value.Name))}] targets for type {targetType.Name} - do not know what is the target. "));
                         }
 
                     }
@@ -620,7 +623,7 @@ namespace BPMNModel
             foreach (var (_, item) in type.InnerElementsByTypeElementName)
             {
                 logger.Debug(GetNiceMessage(element, $"  Checking element: {item.Name}"));
-                
+
                 var countForField = node.ChildNodes[item.Name].Count;
 
                 if (countForField < item.MinOccurs) Errors.Add(GetNiceMessage(element, $"{item.Name} requires minimum {item.MinOccurs} occurences, but there are {countForField}."));

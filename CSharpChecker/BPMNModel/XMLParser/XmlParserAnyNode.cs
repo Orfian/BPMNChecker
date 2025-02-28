@@ -1,7 +1,7 @@
 ﻿using System.Xml;
 using System.Xml.Linq;
 
-namespace BPMNModel
+namespace BPMNModel.XMLParser
 {
     public class XmlParserAnyNode : XmlParserNode
     {

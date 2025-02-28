@@ -1,7 +1,8 @@
 ﻿using System.Xml.Linq;
+using BPMNModel.XMLParser;
 using Utility;
 
-namespace BPMNModel
+namespace BPMNModel.XMLElements
 {
     public enum AttributeUse
     {
@@ -78,11 +79,11 @@ namespace BPMNModel
                 }
             }
 
-            string realValue = attributeFromXml is null ? Default ?? String.Empty : attributeFromXml.Value;
-            var resultingAttribute = new XmlParserAttribute(Name, convertedName ,realValue, Type.Category);
+            string realValue = attributeFromXml is null ? Default ?? string.Empty : attributeFromXml.Value;
+            var resultingAttribute = new XmlParserAttribute(Name, convertedName, realValue, Type.Category);
             var realValueinLowerCase = realValue.ToLower();
 
-            switch (this.Type.Category)
+            switch (Type.Category)
             {
                 case AttributeXMLType.ID: return (resultingAttribute, null);
                 case AttributeXMLType.String: return (resultingAttribute, null);
@@ -127,7 +128,7 @@ namespace BPMNModel
                     return (resultingAttribute, null);
 
                 default:
-                    return (null, $"Unsolved attribute {Name} with type: " + this.Type.Category);
+                    return (null, $"Unsolved attribute {Name} with type: " + Type.Category);
             }
         }
 

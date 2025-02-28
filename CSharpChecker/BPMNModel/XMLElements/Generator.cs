@@ -1,11 +1,10 @@
-﻿
-using BPMNModel.Camunda;
+﻿using BPMNModel.Camunda;
 using Serilog;
 using System.Xml;
 using System.Xml.Linq;
 using Utility;
 
-namespace BPMNModel
+namespace BPMNModel.XMLElements
 {
     public class Generator
     {
@@ -45,7 +44,7 @@ namespace BPMNModel
                         var diagram = type.Descendants().FirstOrDefault(e => e.Name.LocalName == "element" && e.Attribute("ref")?.Value.StartsWith("bpmndi") == true);
                         diagram?.Remove();
                     }
-                   
+
                     result.Types.Add(name, ComplexType.Create(type));
                 }
 
@@ -71,7 +70,7 @@ namespace BPMNModel
             Generator result = new Generator(logger);
 
             XDocument semantics = ResourcesUtility.LoadResourceAsXDocument($@"definitions/Semantic.xsd");
-            
+
             Load(semantics, result);
 
             XDocument bpmn20 = ResourcesUtility.LoadResourceAsXDocument($@"definitions/BPMN20.xsd");

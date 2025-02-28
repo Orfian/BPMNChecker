@@ -1,4 +1,4 @@
-﻿namespace BPMNModel
+﻿namespace BPMNModel.XMLParser
 {
     public class XmlParserStringNode : XmlParserNode
     {
@@ -19,7 +19,7 @@
         public override void DumpNode(StreamWriter writer, string indent)
         {
             writer.WriteLine($"{indent}<{ElementName} = {Value} />");
-            
+
         }
     }
 }

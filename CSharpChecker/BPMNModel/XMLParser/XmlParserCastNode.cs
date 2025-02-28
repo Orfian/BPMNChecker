@@ -4,15 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using BPMNModel.XMLElements;
 
-namespace BPMNModel
+namespace BPMNModel.XMLParser
 {
     public class XmlParserCastNode : XmlParserNode
     {
         public XmlParserCastNode(ComplexType type, string value)
         {
-            this.Type = type;
-            this.Value = value;
+            Type = type;
+            Value = value;
         }
 
         public ComplexType Type { get; init; }

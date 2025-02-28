@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Xml;
+using BPMNModel.XMLElements;
 
-namespace BPMNModel
+namespace BPMNModel.XMLParser
 {
-    public class XmlParserComplexNode :XmlParserNode
+    public class XmlParserComplexNode : XmlParserNode
     {
         public string? MixedContent { get; set; }
 
@@ -43,7 +44,7 @@ namespace BPMNModel
                 writer.Write($"{indent}<{Type.Name}");
                 writer.Write($" ID=\"{ID}\"");
                 if (MixedContent is not null) writer.Write($" MixedContent=\"{MixedContent}\"");
-                foreach (var (_,attribute) in Attributes)
+                foreach (var (_, attribute) in Attributes)
                 {
                     if (!attribute.Name.Equals("id")) writer.Write($" {attribute.ToString()}");
                 }

@@ -1,17 +1,8 @@
-﻿using BPMNModel.Model;
+﻿using BPMNModel.XMLElements;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Net.Http.Metrics;
-using System.Reflection.Emit;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using Utility;
+using Attribute = BPMNModel.XMLElements.Attribute;
 
 namespace BPMNModel.Camunda
 {
@@ -111,6 +102,7 @@ namespace BPMNModel.Camunda
 
 
             file.WriteLine("using BPMNModel.Model;");
+            file.WriteLine("using BPMNModel.XMLParser;");
             file.WriteLine();
             file.WriteLine("namespace BPMNModel.Camunda");
             file.WriteLine("{");
@@ -699,9 +691,9 @@ namespace BPMNModel.Camunda
                 {
                     if (item.Value is ComplexType c)
                     {
-                        (List<BPMNModel.Attribute> Attributes, List<string> Elements) GetAll(ComplexType current)
+                        (List<XMLElements.Attribute> Attributes, List<string> Elements) GetAll(ComplexType current)
                         {
-                            List<BPMNModel.Attribute> attributes = new();
+                            List<XMLElements.Attribute> attributes = new();
                             List<string> elements = new();
                             if (current.ParentType is not null)
                             {

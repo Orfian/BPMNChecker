@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Utility;
 
-namespace BPMNModel
+namespace BPMNModel.XMLElements
 {
 
     public enum AnyElementNamespace

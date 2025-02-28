@@ -1,7 +1,7 @@
-﻿
-using BPMNModel.Camunda;
+﻿using BPMNModel.Camunda;
+using BPMNModel.XMLElements;
 
-namespace BPMNModel
+namespace BPMNModel.XMLParser
 {
     public class XmlParserCamundaNode : XmlParserNode
     {

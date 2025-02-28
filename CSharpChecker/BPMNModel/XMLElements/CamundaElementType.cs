@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BPMNModel
+namespace BPMNModel.XMLElements
 {
     public class CamundaElementType : ElementType
     {
@@ -13,9 +13,10 @@ namespace BPMNModel
 
         public Dictionary<string, Element> InnerElementsByTypeElementName { get; } = new();
 
-        public CamundaJSonType CamundaJSonType {  get; init; }
+        public CamundaJSonType CamundaJSonType { get; init; }
 
-        public CamundaElementType(CamundaJSonType camundaJSonType) { 
+        public CamundaElementType(CamundaJSonType camundaJSonType)
+        {
             CamundaJSonType = camundaJSonType;
         }
 
@@ -34,11 +35,13 @@ namespace BPMNModel
         /// </returns>
         public bool CanBeCastInto(CamundaElementType type)
         {
-            if (type.Name.Equals(this.Name))
+            if (type.Name.Equals(Name))
             {
                 return true;
-            } else if (Parent == null) { 
-                return false; 
+            }
+            else if (Parent == null)
+            {
+                return false;
             }
             else
             {

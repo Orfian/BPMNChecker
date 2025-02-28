@@ -12,6 +12,7 @@
 // (Just extending attributes were generated for base types.)
 // -------------------------------------------------------
 using BPMNModel.Model;
+using BPMNModel.XMLParser;
 
 namespace BPMNModel.Camunda
 {

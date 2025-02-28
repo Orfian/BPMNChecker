@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Utility;
 
-namespace BPMNModel
+namespace BPMNModel.XMLElements
 {
     public class ComplexType : ElementType
     {
@@ -42,10 +42,10 @@ namespace BPMNModel
         public ComplexType? ParentType { get; private set; }
         public static ComplexType Create(XElement element)
         {
-            var name = ElementType.GetExpectedAttribute(element, "name");
+            var name = GetExpectedAttribute(element, "name");
 
-            bool isAbstract = ElementType.TryToGetBoolAttribute(element, "abstract");
-            bool isMixed = ElementType.TryToGetBoolAttribute(element, "mixed");
+            bool isAbstract = TryToGetBoolAttribute(element, "abstract");
+            bool isMixed = TryToGetBoolAttribute(element, "mixed");
 
             ComplexType result = new ComplexType(name, isAbstract, isMixed, element);
 
@@ -56,9 +56,9 @@ namespace BPMNModel
 
         public List<CamundaJSonType> GetAllAllowedCamundaElements()
         {
-            var result = new List <CamundaJSonType>();
+            var result = new List<CamundaJSonType>();
             var current = ParentType;
-            while(current is not null)
+            while (current is not null)
             {
                 result.AddRange(current.AllowedCamundaElements);
                 current = current.ParentType;
@@ -78,7 +78,7 @@ namespace BPMNModel
                 {
                     if (sequenceElement.Name.LocalName != "element" && sequenceElement.Name.LocalName != "any")
                     {
-                        throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (In {this.Name} there is a sequence with {sequenceElement.Name.LocalName}).");
+                        throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (In {Name} there is a sequence with {sequenceElement.Name.LocalName}).");
                     }
 
                     sequence.InnerElements.Add(Element.Create(sequenceElement, elements, types));
@@ -96,12 +96,12 @@ namespace BPMNModel
                         DumpAttributesExcept(innerElement, ["name", "type", "use", "default"]);
                         DumpElementsExcept(innerElement, []);
 
-                        var name = ElementType.GetExpectedAttribute(innerElement, "name");
-                        var type = ElementType.GetExpectedAttribute(innerElement, "type");
+                        var name = GetExpectedAttribute(innerElement, "name");
+                        var type = GetExpectedAttribute(innerElement, "type");
 
                         var attribute = new Attribute(name, Attribute.LoadTypeFromString(type, types));
 
-                        var useString = ElementType.TryToGetAttribute(innerElement, "use");
+                        var useString = TryToGetAttribute(innerElement, "use");
                         if (useString != null)
                         {
                             attribute.Use = useString switch
@@ -112,7 +112,7 @@ namespace BPMNModel
                             };
                         }
 
-                        attribute.Default = ElementType.TryToGetAttribute(innerElement, "default");
+                        attribute.Default = TryToGetAttribute(innerElement, "default");
 
                         if (attribute.Use == AttributeUse.Required && attribute.Default is not null)
                         {
@@ -126,17 +126,17 @@ namespace BPMNModel
                         DumpElementsExcept(innerElement, ["element", "any"]);
                         DumpAttributesExcept(innerElement, []);
 
-                        if (this.InnerElement != null) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({this.Name} has more than one inner element - {innerElement.Name.LocalName}).");
+                        if (InnerElement != null) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({Name} has more than one inner element - {innerElement.Name.LocalName}).");
 
                         var sequence = LoadSequence(innerElement);
-                        this.InnerElement = sequence;
+                        InnerElement = sequence;
                     }
                     else if (innerElement.Name.LocalName == "choice")
                     {
                         DumpElementsExcept(innerElement, ["element", "sequence"]);
                         DumpAttributesExcept(innerElement, []);
 
-                        if (this.InnerElement != null) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({this.Name} has more than one inner element - {innerElement.Name.LocalName}).");
+                        if (InnerElement != null) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({Name} has more than one inner element - {innerElement.Name.LocalName}).");
 
                         var choice = new ContainerElement();
 
@@ -144,7 +144,7 @@ namespace BPMNModel
                         {
                             if (choiceElement.Name.LocalName != "element" && choiceElement.Name.LocalName != "sequence")
                             {
-                                throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (In {this.Name} there is a sequence with {choiceElement.Name.LocalName}).");
+                                throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (In {Name} there is a sequence with {choiceElement.Name.LocalName}).");
                             }
                             if (choiceElement.Name.LocalName == "element")
                             {
@@ -156,7 +156,7 @@ namespace BPMNModel
                             }
                         }
 
-                        this.InnerElement = choice;
+                        InnerElement = choice;
                     }
                     else if (innerElement.Name.LocalName == "anyAttribute")
                     {
@@ -172,14 +172,14 @@ namespace BPMNModel
             DumpAttributesExcept(element, ["name", "mixed", "abstract"]);
             if (element.Element(xs + "complexContent") is not null)
             {
-                var complexContent = ElementType.GetExpectedSingleElement(element, "complexContent");
+                var complexContent = GetExpectedSingleElement(element, "complexContent");
                 DumpAttributesExcept(complexContent, Array.Empty<string>());
-                var extension = ElementType.GetExpectedSingleElement(complexContent, "extension");
-                var parent = ElementType.GetExpectedAttribute(extension, "base");
+                var extension = GetExpectedSingleElement(complexContent, "extension");
+                var parent = GetExpectedAttribute(extension, "base");
                 DumpAttributesExcept(extension, ["base"]);
 
                 var parentAsComplexType = types[parent] as ComplexType;
-                this.ParentType = parentAsComplexType;
+                ParentType = parentAsComplexType;
                 ProcessInnerElements(extension);
             }
             else
@@ -191,7 +191,7 @@ namespace BPMNModel
         public Attribute[] GetAllAttributes()
         {
             var result = new List<Attribute>();
-            result.AddRange(this.Attributes);
+            result.AddRange(Attributes);
             if (ParentType != null)
             {
                 result.AddRange(ParentType.GetAllAttributes());
@@ -221,7 +221,7 @@ namespace BPMNModel
                     }
                     else
                     {
-                        throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({this.Name} - there are only elements in a sequence).");
+                        throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({Name} - there are only elements in a sequence).");
                     }
                 }
                 foreach (var restriction in InnerElement.Restrictions)

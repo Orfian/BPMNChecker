@@ -1,10 +1,10 @@
-﻿namespace BPMNModel
+﻿namespace BPMNModel.XMLElements
 {
     public class ReferenceElement : Element
     {
         public ReferenceElement(RootElement referencedElement, int? minOccurs, int? maxOccurs)
         {
-            this.ReferencedElement = referencedElement;
+            ReferencedElement = referencedElement;
             MinOccurs = minOccurs;
             MaxOccurs = maxOccurs;
         }

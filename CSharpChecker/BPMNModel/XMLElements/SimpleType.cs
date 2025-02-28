@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Utility;
 
-namespace BPMNModel
+namespace BPMNModel.XMLElements
 {
     public class SimpleType : ElementType
     {
@@ -30,7 +30,7 @@ namespace BPMNModel
                 foreach (XElement value in elem.Elements())
                 {
                     CheckExpectedElement(value, "enumeration");
-                    values.Add(ElementType.GetExpectedAttribute(value, "value"));
+                    values.Add(GetExpectedAttribute(value, "value"));
                 }
 
                 return values.ToArray();
@@ -40,18 +40,18 @@ namespace BPMNModel
 
             if (element.Element(xs + "restriction") is not null)
             {
-                var restriction = ElementType.GetExpectedSingleElement(element, "restriction");
-                ElementType.CheckExpectedAttributr(restriction, "base", "xsd:string");
+                var restriction = GetExpectedSingleElement(element, "restriction");
+                CheckExpectedAttributr(restriction, "base", "xsd:string");
                 SimpleType result = new SimpleType(name, GetRestrictions(restriction), false);
                 return result;
             }
             else
             {
-                var union = ElementType.GetExpectedSingleElement(element, "union");
-                ElementType.CheckExpectedAttributr(union, "memberTypes", "xsd:anyURI");
-                var simpleType = ElementType.GetExpectedSingleElement(union, "simpleType");
-                var restriction = ElementType.GetExpectedSingleElement(simpleType, "restriction");
-                ElementType.CheckExpectedAttributr(restriction, "base", "xsd:token");
+                var union = GetExpectedSingleElement(element, "union");
+                CheckExpectedAttributr(union, "memberTypes", "xsd:anyURI");
+                var simpleType = GetExpectedSingleElement(union, "simpleType");
+                var restriction = GetExpectedSingleElement(simpleType, "restriction");
+                CheckExpectedAttributr(restriction, "base", "xsd:token");
                 SimpleType result = new SimpleType(name, GetRestrictions(restriction), true);
                 return result;
             }

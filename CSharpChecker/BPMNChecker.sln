@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Testing", "Testing\Testing.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility", "Utility\Utility.csproj", "{DFC87F3C-EA1C-4A21-B1AB-3AF01014643D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BPMNModel", "BPMNModel\BPMNModel.csproj", "{2A32F5C0-8D19-4E21-BCAF-210F26901AFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BPMNModel", "BPMNModel\BPMNModel.csproj", "{2A32F5C0-8D19-4E21-BCAF-210F26901AFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{D2112413-A627-483C-8A0C-E32425BDF47B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{2A32F5C0-8D19-4E21-BCAF-210F26901AFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A32F5C0-8D19-4E21-BCAF-210F26901AFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A32F5C0-8D19-4E21-BCAF-210F26901AFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2112413-A627-483C-8A0C-E32425BDF47B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2112413-A627-483C-8A0C-E32425BDF47B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2112413-A627-483C-8A0C-E32425BDF47B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2112413-A627-483C-8A0C-E32425BDF47B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

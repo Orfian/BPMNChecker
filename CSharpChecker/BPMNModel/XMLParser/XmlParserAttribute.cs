@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using BPMNModel.XMLElements;
 using Utility;
 
-namespace BPMNModel
+namespace BPMNModel.XMLParser
 {
     public class XmlParserAttribute
     {
@@ -24,7 +25,7 @@ namespace BPMNModel
         {
             get
             {
-                switch (this.Type)
+                switch (Type)
                 {
                     case AttributeXMLType.ID: return Value;
                     case AttributeXMLType.String: return Value;
@@ -46,7 +47,7 @@ namespace BPMNModel
             }
             set
             {
-                this.processedValue = value;
+                processedValue = value;
             }
         }
 
