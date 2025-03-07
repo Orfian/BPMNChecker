@@ -50,7 +50,14 @@ namespace BPMNModel.Model
                 }
                 else
                 {
-                    throw new BPMNCheckerExceptions($"Error in parser, there is no class: {fullClassName}.");
+                    if (className.StartsWith("bpmndi"))
+                    {
+                        //TODO: Skiping diagram element.
+                    }
+                    else
+                    {
+                        throw new BPMNCheckerExceptions($"Error in parser, there is no class: {fullClassName}.");
+                    }
                 }
             }
         }

@@ -76,14 +76,14 @@ namespace BPMNModel.XMLElements
                 }
                 else
                 {
-                    throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (element ELEMENT contain reference to simple type {type}).");
+                    throw new BPMNCheckerExceptions($"Files with XSD definitions are broken (element ELEMENT contain reference to simple type {type}).");
                 }
             }
             var valueType = type.ToLower() switch
             {
                 "xsd:qname" => ElementXMLType.QName,
                 "xsd:idref" => ElementXMLType.IDRef,
-                _ => throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (element attribute contain unexpected attribute {type}).")
+                _ => throw new BPMNCheckerExceptions($"Files with XSD definitions are broken (element attribute contain unexpected attribute {type}).")
             };
 
             return new NamedElement(name, valueType, null, minOccurs, maxOccurs);

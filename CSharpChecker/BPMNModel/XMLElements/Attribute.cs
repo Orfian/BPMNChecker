@@ -17,6 +17,7 @@ namespace BPMNModel.XMLElements
         String,
         Boolean,
         Integer,
+        Double,
         URI,
         SimpleType,
         QName,
@@ -59,7 +60,8 @@ namespace BPMNModel.XMLElements
                 "xsd:string" => (AttributeXMLType.String, null),
                 "xsd:anyuri" => (AttributeXMLType.URI, null),
                 "xsd:int" => (AttributeXMLType.Integer, null),
-                _ => throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (element attribute contain unexpected attribute {type}).")
+                "xsd:double" => (AttributeXMLType.Double, null),
+                _ => throw new BPMNCheckerExceptions($"Files with definitions are broken (element attribute contain unexpected attribute {type}).")
             };
         }
 
@@ -98,6 +100,16 @@ namespace BPMNModel.XMLElements
                     if (long.TryParse(realValue, out long value))
                     {
                         resultingAttribute.ProcessedValue = value;
+                        return (resultingAttribute, null);
+                    }
+                    else
+                    {
+                        return (resultingAttribute, $"Wrong integer value: {realValue}");
+                    }
+                case AttributeXMLType.Double:
+                    if (double.TryParse(realValue, out double doubleValue))
+                    {
+                        resultingAttribute.ProcessedValue = doubleValue;
                         return (resultingAttribute, null);
                     }
                     else

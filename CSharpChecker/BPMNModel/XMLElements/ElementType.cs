@@ -14,13 +14,13 @@ namespace BPMNModel.XMLElements
         public static void CheckExpectedAttributr(XElement element, string name, string value)
         {
             var nameAttribute = element.Attribute(name);
-            if (nameAttribute is null) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({element.Name.LocalName} should have attribute {name}).");
-            if (nameAttribute.Value != value) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({element.Name.LocalName} should have attribute {name} with value {value} not {nameAttribute.Value}).");
+            if (nameAttribute is null) throw new BPMNCheckerExceptions($"Files with XSD definitions are broken ({element.Name.LocalName} should have attribute {name}).");
+            if (nameAttribute.Value != value) throw new BPMNCheckerExceptions($"Files with XSD definitions are broken ({element.Name.LocalName} should have attribute {name} with value {value} not {nameAttribute.Value}).");
         }
 
         public static void CheckExpectedElement(XElement element, string name)
         {
-            if (element.Name.LocalName != name) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (We are expecting element {element.Name.LocalName} not {name}).");
+            if (element.Name.LocalName != name) throw new BPMNCheckerExceptions($"Files with XSD definitions are broken (We are expecting element {element.Name.LocalName} not {name}).");
         }
 
         public static void DumpAttributesExcept(XElement element, string[] knownAttributes)
@@ -44,15 +44,15 @@ namespace BPMNModel.XMLElements
         public static string GetExpectedAttribute(XElement element, string name)
         {
             var nameAttribute = element.Attribute(name);
-            if (nameAttribute is null) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({element.Name.LocalName} should have attribute {name}).");
+            if (nameAttribute is null) throw new BPMNCheckerExceptions($"Files with XSD definitions are broken ({element.Name.LocalName} should have attribute {name}).");
             return nameAttribute.Value;
         }
 
         public static XElement GetExpectedSingleElement(XElement element, string name)
         {
-            if (element.Elements().Count() != 1) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({element.Name.LocalName} - should have just one element named {name}).");
+            if (element.Elements().Count() != 1) throw new BPMNCheckerExceptions($"Files with XSD definitions are broken ({element.Name.LocalName} - should have just one element named {name}).");
             var inner = element.Elements().First();
-            if (inner.Name.LocalName != name) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({element.Name.LocalName} - should have just one element named {name} not  {inner.Name.LocalName}).");
+            if (inner.Name.LocalName != name) throw new BPMNCheckerExceptions($"Files with XSD definitions are broken ({element.Name.LocalName} - should have just one element named {name} not  {inner.Name.LocalName}).");
 
             return inner;
         }

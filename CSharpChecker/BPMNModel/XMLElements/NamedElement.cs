@@ -1,4 +1,6 @@
-﻿namespace BPMNModel.XMLElements
+﻿using Utility;
+
+namespace BPMNModel.XMLElements
 {
     public class NamedElement : Element
     {
