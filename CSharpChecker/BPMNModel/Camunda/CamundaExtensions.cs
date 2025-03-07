@@ -409,7 +409,7 @@ namespace BPMNModel.Camunda
 
                         var required = allAttributes.Where(x => x.Use == AttributeUse.Required).Select(x => $"\"{x.Name}\"").ToList();
                         var optional = allAttributes.Where(x => x.Use == AttributeUse.Optional).Select(x => $"\"{x.Name}\"").ToList();
-                        toPython.WriteLine($"\t\"{c.Name.Substring(1)}\": ([{string.Join(", ", required)}], [{string.Join(", ", optional)}], [{string.Join(", ", allElements ?? [])}]),");
+                        toPython.WriteLine($"\t\"{(c.Name.StartsWith("t") ? c.Name.Substring(1) : c.Name)}\": ([{string.Join(", ", required)}], [{string.Join(", ", optional)}], [{string.Join(", ", allElements ?? [])}]),");
                     }
                 }
                 toPython.WriteLine("\t}\n");

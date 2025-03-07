@@ -28,6 +28,7 @@ namespace BPMNModel.XMLParser
                     case AttributeXMLType.String: return Value;
                     case AttributeXMLType.Boolean: return processedValue;
                     case AttributeXMLType.Integer: return processedValue;
+                    case AttributeXMLType.Double: return processedValue;
                     case AttributeXMLType.URI:
                         if (processedValue is Uri uri) return uri.ToString();
                         else throw new BPMNCheckerExceptions($"Attribute {Name} of URI type contains {processedValue?.GetType().FullName}).");

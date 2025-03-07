@@ -12,6 +12,8 @@
     <None Remove="definitions\BPMNDI.cmof" />
     <None Remove="definitions\BPMNDI.xsd" />
     <None Remove="definitions\camunda.json" />
+    <None Remove="definitions\DC.xsd" />
+    <None Remove="definitions\DI.xsd" />
     <None Remove="definitions\Semantic.xsd" />
     <None Remove="diagrams\all_icons.bpmn" />
     <None Remove="diagrams\all_tasks.bpmn" />
@@ -21,6 +23,7 @@
     <None Remove="diagrams\DiagramLoading\no_definition.bpmn" />
     <None Remove="diagrams\DiagramLoading\no_elements.bpmn" />
     <None Remove="diagrams\DiagramLoading\start_to_stop.bpmn" />
+    <None Remove="diagrams\CamundaModeler_almost_all_set_color.bpmn" />
     <None Remove="diagrams\httpConnector.bpmn" />
     <None Remove="diagrams\httpConnectorPOST.bpmn" />
     <None Remove="diagrams\MonthlyInvoicing-solution.bpmn" />
@@ -36,15 +39,21 @@
     <EmbeddedResource Include="definitions\BPMNDI.cmof" />
     <EmbeddedResource Include="definitions\BPMNDI.xsd" />
     <EmbeddedResource Include="definitions\camunda.json" />
+    <EmbeddedResource Include="definitions\DC.xsd" />
+    <EmbeddedResource Include="definitions\DI.xsd" />
     <EmbeddedResource Include="definitions\Semantic.xsd" />
     <EmbeddedResource Include="diagrams\all_icons.bpmn" />
     <EmbeddedResource Include="diagrams\all_tasks.bpmn" />
     <EmbeddedResource Include="diagrams\BookHolidaySagaPatternV2.bpmn" />
     <EmbeddedResource Include="diagrams\CamundaModeler_almost_all_set.bpmn" />
+<<<<<<< HEAD
     <EmbeddedResource Include="diagrams\DiagramLoading\invalid.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\no_definition.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\no_elements.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\start_to_stop.bpmn" />
+=======
+    <EmbeddedResource Include="diagrams\CamundaModeler_almost_all_set_color.bpmn" />
+>>>>>>> e9dbbbc976e89a5d62a62ad9d112dbdcad9baad1
     <EmbeddedResource Include="diagrams\httpConnector.bpmn" />
     <EmbeddedResource Include="diagrams\httpConnectorPOST.bpmn" />
     <EmbeddedResource Include="diagrams\MonthlyInvoicing-solution.bpmn">

@@ -15,7 +15,7 @@ namespace BPMNModel.XMLElements
         {
             get
             {
-                if (InnerComplexType == null) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (root element should have a complex type).");
+                if (InnerComplexType == null) throw new BPMNCheckerExceptions($"Files with XSD definitions are broken (root element should have a complex type).");
                 return InnerComplexType;
             }
         }

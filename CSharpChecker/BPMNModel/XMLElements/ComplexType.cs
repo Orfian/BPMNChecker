@@ -35,14 +35,14 @@ namespace BPMNModel.XMLElements
         public string Name { get; init; }
         public ComplexType? ParentType { get; private set; }
 
-        public static ComplexType Create(XElement element)
+        public static ComplexType Create(string fullName, XElement element)
         {
-            var name = GetExpectedAttribute(element, "name");
+            //var name = GetExpectedAttribute(element, "name");
 
             bool isAbstract = TryToGetBoolAttribute(element, "abstract");
             bool isMixed = TryToGetBoolAttribute(element, "mixed");
 
-            ComplexType result = new ComplexType(name, isAbstract, isMixed, element);
+            ComplexType result = new ComplexType(fullName, isAbstract, isMixed, element);
 
             return result;
         }
@@ -57,7 +57,7 @@ namespace BPMNModel.XMLElements
                 {
                     if (sequenceElement.Name.LocalName != "element" && sequenceElement.Name.LocalName != "any")
                     {
-                        throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (In {Name} there is a sequence with {sequenceElement.Name.LocalName}).");
+                        throw new BPMNCheckerExceptions($"Files with XSD definitions are broken (In {Name} there is a sequence with {sequenceElement.Name.LocalName}).");
                     }
 
                     sequence.InnerElements.Add(Element.Create(sequenceElement, elements, types));
@@ -87,7 +87,7 @@ namespace BPMNModel.XMLElements
                             {
                                 "optional" => AttributeUse.Optional,
                                 "required" => AttributeUse.Required,
-                                _ => throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (attribute use have unexpected value {useString}).")
+                                _ => throw new BPMNCheckerExceptions($"Files with XSD definitions are broken (attribute use have unexpected value {useString}).")
                             };
                         }
 
@@ -95,7 +95,7 @@ namespace BPMNModel.XMLElements
 
                         if (attribute.Use == AttributeUse.Required && attribute.Default is not null)
                         {
-                            throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (attribute use and default can not be use together).");
+                            throw new BPMNCheckerExceptions($"Files with XSD definitions are broken (attribute use and default can not be use together).");
                         }
 
                         Attributes.Add(attribute);
@@ -105,7 +105,7 @@ namespace BPMNModel.XMLElements
                         DumpElementsExcept(innerElement, ["element", "any"]);
                         DumpAttributesExcept(innerElement, []);
 
-                        if (InnerElement != null) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({Name} has more than one inner element - {innerElement.Name.LocalName}).");
+                        if (InnerElement != null) throw new BPMNCheckerExceptions($"Files with XSD definitions are broken ({Name} has more than one inner element - {innerElement.Name.LocalName}).");
 
                         var sequence = LoadSequence(innerElement);
                         InnerElement = sequence;
@@ -115,7 +115,7 @@ namespace BPMNModel.XMLElements
                         DumpElementsExcept(innerElement, ["element", "sequence"]);
                         DumpAttributesExcept(innerElement, []);
 
-                        if (InnerElement != null) throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({Name} has more than one inner element - {innerElement.Name.LocalName}).");
+                        if (InnerElement != null) throw new BPMNCheckerExceptions($"Files with XSD definitions are broken ({Name} has more than one inner element - {innerElement.Name.LocalName}).");
 
                         var choice = new ContainerElement();
 
@@ -123,7 +123,7 @@ namespace BPMNModel.XMLElements
                         {
                             if (choiceElement.Name.LocalName != "element" && choiceElement.Name.LocalName != "sequence")
                             {
-                                throw new BPMNCheckerExceptions($"File Semantic.xsd is broken (In {Name} there is a sequence with {choiceElement.Name.LocalName}).");
+                                throw new BPMNCheckerExceptions($"Files with XSD definitions are broken (In {Name} there is a sequence with {choiceElement.Name.LocalName}).");
                             }
                             if (choiceElement.Name.LocalName == "element")
                             {
@@ -143,7 +143,7 @@ namespace BPMNModel.XMLElements
                     }
                     else
                     {
-                        throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({start.Name.LocalName} should not have element {innerElement.Name.LocalName}).");
+                        throw new BPMNCheckerExceptions($"Files with XSD definitions are broken ({start.Name.LocalName} should not have element {innerElement.Name.LocalName}).");
                     }
                 }
             }
@@ -214,7 +214,7 @@ namespace BPMNModel.XMLElements
                     }
                     else
                     {
-                        throw new BPMNCheckerExceptions($"File Semantic.xsd is broken ({Name} - there are only elements in a sequence).");
+                        throw new BPMNCheckerExceptions($"Files with XSD definitions are broken ({Name} - there are only elements in a sequence).");
                     }
                 }
                 foreach (var restriction in InnerElement.Restrictions)

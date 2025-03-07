@@ -21,7 +21,7 @@ namespace BPMNModel.XMLElements
         public bool AcceptsURL { get; init; }
         public string Name { get; init; }
         public string[] RestrictedValues { get; init; }
-        public static SimpleType Create(XNamespace xs, XElement element)
+        public static SimpleType Create(XNamespace xs, string fullName, XElement element)
         {
             string[] GetRestrictions(XElement elem)
             {
@@ -36,13 +36,13 @@ namespace BPMNModel.XMLElements
                 return values.ToArray();
             }
 
-            var name = GetExpectedAttribute(element, "name");
+            //var name = GetExpectedAttribute(element, "name");
 
             if (element.Element(xs + "restriction") is not null)
             {
                 var restriction = GetExpectedSingleElement(element, "restriction");
                 CheckExpectedAttributr(restriction, "base", "xsd:string");
-                SimpleType result = new SimpleType(name, GetRestrictions(restriction), false);
+                SimpleType result = new SimpleType(fullName, GetRestrictions(restriction), false);
                 return result;
             }
             else
@@ -52,7 +52,7 @@ namespace BPMNModel.XMLElements
                 var simpleType = GetExpectedSingleElement(union, "simpleType");
                 var restriction = GetExpectedSingleElement(simpleType, "restriction");
                 CheckExpectedAttributr(restriction, "base", "xsd:token");
-                SimpleType result = new SimpleType(name, GetRestrictions(restriction), true);
+                SimpleType result = new SimpleType(fullName, GetRestrictions(restriction), true);
                 return result;
             }
         }

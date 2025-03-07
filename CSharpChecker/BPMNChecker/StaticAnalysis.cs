@@ -1,4 +1,5 @@
-﻿using System.Reflection.Metadata;
+﻿using BPMNModel;
+using System.Reflection.Metadata;
 using System.Xml;
 
 namespace BPMNChecker
@@ -9,5 +10,11 @@ namespace BPMNChecker
         {
 
         }
+
+        public void ProcessAnalysis(ModelRoot modelRoot)
+        {
+
+        }
+
     }
 }
