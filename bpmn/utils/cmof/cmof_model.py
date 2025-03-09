@@ -10,15 +10,17 @@ class M_Model(object):
         '__classes',
         '__enumerations',
         '__primitive_types',
+        '__data_types',
         '__external_types'
     ]
 
-    def __init__(self, name, classes, enumerations, prim_types, ext_types):
+    def __init__(self, name, classes, enumerations, prim_types, data_types, ext_types):
         assert is_ident(name)
         self.__name = name
         self.__classes = classes
         self.__enumerations = enumerations
         self.__primitive_types = prim_types
+        self.__data_types = data_types
         self.__external_types = ext_types
 
     def get_package_name(self):
@@ -33,6 +35,82 @@ class M_Model(object):
     def get_primitive_types(self):
         return self.__primitive_types
 
+    def get_data_types(self):
+        return self.__data_types
+
+    def get_external_types(self):
+        return self.__external_types
+
+
+class M_Combined_Model(object):
+
+    __slots__ = [ '__packages' ]
+
+    def __init__(self, packages):
+        self.__packages = packages
+
+    def get_packages(self):
+        return self.__packages
+
+
+class M_Package(object):
+
+    __slots__ = [
+        '__name',
+        '__filename',
+        '__classes',
+        '__enumerations',
+        '__primitive_types',
+        '__data_types',
+        '__external_types'
+    ]
+
+    def __init__(self, name, filename, classes, enumerations, prim_types, data_types, ext_types):
+        assert is_ident(name)
+        self.__name = name
+        self.__filename = filename
+
+        for c in classes:
+            c.set_package(self)
+        self.__classes = classes
+
+        for c in enumerations:
+            c.set_package(self)
+        self.__enumerations = enumerations
+
+        for c in prim_types:
+            c.set_package(self)
+        self.__primitive_types = prim_types
+
+        for c in data_types:
+            c.set_package(self)
+        self.__data_types = data_types
+
+        for c in ext_types:
+            c.set_package(self)
+        self.__external_types = ext_types
+
+    def get_package_name(self):
+        return self.__name
+
+    def get_filename(self):
+        return self.__filename
+
+    def get_package_filename(self):
+        return self.__filenamename
+
+    def get_classes(self):
+        return self.__classes
+
+    def get_enumerations(self):
+        return self.__enumerations
+
+    def get_primitive_types(self):
+        return self.__primitive_types
+
+    def get_data_types(self):
+        return self.__data_types
+
     def get_external_types(self):
         return self.__external_types
 
@@ -40,11 +118,14 @@ class M_Model(object):
 
 class M_Type(object):
 
-    __slots__ = [ 'name' ]
+    __slots__ = [ 'name', 'package' ]
 
     def __init__(self, name):
         assert is_ident(name)
         self.name = name
+
+    def set_package(self, package):
+        self.package = package
 
 
 class M_Class(M_Type):
@@ -108,7 +189,7 @@ class M_Attribute (M_Property):
         self.assoc_index = -1
 
     def set_parent(self, parent):
-        assert isinstance(parent, M_Class)
+        assert isinstance(parent, M_Class) or isinstance(parent, M_DataType)
         self.parent = parent
 
     def set_one_way_assoc(self, assoc):
@@ -200,6 +281,22 @@ class M_PrimitiveType(M_Type):
 
     def __init__(self, name):
         super().__init__(name)
+
+
+class M_DataType(M_Type):
+
+    __slots__ = [
+        'attributes'
+    ]
+
+    def __init__(self, name):
+        super().__init__(name)
+
+    def set_attributes(self, attrs):
+        for attr in attrs:
+            attr.set_parent(self)
+        self.attributes = attrs
+
 
 
 class M_HRef_Type(M_Type):

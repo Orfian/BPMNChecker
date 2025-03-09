@@ -223,7 +223,7 @@ class P_DataType_Attribute (P_Property):
 
     __slots__ = [
         'datatype',
-        'default'
+        'default',
     ]
 
     def __init__(self, tin, tcv, datatype, default):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import cmof_parser, cmof_print_parsed, cmof_model_builder, cmof_print_model, \
+import cmof_parser, cmof_print_parsed, cmof_model_builder, \
+       cmof_package_builder, cmof_print_model, \
        xml_print_raw, list_classes, cmof_print_csharp
 from utils import Output, ErrOutput
 
@@ -15,19 +16,30 @@ def main():
     err = ErrOutput(sys.stdout)
 
     fname = options.filename
-    if fname is None:
-        inp = sys.stdin
-    else:
-        inp = open(fname)
 
-    process_file(out, err, options, inp)
+    if options.read_all_files:
+        if fname is not None:
+            print ("Warning: reading all files, filename " + repr(fname) +
+                   " ignored")
+
+        process_all_files(out, err, options)
+
+    else:
+        if fname is None:
+            inp = sys.stdin
+        else:
+            inp = open(fname)
+
+        process_file(out, err, options, inp)
 
     print ('')
     print ("O.K.")
 
 
+
 def process_file(out, err, options, inp):
     tree = read_xml(inp)
+    inp.close()
 
     if options.print_raw:
         xml_print_raw.print_tree_raw(out, tree)
@@ -57,6 +69,34 @@ def process_file(out, err, options, inp):
         cmof_print_model.print_model(out, model, print_opts)
 
 
+CMOF_FILENAMES = [
+    'DC.cmof',
+    'DI.cmof',
+    'BPMNDI.cmof',
+    'BPMN20.cmof'
+]
+
+
+def process_all_files(out, err, options):
+    packages = []
+
+    for fname in CMOF_FILENAMES:
+         print ("Reading " + repr(fname) + "...")
+         inp = open(fname)
+         tree = read_xml(inp)
+         inp.close()
+         t = cmof_parser.parse_cmof(tree, err)
+         model = cmof_model_builder.build_model(t, err)
+         package = cmof_package_builder.create_package(fname, model)
+         packages.append(package)
+
+    model = cmof_package_builder.create_model(packages)
+
+    print_opts = print_options_from_options(options)
+
+    cmof_print_model.print_combined_model(out, model, print_opts)
+
+
 def read_xml(filename):
     tree = ET.parse(filename)
     return tree
@@ -78,6 +118,7 @@ class Options (object):
         'print_properties',
         'print_associations',
         'list_classes',
+        'read_all_files',
         'print_csharp'
     ]
 
@@ -88,6 +129,7 @@ class Options (object):
         self.print_properties = False
         self.print_associations = False
         self.list_classes = False
+        self.read_all_files = False
         self.print_csharp = False
 
 
@@ -110,6 +152,8 @@ def parse_options(argv):
             opts.print_properties = True
         elif s == '-l':
             opts.list_classes = True
+        elif s == '-all':
+            opts.read_all_files = True
         elif s == '-csharp':
              opts.print_csharp = True
         else:
@@ -134,6 +178,7 @@ def usage():
     print ("     -a         - display also associations")
     print ("     -l         - list of classes")
     print ("     -csharp    - print constructed model in C#")
+    print ("     -all       - read all CMOF files")
     sys.exit(1)
 
 
