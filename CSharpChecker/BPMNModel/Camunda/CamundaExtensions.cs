@@ -1,6 +1,7 @@
 ﻿using BPMNModel.XMLElements;
 using Serilog;
 using System.Text.Json;
+using System.Xml.Linq;
 using Utility;
 using Attribute = BPMNModel.XMLElements.Attribute;
 
@@ -638,7 +639,7 @@ namespace BPMNModel.Camunda
                     }
                 }
 
-                file.WriteLine($"\t\tpublic {(camundaType.SuperClass is null || camundaType.SuperClass.StartsWith("bpmn:") ? "" : "new")} void Load(XmlParserCamundaNode node)");
+                file.WriteLine($"\t\tpublic {(camundaType.SuperClass is null || camundaType.SuperClass.StartsWith("bpmn:") ? "" : "new")} void Load(XmlParserCamundaNode node, Factory bpmnFactory)");
                 file.WriteLine("\t\t{");
 
                 if (camundaType.SuperClass is not null)
@@ -650,7 +651,7 @@ namespace BPMNModel.Camunda
                     }
                     else
                     {
-                        file.WriteLine("\t\t\tbase.Load(node);");
+                        file.WriteLine("\t\t\tbase.Load(node, bpmnFactory);");
                     }
                 }
                 if (camundaType.SuperClass is null || !camundaType.SuperClass.StartsWith("bpmn:"))
@@ -697,11 +698,18 @@ namespace BPMNModel.Camunda
                         }
                         else if (elIsMany)
                         {
-                            file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count>0) CamundaFactory.LoadElements<{ConvertCSName(ConvertName(elType))}>({CapitalizeFirstLetter(elNameJSON)}, node.ChildNodes[\"{convertedName}\"]);");
+                            if (elType.StartsWith("bpmn:")) {
+                                //if (node.ChildNodes["camunda:eventDefinitions"].Count > 0) bpmnFactory.FillElements(node.ChildNodes["camunda:eventDefinitions"], EventDefinitions);
+                                file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count>0) bpmnFactory.FillElements(node.ChildNodes[\"{convertedName}\"], {CapitalizeFirstLetter(elNameJSON)});");
+                            }
+                            else
+                            {
+                                file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count>0) CamundaFactory.LoadElements<{ConvertCSName(ConvertName(elType))}>({CapitalizeFirstLetter(elNameJSON)}, node.ChildNodes[\"{convertedName}\"], bpmnFactory);");
+                            }
                         }
                         else
                         {
-                            file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count==1) {CapitalizeFirstLetter(elNameJSON)} = ({ConvertCSName(ConvertName(elType))})CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes[\"{convertedName}\"][0]);");
+                            file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count==1) {CapitalizeFirstLetter(elNameJSON)} = ({ConvertCSName(ConvertName(elType))})CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes[\"{convertedName}\"][0], bpmnFactory);");
                         }
 
                         file.WriteLine();

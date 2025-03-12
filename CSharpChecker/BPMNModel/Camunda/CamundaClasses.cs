@@ -23,10 +23,10 @@ namespace BPMNModel.Camunda
 		// Extension Elements:
 		public CamundaInputOutput? InputOutput { get; set; } 
 		public string? ConnectorId { get; set; } 
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading element: InputOutput inputOutput - camunda:inputOutput
-			if (node.ChildNodes["camunda:inputOutput"].Count==1) InputOutput = (CamundaInputOutput)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:inputOutput"][0]);
+			if (node.ChildNodes["camunda:inputOutput"].Count==1) InputOutput = (CamundaInputOutput)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:inputOutput"][0], bpmnFactory);
 
 			//Loading element: String connectorId - camunda:connectorId
 			if (node.ChildNodes["camunda:connectorId"].Count==1) ConnectorId = ((XmlParserStringNode)node.ChildNodes["camunda:connectorId"][0]).Value;
@@ -41,7 +41,7 @@ namespace BPMNModel.Camunda
 		public string? Name {get; set;} 
 		public string? Config {get; set;} 
 
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading attribute: String name
 			if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
@@ -62,7 +62,7 @@ namespace BPMNModel.Camunda
 		// Extension Elements:
 		public string? Value { get; set; } 
 		public CamundaInputOutputParameterDefinition? Definition { get; set; } 
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading attribute: String key
 			if (node.Attributes.ContainsKey("key")) Key = node.Attributes["key"].Value;
@@ -71,7 +71,7 @@ namespace BPMNModel.Camunda
 			if (node.ChildNodes.ContainsKey("value") && node.ChildNodes["value"].Count==1) Value = ((XmlParserStringNode)node.ChildNodes["value"][0]).Value;
 
 			//Loading element: InputOutputParameterDefinition definition - camunda:definition
-			if (node.ChildNodes["camunda:definition"].Count==1) Definition = (CamundaInputOutputParameterDefinition)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:definition"][0]);
+			if (node.ChildNodes["camunda:definition"].Count==1) Definition = (CamundaInputOutputParameterDefinition)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:definition"][0], bpmnFactory);
 
 		}
 	}
@@ -83,7 +83,7 @@ namespace BPMNModel.Camunda
 		// Attributes:
 		public string? Expression {get; set;} 
 
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			throw new Utility.BPMNCheckerExceptions("Do not know how to solve this - need to implement it in the generator.");
 		}
@@ -103,7 +103,7 @@ namespace BPMNModel.Camunda
 		// Extension Elements:
 		public CamundaScript? Script { get; set; } 
 		public List<CamundaField> Fields { get; } = new();
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading attribute: String expression
 			if (node.Attributes.ContainsKey("expression")) Expression = node.Attributes["expression"].Value;
@@ -118,10 +118,10 @@ namespace BPMNModel.Camunda
 			if (node.Attributes.ContainsKey("event")) Event = node.Attributes["event"].Value;
 
 			//Loading element: Script script - camunda:script
-			if (node.ChildNodes["camunda:script"].Count==1) Script = (CamundaScript)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:script"][0]);
+			if (node.ChildNodes["camunda:script"].Count==1) Script = (CamundaScript)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:script"][0], bpmnFactory);
 
 			//Loading element: Field* fields - camunda:fields
-			if (node.ChildNodes["camunda:fields"].Count>0) CamundaFactory.LoadElements<CamundaField>(Fields, node.ChildNodes["camunda:fields"]);
+			if (node.ChildNodes["camunda:fields"].Count>0) CamundaFactory.LoadElements<CamundaField>(Fields, node.ChildNodes["camunda:fields"], bpmnFactory);
 
 		}
 	}
@@ -132,7 +132,7 @@ namespace BPMNModel.Camunda
 
 		// Extension Elements:
 		public string? Body { get; set; } 
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading element: String body - camunda:body
 			if (node.ChildNodes.ContainsKey("body") && node.ChildNodes["body"].Count==1) Body = ((XmlParserStringNode)node.ChildNodes["body"][0]).Value;
@@ -152,7 +152,7 @@ namespace BPMNModel.Camunda
 		// Extension Elements:
 		public string? Expression { get; set; } 
 		public string? String { get; set; } 
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading attribute: String name
 			if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
@@ -179,13 +179,13 @@ namespace BPMNModel.Camunda
 
 		// Extension Elements:
 		public List<CamundaFormField> Fields { get; } = new();
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading attribute: String businessKey
 			if (node.Attributes.ContainsKey("businessKey")) BusinessKey = node.Attributes["businessKey"].Value;
 
 			//Loading element: FormField* fields - camunda:fields
-			if (node.ChildNodes["camunda:fields"].Count>0) CamundaFactory.LoadElements<CamundaFormField>(Fields, node.ChildNodes["camunda:fields"]);
+			if (node.ChildNodes["camunda:fields"].Count>0) CamundaFactory.LoadElements<CamundaFormField>(Fields, node.ChildNodes["camunda:fields"], bpmnFactory);
 
 		}
 	}
@@ -205,7 +205,7 @@ namespace BPMNModel.Camunda
 		public CamundaProperties? Properties { get; set; } 
 		public CamundaValidation? Validation { get; set; } 
 		public List<CamundaValue> Values { get; } = new();
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading attribute: String id
 			if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
@@ -223,13 +223,13 @@ namespace BPMNModel.Camunda
 			if (node.Attributes.ContainsKey("defaultValue")) DefaultValue = node.Attributes["defaultValue"].Value;
 
 			//Loading element: Properties properties - camunda:properties
-			if (node.ChildNodes["camunda:properties"].Count==1) Properties = (CamundaProperties)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:properties"][0]);
+			if (node.ChildNodes["camunda:properties"].Count==1) Properties = (CamundaProperties)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:properties"][0], bpmnFactory);
 
 			//Loading element: Validation validation - camunda:validation
-			if (node.ChildNodes["camunda:validation"].Count==1) Validation = (CamundaValidation)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:validation"][0]);
+			if (node.ChildNodes["camunda:validation"].Count==1) Validation = (CamundaValidation)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:validation"][0], bpmnFactory);
 
 			//Loading element: Value* values - camunda:values
-			if (node.ChildNodes["camunda:values"].Count>0) CamundaFactory.LoadElements<CamundaValue>(Values, node.ChildNodes["camunda:values"]);
+			if (node.ChildNodes["camunda:values"].Count>0) CamundaFactory.LoadElements<CamundaValue>(Values, node.ChildNodes["camunda:values"], bpmnFactory);
 
 		}
 	}
@@ -253,7 +253,7 @@ namespace BPMNModel.Camunda
 
 		// Extension Elements:
 		public List<CamundaValue> Values { get; } = new();
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading attribute: String id
 			if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
@@ -286,7 +286,7 @@ namespace BPMNModel.Camunda
 			if (node.Attributes.ContainsKey("default")) Default = node.Attributes["default"].Value;
 
 			//Loading element: Value* values - camunda:values
-			if (node.ChildNodes["camunda:values"].Count>0) CamundaFactory.LoadElements<CamundaValue>(Values, node.ChildNodes["camunda:values"]);
+			if (node.ChildNodes["camunda:values"].Count>0) CamundaFactory.LoadElements<CamundaValue>(Values, node.ChildNodes["camunda:values"], bpmnFactory);
 
 		}
 	}
@@ -295,9 +295,9 @@ namespace BPMNModel.Camunda
 	{
 		// Allowed: bpmn:CallActivity, bpmn:SignalEventDefinition
 
-		public new void Load(XmlParserCamundaNode node)
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
-			base.Load(node);
+			base.Load(node, bpmnFactory);
 		}
 	}
 
@@ -312,7 +312,7 @@ namespace BPMNModel.Camunda
 		public bool? Local {get; set;}  = false;
 		public string? Variables {get; set;} 
 
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading attribute: String source
 			if (node.Attributes.ContainsKey("source")) Source = node.Attributes["source"].Value;
@@ -345,19 +345,19 @@ namespace BPMNModel.Camunda
 		public string? ConnectorId { get; set; } 
 		public List<CamundaInputParameter> InputParameters { get; } = new();
 		public List<CamundaOutputParameter> OutputParameters { get; } = new();
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading element: InputOutput inputOutput - camunda:inputOutput
-			if (node.ChildNodes["camunda:inputOutput"].Count==1) InputOutput = (CamundaInputOutput)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:inputOutput"][0]);
+			if (node.ChildNodes["camunda:inputOutput"].Count==1) InputOutput = (CamundaInputOutput)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:inputOutput"][0], bpmnFactory);
 
 			//Loading element: String connectorId - camunda:connectorId
 			if (node.ChildNodes["camunda:connectorId"].Count==1) ConnectorId = ((XmlParserStringNode)node.ChildNodes["camunda:connectorId"][0]).Value;
 
 			//Loading element: InputParameter* inputParameters - camunda:inputParameters
-			if (node.ChildNodes["camunda:inputParameters"].Count>0) CamundaFactory.LoadElements<CamundaInputParameter>(InputParameters, node.ChildNodes["camunda:inputParameters"]);
+			if (node.ChildNodes["camunda:inputParameters"].Count>0) CamundaFactory.LoadElements<CamundaInputParameter>(InputParameters, node.ChildNodes["camunda:inputParameters"], bpmnFactory);
 
 			//Loading element: OutputParameter* outputParameters - camunda:outputParameters
-			if (node.ChildNodes["camunda:outputParameters"].Count>0) CamundaFactory.LoadElements<CamundaOutputParameter>(OutputParameters, node.ChildNodes["camunda:outputParameters"]);
+			if (node.ChildNodes["camunda:outputParameters"].Count>0) CamundaFactory.LoadElements<CamundaOutputParameter>(OutputParameters, node.ChildNodes["camunda:outputParameters"], bpmnFactory);
 
 		}
 	}
@@ -372,7 +372,7 @@ namespace BPMNModel.Camunda
 		// Extension Elements:
 		public string? Value { get; set; } 
 		public CamundaInputOutputParameterDefinition? Definition { get; set; } 
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading attribute: String name
 			if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
@@ -381,7 +381,7 @@ namespace BPMNModel.Camunda
 			if (node.ChildNodes.ContainsKey("value") && node.ChildNodes["value"].Count==1) Value = ((XmlParserStringNode)node.ChildNodes["value"][0]).Value;
 
 			//Loading element: InputOutputParameterDefinition definition - camunda:definition
-			if (node.ChildNodes["camunda:definition"].Count==1) Definition = (CamundaInputOutputParameterDefinition)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:definition"][0]);
+			if (node.ChildNodes["camunda:definition"].Count==1) Definition = (CamundaInputOutputParameterDefinition)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:definition"][0], bpmnFactory);
 
 		}
 	}
@@ -389,7 +389,7 @@ namespace BPMNModel.Camunda
 	public abstract class CamundaInputOutputParameterDefinition : ICamundaLoaderBase
 	{
 
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 		}
 	}
@@ -397,9 +397,9 @@ namespace BPMNModel.Camunda
 	public class CamundaInputParameter : CamundaInputOutputParameter, ICamundaLoaderBase
 	{
 
-		public new void Load(XmlParserCamundaNode node)
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
-			base.Load(node);
+			base.Load(node, bpmnFactory);
 		}
 	}
 
@@ -408,11 +408,11 @@ namespace BPMNModel.Camunda
 
 		// Extension Elements:
 		public List<CamundaInputOutputParameterDefinition> Items { get; } = new();
-		public new void Load(XmlParserCamundaNode node)
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
-			base.Load(node);
+			base.Load(node, bpmnFactory);
 			//Loading element: InputOutputParameterDefinition* items - camunda:items
-			if (node.ChildNodes["camunda:items"].Count>0) CamundaFactory.LoadElements<CamundaInputOutputParameterDefinition>(Items, node.ChildNodes["camunda:items"]);
+			if (node.ChildNodes["camunda:items"].Count>0) CamundaFactory.LoadElements<CamundaInputOutputParameterDefinition>(Items, node.ChildNodes["camunda:items"], bpmnFactory);
 
 		}
 	}
@@ -422,11 +422,11 @@ namespace BPMNModel.Camunda
 
 		// Extension Elements:
 		public List<CamundaEntry> Entries { get; } = new();
-		public new void Load(XmlParserCamundaNode node)
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
-			base.Load(node);
+			base.Load(node, bpmnFactory);
 			//Loading element: Entry* entries - camunda:entries
-			if (node.ChildNodes["camunda:entries"].Count>0) CamundaFactory.LoadElements<CamundaEntry>(Entries, node.ChildNodes["camunda:entries"]);
+			if (node.ChildNodes["camunda:entries"].Count>0) CamundaFactory.LoadElements<CamundaEntry>(Entries, node.ChildNodes["camunda:entries"], bpmnFactory);
 
 		}
 	}
@@ -435,18 +435,18 @@ namespace BPMNModel.Camunda
 	{
 		// Allowed: bpmn:CallActivity
 
-		public new void Load(XmlParserCamundaNode node)
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
-			base.Load(node);
+			base.Load(node, bpmnFactory);
 		}
 	}
 
 	public class CamundaOutputParameter : CamundaInputOutputParameter, ICamundaLoaderBase
 	{
 
-		public new void Load(XmlParserCamundaNode node)
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
-			base.Load(node);
+			base.Load(node, bpmnFactory);
 		}
 	}
 
@@ -456,10 +456,10 @@ namespace BPMNModel.Camunda
 
 		// Extension Elements:
 		public List<CamundaProperty> Values { get; } = new();
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading element: Property* values - camunda:values
-			if (node.ChildNodes["camunda:values"].Count>0) CamundaFactory.LoadElements<CamundaProperty>(Values, node.ChildNodes["camunda:values"]);
+			if (node.ChildNodes["camunda:values"].Count>0) CamundaFactory.LoadElements<CamundaProperty>(Values, node.ChildNodes["camunda:values"], bpmnFactory);
 
 		}
 	}
@@ -472,7 +472,7 @@ namespace BPMNModel.Camunda
 		public string? Name {get; set;} 
 		public string? Value {get; set;} 
 
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading attribute: String id
 			if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
@@ -496,9 +496,9 @@ namespace BPMNModel.Camunda
 
 		// Extension Elements:
 		public string? Value { get; set; } 
-		public new void Load(XmlParserCamundaNode node)
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
-			base.Load(node);
+			base.Load(node, bpmnFactory);
 			//Loading attribute: String scriptFormat
 			if (node.Attributes.ContainsKey("scriptFormat")) ScriptFormat = node.Attributes["scriptFormat"].Value;
 
@@ -527,7 +527,7 @@ namespace BPMNModel.Camunda
 		public CamundaScript? Script { get; set; } 
 		public List<CamundaField> Fields { get; } = new();
 		public List<TimerEventDefinition> EventDefinitions { get; } = new();
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading attribute: String expression
 			if (node.Attributes.ContainsKey("expression")) Expression = node.Attributes["expression"].Value;
@@ -545,13 +545,13 @@ namespace BPMNModel.Camunda
 			if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
 
 			//Loading element: Script script - camunda:script
-			if (node.ChildNodes["camunda:script"].Count==1) Script = (CamundaScript)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:script"][0]);
+			if (node.ChildNodes["camunda:script"].Count==1) Script = (CamundaScript)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:script"][0], bpmnFactory);
 
 			//Loading element: Field* fields - camunda:fields
-			if (node.ChildNodes["camunda:fields"].Count>0) CamundaFactory.LoadElements<CamundaField>(Fields, node.ChildNodes["camunda:fields"]);
+			if (node.ChildNodes["camunda:fields"].Count>0) CamundaFactory.LoadElements<CamundaField>(Fields, node.ChildNodes["camunda:fields"], bpmnFactory);
 
 			//Loading element: bpmn:TimerEventDefinition* eventDefinitions - camunda:eventDefinitions
-			if (node.ChildNodes["camunda:eventDefinitions"].Count>0) CamundaFactory.LoadElements<TimerEventDefinition>(EventDefinitions, node.ChildNodes["camunda:eventDefinitions"]);
+			if (node.ChildNodes["camunda:eventDefinitions"].Count>0) bpmnFactory.FillElements(node.ChildNodes["camunda:eventDefinitions"], EventDefinitions);
 
 		}
 	}
@@ -561,10 +561,10 @@ namespace BPMNModel.Camunda
 
 		// Extension Elements:
 		public List<CamundaConstraint> Constraints { get; } = new();
-		public  void Load(XmlParserCamundaNode node)
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
 			//Loading element: Constraint* constraints - camunda:constraints
-			if (node.ChildNodes["camunda:constraints"].Count>0) CamundaFactory.LoadElements<CamundaConstraint>(Constraints, node.ChildNodes["camunda:constraints"]);
+			if (node.ChildNodes["camunda:constraints"].Count>0) CamundaFactory.LoadElements<CamundaConstraint>(Constraints, node.ChildNodes["camunda:constraints"], bpmnFactory);
 
 		}
 	}
@@ -579,9 +579,9 @@ namespace BPMNModel.Camunda
 
 		// Extension Elements:
 		public string? Value { get; set; } 
-		public new void Load(XmlParserCamundaNode node)
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
 		{
-			base.Load(node);
+			base.Load(node, bpmnFactory);
 			//Loading attribute: String id
 			if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
 

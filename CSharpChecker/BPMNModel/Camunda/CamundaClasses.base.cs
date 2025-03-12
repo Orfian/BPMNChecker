@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BPMNModel.Model;
 using BPMNModel.XMLParser;
 
 namespace BPMNModel.Camunda
@@ -13,6 +14,6 @@ namespace BPMNModel.Camunda
 
     public interface ICamundaLoaderBase
     {
-        void Load(XmlParserCamundaNode node);
+        void Load(XmlParserCamundaNode node, Factory bpmnFactory);
     }
 }
