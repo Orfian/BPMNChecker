@@ -269,6 +269,9 @@ def print_external_type(out, c):
               c.name + " {").nl()
     out.inc()
     out.write("href = " + repr(c.href)).nl()
+    t = c.type
+    if t is not None:
+        out.write("type = " + t.get_full_name()).nl()
     out.dec()
     out.write("}").nl()
 
