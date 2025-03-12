@@ -13,13 +13,15 @@ namespace BPMNModel.XMLParser
         private Generator generator;
         private ILogger logger;
         private bool reportDiagramErrorsAsWarnings;
+        private bool reportOtherNamespacesErrorsAsWarnings;
 
-        private XmlParser(ILogger logger, Generator generator, Dictionary<string, XNamespace> namespaces, bool reportDiagramErrorsAsWarnings)
+        private XmlParser(ILogger logger, Generator generator, Dictionary<string, XNamespace> namespaces, bool reportDiagramErrorsAsWarnings, bool reportOtherNamespacesErrorsAsWarnings)
         {
             this.logger = logger;
             this.generator = generator;
             this.namespaces = namespaces;
             this.reportDiagramErrorsAsWarnings = reportDiagramErrorsAsWarnings;
+            this.reportOtherNamespacesErrorsAsWarnings = reportOtherNamespacesErrorsAsWarnings;
         }
 
         public Dictionary<string, XmlParserComplexNode> Cache { get; } = new();
@@ -32,7 +34,7 @@ namespace BPMNModel.XMLParser
         private List<string> AllErrors { get; } = new List<string>();
         private List<string> AllWarnings { get; } = new List<string>();
 
-        public static XmlParser Parse(ILogger logger, Generator generator, XDocument document, bool reportDiagramErrorsAsWarnings)
+        public static XmlParser Parse(ILogger logger, Generator generator, XDocument document, bool reportDiagramErrorsAsWarnings, bool reportOtherNamespacesErrorsAsWarnings)
         {
             if (document.Root == null) throw new BPMNCheckerExceptions($"File has no root element.");
             /*
@@ -57,10 +59,10 @@ namespace BPMNModel.XMLParser
 
             foreach (var xmlnsAttribute in namespacesInXml)
             {
-                namespaces[xmlnsAttribute.Name.LocalName] = xmlnsAttribute.Value;
+                //namespaces[xmlnsAttribute.Name.LocalName] = xmlnsAttribute.Value;
             }
 
-            XmlParser parser = new XmlParser(logger, generator, namespaces, reportDiagramErrorsAsWarnings);
+            XmlParser parser = new XmlParser(logger, generator, namespaces, reportDiagramErrorsAsWarnings, reportOtherNamespacesErrorsAsWarnings);
             parser.Root = parser.LoadAndCheck(document.Root, generator.Elements["definitions"]);
 
             var error = parser.CheckReferencesWithoutDefinitions();
@@ -170,6 +172,23 @@ namespace BPMNModel.XMLParser
                 {
                     AllErrors.Add(message);
                 }
+            }else if (reportOtherNamespacesErrorsAsWarnings && !namespaces.ContainsValue(element.Name.Namespace)) 
+            {
+                AllWarnings.Add(message);
+            }
+            else
+            {
+                AllErrors.Add(message);
+            }
+        }
+
+        private void AddErrorForAttribute(XElement element, XName attributeName, string error)
+        {
+            var message = GetNiceMessage(element, error);
+
+            if (reportOtherNamespacesErrorsAsWarnings && !namespaces.ContainsValue(attributeName.Namespace))
+            {
+                AllWarnings.Add(message);
             }
             else
             {
@@ -272,7 +291,7 @@ namespace BPMNModel.XMLParser
 
             foreach (var xmlAttribute in allXMLAttributes)
             {
-                AddError(element, $"Attribute {xmlAttribute} is not processed.");
+                AddErrorForAttribute(element, xmlAttribute, $"Attribute {xmlAttribute} is not processed.");
             }
 
             var idAttributes = processedAttributes.Where(x => x.Name == "id");
@@ -595,7 +614,7 @@ namespace BPMNModel.XMLParser
             foreach (var (elemenName, item) in type.InnerElementsByTypeElementName)
             {
                 logger.Debug(GetNiceMessage(element, $"    {item}"));
-                node.ChildNodes.Add(item.Name, []);
+                node.ChildNodes.Add(elemenName, []);
             }
 
             if (!element.HasElements && !string.IsNullOrWhiteSpace(element.Value))
@@ -649,29 +668,67 @@ namespace BPMNModel.XMLParser
                         }
                         else if (targetInCurrentInnerCategories.Count == 1)
                         {
-                            var targetForElement = targetInCurrentInnerCategories[0].Value;
-                            node.ChildNodes[targetForElement.Name].Add(producedXMLNode);
+                            var targetForElement = targetInCurrentInnerCategories[0];
+                            node.ChildNodes[targetForElement.Key].Add(producedXMLNode);
                         }
                         else
                         {
                             AddError(innerElement, $"Type {type.Name} have several [{string.Join(",", targetInCurrentInnerCategories.Select(x => x.Value.Name))}] targets for type {targetType.Name} - do not know what is the target. ");
                         }
-                    }
+                    } 
                     else
                     {
-                        AddError(element, $"Do not know how to process element {convertedName} inside of {type.CamundaJSonType.Name}.");
+                        if (convertedName.StartsWith("bpmn:"))
+                        {
+                            var bpmnName = convertedName.Replace("bpmn:", "");
+
+                            if (generator.Elements.ContainsKey(bpmnName))
+                            {
+                                var targetBPMNElement = generator.Elements[bpmnName];
+
+                                var createdBPMNNode = LoadAndCheck(innerElement, targetBPMNElement);
+                                if (createdBPMNNode != null)
+                                {
+                                    //TODO: Is casting possible here? I hve no example of casting, so checking directly
+                                    var targetInCurrentInnerCategories = type.InnerElementsByTypeElementName.Where(x => x.Value is RootElement c && c.Type.Name.Equals(targetBPMNElement.Type.Name)).ToList();
+
+
+                                    if (targetInCurrentInnerCategories.Count == 0)
+                                    {
+                                        AddError(innerElement, $"Element {innerElement.Name} of type {targetBPMNElement.Name} can not be placed in any element inside of type {type.Name}.");
+                                    }
+                                    else if (targetInCurrentInnerCategories.Count == 1)
+                                    {
+                                        var targetForElement = targetInCurrentInnerCategories[0];
+                                        node.ChildNodes[targetForElement.Key].Add(createdBPMNNode);
+                                    }
+                                    else
+                                    {
+                                        AddError(innerElement, $"Type {type.Name} have several [{string.Join(",", targetInCurrentInnerCategories.Select(x => x.Value.Name))}] targets for type {targetBPMNElement.Name} - do not know what is the target. ");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                AddError(element, $"Unknown BPMN element {convertedName}.");
+                            }
+                        }
+                        else
+                        {
+                            AddError(element, $"Do not know how to process element {convertedName} inside of {type.CamundaJSonType.Name}.");
+                        }
                     }
                 }
             }
 
-            foreach (var (_, item) in type.InnerElementsByTypeElementName)
+            foreach (var (itemName, itemValue) in type.InnerElementsByTypeElementName)
             {
-                logger.Debug(GetNiceMessage(element, $"  Checking element: {item.Name}"));
+                logger.Debug(GetNiceMessage(element, $"  Checking element: {itemName}"));
 
-                var countForField = node.ChildNodes[item.Name].Count;
+                var countForField = node.ChildNodes[itemName].Count;
 
-                if (countForField < item.MinOccurs) AddError(element, $"{item.Name} requires minimum {item.MinOccurs} occurences, but there are {countForField}.");
-                if (countForField > item.MaxOccurs) AddError(element, $"{item.Name} requires maximum {item.MaxOccurs} occurences, but there are {countForField}.");
+                if (countForField < itemValue.MinOccurs) AddError(element, $"{itemName} requires minimum {itemValue.MinOccurs} occurences, but there are {countForField}.");
+                if (countForField > itemValue.MaxOccurs) AddError(element, $"{itemName} requires maximum {itemValue.MaxOccurs} occurences, but there are {countForField}.");
             }
 
             logger.Debug(GetNiceMessage(element, $"Finished loading {GetNiceName(element.Name)}: type={node.Type.CamundaJSonType.Name}, attributes: {node.Attributes.Count}, categories: {node.ChildNodes.Count} with {node.ChildNodes.Values.Select(x => x.Count).Sum()} elements."));

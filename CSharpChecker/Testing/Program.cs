@@ -49,7 +49,7 @@ namespace Testing
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/CamundaModeler_almost_all_set.bpmn");
             XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/CamundaModeler_almost_all_set_color.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/timing.bpmn");
-            var parser = XmlParser.Parse(Log.Logger, generator, doc, false);
+            var parser = XmlParser.Parse(Log.Logger, generator, doc, false, true);
 
             if (parser.HasErrors)
             {

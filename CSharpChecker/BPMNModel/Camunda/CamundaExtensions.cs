@@ -341,15 +341,22 @@ namespace BPMNModel.Camunda
                     }
                     else
                     {
+                        var convertedElementName = ConvertName(elName);
+
                         if (elType.StartsWith("bpmn:"))
                         {
-                            //TODO: Figure out what the BPMN elements look like here - NamedElement?
-                            //throw new BPMNCheckerExceptions($"Dont know what to do here, do not have an example.");
+                            var bpmnName = LowercaseFirstLetter(elType.Replace("bpmn:", ""));
+                            if (generator.Elements.ContainsKey(bpmnName))
+                            {
+                                camundaType.InnerElementsByTypeElementName.Add(convertedElementName, generator.Elements[bpmnName]);
+                            }else
+                            {
+                                throw new BPMNCheckerExceptions($"Unknown BPMN element in camunda.json: {elType}");
+                            }
                         }
                         else if (elType == "String")
                         {
                             if (elIsMany) throw new BPMNCheckerExceptions($"In camunda.json, element of type String can not have attribute Many=true.");
-                            var convertedElementName = ConvertName(elName);
                             camundaType.InnerElementsByTypeElementName.Add(convertedElementName, new CamundaValueElement(convertedElementName));
                         }
                         else
@@ -358,8 +365,7 @@ namespace BPMNModel.Camunda
                             if (allCamundaTypes.ContainsKey(camundaTypeName))
                             {
                                 var innerElementType = allCamundaTypes[camundaTypeName];
-                                var convertedElementName = ConvertName(camundaTypeName);
-                                camundaType.InnerElementsByTypeElementName.Add(ConvertTypeNameToElementName(convertedElementName), new CamundaElement(ConvertName(elName), innerElementType, elIsMany));
+                                camundaType.InnerElementsByTypeElementName.Add(convertedElementName, new CamundaElement(ConvertName(elName), innerElementType, elIsMany));
                             }
                             else
                             {
