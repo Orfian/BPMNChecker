@@ -69,7 +69,7 @@ public class DiagramLoading
     [TestMethod]
     public void CallActivity()
     {
-        var modelRoot = LoadBpmnModel(@"diagrams/ModelsAndDiagrams/CallActivity.bpmn");
+        var modelRoot = BpmnModelLoader.LoadBpmnModel(@"diagrams/ModelsAndDiagrams/CallActivity.bpmn");
         Assert.IsNotNull(modelRoot);
 
         // Ověření hlavního procesu
