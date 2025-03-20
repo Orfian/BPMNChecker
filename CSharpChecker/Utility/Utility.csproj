@@ -26,6 +26,7 @@
     <None Remove="diagrams\CamundaModeler_almost_all_set_color.bpmn" />
     <None Remove="diagrams\httpConnector.bpmn" />
     <None Remove="diagrams\httpConnectorPOST.bpmn" />
+    <None Remove="diagrams\ModelsAndDiagrams\CallActivity.bpmn" />
     <None Remove="diagrams\MonthlyInvoicing-solution.bpmn" />
     <None Remove="diagrams\Multi-instanceMessagingBetweenProcesses-Doctor.bpmn" />
     <None Remove="diagrams\single_user_task.bpmn" />
@@ -46,16 +47,14 @@
     <EmbeddedResource Include="diagrams\all_tasks.bpmn" />
     <EmbeddedResource Include="diagrams\BookHolidaySagaPatternV2.bpmn" />
     <EmbeddedResource Include="diagrams\CamundaModeler_almost_all_set.bpmn" />
-<<<<<<< HEAD
     <EmbeddedResource Include="diagrams\DiagramLoading\invalid.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\no_definition.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\no_elements.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\start_to_stop.bpmn" />
-=======
     <EmbeddedResource Include="diagrams\CamundaModeler_almost_all_set_color.bpmn" />
->>>>>>> e9dbbbc976e89a5d62a62ad9d112dbdcad9baad1
     <EmbeddedResource Include="diagrams\httpConnector.bpmn" />
     <EmbeddedResource Include="diagrams\httpConnectorPOST.bpmn" />
+    <EmbeddedResource Include="diagrams\ModelsAndDiagrams\CallActivity.bpmn" />
     <EmbeddedResource Include="diagrams\MonthlyInvoicing-solution.bpmn">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>

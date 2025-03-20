@@ -36,9 +36,9 @@ public class DiagramLoading
 
         CamundaExtensions.EnrichGenerator(Log.Logger, generator, true);
 
-        XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/DiagramLoading/invalid.bpmn");
+        XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/ModelsAndDiagrams/CallActivity.bpmn");
 
-        var parser = XmlParser.Parse(Log.Logger, generator, doc);
+        var parser = XmlParser.Parse(Log.Logger, generator, doc, true);
 
         if (parser.HasErrors)
         {
@@ -49,5 +49,11 @@ public class DiagramLoading
         }
 
         var model = Factory.ProcessModel(Log.Logger, parser);
+    }
+
+    [TestMethod]
+    public void PrefixTest()
+    {
+        // otestovat tagy type <semantic:element> a <semantic:complexType>
     }
 }
