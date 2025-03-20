@@ -10,15 +10,17 @@ class M_Model(object):
         '__classes',
         '__enumerations',
         '__primitive_types',
+        '__data_types',
         '__external_types'
     ]
 
-    def __init__(self, name, classes, enumerations, prim_types, ext_types):
+    def __init__(self, name, classes, enumerations, prim_types, data_types, ext_types):
         assert is_ident(name)
         self.__name = name
         self.__classes = classes
         self.__enumerations = enumerations
         self.__primitive_types = prim_types
+        self.__data_types = data_types
         self.__external_types = ext_types
 
     def get_package_name(self):
@@ -33,18 +35,170 @@ class M_Model(object):
     def get_primitive_types(self):
         return self.__primitive_types
 
+    def get_data_types(self):
+        return self.__data_types
+
     def get_external_types(self):
         return self.__external_types
 
 
+class M_Combined_Model(object):
+
+    __slots__ = [
+        '__packages',
+        '__table',
+        '__fname_table'
+    ]
+
+    def __init__(self, packages):
+        self.__packages = packages
+        t = {}
+        ft = {}
+        for p in packages:
+            name = p.get_package_name()
+            assert name not in t
+            t[name] = p
+            fname = p.get_filename()
+            assert fname not in ft
+            ft[fname] = p
+        self.__table = t
+        self.__fname_table = ft
+
+    def get_packages(self):
+        return self.__packages
+
+    def find_package(self, name):
+        t = self.__table
+        if name not in t:
+            return None
+        else:
+            return t[name]
+
+    def find_package_by_filename(self, fname):
+        ft = self.__fname_table
+        if fname not in ft:
+            return None
+        else:
+            return ft[fname]
+
+    def find_type(self, package_name, name):
+        p = self.find_package(package_name)
+        if p is None:
+            return None
+        return p.find_type(name)
+
+    def find_type_in_file(self, fname, name):
+        p = self.find_package_by_filename(fname)
+        if p is None:
+            return None
+        return p.find_type(name)
+
+
+class M_Package(object):
+
+    __slots__ = [
+        '__name',
+        '__filename',
+        '__classes',
+        '__enumerations',
+        '__primitive_types',
+        '__data_types',
+        '__external_types',
+        '__table'
+    ]
+
+    def __init__(self, name, filename, classes, enumerations, prim_types, data_types, ext_types):
+        assert is_ident(name)
+        self.__name = name
+        self.__filename = filename
+        self.__table = {}
+
+        for c in classes:
+            c.set_package(self)
+            self.__add_type(c)
+        self.__classes = classes
+
+        for c in enumerations:
+            c.set_package(self)
+            self.__add_type(c)
+        self.__enumerations = enumerations
+
+        for c in prim_types:
+            c.set_package(self)
+            self.__add_type(c)
+        self.__primitive_types = prim_types
+
+        for c in data_types:
+            c.set_package(self)
+            self.__add_type(c)
+        self.__data_types = data_types
+
+        for c in ext_types:
+            c.set_package(self)
+        self.__external_types = ext_types
+
+    def __add_type(self, c):
+        name = c.get_name()
+        t = self.__table
+        assert name not in t
+        t[name] = c
+
+    def get_package_name(self):
+        return self.__name
+
+    def get_filename(self):
+        return self.__filename
+
+    def get_package_filename(self):
+        return self.__filenamename
+
+    def get_classes(self):
+        return self.__classes
+
+    def get_enumerations(self):
+        return self.__enumerations
+
+    def get_primitive_types(self):
+        return self.__primitive_types
+
+    def get_data_types(self):
+        return self.__data_types
+
+    def get_external_types(self):
+        return self.__external_types
+
+    def find_type(self, name):
+        t = self.__table
+        if name not in t:
+            return None
+        else:
+            return t[name]
+
 
 class M_Type(object):
 
-    __slots__ = [ 'name' ]
+    __slots__ = [ 'name', 'package' ]
 
     def __init__(self, name):
         assert is_ident(name)
         self.name = name
+        self.package = None
+
+    def set_package(self, package):
+        assert isinstance(package, M_Package)
+        self.package = package
+
+    def get_name(self):
+        return self.name
+
+    def get_full_name(self):
+        name = self.name
+        p = self.package
+        if p is None:
+            return name
+        else:
+            pname = p.get_package_name()
+            return pname + '.' + name
 
 
 class M_Class(M_Type):
@@ -108,7 +262,7 @@ class M_Attribute (M_Property):
         self.assoc_index = -1
 
     def set_parent(self, parent):
-        assert isinstance(parent, M_Class)
+        assert isinstance(parent, M_Class) or isinstance(parent, M_DataType)
         self.parent = parent
 
     def set_one_way_assoc(self, assoc):
@@ -202,9 +356,25 @@ class M_PrimitiveType(M_Type):
         super().__init__(name)
 
 
+class M_DataType(M_Type):
+
+    __slots__ = [
+        'attributes'
+    ]
+
+    def __init__(self, name):
+        super().__init__(name)
+
+    def set_attributes(self, attrs):
+        for attr in attrs:
+            attr.set_parent(self)
+        self.attributes = attrs
+
+
+
 class M_HRef_Type(M_Type):
 
-    __slots__ = [ 'href', 'kind' ]
+    __slots__ = [ 'href', 'kind', 'type' ]
 
     def __init__(self, name, href, kind):
         assert is_ident(name)
@@ -213,6 +383,11 @@ class M_HRef_Type(M_Type):
         assert isinstance(kind, Type_Kind)
         self.href = href
         self.kind = kind
+        self.type = None
+
+    def set_type(self, c):
+        assert isinstance(c, M_Type)
+        self.type = c
 
 
 class Type_Kind(Enum):

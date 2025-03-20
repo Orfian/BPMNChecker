@@ -169,7 +169,7 @@ namespace BPMNModel.Model
             throw new BPMNCheckerExceptions($"Can not convert {value} to Enum type {typeof(T).Name}.");
         }
 
-        private void FillElements<T>(List<XmlParserNode> data, List<T> target)
+        public void FillElements<T>(List<XmlParserNode> data, List<T> target)
         {
             foreach (XmlParserNode node in data)
             {
@@ -289,7 +289,7 @@ namespace BPMNModel.Model
                             {
                                 if (item is XmlParserCamundaNode camundaNode)
                                 {
-                                    var loadedItem = CamundaFactory.Load(camundaNode);
+                                    var loadedItem = CamundaFactory.Load(camundaNode, this);
 
                                     if (loadedItem is ICamundaBaseElement camundaBase)
                                     {

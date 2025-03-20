@@ -1,4 +1,5 @@
-﻿using BPMNModel.Model;
+﻿using BPMNModel.Camunda;
+using BPMNModel.Model;
 using System.Collections;
 using System.Reflection;
 using Utility;
@@ -57,7 +58,7 @@ namespace BPMNModel
                 var valueId = getId(value);
                 Type valueType = value.GetType();
 
-                if (valueId != null)
+                if (valueId != null && value is not ICamundaBaseElement)
                 {
                     writer.WriteLine($"{indent}{leftPart} = REF({valueType.Name}, {valueId})");
                 }

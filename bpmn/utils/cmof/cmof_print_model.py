@@ -28,10 +28,36 @@ def print_model(out, model, opts):
     print_classes(out, model.get_classes(), opts)
     print_enumerations(out, model.get_enumerations(), opts)
     print_primitive_types(out, model.get_primitive_types())
+    print_data_types(out, model.get_data_types(), opts)
 
     sep_line_last(out)
     out.dec()
     out.write("}").nl()
+
+
+def print_package(out, package, opts):
+    assert isinstance(package, M_Package)
+    out.nl().write("Package " + package.get_package_name() +
+        " (file " + repr(package.get_filename()) + ") {").nl()
+    out.inc()
+
+    print_external_types(out, package.get_external_types())
+    print_classes(out, package.get_classes(), opts)
+    print_enumerations(out, package.get_enumerations(), opts)
+    print_primitive_types(out, package.get_primitive_types())
+    print_data_types(out, package.get_data_types(), opts)
+
+    sep_line_last(out)
+    out.dec()
+    out.write("}").nl()
+
+
+def print_combined_model(out, model, opts):
+    assert isinstance(model, M_Combined_Model)
+    out.write("=" * 80).nl()
+    for package in model.get_packages():
+        print_package(out, package, opts)
+        out.nl().write("=" * 80).nl()
 
 
 def print_classes(out, classes, opts):
@@ -46,6 +72,21 @@ def print_classes(out, classes, opts):
         else:
             out.nl()
         print_Class(out, c, opts)
+    out.nl()
+
+
+def print_data_types(out, datatypes, opts):
+    n = len(datatypes)
+    if n == 0: return
+    sep_line(out)
+    out.write("    (%d datatypes)" % n).nl().nl()
+    first = True
+    for c in datatypes:
+        if first:
+            first = False
+        else:
+            out.nl()
+        print_DataType(out, c, opts)
     out.nl()
 
 
@@ -96,6 +137,18 @@ def print_Class(out, c, opts):
         out.write(" :> ")
         scls_names = [ sc.name for sc in scls ]
         out.write(" +++ ".join(scls_names))
+
+    out.write(" {").nl()
+    out.inc()
+    for attr in c.attributes:
+        print_Attribute(out, attr, opts)
+    out.dec()
+    out.write("}").nl()
+
+
+def print_DataType(out, c, opts):
+    assert isinstance(c, M_DataType)
+    out.write("datatype " + c.name)
 
     out.write(" {").nl()
     out.inc()
@@ -216,6 +269,9 @@ def print_external_type(out, c):
               c.name + " {").nl()
     out.inc()
     out.write("href = " + repr(c.href)).nl()
+    t = c.type
+    if t is not None:
+        out.write("type = " + t.get_full_name()).nl()
     out.dec()
     out.write("}").nl()
 

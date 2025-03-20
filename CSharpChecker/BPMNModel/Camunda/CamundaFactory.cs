@@ -1,11 +1,12 @@
-﻿using BPMNModel.XMLParser;
+﻿using BPMNModel.Model;
+using BPMNModel.XMLParser;
 using Utility;
 
 namespace BPMNModel.Camunda
 {
     public class CamundaFactory
     {
-        public static ICamundaLoaderBase Load(XmlParserCamundaNode node)
+        public static ICamundaLoaderBase Load(XmlParserCamundaNode node, Factory bpmnFactory)
         {
             var thisFactoryType = typeof(CamundaFactory);
             var assembly = thisFactoryType.Assembly;
@@ -20,7 +21,7 @@ namespace BPMNModel.Camunda
 
             if (loadedItemAsObject != null && loadedItemAsObject is ICamundaLoaderBase loadedItem)
             {
-                loadedItem.Load(node);
+                loadedItem.Load(node, bpmnFactory);
 
                 return loadedItem;
             }
@@ -30,13 +31,13 @@ namespace BPMNModel.Camunda
             }
         }
 
-        public static void LoadElements<T>(List<T> target, List<XmlParserNode> nodes) where T : class
+        public static void LoadElements<T>(List<T> target, List<XmlParserNode> nodes, Factory bpmnFactory) where T : class
         {
             foreach (var node in nodes)
             {
                 if (node is XmlParserCamundaNode camundaNode)
                 {
-                    target.Add((T)(CamundaFactory.Load(camundaNode)));
+                    target.Add((T)(CamundaFactory.Load(camundaNode, bpmnFactory)));
                 }
                 else
                 {

@@ -1,6 +1,7 @@
 ﻿using BPMNModel.XMLElements;
 using Serilog;
 using System.Text.Json;
+using System.Xml.Linq;
 using Utility;
 using Attribute = BPMNModel.XMLElements.Attribute;
 
@@ -341,15 +342,22 @@ namespace BPMNModel.Camunda
                     }
                     else
                     {
+                        var convertedElementName = ConvertName(elName);
+
                         if (elType.StartsWith("bpmn:"))
                         {
-                            //TODO: Figure out what the BPMN elements look like here - NamedElement?
-                            //throw new BPMNCheckerExceptions($"Dont know what to do here, do not have an example.");
+                            var bpmnName = LowercaseFirstLetter(elType.Replace("bpmn:", ""));
+                            if (generator.Elements.ContainsKey(bpmnName))
+                            {
+                                camundaType.InnerElementsByTypeElementName.Add(convertedElementName, generator.Elements[bpmnName]);
+                            }else
+                            {
+                                throw new BPMNCheckerExceptions($"Unknown BPMN element in camunda.json: {elType}");
+                            }
                         }
                         else if (elType == "String")
                         {
                             if (elIsMany) throw new BPMNCheckerExceptions($"In camunda.json, element of type String can not have attribute Many=true.");
-                            var convertedElementName = ConvertName(elName);
                             camundaType.InnerElementsByTypeElementName.Add(convertedElementName, new CamundaValueElement(convertedElementName));
                         }
                         else
@@ -358,8 +366,7 @@ namespace BPMNModel.Camunda
                             if (allCamundaTypes.ContainsKey(camundaTypeName))
                             {
                                 var innerElementType = allCamundaTypes[camundaTypeName];
-                                var convertedElementName = ConvertName(camundaTypeName);
-                                camundaType.InnerElementsByTypeElementName.Add(ConvertTypeNameToElementName(convertedElementName), new CamundaElement(ConvertName(elName), innerElementType, elIsMany));
+                                camundaType.InnerElementsByTypeElementName.Add(convertedElementName, new CamundaElement(ConvertName(elName), innerElementType, elIsMany));
                             }
                             else
                             {
@@ -632,7 +639,7 @@ namespace BPMNModel.Camunda
                     }
                 }
 
-                file.WriteLine($"\t\tpublic {(camundaType.SuperClass is null || camundaType.SuperClass.StartsWith("bpmn:") ? "" : "new")} void Load(XmlParserCamundaNode node)");
+                file.WriteLine($"\t\tpublic {(camundaType.SuperClass is null || camundaType.SuperClass.StartsWith("bpmn:") ? "" : "new")} void Load(XmlParserCamundaNode node, Factory bpmnFactory)");
                 file.WriteLine("\t\t{");
 
                 if (camundaType.SuperClass is not null)
@@ -644,7 +651,7 @@ namespace BPMNModel.Camunda
                     }
                     else
                     {
-                        file.WriteLine("\t\t\tbase.Load(node);");
+                        file.WriteLine("\t\t\tbase.Load(node, bpmnFactory);");
                     }
                 }
                 if (camundaType.SuperClass is null || !camundaType.SuperClass.StartsWith("bpmn:"))
@@ -691,11 +698,18 @@ namespace BPMNModel.Camunda
                         }
                         else if (elIsMany)
                         {
-                            file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count>0) CamundaFactory.LoadElements<{ConvertCSName(ConvertName(elType))}>({CapitalizeFirstLetter(elNameJSON)}, node.ChildNodes[\"{convertedName}\"]);");
+                            if (elType.StartsWith("bpmn:")) {
+                                //if (node.ChildNodes["camunda:eventDefinitions"].Count > 0) bpmnFactory.FillElements(node.ChildNodes["camunda:eventDefinitions"], EventDefinitions);
+                                file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count>0) bpmnFactory.FillElements(node.ChildNodes[\"{convertedName}\"], {CapitalizeFirstLetter(elNameJSON)});");
+                            }
+                            else
+                            {
+                                file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count>0) CamundaFactory.LoadElements<{ConvertCSName(ConvertName(elType))}>({CapitalizeFirstLetter(elNameJSON)}, node.ChildNodes[\"{convertedName}\"], bpmnFactory);");
+                            }
                         }
                         else
                         {
-                            file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count==1) {CapitalizeFirstLetter(elNameJSON)} = ({ConvertCSName(ConvertName(elType))})CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes[\"{convertedName}\"][0]);");
+                            file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count==1) {CapitalizeFirstLetter(elNameJSON)} = ({ConvertCSName(ConvertName(elType))})CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes[\"{convertedName}\"][0], bpmnFactory);");
                         }
 
                         file.WriteLine();

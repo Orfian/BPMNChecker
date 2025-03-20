@@ -10,6 +10,7 @@ def build_model(t, err):
     process_top_level_node(b, t)
     # show_ids(b)
     process_classes(b)
+    process_datatypes(b)
     process_associations(b)
     model = b.build()
     return model
@@ -148,6 +149,24 @@ def preprocess_Attribute(b, tmp_cl, c):
     b.add_Attribute(tmp)
 
 
+def preprocess_datatype_Attribute(b, tmp_dt, c):
+    assert isinstance(tmp_dt, Tmp_DataType)
+    assert isinstance(c, P_DataType_Attribute)
+    assert c.xmi_type == 'cmof:Property'
+    par_name = tmp_dt.get_id()
+    name = process_item_id(b, par_name, c, "Attribute")
+    typ = read_datatype_attr_type(b, tmp_dt, c)
+    s = attribute_descr(tmp_dt, c)
+    card = read_cardinality(b, c.cardinality, s)
+    visibility = read_visibility(b, c.visibility, s)
+    props = preprocess_datatype_attribute_props(b, c, s)
+    assoc = None
+    tmp = Tmp_Attribute(tmp_dt, name, typ, card, visibility, props, assoc)
+    tmp_dt.add_attribute(tmp)
+    b.add_Attribute(tmp)
+
+
+
 def read_attr_prop_true(b, v, name, s):
     return read_bool_true(b, v, s + " --- " + name)
 
@@ -168,6 +187,16 @@ def preprocess_attribute_props(b, attr, s):
     return M_Attr_props(isComposite, isReadOnly, isDerived, isDerivedUnion,
                         isOrdered, isUnique, default)
 
+def preprocess_datatype_attribute_props(b, attr, s):
+    isComposite = False
+    isReadOnly = False
+    isDerived = False
+    isDerivedUnion = False
+    isOrdered = False
+    isUnique = False
+    default = attr.default
+    return M_Attr_props(isComposite, isReadOnly, isDerived, isDerivedUnion,
+                        isOrdered, isUnique, default)
 
 def read_class_attr_type(b, tmp_cl, c):
     t = c.type
@@ -183,6 +212,15 @@ def read_class_attr_type(b, tmp_cl, c):
             typ = read_href_type(b, href, attribute_descr(tmp_cl, c))
         else:
             b.error("Missing type in " + attribute_descr(tmp_cl, c))
+    return typ
+
+def read_datatype_attr_type(b, tmp_dt, c):
+    t = c.type
+    if t is not None:
+        assert isinstance(t, str)
+        typ = Tmp_TypeRef_name(t)
+    else:
+        b.error("Missing type in " + attribute_descr(tmp_dt, c))
     return typ
 
 
@@ -269,6 +307,20 @@ def process_one_class(b, cl):
     cl.set_obj_attributes(attrs)
 
 
+def process_datatypes(b):
+    for dt in b.get_data_types():
+        process_one_datatype(b, dt)
+
+
+def process_one_datatype(b, dt):
+    attrs = []
+    for attr in dt.get_attributes():
+        obj = process_class_attribute(b, dt, attr)
+        attrs.append(obj)
+        attr.set_obj_attribute(obj)
+    dt.set_obj_attributes(attrs)
+
+
 def process_class_attribute(b, cl, attr):
     name = attr.get_name()
     typ = find_class_attribute_type(b, cl, attr)
@@ -347,9 +399,17 @@ def find_assoc_end_type(b, assoc_name, attr):
 
 
 def process_DataType(b, c):
-    print ("Processing DataType " + repr(c.xmi_id))
+    # print ("Processing DataType " + repr(c.xmi_id))
     assert isinstance(c, P_DataType)
     assert c.xmi_type == 'cmof:DataType'
+    name = process_member_id(b, c, "DataType")
+    obj = M_DataType(name)
+    tmp = Tmp_DataType(obj)
+
+    for attr in c.attributes:
+        preprocess_datatype_Attribute(b, tmp, attr)
+
+    b.add_DataType(tmp)
 
 
 def process_Enumeration(b, c):
@@ -604,6 +664,7 @@ class ModelBuilder (object):
         '__classes',
         '__enumerations',
         '__primitive_types',
+        '__data_types',
         '__type_table',
         '__external_types',
         '__ext_types_table',
@@ -619,6 +680,7 @@ class ModelBuilder (object):
         self.__classes = []
         self.__enumerations = []
         self.__primitive_types = []
+        self.__data_types = []
         self.__type_table = {}
         self.__external_types = []
         self.__ext_types_table = {}
@@ -686,6 +748,14 @@ class ModelBuilder (object):
         self.__add_to_type_table(xid, tmp)
         self.__add_to_id_table(xid, tmp)
 
+    def add_DataType(self, tmp):
+        xid = tmp.get_id()
+        name = tmp.get_name()
+        assert xid == name
+        self.__data_types.append(tmp)
+        self.__add_to_type_table(xid, tmp)
+        self.__add_to_id_table(xid, tmp)
+
     def add_Attribute(self, tmp):
         assert isinstance(tmp, Tmp_Attribute)
         xid = tmp.get_id()
@@ -747,6 +817,9 @@ class ModelBuilder (object):
     def get_classes(self):
         return self.__classes
 
+    def get_data_types(self):
+        return self.__data_types
+
     def get_one_way_associations(self):
         return self.__one_way_associations
 
@@ -757,8 +830,10 @@ class ModelBuilder (object):
         classes = [ tmp.get_obj() for tmp in self.__classes ]
         enums = [ tmp.get_obj() for tmp in self.__enumerations ]
         prim_types = [ tmp.get_obj() for tmp in self.__primitive_types ]
+        data_types = [ tmp.get_obj() for tmp in self.__data_types ]
         ext_types = reorder_external_types(self.__external_types)
-        return M_Model(self.__package_name, classes, enums, prim_types, ext_types)
+        return M_Model(self.__package_name, classes, enums, prim_types,
+                       data_types, ext_types)
 
 
 def reorder_external_types(ext_types):
@@ -869,7 +944,7 @@ class Tmp_Attribute(Tmp_Object):
     ]
 
     def __init__(self, parent, name, typ, card, vis, props, assoc):
-        assert isinstance(parent, Tmp_Class)
+        assert isinstance(parent, Tmp_Class) or isinstance(parent, Tmp_DataType)
         assert isinstance(name, str)
         assert isinstance(card, M_Cardinality)
         assert isinstance(props, M_Attr_props)
@@ -1056,9 +1131,47 @@ class Tmp_PrimitiveType(Tmp_Object):
     def get_obj(self):
         return self.__obj
 
+    def get_type_obj(self):
+        return self.get_obj()
+
     def get_short_descr(self):
         return "primitive type " + self.get_name()
 
+
+class Tmp_DataType (Tmp_Object):
+
+    __slots__ = [ '__obj', '__attributes' ]
+
+    def __init__(self, obj):
+        self.__obj = obj
+        self.__attributes = []
+
+    def get_id(self):
+        return self.get_name()
+
+    def get_name(self):
+        return self.__obj.name
+
+    def get_short_descr(self):
+        return "datatype " + self.get_name()
+
+    def add_attribute(self, attr):
+        assert isinstance(attr, Tmp_Attribute)
+        assert attr.get_parent() is self
+        self.__attributes.append(attr)
+
+    def get_attributes(self):
+        return self.__attributes
+
+    def set_obj_attributes(self, attrs):
+        obj = self.__obj
+        obj.set_attributes(attrs)
+
+    def get_obj(self):
+        return self.__obj
+
+    def get_type_obj(self):
+        return self.get_obj()
 
 
 class Tmp_Association (Tmp_Object):
@@ -1167,4 +1280,5 @@ class Tmp_TypeRef_href(Tmp_TypeRef):
 
     def is_href(self):
         return True
+
 
