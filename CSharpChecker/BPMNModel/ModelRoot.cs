@@ -12,11 +12,11 @@ namespace BPMNModel
 
         public ModelRoot(Definitions definitions, IEnumerable<BaseElement> elements)
         {
-            foreach (var element in elements)
+            foreach (var (element, index) in elements.Select((value, index) => (value, index)))
             {
                 if (element.Id is null)
                 {
-                    throw new BPMNCheckerExceptions("Root level of the model contains only elements with ID. Not true for: " + element);
+                    throw new BPMNCheckerExceptions($"Root level of the model contains only elements with ID. Not true for: {element}[{index}].");
                 }
                 allObjectsWithIds.Add(element.Id, element);
             }
