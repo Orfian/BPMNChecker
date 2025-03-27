@@ -12,6 +12,10 @@
       </ownedAttribute>
       <ownedAttribute xmi:type="cmof:Property" xmi:id="DiagramElement-style" name="style" visibility="public" type="Style" lower="0" isReadOnly="true" isDerived="true" isDerivedUnion="true" association="A_style_diagramElement"/>
       <ownedAttribute xmi:type="cmof:Property" xmi:id="DiagramElement-ownedElement" name="ownedElement" visibility="public" type="DiagramElement" upper="*" lower="0" isReadOnly="true" isDerived="true" isDerivedUnion="true" isComposite="true" association="A_ownedElement_owningElement"/>
+	  <!--Added later, not a part of original file.-->
+	  <ownedAttribute xmi:type="cmof:Property" xmi:id="DiagramElement-id" name="id">
+        <type xmi:type="cmof:PrimitiveType" href="http://schema.omg.org/spec/MOF/2.0/cmof.xml#String"/>
+      </ownedAttribute>
     </ownedMember>
     <ownedMember xmi:type="cmof:Class" xmi:id="Node" name="Node" isAbstract="true" superClass="DiagramElement"/>
     <ownedMember xmi:type="cmof:Class" xmi:id="Edge" name="Edge" isAbstract="true" superClass="DiagramElement">
@@ -33,6 +37,10 @@
         <type xmi:type="cmof:PrimitiveType" href="DC.cmof#Real"/>
       </ownedAttribute>
       <ownedAttribute xmi:type="cmof:Property" xmi:id="Diagram-ownedStyle" name="ownedStyle" visibility="public" type="Style" upper="*" lower="0" isReadOnly="true" isDerived="true" isDerivedUnion="true" isComposite="true" association="A_ownedStyle_owningDiagram"/>
+	  <!--Added later, not a part of original file.-->
+	  <ownedAttribute xmi:type="cmof:Property" xmi:id="Diagram-id" name="id">
+        <type xmi:type="cmof:PrimitiveType" href="http://schema.omg.org/spec/MOF/2.0/cmof.xml#String"/>
+      </ownedAttribute>
     </ownedMember>
     <ownedMember xmi:type="cmof:Class" xmi:id="Shape" name="Shape" isAbstract="true" superClass="Node">
       <ownedAttribute xmi:type="cmof:Property" xmi:id="Shape-bounds" name="bounds" visibility="public">

@@ -267,21 +267,20 @@ def print_model(path, model):
     print_enumerations(out, model.get_all_enumerations())
     out.dec()
     out.write("}").nl()
-
-    return
-
+   
     out = Output(open(path + r"\Factory.cs", "w"))
     print_file_header(out)
     out.write("namespace BPMNModel.Model").nl()
     out.write("{").nl()
     out.inc()
+    out.write("using BPMNModel.XMLParser;").nl()
     out.write("using Utility;").nl()
     out.nl()
     out.write("public partial class Factory").nl()
     out.write("{").nl()
     out.inc()
 
-    postProcessing = print_factories(out, model.get_classes(), mappings)
+    postProcessing = print_factories(out, model.get_all_data_types() + model.get_all_classes(), mappings)
     
     out.dec()
     out.write("}").nl()
@@ -377,7 +376,7 @@ def print_factories(out, classes, mappings):
     if n == 0: return
     out.write("#region Factories").nl()
     for c in classes:
-        out.nl()
+        out.write("// ").write(c.name).nl()
         postProcessing += print_factory(out, c, mappings)
     out.write("#endregion").nl().nl()
     return postProcessing
@@ -410,7 +409,7 @@ def get_arity(l, h):
 
 def print_factory(out, c, mappings):
     postProcessing = []
-    assert isinstance(c, M_Class)
+    assert isinstance(c, M_Class) | isinstance(c, M_DataType)
     isInterface = c.name in interfaces
     if isInterface == False and c.is_abstract == False and c.name in extracted:
         out.write("private "+c.name+ " Load"+c.name+ "(XmlParserComplexNode node)").nl()
@@ -430,7 +429,7 @@ def print_factory(out, c, mappings):
                 out.write("// required: " + requiredXMLName + " -> " + requiredType+ " " + requiredName + get_arity(l,h)).nl()
                 out.write("var _"+requiredName+"Attribute = node.Attributes[\""+requiredXMLName+"\"]?.ProcessedValue;").nl()
                 out.write("if (_"+requiredName+"Attribute is null) throw new BPMNCheckerExceptions($\"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : \"\")}) is missing required attribute "+requiredXMLName+"\");").nl()
-                if requiredType == "string" or requiredType == "long" or requiredType == "bool":
+                if requiredType == "string" or requiredType == "long" or requiredType == "bool" or requiredType == "double":
                     out.write("result."+ capitalize_first_letter(requiredName) + " = ("+requiredType+ ")_"+requiredName+"Attribute;").nl()
                 elif requiredType in enumNames:
                     out.write("result."+ capitalize_first_letter(requiredName) +" = CreateEnum<"+requiredType+ ">((string)_"+requiredName+"Attribute);").nl()
@@ -446,7 +445,7 @@ def print_factory(out, c, mappings):
                 out.write("// optional: "+ optionalXmlName + " -> " +optionalType + " "+ optionalName + get_arity(l,h)).nl()
                 out.write("var _"+optionalName+"Attribute = node.Attributes.ContainsKey(\"" + optionalXmlName +"\") ? node.Attributes[\""+optionalXmlName+"\"].ProcessedValue : null;").nl()
                 out.write("if (_"+optionalName+"Attribute is not null) ")
-                if optionalType == "string" or optionalType == "long" or optionalType == "bool":
+                if optionalType == "string" or optionalType == "long" or optionalType == "bool" or optionalType == "double":
                     out.write("result."+ capitalize_first_letter(optionalName) +" = ("+optionalType+ ")_"+optionalName+"Attribute;").nl()
                 elif optionalType in enumNames:
                     out.write("result."+ capitalize_first_letter(optionalName) +" = CreateEnum<"+optionalType+ ">((string)_"+optionalName+"Attribute);").nl()
@@ -475,7 +474,7 @@ def print_factory(out, c, mappings):
 
         for (itemName, (itemType, itemXmlName,l, h, attr)) in allAttributes.items():
             #TODO: Solve known attributes
-            if itemName not in processed + ["diagrams", "extensionValues", "extensionDefinitions", "documentation"]:
+            if itemName not in processed + ["extensionValues", "extensionDefinitions", "documentation", "owningElement", "owningDiagram", "ownedElement", "rootElement"]:
                 #expecting just unlinked attributes
                 if itemXmlName is not None:
                     raise Exception("Expecting no xml name, but have:"+ itemXmlName);
@@ -489,7 +488,6 @@ def print_factory(out, c, mappings):
                     assert isinstance(association, M_One_Way_Association)
                     out.write("// empty: "+ itemType + " "+ itemName + get_arity(l,h)).nl()
                 else:          
-                    #
                     assert h <0               
                     assert isinstance(association, M_Two_Way_Association)
                     target = attr.association.get_other_attr(attr.assoc_index)
@@ -517,7 +515,7 @@ def print_factory(out, c, mappings):
 
         for  xmlName in requiredXmlNames + optionalXmlNames + elementXmlNames:
             #TODO: Solve known attributes
-            if xmlName not in processedXML + [ "extensionElements", "id", "any", "documentation"]:
+            if xmlName not in processedXML + [ "Extension", "extensionElements", "id", "any", "documentation"]:
                 raise Exception("Error: not attached: "+ xmlName)
         out.write("return result;").nl()
         out.dec()
@@ -583,7 +581,9 @@ def print_class_or_data_type(out, c, mappings):
             else:
                 out.write(", ".join([x.name for x in parentClasses] + [x.name for x in implementedInterfaces] ))
         if c.name == "BaseElement":
-            out.write(" : CamundaExtensionBaseElement")            
+            out.write(" : CamundaExtensionBaseElement, IElementWithId")            
+        if c.name in ["Diagram", "DiagramElement"]:
+            out.write(": IElementWithId")
 
     out.nl()
     out.write("{").nl()
@@ -671,8 +671,15 @@ def get_all_attributes_names(referencedObject):
             result.append(camundaName)
     return result
 
-def get_all_attributes(currentClass):
-    assert isinstance(currentClass, M_Class)
+def get_all_attributes(referencedObject):
+
+    if (isinstance(referencedObject, M_HRef_Type)) : 
+        currentClass = referencedObject.type
+        assert isinstance(currentClass, M_Class)
+    else:
+        currentClass = referencedObject
+        assert isinstance(currentClass, M_Class)
+
     result = {}
     parentClasses = [sc for sc in currentClass.superclasses]
     for parentClass in parentClasses:
@@ -694,13 +701,33 @@ def get_all_attributes(currentClass):
             result[camundaName] = (print_csharp_type(camundaType), 0, 1, None) 
     return result
 
-def get_all_attributes_with_Xml_names(currentClass, mappings):
-    assert isinstance(currentClass, M_Class)
+def get_all_attributes_for_data_type(referencedObject):
+   
+    assert isinstance(referencedObject, M_DataType)
     result = {}
-    attributes = get_all_attributes(currentClass)
+
+    for attr in referencedObject.attributes:
+        if attr.name not in result:
+            card = attr.cardinality
+            assert isinstance(card, M_Cardinality)
+            lower = card.lower
+            upper = card.upper
+            result[attr.name] = (print_csharp_type(attr.type), lower, upper, attr)
+
+    return result
+
+def get_all_attributes_with_Xml_names(classOrDataType, mappings):
+    assert isinstance(classOrDataType, M_Class) | isinstance(classOrDataType, M_DataType)
+    result = {}
+
+    if isinstance(classOrDataType, M_Class):
+        attributes = get_all_attributes(classOrDataType)
+    else:
+        attributes = get_all_attributes_for_data_type(classOrDataType)
+
     fromCmofToXml = None
-    if currentClass.name in mappings:    
-        (_, fromCmofToXml) = mappings[currentClass.name]
+    if classOrDataType.name in mappings:    
+        (_, fromCmofToXml) = mappings[classOrDataType.name]
 
     for (attName,(attType, l, u, attr)) in attributes.items():
         xmlName = None
