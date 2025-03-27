@@ -406,7 +406,7 @@ namespace BPMNModel.Camunda
                                 elements.AddRange(parent.Elements);
                             }
                             attributes.AddRange(current.Attributes);
-                            var currentElements = current.InnerElement?.InnerElements.Select(x => $"\"{x.Name}\"").ToList();
+                            var currentElements = current.InnerElement?.InnerElements.Select(x => $"\"{RemoveNonCamundaPrefix(x.Name)}\"").ToList();
 
                             if (currentElements is not null && currentElements.Any()) elements.AddRange(currentElements);
 
@@ -414,9 +414,9 @@ namespace BPMNModel.Camunda
                         }
                         var (allAttributes, allElements) = GetAll(c);
 
-                        var required = allAttributes.Where(x => x.Use == AttributeUse.Required).Select(x => $"\"{x.Name}\"").ToList();
-                        var optional = allAttributes.Where(x => x.Use == AttributeUse.Optional).Select(x => $"\"{x.Name}\"").ToList();
-                        toPython.WriteLine($"\t\"{(c.Name.StartsWith("t") ? c.Name.Substring(1) : c.Name)}\": ([{string.Join(", ", required)}], [{string.Join(", ", optional)}], [{string.Join(", ", allElements ?? [])}]),");
+                        var required = allAttributes.Where(x => x.Use == AttributeUse.Required).Select(x => $"\"{RemoveNonCamundaPrefix(x.Name)}\"").ToList();
+                        var optional = allAttributes.Where(x => x.Use == AttributeUse.Optional).Select(x => $"\"{RemoveNonCamundaPrefix(x.Name)}\"").ToList();
+                        toPython.WriteLine($"\t\"{RemoveNonCamundaPrefix(c.Name.StartsWith("t") ? c.Name.Substring(1) : c.Name)}\": ([{string.Join(", ", required)}], [{string.Join(", ", optional)}], [{string.Join(", ", allElements ?? [])}]),");
                     }
                 }
                 toPython.WriteLine("\t}\n");
@@ -430,6 +430,22 @@ namespace BPMNModel.Camunda
                 }
                 toPython.WriteLine("}");
             }
+        }
+
+        private static string RemoveNonCamundaPrefix(string name)
+        {
+            if (name.Contains(':'))
+            {
+                var prefix = name.Substring(0, name.IndexOf(':'));
+                if (prefix is not null)
+                {
+                    if (prefix.Equals("camunda"))
+                        return name;
+                    else
+                        return name.Substring(prefix.Length+1);
+                }
+            }
+            return name;
         }
 
         private static string CapitalizeFirstLetter(string name)

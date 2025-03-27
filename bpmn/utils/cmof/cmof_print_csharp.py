@@ -3,6 +3,26 @@ from cmof_model import *
 from utils import Output
 
 extracted = {
+	"Font": ([], ["name", "size", "isBold", "isItalic", "isUnderline", "isStrikeThrough"], []),
+	"Point": (["x", "y"], [], []),
+	"Bounds": (["x", "y", "width", "height"], [], []),
+	"Extension": ([], [], ["any"]),
+	"DiagramElement": ([], ["id"], ["Extension"]),
+	"Diagram": ([], ["name", "documentation", "resolution", "id"], []),
+	"Node": ([], ["id"], ["Extension"]),
+	"Edge": ([], ["id"], ["Extension", "waypoint"]),
+	"LabeledEdge": ([], ["id"], ["Extension", "waypoint"]),
+	"Shape": ([], ["id"], ["Extension", "Bounds"]),
+	"LabeledShape": ([], ["id"], ["Extension", "Bounds"]),
+	"Label": ([], ["id"], ["Extension", "Bounds"]),
+	"Plane": ([], ["id"], ["Extension", "DiagramElement"]),
+	"Style": ([], ["id"], []),
+	"BPMNDiagram": ([], ["name", "documentation", "resolution", "id"], ["BPMNPlane", "BPMNLabelStyle"]),
+	"BPMNPlane": ([], ["id", "bpmnElement"], ["Extension", "DiagramElement"]),
+	"BPMNEdge": ([], ["id", "bpmnElement", "sourceElement", "targetElement", "messageVisibleKind"], ["Extension", "waypoint", "BPMNLabel"]),
+	"BPMNShape": ([], ["id", "bpmnElement", "isHorizontal", "isExpanded", "isMarkerVisible", "isMessageVisible", "participantBandKind", "choreographyActivityShape"], ["Extension", "Bounds", "BPMNLabel"]),
+	"BPMNLabel": ([], ["id", "labelStyle"], ["Extension", "Bounds"]),
+	"BPMNLabelStyle": ([], ["id"], ["Font"]),
 	"Activity": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics"]),
 	"AdHocSubProcess": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "triggeredByEvent", "cancelRemainingInstances", "ordering"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "laneSet", "flowElement", "artifact", "completionCondition"]),
 	"Artifact": ([], ["id"], ["documentation", "extensionElements"]),
@@ -136,7 +156,7 @@ extracted = {
 	"TimerEventDefinition": ([], ["id"], ["documentation", "extensionElements", "timeDate", "timeDuration", "timeCycle"]),
 	"Transaction": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "triggeredByEvent", "method"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "laneSet", "flowElement", "artifact"]),
 	"UserTask": ([], ["id", "name", "camunda:modelerTemplate", "camunda:modelerTemplateVersion", "isForCompensation", "startQuantity", "completionQuantity", "default", "camunda:async", "camunda:asyncBefore", "camunda:asyncAfter", "camunda:exclusive", "camunda:jobPriority", "implementation", "camunda:formHandlerClass", "camunda:formKey", "camunda:formRef", "camunda:formRefBinding", "camunda:formRefVersion", "camunda:assignee", "camunda:candidateUsers", "camunda:candidateGroups", "camunda:dueDate", "camunda:followUpDate", "camunda:priority"], ["documentation", "extensionElements", "auditing", "monitoring", "categoryValueRef", "incoming", "outgoing", "ioSpecification", "property", "dataInputAssociation", "dataOutputAssociation", "resourceRole", "loopCharacteristics", "rendering"]),
-	"Definitions": (["targetNamespace"], ["id", "name", "expressionLanguage", "typeLanguage", "exporter", "exporterVersion", "camunda:diagramRelationId"], ["import", "extension", "rootElement", "relationship"]),
+	"Definitions": (["targetNamespace"], ["id", "name", "expressionLanguage", "typeLanguage", "exporter", "exporterVersion", "camunda:diagramRelationId"], ["import", "extension", "rootElement", "BPMNDiagram", "relationship"]),
 	"Import": (["namespace", "location", "importType"], [], []),
 	}
 
@@ -231,22 +251,24 @@ def print_mapping(mappings, model_names):
 
 def print_model(path, model):
 
-    assert isinstance(model, M_Model)
+    assert isinstance(model, M_Combined_Model)
 
     print(path)
-    mappings = build_mapping(model.get_classes())
+    mappings = build_mapping(model.get_all_data_types() + model.get_all_classes())
     
-    #print_mapping(mappings, [c.name for c in model.get_classes()])
+    print_mapping(mappings, [c.name for c in (model.get_all_data_types() + model.get_all_classes())])
 
     out = Output(open(path + r"\File.cs", "w"))
     print_file_header(out)
     out.write("namespace BPMNModel.Model").nl()
     out.write("{").nl()
     out.inc()
-    print_classes(out, model.get_classes(), mappings)
-    print_enumerations(out, model.get_enumerations())
+    print_classes_and_data_types(out, model.get_all_data_types() + model.get_all_classes(), mappings)
+    print_enumerations(out, model.get_all_enumerations())
     out.dec()
     out.write("}").nl()
+
+    return
 
     out = Output(open(path + r"\Factory.cs", "w"))
     print_file_header(out)
@@ -320,19 +342,25 @@ def build_mapping(classes):
     if n == 0: return
     result = {}
     for c in classes:
+        print(c.name)
         fromXMLtoCMOF = {}
         fromCMOFtoXML = {}
-        assert isinstance(c, M_Class)
+        assert isinstance(c, M_Class) | isinstance(c, M_DataType)
         if not c.name in extracted:
             continue;
         (reqiredFromXSD, optionalFormXSD, elementsFromXSD) = extracted[c.name]
-        allCMOFAtributes = get_all_attributes_names(c)
+
+        if isinstance(c, M_Class):
+            allCMOFAtributes = get_all_attributes_names(c)
+        else:
+            allCMOFAtributes = [attr.name for attr in c.attributes]
+
         allXMLAttributes = reqiredFromXSD+optionalFormXSD+elementsFromXSD
         #print(c.name + " : "+ ("" if parentClass is None else parentClass) + " , " + ("" if implementedInterface is None else implementedInterface.name))
-        #print("\t"+ ", ".join(allXMLAttributes))
-        #print("\t"+", ".join(allCMOFAtributes))
+        print("\t"+ ", ".join(allXMLAttributes))
+        print("\t"+", ".join(allCMOFAtributes))
         for xmlAtt in allXMLAttributes:
-            matches = [cmofAtt for cmofAtt in allCMOFAtributes if remove_trailing_s(xmlAtt) == remove_trailing_s(cmofAtt)]
+            matches = [cmofAtt for cmofAtt in allCMOFAtributes if remove_trailing_s(xmlAtt).lower() == remove_trailing_s(cmofAtt).lower()]
             if len(matches) == 1 :
                 fromXMLtoCMOF[xmlAtt] = matches[0]
                 fromCMOFtoXML[matches[0]] = xmlAtt
@@ -354,13 +382,13 @@ def print_factories(out, classes, mappings):
     out.write("#endregion").nl().nl()
     return postProcessing
  
-def print_classes(out, classes, mapping):
-    n = len(classes)
+def print_classes_and_data_types(out, all, mapping):
+    n = len(all)
     if n == 0: return
     out.write("#region Classes (%d items)" % n).nl()
-    for c in classes:
+    for c in all:
         out.nl()
-        print_Class(out, c, mapping)
+        print_class_or_data_type(out, c, mapping)
     out.write("#endregion").nl().nl()
 
 
@@ -497,8 +525,12 @@ def print_factory(out, c, mappings):
     return postProcessing
 
 def remove_trailing_s(string):
+    if string == "DiagramElement":
+        return "planeElement"
     if string == "calledElementRef":
         return "calledElement"
+    if string.startswith('BPMN'):
+        return string[4:]
     if string.lower().endswith('node'):
         return string[:-4]
     if string.lower().endswith('nodes'):
@@ -513,8 +545,8 @@ def remove_trailing_s(string):
         return string[:-1]
     return string
 
-def print_Class(out, c, mappings):
-    assert isinstance(c, M_Class)
+def print_class_or_data_type(out, c, mappings):
+    assert isinstance(c, M_Class) | isinstance(c, M_DataType)
     mapping = None
     if c.name in mappings:    
         (mapping, _) = mappings[c.name]
@@ -534,24 +566,24 @@ def print_Class(out, c, mappings):
             out.write ("abstract ")
         out.write("class " + c.name)
 
-    scls = c.superclasses
     parentClass = None
     implementedInterface = None
 
-    if len(scls) > 0 and not isInterface:
-        out.write(" : ")
-        parentClasses = [sc for sc in scls if not(sc.name in interfaces)]
-        parentClass = parentClasses[0] if parentClasses else None
-        implementedInterfaces = [sc for sc in scls if sc.name in interfaces]
-        implementedInterface =  implementedInterfaces[0] if implementedInterfaces else None
-        assert len(parentClasses) <=1 and len(implementedInterfaces) <=1
-        if parentClass == None and implementedInterface !=None :
-            out.write("BaseElement, "+implementedInterface.name)
-        else:
-            out.write(", ".join([x.name for x in parentClasses] + [x.name for x in implementedInterfaces] ))
-
-    if c.name == "BaseElement":
-        out.write(" : CamundaExtensionBaseElement")            
+    if isinstance(c, M_Class): 
+        scls = c.superclasses
+        if len(scls) > 0 and not isInterface:
+            out.write(" : ")
+            parentClasses = [sc for sc in scls if not(sc.name in interfaces)]
+            parentClass = parentClasses[0] if parentClasses else None
+            implementedInterfaces = [sc for sc in scls if sc.name in interfaces]
+            implementedInterface =  implementedInterfaces[0] if implementedInterfaces else None
+            assert len(parentClasses) <=1 and len(implementedInterfaces) <=1
+            if parentClass == None and implementedInterface !=None :
+                out.write("BaseElement, "+implementedInterface.name)
+            else:
+                out.write(", ".join([x.name for x in parentClasses] + [x.name for x in implementedInterfaces] ))
+        if c.name == "BaseElement":
+            out.write(" : CamundaExtensionBaseElement")            
 
     out.nl()
     out.write("{").nl()
@@ -613,8 +645,15 @@ def print_Class(out, c, mappings):
 #     return result
 
 
-def get_all_attributes_names(currentClass):
-    assert isinstance(currentClass, M_Class)
+def get_all_attributes_names(referencedObject):
+
+    if (isinstance(referencedObject, M_HRef_Type)) : 
+        currentClass = referencedObject.type
+        assert isinstance(currentClass, M_Class)
+    else:
+        currentClass = referencedObject
+        assert isinstance(currentClass, M_Class)
+
     result = []
     parentClasses = [sc for sc in currentClass.superclasses]
     for parentClass in parentClasses:
@@ -725,12 +764,14 @@ def print_csharp_type(type):
         return "bool"
     if convert == "Integer":
         return "long"
+    if convert == "Real":
+        return "double"
     return convert
 
 def print_Attribute(out, c, isInInterface):
     #TODO Override for diagrams.
-    if c.name == "diagrams" and print_csharp_type(c.type) == "BPMNDiagram":
-        return []
+    #if c.name == "diagrams" and print_csharp_type(c.type) == "BPMNDiagram":
+    #    return []
 
     realName = capitalize_first_letter(c.name)
     card = c.cardinality

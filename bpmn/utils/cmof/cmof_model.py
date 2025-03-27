@@ -92,6 +92,15 @@ class M_Combined_Model(object):
         if p is None:
             return None
         return p.find_type(name)
+    
+    def get_all_data_types(self):
+        return [cls for package in self.get_packages() for cls in package.get_data_types()]
+
+    def get_all_classes(self):
+        return [cls for package in self.get_packages() for cls in package.get_classes()]
+
+    def get_all_enumerations(self):
+        return [pkg for package in self.get_packages() for pkg in package.get_enumerations()]
 
 
 class M_Package(object):
@@ -359,11 +368,13 @@ class M_PrimitiveType(M_Type):
 class M_DataType(M_Type):
 
     __slots__ = [
-        'attributes'
+        'attributes',
+        'is_abstract'
     ]
 
     def __init__(self, name):
         super().__init__(name)
+        self.is_abstract = False
 
     def set_attributes(self, attrs):
         for attr in attrs:

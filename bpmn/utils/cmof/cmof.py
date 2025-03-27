@@ -17,7 +17,7 @@ def main():
 
     fname = options.filename
 
-    if options.read_all_files:
+    if options.read_all_files | options.print_csharp:
         if fname is not None:
             print ("Warning: reading all files, filename " + repr(fname) +
                    " ignored")
@@ -56,10 +56,11 @@ def process_file(out, err, options, inp):
     model = cmof_model_builder.build_model(t, err)
     print_opts = print_options_from_options(options)
 
-    if options.print_csharp:
-        cmof_print_csharp.print_model(r"D:\TACR\bpmnchecker\CSharpChecker\BPMNModel\model", model)
 
-    elif options.list_classes:
+    #if options.print_csharp:
+    #    cmof_print_csharp.print_model(r"D:\TACR\bpmnchecker\CSharpChecker\BPMNModel\model", model)
+
+    if options.list_classes:
         pckg_name = model.get_package_name()
         if pckg_name != "BPMN20":
             err.error("Listing of classes requires 'BPMN20', obtained " +
@@ -92,9 +93,11 @@ def process_all_files(out, err, options):
 
     model = cmof_package_builder.create_model(packages)
 
-    print_opts = print_options_from_options(options)
-
-    cmof_print_model.print_combined_model(out, model, print_opts)
+    if options.print_csharp:
+        cmof_print_csharp.print_model(r"D:\TACR\bpmnchecker\CSharpChecker\BPMNModel\model", model)
+    else: 
+        print_opts = print_options_from_options(options)
+        cmof_print_model.print_combined_model(out, model, print_opts)
 
 
 def read_xml(filename):
