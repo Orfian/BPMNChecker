@@ -9,10 +9,639 @@ namespace BPMNModel.Model
     public partial class Factory
     {
         #region Factories
-
-        private AdHocSubProcess LoadAdHocSubProcess(XmlParserComplexNode node)
+        // Font
+        private Font LoadFont(XmlParserComplexNode node)
         {
-            var result = GetOrCreate<AdHocSubProcess>(node);
+             var result = GetOrCreate<Font>(node);
+
+            // optional: name -> string name (0, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: size -> double size (0, 1)
+            var _sizeAttribute = node.Attributes.ContainsKey("size") ? node.Attributes["size"].ProcessedValue : null;
+            if (_sizeAttribute is not null) result.Size = (double)_sizeAttribute;
+
+            // optional: isBold -> bool isBold (0, 1)
+            var _isBoldAttribute = node.Attributes.ContainsKey("isBold") ? node.Attributes["isBold"].ProcessedValue : null;
+            if (_isBoldAttribute is not null) result.IsBold = (bool)_isBoldAttribute;
+
+            // optional: isItalic -> bool isItalic (0, 1)
+            var _isItalicAttribute = node.Attributes.ContainsKey("isItalic") ? node.Attributes["isItalic"].ProcessedValue : null;
+            if (_isItalicAttribute is not null) result.IsItalic = (bool)_isItalicAttribute;
+
+            // optional: isUnderline -> bool isUnderline (0, 1)
+            var _isUnderlineAttribute = node.Attributes.ContainsKey("isUnderline") ? node.Attributes["isUnderline"].ProcessedValue : null;
+            if (_isUnderlineAttribute is not null) result.IsUnderline = (bool)_isUnderlineAttribute;
+
+            // optional: isStrikeThrough -> bool isStrikeThrough (0, 1)
+            var _isStrikeThroughAttribute = node.Attributes.ContainsKey("isStrikeThrough") ? node.Attributes["isStrikeThrough"].ProcessedValue : null;
+            if (_isStrikeThroughAttribute is not null) result.IsStrikeThrough = (bool)_isStrikeThroughAttribute;
+
+            return result;
+        }
+
+        // Point
+        private Point LoadPoint(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Point>(node);
+
+            // required: x -> double x (1, 1)
+            var _xAttribute = node.Attributes["x"]?.ProcessedValue;
+            if (_xAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute x");
+            result.X = (double)_xAttribute;
+
+            // required: y -> double y (1, 1)
+            var _yAttribute = node.Attributes["y"]?.ProcessedValue;
+            if (_yAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute y");
+            result.Y = (double)_yAttribute;
+
+            return result;
+        }
+
+        // Bounds
+        private Bounds LoadBounds(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Bounds>(node);
+
+            // required: x -> double x (1, 1)
+            var _xAttribute = node.Attributes["x"]?.ProcessedValue;
+            if (_xAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute x");
+            result.X = (double)_xAttribute;
+
+            // required: y -> double y (1, 1)
+            var _yAttribute = node.Attributes["y"]?.ProcessedValue;
+            if (_yAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute y");
+            result.Y = (double)_yAttribute;
+
+            // required: width -> double width (1, 1)
+            var _widthAttribute = node.Attributes["width"]?.ProcessedValue;
+            if (_widthAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute width");
+            result.Width = (double)_widthAttribute;
+
+            // required: height -> double height (1, 1)
+            var _heightAttribute = node.Attributes["height"]?.ProcessedValue;
+            if (_heightAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute height");
+            result.Height = (double)_heightAttribute;
+
+            return result;
+        }
+
+        // DiagramElement
+        // Node
+        // Edge
+        // Diagram
+        // Shape
+        // Plane
+        // LabeledEdge
+        // LabeledShape
+        // Label
+        // Style
+        // BPMNDiagram
+        private BPMNDiagram LoadBPMNDiagram(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<BPMNDiagram>(node);
+
+            // optional: name -> string name (0, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: documentation -> string documentation (0, 1)
+            var _documentationAttribute = node.Attributes.ContainsKey("documentation") ? node.Attributes["documentation"].ProcessedValue : null;
+            if (_documentationAttribute is not null) result.Documentation = (string)_documentationAttribute;
+
+            // optional: resolution -> double resolution (0, 1)
+            var _resolutionAttribute = node.Attributes.ContainsKey("resolution") ? node.Attributes["resolution"].ProcessedValue : null;
+            if (_resolutionAttribute is not null) result.Resolution = (double)_resolutionAttribute;
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: BPMNPlane -> BPMNPlane plane (1, 1)
+            result.Plane = FillElement<BPMNPlane>(node.ChildNodes["BPMNPlane"]);
+
+            // element: BPMNLabelStyle -> BPMNLabelStyle labelStyle (0, *)
+            FillElements(node.ChildNodes["BPMNLabelStyle"], result.LabelStyle);
+
+            // empty: Style ownedStyle (0, *)
+
+            return result;
+        }
+
+        // BPMNPlane
+        private BPMNPlane LoadBPMNPlane(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<BPMNPlane>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: bpmnElement -> BaseElement bpmnElement (0, 1)
+            var _bpmnElementAttribute = node.Attributes.ContainsKey("bpmnElement") ? node.Attributes["bpmnElement"].ProcessedValue : null;
+            if (_bpmnElementAttribute is not null) result.BpmnElement = Load<BaseElement>((XmlParserComplexNode)_bpmnElementAttribute);
+
+            // element: DiagramElement -> DiagramElement planeElement (0, *)
+            FillElements(node.ChildNodes["DiagramElement"], result.PlaneElement);
+
+            // empty: Element modelElement (0, 1)
+
+            // empty: Style style (0, 1)
+
+            return result;
+        }
+
+        // BPMNShape
+        private BPMNShape LoadBPMNShape(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<BPMNShape>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: bpmnElement -> BaseElement bpmnElement (0, 1)
+            var _bpmnElementAttribute = node.Attributes.ContainsKey("bpmnElement") ? node.Attributes["bpmnElement"].ProcessedValue : null;
+            if (_bpmnElementAttribute is not null) result.BpmnElement = Load<BaseElement>((XmlParserComplexNode)_bpmnElementAttribute);
+
+            // optional: isHorizontal -> bool isHorizontal (0, 1)
+            var _isHorizontalAttribute = node.Attributes.ContainsKey("isHorizontal") ? node.Attributes["isHorizontal"].ProcessedValue : null;
+            if (_isHorizontalAttribute is not null) result.IsHorizontal = (bool)_isHorizontalAttribute;
+
+            // optional: isExpanded -> bool isExpanded (0, 1)
+            var _isExpandedAttribute = node.Attributes.ContainsKey("isExpanded") ? node.Attributes["isExpanded"].ProcessedValue : null;
+            if (_isExpandedAttribute is not null) result.IsExpanded = (bool)_isExpandedAttribute;
+
+            // optional: isMarkerVisible -> bool isMarkerVisible (0, 1)
+            var _isMarkerVisibleAttribute = node.Attributes.ContainsKey("isMarkerVisible") ? node.Attributes["isMarkerVisible"].ProcessedValue : null;
+            if (_isMarkerVisibleAttribute is not null) result.IsMarkerVisible = (bool)_isMarkerVisibleAttribute;
+
+            // optional: isMessageVisible -> bool isMessageVisible (0, 1)
+            var _isMessageVisibleAttribute = node.Attributes.ContainsKey("isMessageVisible") ? node.Attributes["isMessageVisible"].ProcessedValue : null;
+            if (_isMessageVisibleAttribute is not null) result.IsMessageVisible = (bool)_isMessageVisibleAttribute;
+
+            // optional: participantBandKind -> ParticipantBandKind participantBandKind (0, 1)
+            var _participantBandKindAttribute = node.Attributes.ContainsKey("participantBandKind") ? node.Attributes["participantBandKind"].ProcessedValue : null;
+            if (_participantBandKindAttribute is not null) result.ParticipantBandKind = CreateEnum<ParticipantBandKind>((string)_participantBandKindAttribute);
+
+            // optional: choreographyActivityShape -> BPMNShape choreographyActivityShape (0, 1)
+            var _choreographyActivityShapeAttribute = node.Attributes.ContainsKey("choreographyActivityShape") ? node.Attributes["choreographyActivityShape"].ProcessedValue : null;
+            if (_choreographyActivityShapeAttribute is not null) result.ChoreographyActivityShape = Load<BPMNShape>((XmlParserComplexNode)_choreographyActivityShapeAttribute);
+
+            // element: Bounds -> Bounds bounds (1, 1)
+            result.Bounds = FillElement<Bounds>(node.ChildNodes["Bounds"]);
+
+            // element: BPMNLabel -> BPMNLabel label (0, 1)
+            result.Label = FillElement<BPMNLabel>(node.ChildNodes["BPMNLabel"]);
+
+            // empty: Element modelElement (0, 1)
+
+            // empty: Style style (0, 1)
+
+            // empty: Label ownedLabel (0, *)
+
+            return result;
+        }
+
+        // BPMNEdge
+        private BPMNEdge LoadBPMNEdge(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<BPMNEdge>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: bpmnElement -> BaseElement bpmnElement (0, 1)
+            var _bpmnElementAttribute = node.Attributes.ContainsKey("bpmnElement") ? node.Attributes["bpmnElement"].ProcessedValue : null;
+            if (_bpmnElementAttribute is not null) result.BpmnElement = Load<BaseElement>((XmlParserComplexNode)_bpmnElementAttribute);
+
+            // optional: sourceElement -> DiagramElement sourceElement (0, 1)
+            var _sourceElementAttribute = node.Attributes.ContainsKey("sourceElement") ? node.Attributes["sourceElement"].ProcessedValue : null;
+            if (_sourceElementAttribute is not null) result.SourceElement = Load<DiagramElement>((XmlParserComplexNode)_sourceElementAttribute);
+
+            // optional: targetElement -> DiagramElement targetElement (0, 1)
+            var _targetElementAttribute = node.Attributes.ContainsKey("targetElement") ? node.Attributes["targetElement"].ProcessedValue : null;
+            if (_targetElementAttribute is not null) result.TargetElement = Load<DiagramElement>((XmlParserComplexNode)_targetElementAttribute);
+
+            // optional: messageVisibleKind -> MessageVisibleKind messageVisibleKind (0, 1)
+            var _messageVisibleKindAttribute = node.Attributes.ContainsKey("messageVisibleKind") ? node.Attributes["messageVisibleKind"].ProcessedValue : null;
+            if (_messageVisibleKindAttribute is not null) result.MessageVisibleKind = CreateEnum<MessageVisibleKind>((string)_messageVisibleKindAttribute);
+
+            // element: waypoint -> Point waypoint (2, *)
+            FillElements(node.ChildNodes["waypoint"], result.Waypoint);
+
+            // element: BPMNLabel -> BPMNLabel label (0, 1)
+            result.Label = FillElement<BPMNLabel>(node.ChildNodes["BPMNLabel"]);
+
+            // empty: Element modelElement (0, 1)
+
+            // empty: Style style (0, 1)
+
+            // empty: DiagramElement source (0, 1)
+
+            // empty: DiagramElement target (0, 1)
+
+            // empty: Label ownedLabel (0, *)
+
+            return result;
+        }
+
+        // BPMNLabel
+        private BPMNLabel LoadBPMNLabel(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<BPMNLabel>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: labelStyle -> BPMNLabelStyle labelStyle (0, 1)
+            var _labelStyleAttribute = node.Attributes.ContainsKey("labelStyle") ? node.Attributes["labelStyle"].ProcessedValue : null;
+            if (_labelStyleAttribute is not null) result.LabelStyle = Load<BPMNLabelStyle>((XmlParserComplexNode)_labelStyleAttribute);
+
+            // element: Bounds -> Bounds bounds (0, 1)
+            result.Bounds = FillElement<Bounds>(node.ChildNodes["Bounds"]);
+
+            // empty: Element modelElement (0, 1)
+
+            // empty: Style style (0, 1)
+
+            return result;
+        }
+
+        // BPMNLabelStyle
+        private BPMNLabelStyle LoadBPMNLabelStyle(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<BPMNLabelStyle>(node);
+
+            // element: Font -> Font font (1, 1)
+            result.Font = FillElement<Font>(node.ChildNodes["Font"]);
+
+            return result;
+        }
+
+        // Interface
+        private Interface LoadInterface(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Interface>(node);
+
+            // required: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes["name"]?.ProcessedValue;
+            if (_nameAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute name");
+            result.Name = (string)_nameAttribute;
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: implementationRef -> Element implementationRef (0, 1)
+            var _implementationRefAttribute = node.Attributes.ContainsKey("implementationRef") ? node.Attributes["implementationRef"].ProcessedValue : null;
+            if (_implementationRefAttribute is not null) result.ImplementationRef = Load<Element>((XmlParserComplexNode)_implementationRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: operation -> Operation operations (1, *)
+            FillElements(node.ChildNodes["operation"], result.Operations);
+
+            return result;
+        }
+
+        // Operation
+        private Operation LoadOperation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Operation>(node);
+
+            // required: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes["name"]?.ProcessedValue;
+            if (_nameAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute name");
+            result.Name = (string)_nameAttribute;
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: implementationRef -> Element implementationRef (0, 1)
+            var _implementationRefAttribute = node.Attributes.ContainsKey("implementationRef") ? node.Attributes["implementationRef"].ProcessedValue : null;
+            if (_implementationRefAttribute is not null) result.ImplementationRef = Load<Element>((XmlParserComplexNode)_implementationRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: inMessageRef -> Message inMessageRef (1, 1)
+            result.InMessageRef = FillElement<Message>(node.ChildNodes["inMessageRef"]);
+
+            // element: outMessageRef -> Message outMessageRef (0, 1)
+            result.OutMessageRef = FillElement<Message>(node.ChildNodes["outMessageRef"]);
+
+            // element: errorRef -> Error errorRefs (0, *)
+            FillElements(node.ChildNodes["errorRef"], result.ErrorRefs);
+
+            return result;
+        }
+
+        // EndPoint
+        private EndPoint LoadEndPoint(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<EndPoint>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // Auditing
+        private Auditing LoadAuditing(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Auditing>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // GlobalTask
+        private GlobalTask LoadGlobalTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<GlobalTask>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
+
+            // element: supportedInterfaceRef -> Interface supportedInterfaceRefs (0, *)
+            FillElements(node.ChildNodes["supportedInterfaceRef"], result.SupportedInterfaceRefs);
+
+            // element: ioBinding -> InputOutputBinding ioBinding (0, *)
+            FillElements(node.ChildNodes["ioBinding"], result.IoBinding);
+
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
+
+            return result;
+        }
+
+        // Monitoring
+        private Monitoring LoadMonitoring(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Monitoring>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // Performer
+        private Performer LoadPerformer(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Performer>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: resourceRef -> Resource resourceRef (0, 1)
+            result.ResourceRef = FillElement<Resource>(node.ChildNodes["resourceRef"]);
+
+            // element: resourceParameterBinding -> ResourceParameterBinding resourceParameterBindings (0, *)
+            FillElements(node.ChildNodes["resourceParameterBinding"], result.ResourceParameterBindings);
+
+            // element: resourceAssignmentExpression -> ResourceAssignmentExpression resourceAssignmentExpression (0, 1)
+            result.ResourceAssignmentExpression = FillElement<ResourceAssignmentExpression>(node.ChildNodes["resourceAssignmentExpression"]);
+
+            return result;
+        }
+
+        // Process
+        private Process LoadProcess(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Process>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: processType -> ProcessType processType (1, 1)
+            var _processTypeAttribute = node.Attributes.ContainsKey("processType") ? node.Attributes["processType"].ProcessedValue : null;
+            if (_processTypeAttribute is not null) result.ProcessType = CreateEnum<ProcessType>((string)_processTypeAttribute);
+
+            // optional: isClosed -> bool isClosed (1, 1)
+            var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
+            if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
+
+            // optional: definitionalCollaborationRef -> Collaboration definitionalCollaborationRef (0, 1)
+            var _definitionalCollaborationRefAttribute = node.Attributes.ContainsKey("definitionalCollaborationRef") ? node.Attributes["definitionalCollaborationRef"].ProcessedValue : null;
+            if (_definitionalCollaborationRefAttribute is not null) result.DefinitionalCollaborationRef = Load<Collaboration>((XmlParserComplexNode)_definitionalCollaborationRefAttribute);
+
+            // optional: isExecutable -> bool isExecutable (1, 1)
+            var _isExecutableAttribute = node.Attributes.ContainsKey("isExecutable") ? node.Attributes["isExecutable"].ProcessedValue : null;
+            if (_isExecutableAttribute is not null) result.IsExecutable = (bool)_isExecutableAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:candidateStarterGroups -> string camunda_candidateStarterGroups (0, 1)
+            var _camunda_candidateStarterGroupsAttribute = node.Attributes.ContainsKey("camunda:candidateStarterGroups") ? node.Attributes["camunda:candidateStarterGroups"].ProcessedValue : null;
+            if (_camunda_candidateStarterGroupsAttribute is not null) result.Camunda_candidateStarterGroups = (string)_camunda_candidateStarterGroupsAttribute;
+
+            // optional: camunda:candidateStarterUsers -> string camunda_candidateStarterUsers (0, 1)
+            var _camunda_candidateStarterUsersAttribute = node.Attributes.ContainsKey("camunda:candidateStarterUsers") ? node.Attributes["camunda:candidateStarterUsers"].ProcessedValue : null;
+            if (_camunda_candidateStarterUsersAttribute is not null) result.Camunda_candidateStarterUsers = (string)_camunda_candidateStarterUsersAttribute;
+
+            // optional: camunda:versionTag -> string camunda_versionTag (0, 1)
+            var _camunda_versionTagAttribute = node.Attributes.ContainsKey("camunda:versionTag") ? node.Attributes["camunda:versionTag"].ProcessedValue : null;
+            if (_camunda_versionTagAttribute is not null) result.Camunda_versionTag = (string)_camunda_versionTagAttribute;
+
+            // optional: camunda:historyTimeToLive -> string camunda_historyTimeToLive (0, 1)
+            var _camunda_historyTimeToLiveAttribute = node.Attributes.ContainsKey("camunda:historyTimeToLive") ? node.Attributes["camunda:historyTimeToLive"].ProcessedValue : null;
+            if (_camunda_historyTimeToLiveAttribute is not null) result.Camunda_historyTimeToLive = (string)_camunda_historyTimeToLiveAttribute;
+
+            // optional: camunda:isStartableInTasklist -> bool camunda_isStartableInTasklist (0, 1)
+            var _camunda_isStartableInTasklistAttribute = node.Attributes.ContainsKey("camunda:isStartableInTasklist") ? node.Attributes["camunda:isStartableInTasklist"].ProcessedValue : null;
+            if (_camunda_isStartableInTasklistAttribute is not null) result.Camunda_isStartableInTasklist = (bool)_camunda_isStartableInTasklistAttribute;
+
+            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
+            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
+            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: flowElement -> FlowElement flowElements (0, *)
+            FillElements(node.ChildNodes["flowElement"], result.FlowElements);
+
+            // element: laneSet -> LaneSet laneSets (0, *)
+            FillElements(node.ChildNodes["laneSet"], result.LaneSets);
+
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
+
+            // element: supportedInterfaceRef -> Interface supportedInterfaceRefs (0, *)
+            FillElements(node.ChildNodes["supportedInterfaceRef"], result.SupportedInterfaceRefs);
+
+            // element: ioBinding -> InputOutputBinding ioBinding (0, *)
+            FillElements(node.ChildNodes["ioBinding"], result.IoBinding);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: supports -> Process supports (0, *)
+            FillElements(node.ChildNodes["supports"], result.Supports);
+
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
+
+            // element: artifact -> Artifact artifacts (0, *)
+            FillElements(node.ChildNodes["artifact"], result.Artifacts);
+
+            // element: correlationSubscription -> CorrelationSubscription correlationSubscriptions (0, *)
+            FillElements(node.ChildNodes["correlationSubscription"], result.CorrelationSubscriptions);
+
+            return result;
+        }
+
+        // LaneSet
+        private LaneSet LoadLaneSet(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<LaneSet>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (0, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: lane -> Lane lanes (0, *)
+            FillElements(node.ChildNodes["lane"], result.Lanes);
+
+            return result;
+        }
+
+        // Lane
+        private Lane LoadLane(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Lane>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: partitionElementRef -> BaseElement partitionElementRef (0, 1)
+            var _partitionElementRefAttribute = node.Attributes.ContainsKey("partitionElementRef") ? node.Attributes["partitionElementRef"].ProcessedValue : null;
+            if (_partitionElementRefAttribute is not null) result.PartitionElementRef = Load<BaseElement>((XmlParserComplexNode)_partitionElementRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: childLaneSet -> LaneSet childLaneSet (0, 1)
+            result.ChildLaneSet = FillElement<LaneSet>(node.ChildNodes["childLaneSet"]);
+
+            // element: flowNodeRef -> FlowNode flowNodeRefs (0, *)
+            FillElements(node.ChildNodes["flowNodeRef"], result.FlowNodeRefs);
+
+            // element: partitionElement -> BaseElement partitionElement (0, 1)
+            result.PartitionElement = FillElement<BaseElement>(node.ChildNodes["partitionElement"]);
+
+            return result;
+        }
+
+        // GlobalManualTask
+        private GlobalManualTask LoadGlobalManualTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<GlobalManualTask>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
+
+            // element: supportedInterfaceRef -> Interface supportedInterfaceRefs (0, *)
+            FillElements(node.ChildNodes["supportedInterfaceRef"], result.SupportedInterfaceRefs);
+
+            // element: ioBinding -> InputOutputBinding ioBinding (0, *)
+            FillElements(node.ChildNodes["ioBinding"], result.IoBinding);
+
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
+
+            return result;
+        }
+
+        // ManualTask
+        private ManualTask LoadManualTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ManualTask>(node);
 
             // optional: id -> string id (1, 1)
             var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
@@ -66,17 +695,161 @@ namespace BPMNModel.Model
             var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
             if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
 
-            // optional: triggeredByEvent -> bool triggeredByEvent (1, 1)
-            var _triggeredByEventAttribute = node.Attributes.ContainsKey("triggeredByEvent") ? node.Attributes["triggeredByEvent"].ProcessedValue : null;
-            if (_triggeredByEventAttribute is not null) result.TriggeredByEvent = (bool)_triggeredByEventAttribute;
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-            // optional: ordering -> AdHocOrdering ordering (1, 1)
-            var _orderingAttribute = node.Attributes.ContainsKey("ordering") ? node.Attributes["ordering"].ProcessedValue : null;
-            if (_orderingAttribute is not null) result.Ordering = CreateEnum<AdHocOrdering>((string)_orderingAttribute);
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
 
-            // optional: cancelRemainingInstances -> bool cancelRemainingInstances (1, 1)
-            var _cancelRemainingInstancesAttribute = node.Attributes.ContainsKey("cancelRemainingInstances") ? node.Attributes["cancelRemainingInstances"].ProcessedValue : null;
-            if (_cancelRemainingInstancesAttribute is not null) result.CancelRemainingInstances = (bool)_cancelRemainingInstancesAttribute;
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
+            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
+
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
+
+            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
+            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
+
+            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
+            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
+
+            // two way associatio: ManualTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: ManualTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
+
+            // two way associatio: ManualTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: ManualTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // UserTask
+        private UserTask LoadUserTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<UserTask>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: isForCompensation -> bool isForCompensation (1, 1)
+            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
+            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
+
+            // optional: default -> SequenceFlow default (0, 1)
+            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
+            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
+
+            // optional: startQuantity -> long startQuantity (1, 1)
+            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
+
+            // optional: completionQuantity -> long completionQuantity (1, 1)
+            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: implementation -> string implementation (1, 1)
+            var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
+            if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
+
+            // optional: camunda:formHandlerClass -> string camunda_formHandlerClass (0, 1)
+            var _camunda_formHandlerClassAttribute = node.Attributes.ContainsKey("camunda:formHandlerClass") ? node.Attributes["camunda:formHandlerClass"].ProcessedValue : null;
+            if (_camunda_formHandlerClassAttribute is not null) result.Camunda_formHandlerClass = (string)_camunda_formHandlerClassAttribute;
+
+            // optional: camunda:formKey -> string camunda_formKey (0, 1)
+            var _camunda_formKeyAttribute = node.Attributes.ContainsKey("camunda:formKey") ? node.Attributes["camunda:formKey"].ProcessedValue : null;
+            if (_camunda_formKeyAttribute is not null) result.Camunda_formKey = (string)_camunda_formKeyAttribute;
+
+            // optional: camunda:formRef -> string camunda_formRef (0, 1)
+            var _camunda_formRefAttribute = node.Attributes.ContainsKey("camunda:formRef") ? node.Attributes["camunda:formRef"].ProcessedValue : null;
+            if (_camunda_formRefAttribute is not null) result.Camunda_formRef = (string)_camunda_formRefAttribute;
+
+            // optional: camunda:formRefBinding -> string camunda_formRefBinding (0, 1)
+            var _camunda_formRefBindingAttribute = node.Attributes.ContainsKey("camunda:formRefBinding") ? node.Attributes["camunda:formRefBinding"].ProcessedValue : null;
+            if (_camunda_formRefBindingAttribute is not null) result.Camunda_formRefBinding = (string)_camunda_formRefBindingAttribute;
+
+            // optional: camunda:formRefVersion -> string camunda_formRefVersion (0, 1)
+            var _camunda_formRefVersionAttribute = node.Attributes.ContainsKey("camunda:formRefVersion") ? node.Attributes["camunda:formRefVersion"].ProcessedValue : null;
+            if (_camunda_formRefVersionAttribute is not null) result.Camunda_formRefVersion = (string)_camunda_formRefVersionAttribute;
+
+            // optional: camunda:assignee -> string camunda_assignee (0, 1)
+            var _camunda_assigneeAttribute = node.Attributes.ContainsKey("camunda:assignee") ? node.Attributes["camunda:assignee"].ProcessedValue : null;
+            if (_camunda_assigneeAttribute is not null) result.Camunda_assignee = (string)_camunda_assigneeAttribute;
+
+            // optional: camunda:candidateUsers -> string camunda_candidateUsers (0, 1)
+            var _camunda_candidateUsersAttribute = node.Attributes.ContainsKey("camunda:candidateUsers") ? node.Attributes["camunda:candidateUsers"].ProcessedValue : null;
+            if (_camunda_candidateUsersAttribute is not null) result.Camunda_candidateUsers = (string)_camunda_candidateUsersAttribute;
+
+            // optional: camunda:candidateGroups -> string camunda_candidateGroups (0, 1)
+            var _camunda_candidateGroupsAttribute = node.Attributes.ContainsKey("camunda:candidateGroups") ? node.Attributes["camunda:candidateGroups"].ProcessedValue : null;
+            if (_camunda_candidateGroupsAttribute is not null) result.Camunda_candidateGroups = (string)_camunda_candidateGroupsAttribute;
+
+            // optional: camunda:dueDate -> string camunda_dueDate (0, 1)
+            var _camunda_dueDateAttribute = node.Attributes.ContainsKey("camunda:dueDate") ? node.Attributes["camunda:dueDate"].ProcessedValue : null;
+            if (_camunda_dueDateAttribute is not null) result.Camunda_dueDate = (string)_camunda_dueDateAttribute;
+
+            // optional: camunda:followUpDate -> string camunda_followUpDate (0, 1)
+            var _camunda_followUpDateAttribute = node.Attributes.ContainsKey("camunda:followUpDate") ? node.Attributes["camunda:followUpDate"].ProcessedValue : null;
+            if (_camunda_followUpDateAttribute is not null) result.Camunda_followUpDate = (string)_camunda_followUpDateAttribute;
+
+            // optional: camunda:priority -> string camunda_priority (0, 1)
+            var _camunda_priorityAttribute = node.Attributes.ContainsKey("camunda:priority") ? node.Attributes["camunda:priority"].ProcessedValue : null;
+            if (_camunda_priorityAttribute is not null) result.Camunda_priority = (string)_camunda_priorityAttribute;
 
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
@@ -114,78 +887,28 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
-            // element: flowElement -> FlowElement flowElements (0, *)
-            FillElements(node.ChildNodes["flowElement"], result.FlowElements);
+            // element: rendering -> Rendering renderings (0, *)
+            FillElements(node.ChildNodes["rendering"], result.Renderings);
 
-            // element: laneSet -> LaneSet laneSets (0, *)
-            FillElements(node.ChildNodes["laneSet"], result.LaneSets);
-
-            // element: artifact -> Artifact artifacts (0, *)
-            FillElements(node.ChildNodes["artifact"], result.Artifacts);
-
-            // element: completionCondition -> Expression completionCondition (1, 1)
-            result.CompletionCondition = FillElement<Expression>(node.ChildNodes["completionCondition"]);
-
-            // two way associatio: AdHocSubProcess(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way associatio: UserTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: AdHocSubProcess(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way associatio: UserTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
-            return result;
-        }
+            // two way associatio: UserTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-        private Assignment LoadAssignment(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Assignment>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: from -> Expression from (1, 1)
-            result.From = FillElement<Expression>(node.ChildNodes["from"]);
-
-            // element: to -> Expression to (1, 1)
-            result.To = FillElement<Expression>(node.ChildNodes["to"]);
+            // two way associatio: UserTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
         }
 
-        private Association LoadAssociation(XmlParserComplexNode node)
+        // Rendering
+        private Rendering LoadRendering(XmlParserComplexNode node)
         {
-            var result = GetOrCreate<Association>(node);
-
-            // required: sourceRef -> BaseElement sourceRef (1, 1)
-            var _sourceRefAttribute = node.Attributes["sourceRef"]?.ProcessedValue;
-            if (_sourceRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute sourceRef");
-            result.SourceRef = Load<BaseElement>((XmlParserComplexNode)_sourceRefAttribute);
-
-            // required: targetRef -> BaseElement targetRef (1, 1)
-            var _targetRefAttribute = node.Attributes["targetRef"]?.ProcessedValue;
-            if (_targetRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute targetRef");
-            result.TargetRef = Load<BaseElement>((XmlParserComplexNode)_targetRefAttribute);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: associationDirection -> AssociationDirection associationDirection (1, 1)
-            var _associationDirectionAttribute = node.Attributes.ContainsKey("associationDirection") ? node.Attributes["associationDirection"].ProcessedValue : null;
-            if (_associationDirectionAttribute is not null) result.AssociationDirection = CreateEnum<AssociationDirection>((string)_associationDirectionAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private Auditing LoadAuditing(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Auditing>(node);
+             var result = GetOrCreate<Rendering>(node);
 
             // optional: id -> string id (1, 1)
             var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
@@ -197,9 +920,937 @@ namespace BPMNModel.Model
             return result;
         }
 
+        // HumanPerformer
+        private HumanPerformer LoadHumanPerformer(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<HumanPerformer>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: resourceRef -> Resource resourceRef (0, 1)
+            result.ResourceRef = FillElement<Resource>(node.ChildNodes["resourceRef"]);
+
+            // element: resourceParameterBinding -> ResourceParameterBinding resourceParameterBindings (0, *)
+            FillElements(node.ChildNodes["resourceParameterBinding"], result.ResourceParameterBindings);
+
+            // element: resourceAssignmentExpression -> ResourceAssignmentExpression resourceAssignmentExpression (0, 1)
+            result.ResourceAssignmentExpression = FillElement<ResourceAssignmentExpression>(node.ChildNodes["resourceAssignmentExpression"]);
+
+            return result;
+        }
+
+        // PotentialOwner
+        private PotentialOwner LoadPotentialOwner(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<PotentialOwner>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: resourceRef -> Resource resourceRef (0, 1)
+            result.ResourceRef = FillElement<Resource>(node.ChildNodes["resourceRef"]);
+
+            // element: resourceParameterBinding -> ResourceParameterBinding resourceParameterBindings (0, *)
+            FillElements(node.ChildNodes["resourceParameterBinding"], result.ResourceParameterBindings);
+
+            // element: resourceAssignmentExpression -> ResourceAssignmentExpression resourceAssignmentExpression (0, 1)
+            result.ResourceAssignmentExpression = FillElement<ResourceAssignmentExpression>(node.ChildNodes["resourceAssignmentExpression"]);
+
+            return result;
+        }
+
+        // GlobalUserTask
+        private GlobalUserTask LoadGlobalUserTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<GlobalUserTask>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: implementation -> string implementation (1, 1)
+            var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
+            if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
+
+            // element: supportedInterfaceRef -> Interface supportedInterfaceRefs (0, *)
+            FillElements(node.ChildNodes["supportedInterfaceRef"], result.SupportedInterfaceRefs);
+
+            // element: ioBinding -> InputOutputBinding ioBinding (0, *)
+            FillElements(node.ChildNodes["ioBinding"], result.IoBinding);
+
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
+
+            // element: rendering -> Rendering renderings (0, *)
+            FillElements(node.ChildNodes["rendering"], result.Renderings);
+
+            return result;
+        }
+
+        // Gateway
+        // EventBasedGateway
+        private EventBasedGateway LoadEventBasedGateway(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<EventBasedGateway>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
+            var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
+            if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: instantiate -> bool instantiate (1, 1)
+            var _instantiateAttribute = node.Attributes.ContainsKey("instantiate") ? node.Attributes["instantiate"].ProcessedValue : null;
+            if (_instantiateAttribute is not null) result.Instantiate = (bool)_instantiateAttribute;
+
+            // optional: eventGatewayType -> EventBasedGatewayType eventGatewayType (1, 1)
+            var _eventGatewayTypeAttribute = node.Attributes.ContainsKey("eventGatewayType") ? node.Attributes["eventGatewayType"].ProcessedValue : null;
+            if (_eventGatewayTypeAttribute is not null) result.EventGatewayType = CreateEnum<EventBasedGatewayType>((string)_eventGatewayTypeAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // two way associatio: EventBasedGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            return result;
+        }
+
+        // ComplexGateway
+        private ComplexGateway LoadComplexGateway(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ComplexGateway>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
+            var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
+            if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: default -> SequenceFlow default (0, 1)
+            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
+            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: activationCondition -> Expression activationCondition (0, 1)
+            result.ActivationCondition = FillElement<Expression>(node.ChildNodes["activationCondition"]);
+
+            // two way associatio: ComplexGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            return result;
+        }
+
+        // ExclusiveGateway
+        private ExclusiveGateway LoadExclusiveGateway(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ExclusiveGateway>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
+            var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
+            if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: default -> SequenceFlow default (0, 1)
+            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
+            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // two way associatio: ExclusiveGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            return result;
+        }
+
+        // InclusiveGateway
+        private InclusiveGateway LoadInclusiveGateway(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<InclusiveGateway>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
+            var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
+            if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: default -> SequenceFlow default (0, 1)
+            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
+            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // two way associatio: InclusiveGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            return result;
+        }
+
+        // ParallelGateway
+        private ParallelGateway LoadParallelGateway(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ParallelGateway>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
+            var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
+            if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // two way associatio: ParallelGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            return result;
+        }
+
+        // RootElement
+        // Relationship
+        private Relationship LoadRelationship(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Relationship>(node);
+
+            // required: type -> string type (1, 1)
+            var _typeAttribute = node.Attributes["type"]?.ProcessedValue;
+            if (_typeAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute type");
+            result.Type = (string)_typeAttribute;
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: direction -> RelationshipDirection direction (1, 1)
+            var _directionAttribute = node.Attributes.ContainsKey("direction") ? node.Attributes["direction"].ProcessedValue : null;
+            if (_directionAttribute is not null) result.Direction = CreateEnum<RelationshipDirection>((string)_directionAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: source -> Element sources (1, *)
+            FillElements(node.ChildNodes["source"], result.Sources);
+
+            // element: target -> Element targets (1, *)
+            FillElements(node.ChildNodes["target"], result.Targets);
+
+            return result;
+        }
+
+        // BaseElement
+        // Extension
+        private Extension LoadExtension(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Extension>(node);
+
+            // optional: mustUnderstand -> bool mustUnderstand (1, 1)
+            var _mustUnderstandAttribute = node.Attributes.ContainsKey("mustUnderstand") ? node.Attributes["mustUnderstand"].ProcessedValue : null;
+            if (_mustUnderstandAttribute is not null) result.MustUnderstand = (bool)_mustUnderstandAttribute;
+
+            // optional: definition -> ExtensionDefinition definition (1, 1)
+            var _definitionAttribute = node.Attributes.ContainsKey("definition") ? node.Attributes["definition"].ProcessedValue : null;
+            if (_definitionAttribute is not null) result.Definition = Load<ExtensionDefinition>((XmlParserComplexNode)_definitionAttribute);
+
+            return result;
+        }
+
+        // ExtensionDefinition
+        // ExtensionAttributeDefinition
+        // ExtensionAttributeValue
+        // Documentation
+        private Documentation LoadDocumentation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Documentation>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: textFormat -> string textFormat (1, 1)
+            var _textFormatAttribute = node.Attributes.ContainsKey("textFormat") ? node.Attributes["textFormat"].ProcessedValue : null;
+            if (_textFormatAttribute is not null) result.TextFormat = (string)_textFormatAttribute;
+
+            // missing: string text (1, 1)
+            ManualySolve_text_in_Documentation(result, node);
+            return result;
+        }
+
+        // Event
+        // IntermediateCatchEvent
+        private IntermediateCatchEvent LoadIntermediateCatchEvent(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<IntermediateCatchEvent>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: parallelMultiple -> bool parallelMultiple (1, 1)
+            var _parallelMultipleAttribute = node.Attributes.ContainsKey("parallelMultiple") ? node.Attributes["parallelMultiple"].ProcessedValue : null;
+            if (_parallelMultipleAttribute is not null) result.ParallelMultiple = (bool)_parallelMultipleAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: outputSet -> OutputSet outputSet (0, 1)
+            result.OutputSet = FillElement<OutputSet>(node.ChildNodes["outputSet"]);
+
+            // element: eventDefinitionRef -> EventDefinition eventDefinitionRefs (0, *)
+            FillElements(node.ChildNodes["eventDefinitionRef"], result.EventDefinitionRefs);
+
+            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociation (0, *)
+            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociation);
+
+            // element: dataOutput -> DataOutput dataOutputs (0, *)
+            FillElements(node.ChildNodes["dataOutput"], result.DataOutputs);
+
+            // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
+            FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
+
+            // two way associatio: IntermediateCatchEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: IntermediateCatchEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: IntermediateCatchEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // IntermediateThrowEvent
+        private IntermediateThrowEvent LoadIntermediateThrowEvent(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<IntermediateThrowEvent>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: inputSet -> InputSet inputSet (0, 1)
+            result.InputSet = FillElement<InputSet>(node.ChildNodes["inputSet"]);
+
+            // element: eventDefinitionRef -> EventDefinition eventDefinitionRefs (0, *)
+            FillElements(node.ChildNodes["eventDefinitionRef"], result.EventDefinitionRefs);
+
+            // element: dataInputAssociation -> DataInputAssociation dataInputAssociation (0, *)
+            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociation);
+
+            // element: dataInput -> DataInput dataInputs (0, *)
+            FillElements(node.ChildNodes["dataInput"], result.DataInputs);
+
+            // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
+            FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
+
+            // two way associatio: IntermediateThrowEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: IntermediateThrowEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: IntermediateThrowEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // EndEvent
+        private EndEvent LoadEndEvent(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<EndEvent>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: inputSet -> InputSet inputSet (0, 1)
+            result.InputSet = FillElement<InputSet>(node.ChildNodes["inputSet"]);
+
+            // element: eventDefinitionRef -> EventDefinition eventDefinitionRefs (0, *)
+            FillElements(node.ChildNodes["eventDefinitionRef"], result.EventDefinitionRefs);
+
+            // element: dataInputAssociation -> DataInputAssociation dataInputAssociation (0, *)
+            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociation);
+
+            // element: dataInput -> DataInput dataInputs (0, *)
+            FillElements(node.ChildNodes["dataInput"], result.DataInputs);
+
+            // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
+            FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
+
+            // two way associatio: EndEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: EndEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: EndEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // StartEvent
+        private StartEvent LoadStartEvent(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<StartEvent>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: parallelMultiple -> bool parallelMultiple (1, 1)
+            var _parallelMultipleAttribute = node.Attributes.ContainsKey("parallelMultiple") ? node.Attributes["parallelMultiple"].ProcessedValue : null;
+            if (_parallelMultipleAttribute is not null) result.ParallelMultiple = (bool)_parallelMultipleAttribute;
+
+            // optional: isInterrupting -> bool isInterrupting (1, 1)
+            var _isInterruptingAttribute = node.Attributes.ContainsKey("isInterrupting") ? node.Attributes["isInterrupting"].ProcessedValue : null;
+            if (_isInterruptingAttribute is not null) result.IsInterrupting = (bool)_isInterruptingAttribute;
+
+            // optional: camunda:formHandlerClass -> string camunda_formHandlerClass (0, 1)
+            var _camunda_formHandlerClassAttribute = node.Attributes.ContainsKey("camunda:formHandlerClass") ? node.Attributes["camunda:formHandlerClass"].ProcessedValue : null;
+            if (_camunda_formHandlerClassAttribute is not null) result.Camunda_formHandlerClass = (string)_camunda_formHandlerClassAttribute;
+
+            // optional: camunda:formKey -> string camunda_formKey (0, 1)
+            var _camunda_formKeyAttribute = node.Attributes.ContainsKey("camunda:formKey") ? node.Attributes["camunda:formKey"].ProcessedValue : null;
+            if (_camunda_formKeyAttribute is not null) result.Camunda_formKey = (string)_camunda_formKeyAttribute;
+
+            // optional: camunda:formRef -> string camunda_formRef (0, 1)
+            var _camunda_formRefAttribute = node.Attributes.ContainsKey("camunda:formRef") ? node.Attributes["camunda:formRef"].ProcessedValue : null;
+            if (_camunda_formRefAttribute is not null) result.Camunda_formRef = (string)_camunda_formRefAttribute;
+
+            // optional: camunda:formRefBinding -> string camunda_formRefBinding (0, 1)
+            var _camunda_formRefBindingAttribute = node.Attributes.ContainsKey("camunda:formRefBinding") ? node.Attributes["camunda:formRefBinding"].ProcessedValue : null;
+            if (_camunda_formRefBindingAttribute is not null) result.Camunda_formRefBinding = (string)_camunda_formRefBindingAttribute;
+
+            // optional: camunda:formRefVersion -> string camunda_formRefVersion (0, 1)
+            var _camunda_formRefVersionAttribute = node.Attributes.ContainsKey("camunda:formRefVersion") ? node.Attributes["camunda:formRefVersion"].ProcessedValue : null;
+            if (_camunda_formRefVersionAttribute is not null) result.Camunda_formRefVersion = (string)_camunda_formRefVersionAttribute;
+
+            // optional: camunda:initiator -> string camunda_initiator (0, 1)
+            var _camunda_initiatorAttribute = node.Attributes.ContainsKey("camunda:initiator") ? node.Attributes["camunda:initiator"].ProcessedValue : null;
+            if (_camunda_initiatorAttribute is not null) result.Camunda_initiator = (string)_camunda_initiatorAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: outputSet -> OutputSet outputSet (0, 1)
+            result.OutputSet = FillElement<OutputSet>(node.ChildNodes["outputSet"]);
+
+            // element: eventDefinitionRef -> EventDefinition eventDefinitionRefs (0, *)
+            FillElements(node.ChildNodes["eventDefinitionRef"], result.EventDefinitionRefs);
+
+            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociation (0, *)
+            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociation);
+
+            // element: dataOutput -> DataOutput dataOutputs (0, *)
+            FillElements(node.ChildNodes["dataOutput"], result.DataOutputs);
+
+            // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
+            FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
+
+            // two way associatio: StartEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: StartEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: StartEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // ThrowEvent
+        // CatchEvent
+        // BoundaryEvent
         private BoundaryEvent LoadBoundaryEvent(XmlParserComplexNode node)
         {
-            var result = GetOrCreate<BoundaryEvent>(node);
+             var result = GetOrCreate<BoundaryEvent>(node);
 
             // required: attachedToRef -> Activity attachedToRef (1, 1)
             var _attachedToRefAttribute = node.Attributes["attachedToRef"]?.ProcessedValue;
@@ -298,9 +1949,3188 @@ namespace BPMNModel.Model
             return result;
         }
 
+        // EventDefinition
+        // CancelEventDefinition
+        private CancelEventDefinition LoadCancelEventDefinition(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<CancelEventDefinition>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // ErrorEventDefinition
+        private ErrorEventDefinition LoadErrorEventDefinition(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ErrorEventDefinition>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: errorRef -> Error errorRef (0, 1)
+            var _errorRefAttribute = node.Attributes.ContainsKey("errorRef") ? node.Attributes["errorRef"].ProcessedValue : null;
+            if (_errorRefAttribute is not null) result.ErrorRef = Load<Error>((XmlParserComplexNode)_errorRefAttribute);
+
+            // optional: camunda:errorCodeVariable -> string camunda_errorCodeVariable (0, 1)
+            var _camunda_errorCodeVariableAttribute = node.Attributes.ContainsKey("camunda:errorCodeVariable") ? node.Attributes["camunda:errorCodeVariable"].ProcessedValue : null;
+            if (_camunda_errorCodeVariableAttribute is not null) result.Camunda_errorCodeVariable = (string)_camunda_errorCodeVariableAttribute;
+
+            // optional: camunda:errorMessageVariable -> string camunda_errorMessageVariable (0, 1)
+            var _camunda_errorMessageVariableAttribute = node.Attributes.ContainsKey("camunda:errorMessageVariable") ? node.Attributes["camunda:errorMessageVariable"].ProcessedValue : null;
+            if (_camunda_errorMessageVariableAttribute is not null) result.Camunda_errorMessageVariable = (string)_camunda_errorMessageVariableAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // TerminateEventDefinition
+        private TerminateEventDefinition LoadTerminateEventDefinition(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<TerminateEventDefinition>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // EscalationEventDefinition
+        private EscalationEventDefinition LoadEscalationEventDefinition(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<EscalationEventDefinition>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: escalationRef -> Escalation escalationRef (0, 1)
+            var _escalationRefAttribute = node.Attributes.ContainsKey("escalationRef") ? node.Attributes["escalationRef"].ProcessedValue : null;
+            if (_escalationRefAttribute is not null) result.EscalationRef = Load<Escalation>((XmlParserComplexNode)_escalationRefAttribute);
+
+            // optional: camunda:escalationCodeVariable -> string camunda_escalationCodeVariable (0, 1)
+            var _camunda_escalationCodeVariableAttribute = node.Attributes.ContainsKey("camunda:escalationCodeVariable") ? node.Attributes["camunda:escalationCodeVariable"].ProcessedValue : null;
+            if (_camunda_escalationCodeVariableAttribute is not null) result.Camunda_escalationCodeVariable = (string)_camunda_escalationCodeVariableAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // Escalation
+        private Escalation LoadEscalation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Escalation>(node);
+
+            // optional: structureRef -> ItemDefinition structureRef (0, 1)
+            var _structureRefAttribute = node.Attributes.ContainsKey("structureRef") ? node.Attributes["structureRef"].ProcessedValue : null;
+            if (_structureRefAttribute is not null) result.StructureRef = Load<ItemDefinition>((XmlParserComplexNode)_structureRefAttribute);
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: escalationCode -> string escalationCode (1, 1)
+            var _escalationCodeAttribute = node.Attributes.ContainsKey("escalationCode") ? node.Attributes["escalationCode"].ProcessedValue : null;
+            if (_escalationCodeAttribute is not null) result.EscalationCode = (string)_escalationCodeAttribute;
+
+            return result;
+        }
+
+        // CompensateEventDefinition
+        private CompensateEventDefinition LoadCompensateEventDefinition(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<CompensateEventDefinition>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: waitForCompletion -> bool waitForCompletion (1, 1)
+            var _waitForCompletionAttribute = node.Attributes.ContainsKey("waitForCompletion") ? node.Attributes["waitForCompletion"].ProcessedValue : null;
+            if (_waitForCompletionAttribute is not null) result.WaitForCompletion = (bool)_waitForCompletionAttribute;
+
+            // optional: activityRef -> Activity activityRef (0, 1)
+            var _activityRefAttribute = node.Attributes.ContainsKey("activityRef") ? node.Attributes["activityRef"].ProcessedValue : null;
+            if (_activityRefAttribute is not null) result.ActivityRef = Load<Activity>((XmlParserComplexNode)_activityRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // TimerEventDefinition
+        private TimerEventDefinition LoadTimerEventDefinition(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<TimerEventDefinition>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: timeDate -> Expression timeDate (0, 1)
+            result.TimeDate = FillElement<Expression>(node.ChildNodes["timeDate"]);
+
+            // element: timeCycle -> Expression timeCycle (0, 1)
+            result.TimeCycle = FillElement<Expression>(node.ChildNodes["timeCycle"]);
+
+            // element: timeDuration -> Expression timeDuration (0, 1)
+            result.TimeDuration = FillElement<Expression>(node.ChildNodes["timeDuration"]);
+
+            return result;
+        }
+
+        // LinkEventDefinition
+        private LinkEventDefinition LoadLinkEventDefinition(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<LinkEventDefinition>(node);
+
+            // required: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes["name"]?.ProcessedValue;
+            if (_nameAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute name");
+            result.Name = (string)_nameAttribute;
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: target -> LinkEventDefinition target (0, 1)
+            result.Target = FillElement<LinkEventDefinition>(node.ChildNodes["target"]);
+
+            // element: source -> LinkEventDefinition source (0, *)
+            FillElements(node.ChildNodes["source"], result.Source);
+
+            return result;
+        }
+
+        // MessageEventDefinition
+        private MessageEventDefinition LoadMessageEventDefinition(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<MessageEventDefinition>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: messageRef -> Message messageRef (0, 1)
+            var _messageRefAttribute = node.Attributes.ContainsKey("messageRef") ? node.Attributes["messageRef"].ProcessedValue : null;
+            if (_messageRefAttribute is not null) result.MessageRef = Load<Message>((XmlParserComplexNode)_messageRefAttribute);
+
+            // optional: camunda:expression -> string camunda_expression (0, 1)
+            var _camunda_expressionAttribute = node.Attributes.ContainsKey("camunda:expression") ? node.Attributes["camunda:expression"].ProcessedValue : null;
+            if (_camunda_expressionAttribute is not null) result.Camunda_expression = (string)_camunda_expressionAttribute;
+
+            // optional: camunda:class -> string camunda_class (0, 1)
+            var _camunda_classAttribute = node.Attributes.ContainsKey("camunda:class") ? node.Attributes["camunda:class"].ProcessedValue : null;
+            if (_camunda_classAttribute is not null) result.Camunda_class = (string)_camunda_classAttribute;
+
+            // optional: camunda:delegateExpression -> string camunda_delegateExpression (0, 1)
+            var _camunda_delegateExpressionAttribute = node.Attributes.ContainsKey("camunda:delegateExpression") ? node.Attributes["camunda:delegateExpression"].ProcessedValue : null;
+            if (_camunda_delegateExpressionAttribute is not null) result.Camunda_delegateExpression = (string)_camunda_delegateExpressionAttribute;
+
+            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
+            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
+            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
+
+            // optional: camunda:type -> string camunda_type (0, 1)
+            var _camunda_typeAttribute = node.Attributes.ContainsKey("camunda:type") ? node.Attributes["camunda:type"].ProcessedValue : null;
+            if (_camunda_typeAttribute is not null) result.Camunda_type = (string)_camunda_typeAttribute;
+
+            // optional: camunda:topic -> string camunda_topic (0, 1)
+            var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
+            if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
+
+            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
+            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
+            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: operationRef -> Operation operationRef (0, 1)
+            result.OperationRef = FillElement<Operation>(node.ChildNodes["operationRef"]);
+
+            return result;
+        }
+
+        // ConditionalEventDefinition
+        private ConditionalEventDefinition LoadConditionalEventDefinition(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ConditionalEventDefinition>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: camunda:variableName -> string camunda_variableName (0, 1)
+            var _camunda_variableNameAttribute = node.Attributes.ContainsKey("camunda:variableName") ? node.Attributes["camunda:variableName"].ProcessedValue : null;
+            if (_camunda_variableNameAttribute is not null) result.Camunda_variableName = (string)_camunda_variableNameAttribute;
+
+            // optional: camunda:variableEvents -> string camunda_variableEvents (0, 1)
+            var _camunda_variableEventsAttribute = node.Attributes.ContainsKey("camunda:variableEvents") ? node.Attributes["camunda:variableEvents"].ProcessedValue : null;
+            if (_camunda_variableEventsAttribute is not null) result.Camunda_variableEvents = (string)_camunda_variableEventsAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: condition -> Expression condition (1, 1)
+            result.Condition = FillElement<Expression>(node.ChildNodes["condition"]);
+
+            return result;
+        }
+
+        // SignalEventDefinition
+        private SignalEventDefinition LoadSignalEventDefinition(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<SignalEventDefinition>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: signalRef -> Signal signalRef (0, 1)
+            var _signalRefAttribute = node.Attributes.ContainsKey("signalRef") ? node.Attributes["signalRef"].ProcessedValue : null;
+            if (_signalRefAttribute is not null) result.SignalRef = Load<Signal>((XmlParserComplexNode)_signalRefAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // Signal
+        private Signal LoadSignal(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Signal>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: structureRef -> ItemDefinition structureRef (0, 1)
+            var _structureRefAttribute = node.Attributes.ContainsKey("structureRef") ? node.Attributes["structureRef"].ProcessedValue : null;
+            if (_structureRefAttribute is not null) result.StructureRef = Load<ItemDefinition>((XmlParserComplexNode)_structureRefAttribute);
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // ImplicitThrowEvent
+        private ImplicitThrowEvent LoadImplicitThrowEvent(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ImplicitThrowEvent>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: inputSet -> InputSet inputSet (0, 1)
+            result.InputSet = FillElement<InputSet>(node.ChildNodes["inputSet"]);
+
+            // element: eventDefinitionRef -> EventDefinition eventDefinitionRefs (0, *)
+            FillElements(node.ChildNodes["eventDefinitionRef"], result.EventDefinitionRefs);
+
+            // element: dataInputAssociation -> DataInputAssociation dataInputAssociation (0, *)
+            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociation);
+
+            // element: dataInput -> DataInput dataInputs (0, *)
+            FillElements(node.ChildNodes["dataInput"], result.DataInputs);
+
+            // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
+            FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
+
+            // two way associatio: ImplicitThrowEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: ImplicitThrowEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: ImplicitThrowEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // DataState
+        private DataState LoadDataState(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<DataState>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // ItemAwareElement
+        // DataAssociation
+        private DataAssociation LoadDataAssociation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<DataAssociation>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: transformation -> FormalExpression transformation (0, 1)
+            result.Transformation = FillElement<FormalExpression>(node.ChildNodes["transformation"]);
+
+            // element: assignment -> Assignment assignment (0, *)
+            FillElements(node.ChildNodes["assignment"], result.Assignment);
+
+            // element: targetRef -> ItemAwareElement targetRef (1, 1)
+            result.TargetRef = FillElement<ItemAwareElement>(node.ChildNodes["targetRef"]);
+
+            // element: sourceRef -> ItemAwareElement sourceRef (0, *)
+            FillElements(node.ChildNodes["sourceRef"], result.SourceRef);
+
+            return result;
+        }
+
+        // DataInput
+        private DataInput LoadDataInput(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<DataInput>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
+            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
+            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
+
+            // optional: name -> string name (0, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: isCollection -> bool isCollection (1, 1)
+            var _isCollectionAttribute = node.Attributes.ContainsKey("isCollection") ? node.Attributes["isCollection"].ProcessedValue : null;
+            if (_isCollectionAttribute is not null) result.IsCollection = (bool)_isCollectionAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: dataState -> DataState dataState (0, 1)
+            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
+
+            // two way associatio: DataInput(InputSet inputSetRefs (1, *)) <---> InputSet(DataInput dataInputRefs  (0, *))
+            // In InputSet get dataInputRefs for all elements used like DataInput, put THIS into its List inputSetRefs
+
+            // two way associatio: DataInput(InputSet inputSetWithOptional (0, *)) <---> InputSet(DataInput optionalInputRefs  (0, *))
+            // In InputSet get optionalInputRefs for all elements used like DataInput, put THIS into its List inputSetWithOptional
+
+            // two way associatio: DataInput(InputSet inputSetWithWhileExecuting (0, *)) <---> InputSet(DataInput whileExecutingInputRefs  (0, *))
+            // In InputSet get whileExecutingInputRefs for all elements used like DataInput, put THIS into its List inputSetWithWhileExecuting
+
+            return result;
+        }
+
+        // DataOutput
+        private DataOutput LoadDataOutput(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<DataOutput>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
+            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
+            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
+
+            // optional: name -> string name (0, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: isCollection -> bool isCollection (1, 1)
+            var _isCollectionAttribute = node.Attributes.ContainsKey("isCollection") ? node.Attributes["isCollection"].ProcessedValue : null;
+            if (_isCollectionAttribute is not null) result.IsCollection = (bool)_isCollectionAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: dataState -> DataState dataState (0, 1)
+            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
+
+            // two way associatio: DataOutput(OutputSet outputSetRefs (1, *)) <---> OutputSet(DataOutput dataOutputRefs  (0, *))
+            // In OutputSet get dataOutputRefs for all elements used like DataOutput, put THIS into its List outputSetRefs
+
+            // two way associatio: DataOutput(OutputSet outputSetWithOptional (0, *)) <---> OutputSet(DataOutput optionalOutputRefs  (0, *))
+            // In OutputSet get optionalOutputRefs for all elements used like DataOutput, put THIS into its List outputSetWithOptional
+
+            // two way associatio: DataOutput(OutputSet outputSetWithWhileExecuting (0, *)) <---> OutputSet(DataOutput whileExecutingOutputRefs  (0, *))
+            // In OutputSet get whileExecutingOutputRefs for all elements used like DataOutput, put THIS into its List outputSetWithWhileExecuting
+
+            return result;
+        }
+
+        // InputSet
+        private InputSet LoadInputSet(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<InputSet>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: dataInputRefs -> DataInput dataInputRefs (0, *)
+            FillElements(node.ChildNodes["dataInputRefs"], result.DataInputRefs);
+
+            // element: optionalInputRefs -> DataInput optionalInputRefs (0, *)
+            FillElements(node.ChildNodes["optionalInputRefs"], result.OptionalInputRefs);
+
+            // element: whileExecutingInputRefs -> DataInput whileExecutingInputRefs (0, *)
+            FillElements(node.ChildNodes["whileExecutingInputRefs"], result.WhileExecutingInputRefs);
+
+            // element: outputSetRefs -> OutputSet outputSetRefs (0, *)
+            FillElements(node.ChildNodes["outputSetRefs"], result.OutputSetRefs);
+
+            return result;
+        }
+
+        // OutputSet
+        private OutputSet LoadOutputSet(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<OutputSet>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: dataOutputRefs -> DataOutput dataOutputRefs (0, *)
+            FillElements(node.ChildNodes["dataOutputRefs"], result.DataOutputRefs);
+
+            // element: inputSetRefs -> InputSet inputSetRefs (0, *)
+            FillElements(node.ChildNodes["inputSetRefs"], result.InputSetRefs);
+
+            // element: optionalOutputRefs -> DataOutput optionalOutputRefs (0, *)
+            FillElements(node.ChildNodes["optionalOutputRefs"], result.OptionalOutputRefs);
+
+            // element: whileExecutingOutputRefs -> DataOutput whileExecutingOutputRefs (0, *)
+            FillElements(node.ChildNodes["whileExecutingOutputRefs"], result.WhileExecutingOutputRefs);
+
+            return result;
+        }
+
+        // Property
+        private Property LoadProperty(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Property>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
+            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
+            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: dataState -> DataState dataState (0, 1)
+            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
+
+            return result;
+        }
+
+        // DataInputAssociation
+        private DataInputAssociation LoadDataInputAssociation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<DataInputAssociation>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: transformation -> FormalExpression transformation (0, 1)
+            result.Transformation = FillElement<FormalExpression>(node.ChildNodes["transformation"]);
+
+            // element: assignment -> Assignment assignment (0, *)
+            FillElements(node.ChildNodes["assignment"], result.Assignment);
+
+            // element: targetRef -> ItemAwareElement targetRef (1, 1)
+            result.TargetRef = FillElement<ItemAwareElement>(node.ChildNodes["targetRef"]);
+
+            // element: sourceRef -> ItemAwareElement sourceRef (0, *)
+            FillElements(node.ChildNodes["sourceRef"], result.SourceRef);
+
+            return result;
+        }
+
+        // DataOutputAssociation
+        private DataOutputAssociation LoadDataOutputAssociation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<DataOutputAssociation>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: transformation -> FormalExpression transformation (0, 1)
+            result.Transformation = FillElement<FormalExpression>(node.ChildNodes["transformation"]);
+
+            // element: assignment -> Assignment assignment (0, *)
+            FillElements(node.ChildNodes["assignment"], result.Assignment);
+
+            // element: targetRef -> ItemAwareElement targetRef (1, 1)
+            result.TargetRef = FillElement<ItemAwareElement>(node.ChildNodes["targetRef"]);
+
+            // element: sourceRef -> ItemAwareElement sourceRef (0, *)
+            FillElements(node.ChildNodes["sourceRef"], result.SourceRef);
+
+            return result;
+        }
+
+        // InputOutputSpecification
+        private InputOutputSpecification LoadInputOutputSpecification(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<InputOutputSpecification>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: inputSet -> InputSet inputSets (1, *)
+            FillElements(node.ChildNodes["inputSet"], result.InputSets);
+
+            // element: outputSet -> OutputSet outputSets (1, *)
+            FillElements(node.ChildNodes["outputSet"], result.OutputSets);
+
+            // element: dataInput -> DataInput dataInputs (0, *)
+            FillElements(node.ChildNodes["dataInput"], result.DataInputs);
+
+            // element: dataOutput -> DataOutput dataOutputs (0, *)
+            FillElements(node.ChildNodes["dataOutput"], result.DataOutputs);
+
+            return result;
+        }
+
+        // DataObject
+        private DataObject LoadDataObject(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<DataObject>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
+            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
+            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
+
+            // optional: isCollection -> bool isCollection (1, 1)
+            var _isCollectionAttribute = node.Attributes.ContainsKey("isCollection") ? node.Attributes["isCollection"].ProcessedValue : null;
+            if (_isCollectionAttribute is not null) result.IsCollection = (bool)_isCollectionAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: dataState -> DataState dataState (0, 1)
+            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
+
+            return result;
+        }
+
+        // InputOutputBinding
+        private InputOutputBinding LoadInputOutputBinding(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<InputOutputBinding>(node);
+
+            // required: inputDataRef -> InputSet inputDataRef (1, 1)
+            var _inputDataRefAttribute = node.Attributes["inputDataRef"]?.ProcessedValue;
+            if (_inputDataRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute inputDataRef");
+            result.InputDataRef = Load<InputSet>((XmlParserComplexNode)_inputDataRefAttribute);
+
+            // required: outputDataRef -> OutputSet outputDataRef (1, 1)
+            var _outputDataRefAttribute = node.Attributes["outputDataRef"]?.ProcessedValue;
+            if (_outputDataRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute outputDataRef");
+            result.OutputDataRef = Load<OutputSet>((XmlParserComplexNode)_outputDataRefAttribute);
+
+            // required: operationRef -> Operation operationRef (1, 1)
+            var _operationRefAttribute = node.Attributes["operationRef"]?.ProcessedValue;
+            if (_operationRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute operationRef");
+            result.OperationRef = Load<Operation>((XmlParserComplexNode)_operationRefAttribute);
+
+            return result;
+        }
+
+        // Assignment
+        private Assignment LoadAssignment(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Assignment>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: from -> Expression from (1, 1)
+            result.From = FillElement<Expression>(node.ChildNodes["from"]);
+
+            // element: to -> Expression to (1, 1)
+            result.To = FillElement<Expression>(node.ChildNodes["to"]);
+
+            return result;
+        }
+
+        // DataStore
+        private DataStore LoadDataStore(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<DataStore>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
+            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
+            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: capacity -> long capacity (1, 1)
+            var _capacityAttribute = node.Attributes.ContainsKey("capacity") ? node.Attributes["capacity"].ProcessedValue : null;
+            if (_capacityAttribute is not null) result.Capacity = (long)_capacityAttribute;
+
+            // optional: isUnlimited -> bool isUnlimited (1, 1)
+            var _isUnlimitedAttribute = node.Attributes.ContainsKey("isUnlimited") ? node.Attributes["isUnlimited"].ProcessedValue : null;
+            if (_isUnlimitedAttribute is not null) result.IsUnlimited = (bool)_isUnlimitedAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: dataState -> DataState dataState (0, 1)
+            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
+
+            return result;
+        }
+
+        // DataStoreReference
+        private DataStoreReference LoadDataStoreReference(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<DataStoreReference>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
+            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
+            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: dataStoreRef -> DataStore dataStoreRef (0, 1)
+            var _dataStoreRefAttribute = node.Attributes.ContainsKey("dataStoreRef") ? node.Attributes["dataStoreRef"].ProcessedValue : null;
+            if (_dataStoreRefAttribute is not null) result.DataStoreRef = Load<DataStore>((XmlParserComplexNode)_dataStoreRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: dataState -> DataState dataState (0, 1)
+            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            return result;
+        }
+
+        // DataObjectReference
+        private DataObjectReference LoadDataObjectReference(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<DataObjectReference>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
+            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
+            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: dataObjectRef -> DataObject dataObjectRef (1, 1)
+            var _dataObjectRefAttribute = node.Attributes.ContainsKey("dataObjectRef") ? node.Attributes["dataObjectRef"].ProcessedValue : null;
+            if (_dataObjectRefAttribute is not null) result.DataObjectRef = Load<DataObject>((XmlParserComplexNode)_dataObjectRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: dataState -> DataState dataState (0, 1)
+            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            return result;
+        }
+
+        // ConversationLink
+        private ConversationLink LoadConversationLink(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ConversationLink>(node);
+
+            // required: sourceRef -> InteractionNode sourceRef (1, 1)
+            var _sourceRefAttribute = node.Attributes["sourceRef"]?.ProcessedValue;
+            if (_sourceRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute sourceRef");
+            result.SourceRef = Load<InteractionNode>((XmlParserComplexNode)_sourceRefAttribute);
+
+            // required: targetRef -> InteractionNode targetRef (1, 1)
+            var _targetRefAttribute = node.Attributes["targetRef"]?.ProcessedValue;
+            if (_targetRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute targetRef");
+            result.TargetRef = Load<InteractionNode>((XmlParserComplexNode)_targetRefAttribute);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (0, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // ConversationAssociation
+        private ConversationAssociation LoadConversationAssociation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ConversationAssociation>(node);
+
+            // required: innerConversationNodeRef -> ConversationNode innerConversationNodeRef (1, 1)
+            var _innerConversationNodeRefAttribute = node.Attributes["innerConversationNodeRef"]?.ProcessedValue;
+            if (_innerConversationNodeRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute innerConversationNodeRef");
+            result.InnerConversationNodeRef = Load<ConversationNode>((XmlParserComplexNode)_innerConversationNodeRefAttribute);
+
+            // required: outerConversationNodeRef -> ConversationNode outerConversationNodeRef (1, 1)
+            var _outerConversationNodeRefAttribute = node.Attributes["outerConversationNodeRef"]?.ProcessedValue;
+            if (_outerConversationNodeRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute outerConversationNodeRef");
+            result.OuterConversationNodeRef = Load<ConversationNode>((XmlParserComplexNode)_outerConversationNodeRefAttribute);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // CallConversation
+        private CallConversation LoadCallConversation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<CallConversation>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: calledCollaborationRef -> Collaboration calledCollaborationRef (0, 1)
+            var _calledCollaborationRefAttribute = node.Attributes.ContainsKey("calledCollaborationRef") ? node.Attributes["calledCollaborationRef"].ProcessedValue : null;
+            if (_calledCollaborationRefAttribute is not null) result.CalledCollaborationRef = Load<Collaboration>((XmlParserComplexNode)_calledCollaborationRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: participantRef -> Participant participantRefs (2, *)
+            FillElements(node.ChildNodes["participantRef"], result.ParticipantRefs);
+
+            // element: messageFlowRef -> MessageFlow messageFlowRefs (0, *)
+            FillElements(node.ChildNodes["messageFlowRef"], result.MessageFlowRefs);
+
+            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
+            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
+
+            // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
+            FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
+
+            // two way associatio: CallConversation(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: CallConversation(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // Conversation
+        private Conversation LoadConversation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Conversation>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: participantRef -> Participant participantRefs (2, *)
+            FillElements(node.ChildNodes["participantRef"], result.ParticipantRefs);
+
+            // element: messageFlowRef -> MessageFlow messageFlowRefs (0, *)
+            FillElements(node.ChildNodes["messageFlowRef"], result.MessageFlowRefs);
+
+            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
+            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
+
+            // two way associatio: Conversation(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: Conversation(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // SubConversation
+        private SubConversation LoadSubConversation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<SubConversation>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: participantRef -> Participant participantRefs (2, *)
+            FillElements(node.ChildNodes["participantRef"], result.ParticipantRefs);
+
+            // element: messageFlowRef -> MessageFlow messageFlowRefs (0, *)
+            FillElements(node.ChildNodes["messageFlowRef"], result.MessageFlowRefs);
+
+            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
+            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
+
+            // element: conversationNode -> ConversationNode conversationNodes (0, *)
+            FillElements(node.ChildNodes["conversationNode"], result.ConversationNodes);
+
+            // two way associatio: SubConversation(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: SubConversation(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // ConversationNode
+        // GlobalConversation
+        private GlobalConversation LoadGlobalConversation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<GlobalConversation>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: isClosed -> bool isClosed (1, 1)
+            var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
+            if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: choreographyRef -> Choreography choreographyRef (0, *)
+            FillElements(node.ChildNodes["choreographyRef"], result.ChoreographyRef);
+
+            // element: artifact -> Artifact artifacts (0, *)
+            FillElements(node.ChildNodes["artifact"], result.Artifacts);
+
+            // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
+            FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
+
+            // element: messageFlowAssociation -> MessageFlowAssociation messageFlowAssociations (0, *)
+            FillElements(node.ChildNodes["messageFlowAssociation"], result.MessageFlowAssociations);
+
+            // element: conversationAssociation -> ConversationAssociation conversationAssociations (1, 1)
+            result.ConversationAssociations = FillElement<ConversationAssociation>(node.ChildNodes["conversationAssociation"]);
+
+            // element: participant -> Participant participants (0, *)
+            FillElements(node.ChildNodes["participant"], result.Participants);
+
+            // element: messageFlow -> MessageFlow messageFlows (0, *)
+            FillElements(node.ChildNodes["messageFlow"], result.MessageFlows);
+
+            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
+            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
+
+            // element: conversationNode -> ConversationNode conversations (0, *)
+            FillElements(node.ChildNodes["conversationNode"], result.Conversations);
+
+            // element: conversationLink -> ConversationLink conversationLinks (0, *)
+            FillElements(node.ChildNodes["conversationLink"], result.ConversationLinks);
+
+            return result;
+        }
+
+        // PartnerEntity
+        private PartnerEntity LoadPartnerEntity(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<PartnerEntity>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: participantRef -> Participant participantRef (0, *)
+            FillElements(node.ChildNodes["participantRef"], result.ParticipantRef);
+
+            return result;
+        }
+
+        // PartnerRole
+        private PartnerRole LoadPartnerRole(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<PartnerRole>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: participantRef -> Participant participantRef (0, *)
+            FillElements(node.ChildNodes["participantRef"], result.ParticipantRef);
+
+            return result;
+        }
+
+        // CorrelationProperty
+        private CorrelationProperty LoadCorrelationProperty(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<CorrelationProperty>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: type -> ItemDefinition type (0, 1)
+            var _typeAttribute = node.Attributes.ContainsKey("type") ? node.Attributes["type"].ProcessedValue : null;
+            if (_typeAttribute is not null) result.Type = Load<ItemDefinition>((XmlParserComplexNode)_typeAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: correlationPropertyRetrievalExpression -> CorrelationPropertyRetrievalExpression correlationPropertyRetrievalExpression (1, *)
+            FillElements(node.ChildNodes["correlationPropertyRetrievalExpression"], result.CorrelationPropertyRetrievalExpression);
+
+            return result;
+        }
+
+        // Error
+        private Error LoadError(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Error>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: structureRef -> ItemDefinition structureRef (0, 1)
+            var _structureRefAttribute = node.Attributes.ContainsKey("structureRef") ? node.Attributes["structureRef"].ProcessedValue : null;
+            if (_structureRefAttribute is not null) result.StructureRef = Load<ItemDefinition>((XmlParserComplexNode)_structureRefAttribute);
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: errorCode -> string errorCode (1, 1)
+            var _errorCodeAttribute = node.Attributes.ContainsKey("errorCode") ? node.Attributes["errorCode"].ProcessedValue : null;
+            if (_errorCodeAttribute is not null) result.ErrorCode = (string)_errorCodeAttribute;
+
+            // optional: camunda:errorMessage -> string camunda_errorMessage (0, 1)
+            var _camunda_errorMessageAttribute = node.Attributes.ContainsKey("camunda:errorMessage") ? node.Attributes["camunda:errorMessage"].ProcessedValue : null;
+            if (_camunda_errorMessageAttribute is not null) result.Camunda_errorMessage = (string)_camunda_errorMessageAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // CorrelationKey
+        private CorrelationKey LoadCorrelationKey(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<CorrelationKey>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: correlationPropertyRef -> CorrelationProperty correlationPropertyRef (0, *)
+            FillElements(node.ChildNodes["correlationPropertyRef"], result.CorrelationPropertyRef);
+
+            return result;
+        }
+
+        // Expression
+        private Expression LoadExpression(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Expression>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // FormalExpression
+        private FormalExpression LoadFormalExpression(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<FormalExpression>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: language -> string language (1, 1)
+            var _languageAttribute = node.Attributes.ContainsKey("language") ? node.Attributes["language"].ProcessedValue : null;
+            if (_languageAttribute is not null) result.Language = (string)_languageAttribute;
+
+            // optional: evaluatesToTypeRef -> ItemDefinition evaluatesToTypeRef (1, 1)
+            var _evaluatesToTypeRefAttribute = node.Attributes.ContainsKey("evaluatesToTypeRef") ? node.Attributes["evaluatesToTypeRef"].ProcessedValue : null;
+            if (_evaluatesToTypeRefAttribute is not null) result.EvaluatesToTypeRef = Load<ItemDefinition>((XmlParserComplexNode)_evaluatesToTypeRefAttribute);
+
+            // optional: camunda:resource -> string camunda_resource (0, 1)
+            var _camunda_resourceAttribute = node.Attributes.ContainsKey("camunda:resource") ? node.Attributes["camunda:resource"].ProcessedValue : null;
+            if (_camunda_resourceAttribute is not null) result.Camunda_resource = (string)_camunda_resourceAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // missing: Element body (1, 1)
+            ManualySolve_body_in_FormalExpression(result, node);
+            return result;
+        }
+
+        // Message
+        private Message LoadMessage(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Message>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: itemRef -> ItemDefinition itemRef (0, 1)
+            var _itemRefAttribute = node.Attributes.ContainsKey("itemRef") ? node.Attributes["itemRef"].ProcessedValue : null;
+            if (_itemRefAttribute is not null) result.ItemRef = Load<ItemDefinition>((XmlParserComplexNode)_itemRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // ItemDefinition
+        private ItemDefinition LoadItemDefinition(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ItemDefinition>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: itemKind -> ItemKind itemKind (1, 1)
+            var _itemKindAttribute = node.Attributes.ContainsKey("itemKind") ? node.Attributes["itemKind"].ProcessedValue : null;
+            if (_itemKindAttribute is not null) result.ItemKind = CreateEnum<ItemKind>((string)_itemKindAttribute);
+
+            // optional: structureRef -> Element structureRef (1, 1)
+            var _structureRefAttribute = node.Attributes.ContainsKey("structureRef") ? node.Attributes["structureRef"].ProcessedValue : null;
+            if (_structureRefAttribute is not null) result.StructureRef = Load<Element>((XmlParserComplexNode)_structureRefAttribute);
+
+            // optional: isCollection -> bool isCollection (1, 1)
+            var _isCollectionAttribute = node.Attributes.ContainsKey("isCollection") ? node.Attributes["isCollection"].ProcessedValue : null;
+            if (_isCollectionAttribute is not null) result.IsCollection = (bool)_isCollectionAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // empty: Import import (0, 1)
+
+            return result;
+        }
+
+        // FlowElement
+        // SequenceFlow
+        private SequenceFlow LoadSequenceFlow(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<SequenceFlow>(node);
+
+            // required: sourceRef -> FlowNode sourceRef (1, 1)
+            var _sourceRefAttribute = node.Attributes["sourceRef"]?.ProcessedValue;
+            if (_sourceRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute sourceRef");
+            result.SourceRef = Load<FlowNode>((XmlParserComplexNode)_sourceRefAttribute);
+
+            // required: targetRef -> FlowNode targetRef (1, 1)
+            var _targetRefAttribute = node.Attributes["targetRef"]?.ProcessedValue;
+            if (_targetRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute targetRef");
+            result.TargetRef = Load<FlowNode>((XmlParserComplexNode)_targetRefAttribute);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: isImmediate -> bool isImmediate (0, 1)
+            var _isImmediateAttribute = node.Attributes.ContainsKey("isImmediate") ? node.Attributes["isImmediate"].ProcessedValue : null;
+            if (_isImmediateAttribute is not null) result.IsImmediate = (bool)_isImmediateAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: conditionExpression -> Expression conditionExpression (0, 1)
+            result.ConditionExpression = FillElement<Expression>(node.ChildNodes["conditionExpression"]);
+
+            return result;
+        }
+
+        // FlowElementsContainer
+        // CallableElement
+        // FlowNode
+        // CorrelationPropertyRetrievalExpression
+        private CorrelationPropertyRetrievalExpression LoadCorrelationPropertyRetrievalExpression(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<CorrelationPropertyRetrievalExpression>(node);
+
+            // required: messageRef -> Message messageRef (1, 1)
+            var _messageRefAttribute = node.Attributes["messageRef"]?.ProcessedValue;
+            if (_messageRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute messageRef");
+            result.MessageRef = Load<Message>((XmlParserComplexNode)_messageRefAttribute);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: messagePath -> FormalExpression messagePath (1, 1)
+            result.MessagePath = FillElement<FormalExpression>(node.ChildNodes["messagePath"]);
+
+            return result;
+        }
+
+        // CorrelationPropertyBinding
+        private CorrelationPropertyBinding LoadCorrelationPropertyBinding(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<CorrelationPropertyBinding>(node);
+
+            // required: correlationPropertyRef -> CorrelationProperty correlationPropertyRef (1, 1)
+            var _correlationPropertyRefAttribute = node.Attributes["correlationPropertyRef"]?.ProcessedValue;
+            if (_correlationPropertyRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute correlationPropertyRef");
+            result.CorrelationPropertyRef = Load<CorrelationProperty>((XmlParserComplexNode)_correlationPropertyRefAttribute);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: dataPath -> FormalExpression dataPath (1, 1)
+            result.DataPath = FillElement<FormalExpression>(node.ChildNodes["dataPath"]);
+
+            return result;
+        }
+
+        // Resource
+        private Resource LoadResource(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Resource>(node);
+
+            // required: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes["name"]?.ProcessedValue;
+            if (_nameAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute name");
+            result.Name = (string)_nameAttribute;
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: resourceParameter -> ResourceParameter resourceParameters (0, *)
+            FillElements(node.ChildNodes["resourceParameter"], result.ResourceParameters);
+
+            return result;
+        }
+
+        // ResourceParameter
+        private ResourceParameter LoadResourceParameter(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ResourceParameter>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: isRequired -> bool isRequired (1, 1)
+            var _isRequiredAttribute = node.Attributes.ContainsKey("isRequired") ? node.Attributes["isRequired"].ProcessedValue : null;
+            if (_isRequiredAttribute is not null) result.IsRequired = (bool)_isRequiredAttribute;
+
+            // optional: type -> ItemDefinition type (0, 1)
+            var _typeAttribute = node.Attributes.ContainsKey("type") ? node.Attributes["type"].ProcessedValue : null;
+            if (_typeAttribute is not null) result.Type = Load<ItemDefinition>((XmlParserComplexNode)_typeAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // CorrelationSubscription
+        private CorrelationSubscription LoadCorrelationSubscription(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<CorrelationSubscription>(node);
+
+            // required: correlationKeyRef -> CorrelationKey correlationKeyRef (1, 1)
+            var _correlationKeyRefAttribute = node.Attributes["correlationKeyRef"]?.ProcessedValue;
+            if (_correlationKeyRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute correlationKeyRef");
+            result.CorrelationKeyRef = Load<CorrelationKey>((XmlParserComplexNode)_correlationKeyRefAttribute);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: correlationPropertyBinding -> CorrelationPropertyBinding correlationPropertyBinding (0, *)
+            FillElements(node.ChildNodes["correlationPropertyBinding"], result.CorrelationPropertyBinding);
+
+            return result;
+        }
+
+        // MessageFlow
+        private MessageFlow LoadMessageFlow(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<MessageFlow>(node);
+
+            // required: sourceRef -> InteractionNode sourceRef (1, 1)
+            var _sourceRefAttribute = node.Attributes["sourceRef"]?.ProcessedValue;
+            if (_sourceRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute sourceRef");
+            result.SourceRef = Load<InteractionNode>((XmlParserComplexNode)_sourceRefAttribute);
+
+            // required: targetRef -> InteractionNode targetRef (1, 1)
+            var _targetRefAttribute = node.Attributes["targetRef"]?.ProcessedValue;
+            if (_targetRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute targetRef");
+            result.TargetRef = Load<InteractionNode>((XmlParserComplexNode)_targetRefAttribute);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: messageRef -> Message messageRef (0, 1)
+            var _messageRefAttribute = node.Attributes.ContainsKey("messageRef") ? node.Attributes["messageRef"].ProcessedValue : null;
+            if (_messageRefAttribute is not null) result.MessageRef = Load<Message>((XmlParserComplexNode)_messageRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // MessageFlowAssociation
+        private MessageFlowAssociation LoadMessageFlowAssociation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<MessageFlowAssociation>(node);
+
+            // required: innerMessageFlowRef -> MessageFlow innerMessageFlowRef (1, 1)
+            var _innerMessageFlowRefAttribute = node.Attributes["innerMessageFlowRef"]?.ProcessedValue;
+            if (_innerMessageFlowRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute innerMessageFlowRef");
+            result.InnerMessageFlowRef = Load<MessageFlow>((XmlParserComplexNode)_innerMessageFlowRefAttribute);
+
+            // required: outerMessageFlowRef -> MessageFlow outerMessageFlowRef (1, 1)
+            var _outerMessageFlowRefAttribute = node.Attributes["outerMessageFlowRef"]?.ProcessedValue;
+            if (_outerMessageFlowRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute outerMessageFlowRef");
+            result.OuterMessageFlowRef = Load<MessageFlow>((XmlParserComplexNode)_outerMessageFlowRefAttribute);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // InteractionNode
+        // Participant
+        private Participant LoadParticipant(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Participant>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: processRef -> Process processRef (0, 1)
+            var _processRefAttribute = node.Attributes.ContainsKey("processRef") ? node.Attributes["processRef"].ProcessedValue : null;
+            if (_processRefAttribute is not null) result.ProcessRef = Load<Process>((XmlParserComplexNode)_processRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: interfaceRef -> Interface interfaceRefs (0, *)
+            FillElements(node.ChildNodes["interfaceRef"], result.InterfaceRefs);
+
+            // element: participantMultiplicity -> ParticipantMultiplicity participantMultiplicity (0, 1)
+            result.ParticipantMultiplicity = FillElement<ParticipantMultiplicity>(node.ChildNodes["participantMultiplicity"]);
+
+            // element: endPointRef -> EndPoint endPointRefs (0, *)
+            FillElements(node.ChildNodes["endPointRef"], result.EndPointRefs);
+
+            // two way associatio: Participant(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: Participant(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // ParticipantAssociation
+        private ParticipantAssociation LoadParticipantAssociation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ParticipantAssociation>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: innerParticipantRef -> Participant innerParticipantRef (1, 1)
+            result.InnerParticipantRef = FillElement<Participant>(node.ChildNodes["innerParticipantRef"]);
+
+            // element: outerParticipantRef -> Participant outerParticipantRef (1, 1)
+            result.OuterParticipantRef = FillElement<Participant>(node.ChildNodes["outerParticipantRef"]);
+
+            return result;
+        }
+
+        // ParticipantMultiplicity
+        private ParticipantMultiplicity LoadParticipantMultiplicity(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ParticipantMultiplicity>(node);
+
+            // optional: minimum -> long minimum (1, 1)
+            var _minimumAttribute = node.Attributes.ContainsKey("minimum") ? node.Attributes["minimum"].ProcessedValue : null;
+            if (_minimumAttribute is not null) result.Minimum = (long)_minimumAttribute;
+
+            // optional: maximum -> long maximum (0, 1)
+            var _maximumAttribute = node.Attributes.ContainsKey("maximum") ? node.Attributes["maximum"].ProcessedValue : null;
+            if (_maximumAttribute is not null) result.Maximum = (long)_maximumAttribute;
+
+            return result;
+        }
+
+        // Collaboration
+        private Collaboration LoadCollaboration(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Collaboration>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: isClosed -> bool isClosed (1, 1)
+            var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
+            if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: choreographyRef -> Choreography choreographyRef (0, *)
+            FillElements(node.ChildNodes["choreographyRef"], result.ChoreographyRef);
+
+            // element: artifact -> Artifact artifacts (0, *)
+            FillElements(node.ChildNodes["artifact"], result.Artifacts);
+
+            // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
+            FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
+
+            // element: messageFlowAssociation -> MessageFlowAssociation messageFlowAssociations (0, *)
+            FillElements(node.ChildNodes["messageFlowAssociation"], result.MessageFlowAssociations);
+
+            // element: conversationAssociation -> ConversationAssociation conversationAssociations (1, 1)
+            result.ConversationAssociations = FillElement<ConversationAssociation>(node.ChildNodes["conversationAssociation"]);
+
+            // element: participant -> Participant participants (0, *)
+            FillElements(node.ChildNodes["participant"], result.Participants);
+
+            // element: messageFlow -> MessageFlow messageFlows (0, *)
+            FillElements(node.ChildNodes["messageFlow"], result.MessageFlows);
+
+            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
+            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
+
+            // element: conversationNode -> ConversationNode conversations (0, *)
+            FillElements(node.ChildNodes["conversationNode"], result.Conversations);
+
+            // element: conversationLink -> ConversationLink conversationLinks (0, *)
+            FillElements(node.ChildNodes["conversationLink"], result.ConversationLinks);
+
+            return result;
+        }
+
+        // ChoreographyActivity
+        // CallChoreography
+        private CallChoreography LoadCallChoreography(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<CallChoreography>(node);
+
+            // required: initiatingParticipantRef -> Participant initiatingParticipantRef (1, 1)
+            var _initiatingParticipantRefAttribute = node.Attributes["initiatingParticipantRef"]?.ProcessedValue;
+            if (_initiatingParticipantRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute initiatingParticipantRef");
+            result.InitiatingParticipantRef = Load<Participant>((XmlParserComplexNode)_initiatingParticipantRefAttribute);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: loopType -> ChoreographyLoopType loopType (1, 1)
+            var _loopTypeAttribute = node.Attributes.ContainsKey("loopType") ? node.Attributes["loopType"].ProcessedValue : null;
+            if (_loopTypeAttribute is not null) result.LoopType = CreateEnum<ChoreographyLoopType>((string)_loopTypeAttribute);
+
+            // optional: calledChoreographyRef -> Choreography calledChoreographyRef (0, 1)
+            var _calledChoreographyRefAttribute = node.Attributes.ContainsKey("calledChoreographyRef") ? node.Attributes["calledChoreographyRef"].ProcessedValue : null;
+            if (_calledChoreographyRefAttribute is not null) result.CalledChoreographyRef = Load<Choreography>((XmlParserComplexNode)_calledChoreographyRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: participantRef -> Participant participantRefs (2, *)
+            FillElements(node.ChildNodes["participantRef"], result.ParticipantRefs);
+
+            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
+            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
+
+            // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
+            FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
+
+            // two way associatio: CallChoreography(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            return result;
+        }
+
+        // SubChoreography
+        private SubChoreography LoadSubChoreography(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<SubChoreography>(node);
+
+            // required: initiatingParticipantRef -> Participant initiatingParticipantRef (1, 1)
+            var _initiatingParticipantRefAttribute = node.Attributes["initiatingParticipantRef"]?.ProcessedValue;
+            if (_initiatingParticipantRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute initiatingParticipantRef");
+            result.InitiatingParticipantRef = Load<Participant>((XmlParserComplexNode)_initiatingParticipantRefAttribute);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: loopType -> ChoreographyLoopType loopType (1, 1)
+            var _loopTypeAttribute = node.Attributes.ContainsKey("loopType") ? node.Attributes["loopType"].ProcessedValue : null;
+            if (_loopTypeAttribute is not null) result.LoopType = CreateEnum<ChoreographyLoopType>((string)_loopTypeAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: participantRef -> Participant participantRefs (2, *)
+            FillElements(node.ChildNodes["participantRef"], result.ParticipantRefs);
+
+            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
+            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
+
+            // element: flowElement -> FlowElement flowElements (0, *)
+            FillElements(node.ChildNodes["flowElement"], result.FlowElements);
+
+            // element: artifact -> Artifact artifacts (0, *)
+            FillElements(node.ChildNodes["artifact"], result.Artifacts);
+
+            // two way associatio: SubChoreography(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // empty: LaneSet laneSets (0, *)
+
+            return result;
+        }
+
+        // ChoreographyTask
+        private ChoreographyTask LoadChoreographyTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ChoreographyTask>(node);
+
+            // required: initiatingParticipantRef -> Participant initiatingParticipantRef (1, 1)
+            var _initiatingParticipantRefAttribute = node.Attributes["initiatingParticipantRef"]?.ProcessedValue;
+            if (_initiatingParticipantRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute initiatingParticipantRef");
+            result.InitiatingParticipantRef = Load<Participant>((XmlParserComplexNode)_initiatingParticipantRefAttribute);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: loopType -> ChoreographyLoopType loopType (1, 1)
+            var _loopTypeAttribute = node.Attributes.ContainsKey("loopType") ? node.Attributes["loopType"].ProcessedValue : null;
+            if (_loopTypeAttribute is not null) result.LoopType = CreateEnum<ChoreographyLoopType>((string)_loopTypeAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: participantRef -> Participant participantRefs (2, *)
+            FillElements(node.ChildNodes["participantRef"], result.ParticipantRefs);
+
+            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
+            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
+
+            // element: messageFlowRef -> MessageFlow messageFlowRef (1, 2)
+            FillElements(node.ChildNodes["messageFlowRef"], result.MessageFlowRef);
+
+            // two way associatio: ChoreographyTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            return result;
+        }
+
+        // Choreography
+        private Choreography LoadChoreography(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Choreography>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: isClosed -> bool isClosed (1, 1)
+            var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
+            if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: flowElement -> FlowElement flowElements (0, *)
+            FillElements(node.ChildNodes["flowElement"], result.FlowElements);
+
+            // element: choreographyRef -> Choreography choreographyRef (0, *)
+            FillElements(node.ChildNodes["choreographyRef"], result.ChoreographyRef);
+
+            // element: artifact -> Artifact artifacts (0, *)
+            FillElements(node.ChildNodes["artifact"], result.Artifacts);
+
+            // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
+            FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
+
+            // element: messageFlowAssociation -> MessageFlowAssociation messageFlowAssociations (0, *)
+            FillElements(node.ChildNodes["messageFlowAssociation"], result.MessageFlowAssociations);
+
+            // element: conversationAssociation -> ConversationAssociation conversationAssociations (1, 1)
+            result.ConversationAssociations = FillElement<ConversationAssociation>(node.ChildNodes["conversationAssociation"]);
+
+            // element: participant -> Participant participants (0, *)
+            FillElements(node.ChildNodes["participant"], result.Participants);
+
+            // element: messageFlow -> MessageFlow messageFlows (0, *)
+            FillElements(node.ChildNodes["messageFlow"], result.MessageFlows);
+
+            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
+            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
+
+            // element: conversationNode -> ConversationNode conversations (0, *)
+            FillElements(node.ChildNodes["conversationNode"], result.Conversations);
+
+            // element: conversationLink -> ConversationLink conversationLinks (0, *)
+            FillElements(node.ChildNodes["conversationLink"], result.ConversationLinks);
+
+            // empty: LaneSet laneSets (0, *)
+
+            return result;
+        }
+
+        // GlobalChoreographyTask
+        private GlobalChoreographyTask LoadGlobalChoreographyTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<GlobalChoreographyTask>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: isClosed -> bool isClosed (1, 1)
+            var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
+            if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: initiatingParticipantRef -> Participant initiatingParticipantRef (1, 1)
+            var _initiatingParticipantRefAttribute = node.Attributes.ContainsKey("initiatingParticipantRef") ? node.Attributes["initiatingParticipantRef"].ProcessedValue : null;
+            if (_initiatingParticipantRefAttribute is not null) result.InitiatingParticipantRef = Load<Participant>((XmlParserComplexNode)_initiatingParticipantRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: flowElement -> FlowElement flowElements (0, *)
+            FillElements(node.ChildNodes["flowElement"], result.FlowElements);
+
+            // element: choreographyRef -> Choreography choreographyRef (0, *)
+            FillElements(node.ChildNodes["choreographyRef"], result.ChoreographyRef);
+
+            // element: artifact -> Artifact artifacts (0, *)
+            FillElements(node.ChildNodes["artifact"], result.Artifacts);
+
+            // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
+            FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
+
+            // element: messageFlowAssociation -> MessageFlowAssociation messageFlowAssociations (0, *)
+            FillElements(node.ChildNodes["messageFlowAssociation"], result.MessageFlowAssociations);
+
+            // element: conversationAssociation -> ConversationAssociation conversationAssociations (1, 1)
+            result.ConversationAssociations = FillElement<ConversationAssociation>(node.ChildNodes["conversationAssociation"]);
+
+            // element: participant -> Participant participants (0, *)
+            FillElements(node.ChildNodes["participant"], result.Participants);
+
+            // element: messageFlow -> MessageFlow messageFlows (0, *)
+            FillElements(node.ChildNodes["messageFlow"], result.MessageFlows);
+
+            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
+            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
+
+            // element: conversationNode -> ConversationNode conversations (0, *)
+            FillElements(node.ChildNodes["conversationNode"], result.Conversations);
+
+            // element: conversationLink -> ConversationLink conversationLinks (0, *)
+            FillElements(node.ChildNodes["conversationLink"], result.ConversationLinks);
+
+            // empty: LaneSet laneSets (0, *)
+
+            return result;
+        }
+
+        // TextAnnotation
+        private TextAnnotation LoadTextAnnotation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<TextAnnotation>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: textFormat -> string textFormat (1, 1)
+            var _textFormatAttribute = node.Attributes.ContainsKey("textFormat") ? node.Attributes["textFormat"].ProcessedValue : null;
+            if (_textFormatAttribute is not null) result.TextFormat = (string)_textFormatAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: text -> string text (1, 1)
+            result.Text = FillElement<string>(node.ChildNodes["text"]);
+
+            return result;
+        }
+
+        // Group
+        private Group LoadGroup(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Group>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: categoryValueRef -> CategoryValue categoryValueRef (0, 1)
+            var _categoryValueRefAttribute = node.Attributes.ContainsKey("categoryValueRef") ? node.Attributes["categoryValueRef"].ProcessedValue : null;
+            if (_categoryValueRefAttribute is not null) result.CategoryValueRef = Load<CategoryValue>((XmlParserComplexNode)_categoryValueRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // Association
+        private Association LoadAssociation(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Association>(node);
+
+            // required: sourceRef -> BaseElement sourceRef (1, 1)
+            var _sourceRefAttribute = node.Attributes["sourceRef"]?.ProcessedValue;
+            if (_sourceRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute sourceRef");
+            result.SourceRef = Load<BaseElement>((XmlParserComplexNode)_sourceRefAttribute);
+
+            // required: targetRef -> BaseElement targetRef (1, 1)
+            var _targetRefAttribute = node.Attributes["targetRef"]?.ProcessedValue;
+            if (_targetRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute targetRef");
+            result.TargetRef = Load<BaseElement>((XmlParserComplexNode)_targetRefAttribute);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: associationDirection -> AssociationDirection associationDirection (1, 1)
+            var _associationDirectionAttribute = node.Attributes.ContainsKey("associationDirection") ? node.Attributes["associationDirection"].ProcessedValue : null;
+            if (_associationDirectionAttribute is not null) result.AssociationDirection = CreateEnum<AssociationDirection>((string)_associationDirectionAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            return result;
+        }
+
+        // Category
+        private Category LoadCategory(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Category>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: categoryValue -> CategoryValue categoryValue (0, *)
+            FillElements(node.ChildNodes["categoryValue"], result.CategoryValue);
+
+            return result;
+        }
+
+        // Artifact
+        // CategoryValue
+        private CategoryValue LoadCategoryValue(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<CategoryValue>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: value -> string value (1, 1)
+            var _valueAttribute = node.Attributes.ContainsKey("value") ? node.Attributes["value"].ProcessedValue : null;
+            if (_valueAttribute is not null) result.Value = (string)_valueAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // two way associatio: CategoryValue(FlowElement categorizedFlowElements (0, *)) <---> FlowElement(CategoryValue categoryValueRef  (0, *))
+            // In FlowElement get categoryValueRef for all elements used like CategoryValue, put THIS into its List categorizedFlowElements
+
+            return result;
+        }
+
+        // Activity
+        // ServiceTask
+        private ServiceTask LoadServiceTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ServiceTask>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: isForCompensation -> bool isForCompensation (1, 1)
+            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
+            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
+
+            // optional: default -> SequenceFlow default (0, 1)
+            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
+            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
+
+            // optional: startQuantity -> long startQuantity (1, 1)
+            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
+
+            // optional: completionQuantity -> long completionQuantity (1, 1)
+            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: implementation -> string implementation (1, 1)
+            var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
+            if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
+
+            // optional: operationRef -> Operation operationRef (0, 1)
+            var _operationRefAttribute = node.Attributes.ContainsKey("operationRef") ? node.Attributes["operationRef"].ProcessedValue : null;
+            if (_operationRefAttribute is not null) result.OperationRef = Load<Operation>((XmlParserComplexNode)_operationRefAttribute);
+
+            // optional: camunda:expression -> string camunda_expression (0, 1)
+            var _camunda_expressionAttribute = node.Attributes.ContainsKey("camunda:expression") ? node.Attributes["camunda:expression"].ProcessedValue : null;
+            if (_camunda_expressionAttribute is not null) result.Camunda_expression = (string)_camunda_expressionAttribute;
+
+            // optional: camunda:class -> string camunda_class (0, 1)
+            var _camunda_classAttribute = node.Attributes.ContainsKey("camunda:class") ? node.Attributes["camunda:class"].ProcessedValue : null;
+            if (_camunda_classAttribute is not null) result.Camunda_class = (string)_camunda_classAttribute;
+
+            // optional: camunda:delegateExpression -> string camunda_delegateExpression (0, 1)
+            var _camunda_delegateExpressionAttribute = node.Attributes.ContainsKey("camunda:delegateExpression") ? node.Attributes["camunda:delegateExpression"].ProcessedValue : null;
+            if (_camunda_delegateExpressionAttribute is not null) result.Camunda_delegateExpression = (string)_camunda_delegateExpressionAttribute;
+
+            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
+            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
+            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
+
+            // optional: camunda:type -> string camunda_type (0, 1)
+            var _camunda_typeAttribute = node.Attributes.ContainsKey("camunda:type") ? node.Attributes["camunda:type"].ProcessedValue : null;
+            if (_camunda_typeAttribute is not null) result.Camunda_type = (string)_camunda_typeAttribute;
+
+            // optional: camunda:topic -> string camunda_topic (0, 1)
+            var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
+            if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
+
+            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
+            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
+            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
+            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
+
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
+
+            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
+            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
+
+            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
+            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
+
+            // two way associatio: ServiceTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: ServiceTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
+
+            // two way associatio: ServiceTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: ServiceTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // SubProcess
+        private SubProcess LoadSubProcess(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<SubProcess>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: isForCompensation -> bool isForCompensation (1, 1)
+            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
+            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
+
+            // optional: default -> SequenceFlow default (0, 1)
+            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
+            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
+
+            // optional: startQuantity -> long startQuantity (1, 1)
+            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
+
+            // optional: completionQuantity -> long completionQuantity (1, 1)
+            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: triggeredByEvent -> bool triggeredByEvent (1, 1)
+            var _triggeredByEventAttribute = node.Attributes.ContainsKey("triggeredByEvent") ? node.Attributes["triggeredByEvent"].ProcessedValue : null;
+            if (_triggeredByEventAttribute is not null) result.TriggeredByEvent = (bool)_triggeredByEventAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
+            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
+
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
+
+            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
+            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
+
+            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
+            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
+
+            // element: flowElement -> FlowElement flowElements (0, *)
+            FillElements(node.ChildNodes["flowElement"], result.FlowElements);
+
+            // element: laneSet -> LaneSet laneSets (0, *)
+            FillElements(node.ChildNodes["laneSet"], result.LaneSets);
+
+            // element: artifact -> Artifact artifacts (0, *)
+            FillElements(node.ChildNodes["artifact"], result.Artifacts);
+
+            // two way associatio: SubProcess(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: SubProcess(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
+
+            return result;
+        }
+
+        // LoopCharacteristics
+        // MultiInstanceLoopCharacteristics
+        private MultiInstanceLoopCharacteristics LoadMultiInstanceLoopCharacteristics(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<MultiInstanceLoopCharacteristics>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: isSequential -> bool isSequential (1, 1)
+            var _isSequentialAttribute = node.Attributes.ContainsKey("isSequential") ? node.Attributes["isSequential"].ProcessedValue : null;
+            if (_isSequentialAttribute is not null) result.IsSequential = (bool)_isSequentialAttribute;
+
+            // optional: behavior -> MultiInstanceBehavior behavior (1, 1)
+            var _behaviorAttribute = node.Attributes.ContainsKey("behavior") ? node.Attributes["behavior"].ProcessedValue : null;
+            if (_behaviorAttribute is not null) result.Behavior = CreateEnum<MultiInstanceBehavior>((string)_behaviorAttribute);
+
+            // optional: oneBehaviorEventRef -> EventDefinition oneBehaviorEventRef (0, 1)
+            var _oneBehaviorEventRefAttribute = node.Attributes.ContainsKey("oneBehaviorEventRef") ? node.Attributes["oneBehaviorEventRef"].ProcessedValue : null;
+            if (_oneBehaviorEventRefAttribute is not null) result.OneBehaviorEventRef = Load<EventDefinition>((XmlParserComplexNode)_oneBehaviorEventRefAttribute);
+
+            // optional: noneBehaviorEventRef -> EventDefinition noneBehaviorEventRef (0, 1)
+            var _noneBehaviorEventRefAttribute = node.Attributes.ContainsKey("noneBehaviorEventRef") ? node.Attributes["noneBehaviorEventRef"].ProcessedValue : null;
+            if (_noneBehaviorEventRefAttribute is not null) result.NoneBehaviorEventRef = Load<EventDefinition>((XmlParserComplexNode)_noneBehaviorEventRefAttribute);
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:collection -> string camunda_collection (0, 1)
+            var _camunda_collectionAttribute = node.Attributes.ContainsKey("camunda:collection") ? node.Attributes["camunda:collection"].ProcessedValue : null;
+            if (_camunda_collectionAttribute is not null) result.Camunda_collection = (string)_camunda_collectionAttribute;
+
+            // optional: camunda:elementVariable -> string camunda_elementVariable (0, 1)
+            var _camunda_elementVariableAttribute = node.Attributes.ContainsKey("camunda:elementVariable") ? node.Attributes["camunda:elementVariable"].ProcessedValue : null;
+            if (_camunda_elementVariableAttribute is not null) result.Camunda_elementVariable = (string)_camunda_elementVariableAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: loopCardinality -> Expression loopCardinality (0, 1)
+            result.LoopCardinality = FillElement<Expression>(node.ChildNodes["loopCardinality"]);
+
+            // element: loopDataInputRef -> ItemAwareElement loopDataInputRef (0, 1)
+            result.LoopDataInputRef = FillElement<ItemAwareElement>(node.ChildNodes["loopDataInputRef"]);
+
+            // element: loopDataOutputRef -> ItemAwareElement loopDataOutputRef (0, 1)
+            result.LoopDataOutputRef = FillElement<ItemAwareElement>(node.ChildNodes["loopDataOutputRef"]);
+
+            // element: inputDataItem -> DataInput inputDataItem (0, 1)
+            result.InputDataItem = FillElement<DataInput>(node.ChildNodes["inputDataItem"]);
+
+            // element: outputDataItem -> DataOutput outputDataItem (0, 1)
+            result.OutputDataItem = FillElement<DataOutput>(node.ChildNodes["outputDataItem"]);
+
+            // element: completionCondition -> Expression completionCondition (0, 1)
+            result.CompletionCondition = FillElement<Expression>(node.ChildNodes["completionCondition"]);
+
+            // element: complexBehaviorDefinition -> ComplexBehaviorDefinition complexBehaviorDefinition (0, *)
+            FillElements(node.ChildNodes["complexBehaviorDefinition"], result.ComplexBehaviorDefinition);
+
+            return result;
+        }
+
+        // StandardLoopCharacteristics
+        private StandardLoopCharacteristics LoadStandardLoopCharacteristics(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<StandardLoopCharacteristics>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: testBefore -> bool testBefore (1, 1)
+            var _testBeforeAttribute = node.Attributes.ContainsKey("testBefore") ? node.Attributes["testBefore"].ProcessedValue : null;
+            if (_testBeforeAttribute is not null) result.TestBefore = (bool)_testBeforeAttribute;
+
+            // optional: loopMaximum -> Expression loopMaximum (0, 1)
+            var _loopMaximumAttribute = node.Attributes.ContainsKey("loopMaximum") ? node.Attributes["loopMaximum"].ProcessedValue : null;
+            if (_loopMaximumAttribute is not null) result.LoopMaximum = Load<Expression>((XmlParserComplexNode)_loopMaximumAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: loopCondition -> Expression loopCondition (0, 1)
+            result.LoopCondition = FillElement<Expression>(node.ChildNodes["loopCondition"]);
+
+            return result;
+        }
+
+        // CallActivity
+        private CallActivity LoadCallActivity(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<CallActivity>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: isForCompensation -> bool isForCompensation (1, 1)
+            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
+            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
+
+            // optional: default -> SequenceFlow default (0, 1)
+            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
+            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
+
+            // optional: startQuantity -> long startQuantity (1, 1)
+            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
+
+            // optional: completionQuantity -> long completionQuantity (1, 1)
+            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: calledElement -> CallableElement calledElementRef (0, 1)
+            var _calledElementRefAttribute = node.Attributes.ContainsKey("calledElement") ? node.Attributes["calledElement"].ProcessedValue : null;
+            if (_calledElementRefAttribute is not null) result.CalledElementRef = Load<CallableElement>((XmlParserComplexNode)_calledElementRefAttribute);
+
+            // optional: camunda:calledElementBinding -> string camunda_calledElementBinding (0, 1)
+            var _camunda_calledElementBindingAttribute = node.Attributes.ContainsKey("camunda:calledElementBinding") ? node.Attributes["camunda:calledElementBinding"].ProcessedValue : null;
+            if (_camunda_calledElementBindingAttribute is not null) result.Camunda_calledElementBinding = (string)_camunda_calledElementBindingAttribute;
+
+            // optional: camunda:calledElementVersion -> string camunda_calledElementVersion (0, 1)
+            var _camunda_calledElementVersionAttribute = node.Attributes.ContainsKey("camunda:calledElementVersion") ? node.Attributes["camunda:calledElementVersion"].ProcessedValue : null;
+            if (_camunda_calledElementVersionAttribute is not null) result.Camunda_calledElementVersion = (string)_camunda_calledElementVersionAttribute;
+
+            // optional: camunda:calledElementVersionTag -> string camunda_calledElementVersionTag (0, 1)
+            var _camunda_calledElementVersionTagAttribute = node.Attributes.ContainsKey("camunda:calledElementVersionTag") ? node.Attributes["camunda:calledElementVersionTag"].ProcessedValue : null;
+            if (_camunda_calledElementVersionTagAttribute is not null) result.Camunda_calledElementVersionTag = (string)_camunda_calledElementVersionTagAttribute;
+
+            // optional: camunda:calledElementTenantId -> string camunda_calledElementTenantId (0, 1)
+            var _camunda_calledElementTenantIdAttribute = node.Attributes.ContainsKey("camunda:calledElementTenantId") ? node.Attributes["camunda:calledElementTenantId"].ProcessedValue : null;
+            if (_camunda_calledElementTenantIdAttribute is not null) result.Camunda_calledElementTenantId = (string)_camunda_calledElementTenantIdAttribute;
+
+            // optional: camunda:caseRef -> string camunda_caseRef (0, 1)
+            var _camunda_caseRefAttribute = node.Attributes.ContainsKey("camunda:caseRef") ? node.Attributes["camunda:caseRef"].ProcessedValue : null;
+            if (_camunda_caseRefAttribute is not null) result.Camunda_caseRef = (string)_camunda_caseRefAttribute;
+
+            // optional: camunda:caseBinding -> string camunda_caseBinding (0, 1)
+            var _camunda_caseBindingAttribute = node.Attributes.ContainsKey("camunda:caseBinding") ? node.Attributes["camunda:caseBinding"].ProcessedValue : null;
+            if (_camunda_caseBindingAttribute is not null) result.Camunda_caseBinding = (string)_camunda_caseBindingAttribute;
+
+            // optional: camunda:caseVersion -> string camunda_caseVersion (0, 1)
+            var _camunda_caseVersionAttribute = node.Attributes.ContainsKey("camunda:caseVersion") ? node.Attributes["camunda:caseVersion"].ProcessedValue : null;
+            if (_camunda_caseVersionAttribute is not null) result.Camunda_caseVersion = (string)_camunda_caseVersionAttribute;
+
+            // optional: camunda:caseTenantId -> string camunda_caseTenantId (0, 1)
+            var _camunda_caseTenantIdAttribute = node.Attributes.ContainsKey("camunda:caseTenantId") ? node.Attributes["camunda:caseTenantId"].ProcessedValue : null;
+            if (_camunda_caseTenantIdAttribute is not null) result.Camunda_caseTenantId = (string)_camunda_caseTenantIdAttribute;
+
+            // optional: camunda:variableMappingClass -> string camunda_variableMappingClass (0, 1)
+            var _camunda_variableMappingClassAttribute = node.Attributes.ContainsKey("camunda:variableMappingClass") ? node.Attributes["camunda:variableMappingClass"].ProcessedValue : null;
+            if (_camunda_variableMappingClassAttribute is not null) result.Camunda_variableMappingClass = (string)_camunda_variableMappingClassAttribute;
+
+            // optional: camunda:variableMappingDelegateExpression -> string camunda_variableMappingDelegateExpression (0, 1)
+            var _camunda_variableMappingDelegateExpressionAttribute = node.Attributes.ContainsKey("camunda:variableMappingDelegateExpression") ? node.Attributes["camunda:variableMappingDelegateExpression"].ProcessedValue : null;
+            if (_camunda_variableMappingDelegateExpressionAttribute is not null) result.Camunda_variableMappingDelegateExpression = (string)_camunda_variableMappingDelegateExpressionAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
+            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
+
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
+
+            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
+            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
+
+            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
+            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
+
+            // two way associatio: CallActivity(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: CallActivity(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
+
+            return result;
+        }
+
+        // Task
+        private Task LoadTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Task>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: isForCompensation -> bool isForCompensation (1, 1)
+            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
+            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
+
+            // optional: default -> SequenceFlow default (0, 1)
+            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
+            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
+
+            // optional: startQuantity -> long startQuantity (1, 1)
+            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
+
+            // optional: completionQuantity -> long completionQuantity (1, 1)
+            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
+            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
+
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
+
+            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
+            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
+
+            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
+            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
+
+            // two way associatio: Task(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: Task(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
+
+            // two way associatio: Task(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: Task(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // SendTask
+        private SendTask LoadSendTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<SendTask>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: isForCompensation -> bool isForCompensation (1, 1)
+            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
+            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
+
+            // optional: default -> SequenceFlow default (0, 1)
+            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
+            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
+
+            // optional: startQuantity -> long startQuantity (1, 1)
+            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
+
+            // optional: completionQuantity -> long completionQuantity (1, 1)
+            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: implementation -> string implementation (1, 1)
+            var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
+            if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
+
+            // optional: operationRef -> Operation operationRef (0, 1)
+            var _operationRefAttribute = node.Attributes.ContainsKey("operationRef") ? node.Attributes["operationRef"].ProcessedValue : null;
+            if (_operationRefAttribute is not null) result.OperationRef = Load<Operation>((XmlParserComplexNode)_operationRefAttribute);
+
+            // optional: messageRef -> Message messageRef (0, 1)
+            var _messageRefAttribute = node.Attributes.ContainsKey("messageRef") ? node.Attributes["messageRef"].ProcessedValue : null;
+            if (_messageRefAttribute is not null) result.MessageRef = Load<Message>((XmlParserComplexNode)_messageRefAttribute);
+
+            // optional: camunda:expression -> string camunda_expression (0, 1)
+            var _camunda_expressionAttribute = node.Attributes.ContainsKey("camunda:expression") ? node.Attributes["camunda:expression"].ProcessedValue : null;
+            if (_camunda_expressionAttribute is not null) result.Camunda_expression = (string)_camunda_expressionAttribute;
+
+            // optional: camunda:class -> string camunda_class (0, 1)
+            var _camunda_classAttribute = node.Attributes.ContainsKey("camunda:class") ? node.Attributes["camunda:class"].ProcessedValue : null;
+            if (_camunda_classAttribute is not null) result.Camunda_class = (string)_camunda_classAttribute;
+
+            // optional: camunda:delegateExpression -> string camunda_delegateExpression (0, 1)
+            var _camunda_delegateExpressionAttribute = node.Attributes.ContainsKey("camunda:delegateExpression") ? node.Attributes["camunda:delegateExpression"].ProcessedValue : null;
+            if (_camunda_delegateExpressionAttribute is not null) result.Camunda_delegateExpression = (string)_camunda_delegateExpressionAttribute;
+
+            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
+            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
+            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
+
+            // optional: camunda:type -> string camunda_type (0, 1)
+            var _camunda_typeAttribute = node.Attributes.ContainsKey("camunda:type") ? node.Attributes["camunda:type"].ProcessedValue : null;
+            if (_camunda_typeAttribute is not null) result.Camunda_type = (string)_camunda_typeAttribute;
+
+            // optional: camunda:topic -> string camunda_topic (0, 1)
+            var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
+            if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
+
+            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
+            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
+            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
+            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
+
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
+
+            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
+            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
+
+            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
+            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
+
+            // two way associatio: SendTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: SendTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
+
+            // two way associatio: SendTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: SendTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // ReceiveTask
+        private ReceiveTask LoadReceiveTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ReceiveTask>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: isForCompensation -> bool isForCompensation (1, 1)
+            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
+            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
+
+            // optional: default -> SequenceFlow default (0, 1)
+            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
+            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
+
+            // optional: startQuantity -> long startQuantity (1, 1)
+            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
+
+            // optional: completionQuantity -> long completionQuantity (1, 1)
+            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: implementation -> string implementation (1, 1)
+            var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
+            if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
+
+            // optional: instantiate -> bool instantiate (1, 1)
+            var _instantiateAttribute = node.Attributes.ContainsKey("instantiate") ? node.Attributes["instantiate"].ProcessedValue : null;
+            if (_instantiateAttribute is not null) result.Instantiate = (bool)_instantiateAttribute;
+
+            // optional: operationRef -> Operation operationRef (0, 1)
+            var _operationRefAttribute = node.Attributes.ContainsKey("operationRef") ? node.Attributes["operationRef"].ProcessedValue : null;
+            if (_operationRefAttribute is not null) result.OperationRef = Load<Operation>((XmlParserComplexNode)_operationRefAttribute);
+
+            // optional: messageRef -> Message messageRef (0, 1)
+            var _messageRefAttribute = node.Attributes.ContainsKey("messageRef") ? node.Attributes["messageRef"].ProcessedValue : null;
+            if (_messageRefAttribute is not null) result.MessageRef = Load<Message>((XmlParserComplexNode)_messageRefAttribute);
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
+            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
+
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
+
+            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
+            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
+
+            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
+            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
+
+            // two way associatio: ReceiveTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: ReceiveTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
+
+            // two way associatio: ReceiveTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: ReceiveTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // ScriptTask
+        private ScriptTask LoadScriptTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ScriptTask>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
+            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
+            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+
+            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
+            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
+            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+
+            // optional: isForCompensation -> bool isForCompensation (1, 1)
+            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
+            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
+
+            // optional: default -> SequenceFlow default (0, 1)
+            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
+            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
+
+            // optional: startQuantity -> long startQuantity (1, 1)
+            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
+            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
+
+            // optional: completionQuantity -> long completionQuantity (1, 1)
+            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
+            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+
+            // optional: camunda:async -> bool camunda_async (0, 1)
+            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
+            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+
+            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
+            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
+            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+
+            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
+            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
+            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+
+            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
+            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
+            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+
+            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
+            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
+            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+
+            // optional: scriptFormat -> string scriptFormat (1, 1)
+            var _scriptFormatAttribute = node.Attributes.ContainsKey("scriptFormat") ? node.Attributes["scriptFormat"].ProcessedValue : null;
+            if (_scriptFormatAttribute is not null) result.ScriptFormat = (string)_scriptFormatAttribute;
+
+            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
+            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
+            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
+
+            // optional: camunda:resource -> string camunda_resource (0, 1)
+            var _camunda_resourceAttribute = node.Attributes.ContainsKey("camunda:resource") ? node.Attributes["camunda:resource"].ProcessedValue : null;
+            if (_camunda_resourceAttribute is not null) result.Camunda_resource = (string)_camunda_resourceAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: auditing -> Auditing auditing (0, 1)
+            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
+
+            // element: monitoring -> Monitoring monitoring (0, 1)
+            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
+
+            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
+            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
+
+            // element: outgoing -> SequenceFlow outgoing (0, *)
+            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
+
+            // element: incoming -> SequenceFlow incoming (0, *)
+            FillElements(node.ChildNodes["incoming"], result.Incoming);
+
+            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
+            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
+
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
+
+            // element: property -> Property properties (0, *)
+            FillElements(node.ChildNodes["property"], result.Properties);
+
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
+
+            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
+            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
+
+            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
+            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
+
+            // element: script -> string script (1, 1)
+            result.Script = FillElement<string>(node.ChildNodes["script"]);
+
+            // two way associatio: ScriptTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
+
+            // two way associatio: ScriptTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
+
+            // two way associatio: ScriptTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
+
+            // two way associatio: ScriptTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+
+            return result;
+        }
+
+        // BusinessRuleTask
         private BusinessRuleTask LoadBusinessRuleTask(XmlParserComplexNode node)
         {
-            var result = GetOrCreate<BusinessRuleTask>(node);
+             var result = GetOrCreate<BusinessRuleTask>(node);
 
             // optional: id -> string id (1, 1)
             var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
@@ -457,4345 +5287,10 @@ namespace BPMNModel.Model
             return result;
         }
 
-        private CallActivity LoadCallActivity(XmlParserComplexNode node)
+        // AdHocSubProcess
+        private AdHocSubProcess LoadAdHocSubProcess(XmlParserComplexNode node)
         {
-            var result = GetOrCreate<CallActivity>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: isForCompensation -> bool isForCompensation (1, 1)
-            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
-            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
-
-            // optional: default -> SequenceFlow default (0, 1)
-            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
-            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
-
-            // optional: startQuantity -> long startQuantity (1, 1)
-            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
-
-            // optional: completionQuantity -> long completionQuantity (1, 1)
-            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // optional: calledElement -> CallableElement calledElementRef (0, 1)
-            var _calledElementRefAttribute = node.Attributes.ContainsKey("calledElement") ? node.Attributes["calledElement"].ProcessedValue : null;
-            if (_calledElementRefAttribute is not null) result.CalledElementRef = Load<CallableElement>((XmlParserComplexNode)_calledElementRefAttribute);
-
-            // optional: camunda:calledElementBinding -> string camunda_calledElementBinding (0, 1)
-            var _camunda_calledElementBindingAttribute = node.Attributes.ContainsKey("camunda:calledElementBinding") ? node.Attributes["camunda:calledElementBinding"].ProcessedValue : null;
-            if (_camunda_calledElementBindingAttribute is not null) result.Camunda_calledElementBinding = (string)_camunda_calledElementBindingAttribute;
-
-            // optional: camunda:calledElementVersion -> string camunda_calledElementVersion (0, 1)
-            var _camunda_calledElementVersionAttribute = node.Attributes.ContainsKey("camunda:calledElementVersion") ? node.Attributes["camunda:calledElementVersion"].ProcessedValue : null;
-            if (_camunda_calledElementVersionAttribute is not null) result.Camunda_calledElementVersion = (string)_camunda_calledElementVersionAttribute;
-
-            // optional: camunda:calledElementVersionTag -> string camunda_calledElementVersionTag (0, 1)
-            var _camunda_calledElementVersionTagAttribute = node.Attributes.ContainsKey("camunda:calledElementVersionTag") ? node.Attributes["camunda:calledElementVersionTag"].ProcessedValue : null;
-            if (_camunda_calledElementVersionTagAttribute is not null) result.Camunda_calledElementVersionTag = (string)_camunda_calledElementVersionTagAttribute;
-
-            // optional: camunda:calledElementTenantId -> string camunda_calledElementTenantId (0, 1)
-            var _camunda_calledElementTenantIdAttribute = node.Attributes.ContainsKey("camunda:calledElementTenantId") ? node.Attributes["camunda:calledElementTenantId"].ProcessedValue : null;
-            if (_camunda_calledElementTenantIdAttribute is not null) result.Camunda_calledElementTenantId = (string)_camunda_calledElementTenantIdAttribute;
-
-            // optional: camunda:caseRef -> string camunda_caseRef (0, 1)
-            var _camunda_caseRefAttribute = node.Attributes.ContainsKey("camunda:caseRef") ? node.Attributes["camunda:caseRef"].ProcessedValue : null;
-            if (_camunda_caseRefAttribute is not null) result.Camunda_caseRef = (string)_camunda_caseRefAttribute;
-
-            // optional: camunda:caseBinding -> string camunda_caseBinding (0, 1)
-            var _camunda_caseBindingAttribute = node.Attributes.ContainsKey("camunda:caseBinding") ? node.Attributes["camunda:caseBinding"].ProcessedValue : null;
-            if (_camunda_caseBindingAttribute is not null) result.Camunda_caseBinding = (string)_camunda_caseBindingAttribute;
-
-            // optional: camunda:caseVersion -> string camunda_caseVersion (0, 1)
-            var _camunda_caseVersionAttribute = node.Attributes.ContainsKey("camunda:caseVersion") ? node.Attributes["camunda:caseVersion"].ProcessedValue : null;
-            if (_camunda_caseVersionAttribute is not null) result.Camunda_caseVersion = (string)_camunda_caseVersionAttribute;
-
-            // optional: camunda:caseTenantId -> string camunda_caseTenantId (0, 1)
-            var _camunda_caseTenantIdAttribute = node.Attributes.ContainsKey("camunda:caseTenantId") ? node.Attributes["camunda:caseTenantId"].ProcessedValue : null;
-            if (_camunda_caseTenantIdAttribute is not null) result.Camunda_caseTenantId = (string)_camunda_caseTenantIdAttribute;
-
-            // optional: camunda:variableMappingClass -> string camunda_variableMappingClass (0, 1)
-            var _camunda_variableMappingClassAttribute = node.Attributes.ContainsKey("camunda:variableMappingClass") ? node.Attributes["camunda:variableMappingClass"].ProcessedValue : null;
-            if (_camunda_variableMappingClassAttribute is not null) result.Camunda_variableMappingClass = (string)_camunda_variableMappingClassAttribute;
-
-            // optional: camunda:variableMappingDelegateExpression -> string camunda_variableMappingDelegateExpression (0, 1)
-            var _camunda_variableMappingDelegateExpressionAttribute = node.Attributes.ContainsKey("camunda:variableMappingDelegateExpression") ? node.Attributes["camunda:variableMappingDelegateExpression"].ProcessedValue : null;
-            if (_camunda_variableMappingDelegateExpressionAttribute is not null) result.Camunda_variableMappingDelegateExpression = (string)_camunda_variableMappingDelegateExpressionAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
-            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
-            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
-
-            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
-            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
-
-            // two way associatio: CallActivity(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: CallActivity(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
-            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
-
-            return result;
-        }
-
-        private CallChoreography LoadCallChoreography(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<CallChoreography>(node);
-
-            // required: initiatingParticipantRef -> Participant initiatingParticipantRef (1, 1)
-            var _initiatingParticipantRefAttribute = node.Attributes["initiatingParticipantRef"]?.ProcessedValue;
-            if (_initiatingParticipantRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute initiatingParticipantRef");
-            result.InitiatingParticipantRef = Load<Participant>((XmlParserComplexNode)_initiatingParticipantRefAttribute);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: loopType -> ChoreographyLoopType loopType (1, 1)
-            var _loopTypeAttribute = node.Attributes.ContainsKey("loopType") ? node.Attributes["loopType"].ProcessedValue : null;
-            if (_loopTypeAttribute is not null) result.LoopType = CreateEnum<ChoreographyLoopType>((string)_loopTypeAttribute);
-
-            // optional: calledChoreographyRef -> Choreography calledChoreographyRef (0, 1)
-            var _calledChoreographyRefAttribute = node.Attributes.ContainsKey("calledChoreographyRef") ? node.Attributes["calledChoreographyRef"].ProcessedValue : null;
-            if (_calledChoreographyRefAttribute is not null) result.CalledChoreographyRef = Load<Choreography>((XmlParserComplexNode)_calledChoreographyRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: participantRef -> Participant participantRefs (2, *)
-            FillElements(node.ChildNodes["participantRef"], result.ParticipantRefs);
-
-            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
-            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
-
-            // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
-            FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
-
-            // two way associatio: CallChoreography(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            return result;
-        }
-
-        private CallConversation LoadCallConversation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<CallConversation>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: calledCollaborationRef -> Collaboration calledCollaborationRef (0, 1)
-            var _calledCollaborationRefAttribute = node.Attributes.ContainsKey("calledCollaborationRef") ? node.Attributes["calledCollaborationRef"].ProcessedValue : null;
-            if (_calledCollaborationRefAttribute is not null) result.CalledCollaborationRef = Load<Collaboration>((XmlParserComplexNode)_calledCollaborationRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: participantRef -> Participant participantRefs (2, *)
-            FillElements(node.ChildNodes["participantRef"], result.ParticipantRefs);
-
-            // element: messageFlowRef -> MessageFlow messageFlowRefs (0, *)
-            FillElements(node.ChildNodes["messageFlowRef"], result.MessageFlowRefs);
-
-            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
-            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
-
-            // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
-            FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
-
-            // two way associatio: CallConversation(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: CallConversation(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private CancelEventDefinition LoadCancelEventDefinition(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<CancelEventDefinition>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private Category LoadCategory(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Category>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: categoryValue -> CategoryValue categoryValue (0, *)
-            FillElements(node.ChildNodes["categoryValue"], result.CategoryValue);
-
-            return result;
-        }
-
-        private CategoryValue LoadCategoryValue(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<CategoryValue>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: value -> string value (1, 1)
-            var _valueAttribute = node.Attributes.ContainsKey("value") ? node.Attributes["value"].ProcessedValue : null;
-            if (_valueAttribute is not null) result.Value = (string)_valueAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // two way associatio: CategoryValue(FlowElement categorizedFlowElements (0, *)) <---> FlowElement(CategoryValue categoryValueRef  (0, *))
-            // In FlowElement get categoryValueRef for all elements used like CategoryValue, put THIS into its List categorizedFlowElements
-
-            return result;
-        }
-
-        private Choreography LoadChoreography(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Choreography>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: isClosed -> bool isClosed (1, 1)
-            var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
-            if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: flowElement -> FlowElement flowElements (0, *)
-            FillElements(node.ChildNodes["flowElement"], result.FlowElements);
-
-            // element: choreographyRef -> Choreography choreographyRef (0, *)
-            FillElements(node.ChildNodes["choreographyRef"], result.ChoreographyRef);
-
-            // element: artifact -> Artifact artifacts (0, *)
-            FillElements(node.ChildNodes["artifact"], result.Artifacts);
-
-            // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
-            FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
-
-            // element: messageFlowAssociation -> MessageFlowAssociation messageFlowAssociations (0, *)
-            FillElements(node.ChildNodes["messageFlowAssociation"], result.MessageFlowAssociations);
-
-            // element: conversationAssociation -> ConversationAssociation conversationAssociations (1, 1)
-            result.ConversationAssociations = FillElement<ConversationAssociation>(node.ChildNodes["conversationAssociation"]);
-
-            // element: participant -> Participant participants (0, *)
-            FillElements(node.ChildNodes["participant"], result.Participants);
-
-            // element: messageFlow -> MessageFlow messageFlows (0, *)
-            FillElements(node.ChildNodes["messageFlow"], result.MessageFlows);
-
-            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
-            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
-
-            // element: conversationNode -> ConversationNode conversations (0, *)
-            FillElements(node.ChildNodes["conversationNode"], result.Conversations);
-
-            // element: conversationLink -> ConversationLink conversationLinks (0, *)
-            FillElements(node.ChildNodes["conversationLink"], result.ConversationLinks);
-
-            // empty: LaneSet laneSets (0, *)
-
-            return result;
-        }
-
-        private ChoreographyTask LoadChoreographyTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ChoreographyTask>(node);
-
-            // required: initiatingParticipantRef -> Participant initiatingParticipantRef (1, 1)
-            var _initiatingParticipantRefAttribute = node.Attributes["initiatingParticipantRef"]?.ProcessedValue;
-            if (_initiatingParticipantRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute initiatingParticipantRef");
-            result.InitiatingParticipantRef = Load<Participant>((XmlParserComplexNode)_initiatingParticipantRefAttribute);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: loopType -> ChoreographyLoopType loopType (1, 1)
-            var _loopTypeAttribute = node.Attributes.ContainsKey("loopType") ? node.Attributes["loopType"].ProcessedValue : null;
-            if (_loopTypeAttribute is not null) result.LoopType = CreateEnum<ChoreographyLoopType>((string)_loopTypeAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: participantRef -> Participant participantRefs (2, *)
-            FillElements(node.ChildNodes["participantRef"], result.ParticipantRefs);
-
-            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
-            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
-
-            // element: messageFlowRef -> MessageFlow messageFlowRef (1, 2)
-            FillElements(node.ChildNodes["messageFlowRef"], result.MessageFlowRef);
-
-            // two way associatio: ChoreographyTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            return result;
-        }
-
-        private Collaboration LoadCollaboration(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Collaboration>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: isClosed -> bool isClosed (1, 1)
-            var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
-            if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: choreographyRef -> Choreography choreographyRef (0, *)
-            FillElements(node.ChildNodes["choreographyRef"], result.ChoreographyRef);
-
-            // element: artifact -> Artifact artifacts (0, *)
-            FillElements(node.ChildNodes["artifact"], result.Artifacts);
-
-            // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
-            FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
-
-            // element: messageFlowAssociation -> MessageFlowAssociation messageFlowAssociations (0, *)
-            FillElements(node.ChildNodes["messageFlowAssociation"], result.MessageFlowAssociations);
-
-            // element: conversationAssociation -> ConversationAssociation conversationAssociations (1, 1)
-            result.ConversationAssociations = FillElement<ConversationAssociation>(node.ChildNodes["conversationAssociation"]);
-
-            // element: participant -> Participant participants (0, *)
-            FillElements(node.ChildNodes["participant"], result.Participants);
-
-            // element: messageFlow -> MessageFlow messageFlows (0, *)
-            FillElements(node.ChildNodes["messageFlow"], result.MessageFlows);
-
-            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
-            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
-
-            // element: conversationNode -> ConversationNode conversations (0, *)
-            FillElements(node.ChildNodes["conversationNode"], result.Conversations);
-
-            // element: conversationLink -> ConversationLink conversationLinks (0, *)
-            FillElements(node.ChildNodes["conversationLink"], result.ConversationLinks);
-
-            return result;
-        }
-
-        private CompensateEventDefinition LoadCompensateEventDefinition(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<CompensateEventDefinition>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: waitForCompletion -> bool waitForCompletion (1, 1)
-            var _waitForCompletionAttribute = node.Attributes.ContainsKey("waitForCompletion") ? node.Attributes["waitForCompletion"].ProcessedValue : null;
-            if (_waitForCompletionAttribute is not null) result.WaitForCompletion = (bool)_waitForCompletionAttribute;
-
-            // optional: activityRef -> Activity activityRef (0, 1)
-            var _activityRefAttribute = node.Attributes.ContainsKey("activityRef") ? node.Attributes["activityRef"].ProcessedValue : null;
-            if (_activityRefAttribute is not null) result.ActivityRef = Load<Activity>((XmlParserComplexNode)_activityRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private ComplexBehaviorDefinition LoadComplexBehaviorDefinition(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ComplexBehaviorDefinition>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: condition -> FormalExpression condition (1, 1)
-            result.Condition = FillElement<FormalExpression>(node.ChildNodes["condition"]);
-
-            // element: event -> ImplicitThrowEvent event (0, 1)
-            result.Event = FillElement<ImplicitThrowEvent>(node.ChildNodes["event"]);
-
-            return result;
-        }
-
-        private ComplexGateway LoadComplexGateway(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ComplexGateway>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
-            var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
-            if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // optional: default -> SequenceFlow default (0, 1)
-            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
-            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: activationCondition -> Expression activationCondition (0, 1)
-            result.ActivationCondition = FillElement<Expression>(node.ChildNodes["activationCondition"]);
-
-            // two way associatio: ComplexGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            return result;
-        }
-
-        private ConditionalEventDefinition LoadConditionalEventDefinition(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ConditionalEventDefinition>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: camunda:variableName -> string camunda_variableName (0, 1)
-            var _camunda_variableNameAttribute = node.Attributes.ContainsKey("camunda:variableName") ? node.Attributes["camunda:variableName"].ProcessedValue : null;
-            if (_camunda_variableNameAttribute is not null) result.Camunda_variableName = (string)_camunda_variableNameAttribute;
-
-            // optional: camunda:variableEvents -> string camunda_variableEvents (0, 1)
-            var _camunda_variableEventsAttribute = node.Attributes.ContainsKey("camunda:variableEvents") ? node.Attributes["camunda:variableEvents"].ProcessedValue : null;
-            if (_camunda_variableEventsAttribute is not null) result.Camunda_variableEvents = (string)_camunda_variableEventsAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: condition -> Expression condition (1, 1)
-            result.Condition = FillElement<Expression>(node.ChildNodes["condition"]);
-
-            return result;
-        }
-
-        private Conversation LoadConversation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Conversation>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: participantRef -> Participant participantRefs (2, *)
-            FillElements(node.ChildNodes["participantRef"], result.ParticipantRefs);
-
-            // element: messageFlowRef -> MessageFlow messageFlowRefs (0, *)
-            FillElements(node.ChildNodes["messageFlowRef"], result.MessageFlowRefs);
-
-            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
-            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
-
-            // two way associatio: Conversation(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: Conversation(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private ConversationAssociation LoadConversationAssociation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ConversationAssociation>(node);
-
-            // required: innerConversationNodeRef -> ConversationNode innerConversationNodeRef (1, 1)
-            var _innerConversationNodeRefAttribute = node.Attributes["innerConversationNodeRef"]?.ProcessedValue;
-            if (_innerConversationNodeRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute innerConversationNodeRef");
-            result.InnerConversationNodeRef = Load<ConversationNode>((XmlParserComplexNode)_innerConversationNodeRefAttribute);
-
-            // required: outerConversationNodeRef -> ConversationNode outerConversationNodeRef (1, 1)
-            var _outerConversationNodeRefAttribute = node.Attributes["outerConversationNodeRef"]?.ProcessedValue;
-            if (_outerConversationNodeRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute outerConversationNodeRef");
-            result.OuterConversationNodeRef = Load<ConversationNode>((XmlParserComplexNode)_outerConversationNodeRefAttribute);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private ConversationLink LoadConversationLink(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ConversationLink>(node);
-
-            // required: sourceRef -> InteractionNode sourceRef (1, 1)
-            var _sourceRefAttribute = node.Attributes["sourceRef"]?.ProcessedValue;
-            if (_sourceRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute sourceRef");
-            result.SourceRef = Load<InteractionNode>((XmlParserComplexNode)_sourceRefAttribute);
-
-            // required: targetRef -> InteractionNode targetRef (1, 1)
-            var _targetRefAttribute = node.Attributes["targetRef"]?.ProcessedValue;
-            if (_targetRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute targetRef");
-            result.TargetRef = Load<InteractionNode>((XmlParserComplexNode)_targetRefAttribute);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (0, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private CorrelationKey LoadCorrelationKey(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<CorrelationKey>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: correlationPropertyRef -> CorrelationProperty correlationPropertyRef (0, *)
-            FillElements(node.ChildNodes["correlationPropertyRef"], result.CorrelationPropertyRef);
-
-            return result;
-        }
-
-        private CorrelationProperty LoadCorrelationProperty(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<CorrelationProperty>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: type -> ItemDefinition type (0, 1)
-            var _typeAttribute = node.Attributes.ContainsKey("type") ? node.Attributes["type"].ProcessedValue : null;
-            if (_typeAttribute is not null) result.Type = Load<ItemDefinition>((XmlParserComplexNode)_typeAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: correlationPropertyRetrievalExpression -> CorrelationPropertyRetrievalExpression correlationPropertyRetrievalExpression (1, *)
-            FillElements(node.ChildNodes["correlationPropertyRetrievalExpression"], result.CorrelationPropertyRetrievalExpression);
-
-            return result;
-        }
-
-        private CorrelationPropertyBinding LoadCorrelationPropertyBinding(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<CorrelationPropertyBinding>(node);
-
-            // required: correlationPropertyRef -> CorrelationProperty correlationPropertyRef (1, 1)
-            var _correlationPropertyRefAttribute = node.Attributes["correlationPropertyRef"]?.ProcessedValue;
-            if (_correlationPropertyRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute correlationPropertyRef");
-            result.CorrelationPropertyRef = Load<CorrelationProperty>((XmlParserComplexNode)_correlationPropertyRefAttribute);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: dataPath -> FormalExpression dataPath (1, 1)
-            result.DataPath = FillElement<FormalExpression>(node.ChildNodes["dataPath"]);
-
-            return result;
-        }
-
-        private CorrelationPropertyRetrievalExpression LoadCorrelationPropertyRetrievalExpression(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<CorrelationPropertyRetrievalExpression>(node);
-
-            // required: messageRef -> Message messageRef (1, 1)
-            var _messageRefAttribute = node.Attributes["messageRef"]?.ProcessedValue;
-            if (_messageRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute messageRef");
-            result.MessageRef = Load<Message>((XmlParserComplexNode)_messageRefAttribute);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: messagePath -> FormalExpression messagePath (1, 1)
-            result.MessagePath = FillElement<FormalExpression>(node.ChildNodes["messagePath"]);
-
-            return result;
-        }
-
-        private CorrelationSubscription LoadCorrelationSubscription(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<CorrelationSubscription>(node);
-
-            // required: correlationKeyRef -> CorrelationKey correlationKeyRef (1, 1)
-            var _correlationKeyRefAttribute = node.Attributes["correlationKeyRef"]?.ProcessedValue;
-            if (_correlationKeyRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute correlationKeyRef");
-            result.CorrelationKeyRef = Load<CorrelationKey>((XmlParserComplexNode)_correlationKeyRefAttribute);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: correlationPropertyBinding -> CorrelationPropertyBinding correlationPropertyBinding (0, *)
-            FillElements(node.ChildNodes["correlationPropertyBinding"], result.CorrelationPropertyBinding);
-
-            return result;
-        }
-
-        private DataAssociation LoadDataAssociation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<DataAssociation>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: transformation -> FormalExpression transformation (0, 1)
-            result.Transformation = FillElement<FormalExpression>(node.ChildNodes["transformation"]);
-
-            // element: assignment -> Assignment assignment (0, *)
-            FillElements(node.ChildNodes["assignment"], result.Assignment);
-
-            // element: targetRef -> ItemAwareElement targetRef (1, 1)
-            result.TargetRef = FillElement<ItemAwareElement>(node.ChildNodes["targetRef"]);
-
-            // element: sourceRef -> ItemAwareElement sourceRef (0, *)
-            FillElements(node.ChildNodes["sourceRef"], result.SourceRef);
-
-            return result;
-        }
-
-        private DataInput LoadDataInput(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<DataInput>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
-            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
-            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
-
-            // optional: name -> string name (0, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: isCollection -> bool isCollection (1, 1)
-            var _isCollectionAttribute = node.Attributes.ContainsKey("isCollection") ? node.Attributes["isCollection"].ProcessedValue : null;
-            if (_isCollectionAttribute is not null) result.IsCollection = (bool)_isCollectionAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: dataState -> DataState dataState (0, 1)
-            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
-
-            // two way associatio: DataInput(InputSet inputSetRefs (1, *)) <---> InputSet(DataInput dataInputRefs  (0, *))
-            // In InputSet get dataInputRefs for all elements used like DataInput, put THIS into its List inputSetRefs
-
-            // two way associatio: DataInput(InputSet inputSetWithOptional (0, *)) <---> InputSet(DataInput optionalInputRefs  (0, *))
-            // In InputSet get optionalInputRefs for all elements used like DataInput, put THIS into its List inputSetWithOptional
-
-            // two way associatio: DataInput(InputSet inputSetWithWhileExecuting (0, *)) <---> InputSet(DataInput whileExecutingInputRefs  (0, *))
-            // In InputSet get whileExecutingInputRefs for all elements used like DataInput, put THIS into its List inputSetWithWhileExecuting
-
-            return result;
-        }
-
-        private DataInputAssociation LoadDataInputAssociation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<DataInputAssociation>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: transformation -> FormalExpression transformation (0, 1)
-            result.Transformation = FillElement<FormalExpression>(node.ChildNodes["transformation"]);
-
-            // element: assignment -> Assignment assignment (0, *)
-            FillElements(node.ChildNodes["assignment"], result.Assignment);
-
-            // element: targetRef -> ItemAwareElement targetRef (1, 1)
-            result.TargetRef = FillElement<ItemAwareElement>(node.ChildNodes["targetRef"]);
-
-            // element: sourceRef -> ItemAwareElement sourceRef (0, *)
-            FillElements(node.ChildNodes["sourceRef"], result.SourceRef);
-
-            return result;
-        }
-
-        private DataObject LoadDataObject(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<DataObject>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
-            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
-            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
-
-            // optional: isCollection -> bool isCollection (1, 1)
-            var _isCollectionAttribute = node.Attributes.ContainsKey("isCollection") ? node.Attributes["isCollection"].ProcessedValue : null;
-            if (_isCollectionAttribute is not null) result.IsCollection = (bool)_isCollectionAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: dataState -> DataState dataState (0, 1)
-            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
-
-            return result;
-        }
-
-        private DataObjectReference LoadDataObjectReference(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<DataObjectReference>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
-            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
-            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: dataObjectRef -> DataObject dataObjectRef (1, 1)
-            var _dataObjectRefAttribute = node.Attributes.ContainsKey("dataObjectRef") ? node.Attributes["dataObjectRef"].ProcessedValue : null;
-            if (_dataObjectRefAttribute is not null) result.DataObjectRef = Load<DataObject>((XmlParserComplexNode)_dataObjectRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: dataState -> DataState dataState (0, 1)
-            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            return result;
-        }
-
-        private DataOutput LoadDataOutput(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<DataOutput>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
-            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
-            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
-
-            // optional: name -> string name (0, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: isCollection -> bool isCollection (1, 1)
-            var _isCollectionAttribute = node.Attributes.ContainsKey("isCollection") ? node.Attributes["isCollection"].ProcessedValue : null;
-            if (_isCollectionAttribute is not null) result.IsCollection = (bool)_isCollectionAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: dataState -> DataState dataState (0, 1)
-            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
-
-            // two way associatio: DataOutput(OutputSet outputSetRefs (1, *)) <---> OutputSet(DataOutput dataOutputRefs  (0, *))
-            // In OutputSet get dataOutputRefs for all elements used like DataOutput, put THIS into its List outputSetRefs
-
-            // two way associatio: DataOutput(OutputSet outputSetWithOptional (0, *)) <---> OutputSet(DataOutput optionalOutputRefs  (0, *))
-            // In OutputSet get optionalOutputRefs for all elements used like DataOutput, put THIS into its List outputSetWithOptional
-
-            // two way associatio: DataOutput(OutputSet outputSetWithWhileExecuting (0, *)) <---> OutputSet(DataOutput whileExecutingOutputRefs  (0, *))
-            // In OutputSet get whileExecutingOutputRefs for all elements used like DataOutput, put THIS into its List outputSetWithWhileExecuting
-
-            return result;
-        }
-
-        private DataOutputAssociation LoadDataOutputAssociation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<DataOutputAssociation>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: transformation -> FormalExpression transformation (0, 1)
-            result.Transformation = FillElement<FormalExpression>(node.ChildNodes["transformation"]);
-
-            // element: assignment -> Assignment assignment (0, *)
-            FillElements(node.ChildNodes["assignment"], result.Assignment);
-
-            // element: targetRef -> ItemAwareElement targetRef (1, 1)
-            result.TargetRef = FillElement<ItemAwareElement>(node.ChildNodes["targetRef"]);
-
-            // element: sourceRef -> ItemAwareElement sourceRef (0, *)
-            FillElements(node.ChildNodes["sourceRef"], result.SourceRef);
-
-            return result;
-        }
-
-        private DataState LoadDataState(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<DataState>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private DataStore LoadDataStore(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<DataStore>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
-            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
-            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: capacity -> long capacity (1, 1)
-            var _capacityAttribute = node.Attributes.ContainsKey("capacity") ? node.Attributes["capacity"].ProcessedValue : null;
-            if (_capacityAttribute is not null) result.Capacity = (long)_capacityAttribute;
-
-            // optional: isUnlimited -> bool isUnlimited (1, 1)
-            var _isUnlimitedAttribute = node.Attributes.ContainsKey("isUnlimited") ? node.Attributes["isUnlimited"].ProcessedValue : null;
-            if (_isUnlimitedAttribute is not null) result.IsUnlimited = (bool)_isUnlimitedAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: dataState -> DataState dataState (0, 1)
-            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
-
-            return result;
-        }
-
-        private DataStoreReference LoadDataStoreReference(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<DataStoreReference>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
-            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
-            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: dataStoreRef -> DataStore dataStoreRef (0, 1)
-            var _dataStoreRefAttribute = node.Attributes.ContainsKey("dataStoreRef") ? node.Attributes["dataStoreRef"].ProcessedValue : null;
-            if (_dataStoreRefAttribute is not null) result.DataStoreRef = Load<DataStore>((XmlParserComplexNode)_dataStoreRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: dataState -> DataState dataState (0, 1)
-            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            return result;
-        }
-
-        private Definitions LoadDefinitions(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Definitions>(node);
-
-            // required: targetNamespace -> string targetNamespace (1, 1)
-            var _targetNamespaceAttribute = node.Attributes["targetNamespace"]?.ProcessedValue;
-            if (_targetNamespaceAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute targetNamespace");
-            result.TargetNamespace = (string)_targetNamespaceAttribute;
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: expressionLanguage -> string expressionLanguage (1, 1)
-            var _expressionLanguageAttribute = node.Attributes.ContainsKey("expressionLanguage") ? node.Attributes["expressionLanguage"].ProcessedValue : null;
-            if (_expressionLanguageAttribute is not null) result.ExpressionLanguage = (string)_expressionLanguageAttribute;
-
-            // optional: typeLanguage -> string typeLanguage (1, 1)
-            var _typeLanguageAttribute = node.Attributes.ContainsKey("typeLanguage") ? node.Attributes["typeLanguage"].ProcessedValue : null;
-            if (_typeLanguageAttribute is not null) result.TypeLanguage = (string)_typeLanguageAttribute;
-
-            // optional: exporter -> string exporter (1, 1)
-            var _exporterAttribute = node.Attributes.ContainsKey("exporter") ? node.Attributes["exporter"].ProcessedValue : null;
-            if (_exporterAttribute is not null) result.Exporter = (string)_exporterAttribute;
-
-            // optional: exporterVersion -> string exporterVersion (1, 1)
-            var _exporterVersionAttribute = node.Attributes.ContainsKey("exporterVersion") ? node.Attributes["exporterVersion"].ProcessedValue : null;
-            if (_exporterVersionAttribute is not null) result.ExporterVersion = (string)_exporterVersionAttribute;
-
-            // optional: camunda:diagramRelationId -> string camunda_diagramRelationId (0, 1)
-            var _camunda_diagramRelationIdAttribute = node.Attributes.ContainsKey("camunda:diagramRelationId") ? node.Attributes["camunda:diagramRelationId"].ProcessedValue : null;
-            if (_camunda_diagramRelationIdAttribute is not null) result.Camunda_diagramRelationId = (string)_camunda_diagramRelationIdAttribute;
-
-            // element: import -> Import imports (0, *)
-            FillElements(node.ChildNodes["import"], result.Imports);
-
-            // element: extension -> Extension extensions (0, *)
-            FillElements(node.ChildNodes["extension"], result.Extensions);
-
-            // element: relationship -> Relationship relationships (0, *)
-            FillElements(node.ChildNodes["relationship"], result.Relationships);
-
-            // element: rootElement -> RootElement rootElements (0, *)
-            FillElements(node.ChildNodes["rootElement"], result.RootElements);
-
-            return result;
-        }
-
-        private Documentation LoadDocumentation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Documentation>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: textFormat -> string textFormat (1, 1)
-            var _textFormatAttribute = node.Attributes.ContainsKey("textFormat") ? node.Attributes["textFormat"].ProcessedValue : null;
-            if (_textFormatAttribute is not null) result.TextFormat = (string)_textFormatAttribute;
-
-            // missing: string text (1, 1)
-            ManualySolve_text_in_Documentation(result, node);
-            return result;
-        }
-
-        private EndEvent LoadEndEvent(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<EndEvent>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: inputSet -> InputSet inputSet (0, 1)
-            result.InputSet = FillElement<InputSet>(node.ChildNodes["inputSet"]);
-
-            // element: eventDefinitionRef -> EventDefinition eventDefinitionRefs (0, *)
-            FillElements(node.ChildNodes["eventDefinitionRef"], result.EventDefinitionRefs);
-
-            // element: dataInputAssociation -> DataInputAssociation dataInputAssociation (0, *)
-            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociation);
-
-            // element: dataInput -> DataInput dataInputs (0, *)
-            FillElements(node.ChildNodes["dataInput"], result.DataInputs);
-
-            // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
-            FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
-
-            // two way associatio: EndEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: EndEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: EndEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private EndPoint LoadEndPoint(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<EndPoint>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private Error LoadError(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Error>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: structureRef -> ItemDefinition structureRef (0, 1)
-            var _structureRefAttribute = node.Attributes.ContainsKey("structureRef") ? node.Attributes["structureRef"].ProcessedValue : null;
-            if (_structureRefAttribute is not null) result.StructureRef = Load<ItemDefinition>((XmlParserComplexNode)_structureRefAttribute);
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: errorCode -> string errorCode (1, 1)
-            var _errorCodeAttribute = node.Attributes.ContainsKey("errorCode") ? node.Attributes["errorCode"].ProcessedValue : null;
-            if (_errorCodeAttribute is not null) result.ErrorCode = (string)_errorCodeAttribute;
-
-            // optional: camunda:errorMessage -> string camunda_errorMessage (0, 1)
-            var _camunda_errorMessageAttribute = node.Attributes.ContainsKey("camunda:errorMessage") ? node.Attributes["camunda:errorMessage"].ProcessedValue : null;
-            if (_camunda_errorMessageAttribute is not null) result.Camunda_errorMessage = (string)_camunda_errorMessageAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private ErrorEventDefinition LoadErrorEventDefinition(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ErrorEventDefinition>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: errorRef -> Error errorRef (0, 1)
-            var _errorRefAttribute = node.Attributes.ContainsKey("errorRef") ? node.Attributes["errorRef"].ProcessedValue : null;
-            if (_errorRefAttribute is not null) result.ErrorRef = Load<Error>((XmlParserComplexNode)_errorRefAttribute);
-
-            // optional: camunda:errorCodeVariable -> string camunda_errorCodeVariable (0, 1)
-            var _camunda_errorCodeVariableAttribute = node.Attributes.ContainsKey("camunda:errorCodeVariable") ? node.Attributes["camunda:errorCodeVariable"].ProcessedValue : null;
-            if (_camunda_errorCodeVariableAttribute is not null) result.Camunda_errorCodeVariable = (string)_camunda_errorCodeVariableAttribute;
-
-            // optional: camunda:errorMessageVariable -> string camunda_errorMessageVariable (0, 1)
-            var _camunda_errorMessageVariableAttribute = node.Attributes.ContainsKey("camunda:errorMessageVariable") ? node.Attributes["camunda:errorMessageVariable"].ProcessedValue : null;
-            if (_camunda_errorMessageVariableAttribute is not null) result.Camunda_errorMessageVariable = (string)_camunda_errorMessageVariableAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private Escalation LoadEscalation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Escalation>(node);
-
-            // optional: structureRef -> ItemDefinition structureRef (0, 1)
-            var _structureRefAttribute = node.Attributes.ContainsKey("structureRef") ? node.Attributes["structureRef"].ProcessedValue : null;
-            if (_structureRefAttribute is not null) result.StructureRef = Load<ItemDefinition>((XmlParserComplexNode)_structureRefAttribute);
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: escalationCode -> string escalationCode (1, 1)
-            var _escalationCodeAttribute = node.Attributes.ContainsKey("escalationCode") ? node.Attributes["escalationCode"].ProcessedValue : null;
-            if (_escalationCodeAttribute is not null) result.EscalationCode = (string)_escalationCodeAttribute;
-
-            return result;
-        }
-
-        private EscalationEventDefinition LoadEscalationEventDefinition(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<EscalationEventDefinition>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: escalationRef -> Escalation escalationRef (0, 1)
-            var _escalationRefAttribute = node.Attributes.ContainsKey("escalationRef") ? node.Attributes["escalationRef"].ProcessedValue : null;
-            if (_escalationRefAttribute is not null) result.EscalationRef = Load<Escalation>((XmlParserComplexNode)_escalationRefAttribute);
-
-            // optional: camunda:escalationCodeVariable -> string camunda_escalationCodeVariable (0, 1)
-            var _camunda_escalationCodeVariableAttribute = node.Attributes.ContainsKey("camunda:escalationCodeVariable") ? node.Attributes["camunda:escalationCodeVariable"].ProcessedValue : null;
-            if (_camunda_escalationCodeVariableAttribute is not null) result.Camunda_escalationCodeVariable = (string)_camunda_escalationCodeVariableAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private EventBasedGateway LoadEventBasedGateway(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<EventBasedGateway>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
-            var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
-            if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // optional: instantiate -> bool instantiate (1, 1)
-            var _instantiateAttribute = node.Attributes.ContainsKey("instantiate") ? node.Attributes["instantiate"].ProcessedValue : null;
-            if (_instantiateAttribute is not null) result.Instantiate = (bool)_instantiateAttribute;
-
-            // optional: eventGatewayType -> EventBasedGatewayType eventGatewayType (1, 1)
-            var _eventGatewayTypeAttribute = node.Attributes.ContainsKey("eventGatewayType") ? node.Attributes["eventGatewayType"].ProcessedValue : null;
-            if (_eventGatewayTypeAttribute is not null) result.EventGatewayType = CreateEnum<EventBasedGatewayType>((string)_eventGatewayTypeAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // two way associatio: EventBasedGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            return result;
-        }
-
-        private ExclusiveGateway LoadExclusiveGateway(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ExclusiveGateway>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
-            var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
-            if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // optional: default -> SequenceFlow default (0, 1)
-            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
-            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // two way associatio: ExclusiveGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            return result;
-        }
-
-        private Expression LoadExpression(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Expression>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private Extension LoadExtension(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Extension>(node);
-
-            // optional: mustUnderstand -> bool mustUnderstand (1, 1)
-            var _mustUnderstandAttribute = node.Attributes.ContainsKey("mustUnderstand") ? node.Attributes["mustUnderstand"].ProcessedValue : null;
-            if (_mustUnderstandAttribute is not null) result.MustUnderstand = (bool)_mustUnderstandAttribute;
-
-            // optional: definition -> ExtensionDefinition definition (1, 1)
-            var _definitionAttribute = node.Attributes.ContainsKey("definition") ? node.Attributes["definition"].ProcessedValue : null;
-            if (_definitionAttribute is not null) result.Definition = Load<ExtensionDefinition>((XmlParserComplexNode)_definitionAttribute);
-
-            return result;
-        }
-
-        private FormalExpression LoadFormalExpression(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<FormalExpression>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: language -> string language (1, 1)
-            var _languageAttribute = node.Attributes.ContainsKey("language") ? node.Attributes["language"].ProcessedValue : null;
-            if (_languageAttribute is not null) result.Language = (string)_languageAttribute;
-
-            // optional: evaluatesToTypeRef -> ItemDefinition evaluatesToTypeRef (1, 1)
-            var _evaluatesToTypeRefAttribute = node.Attributes.ContainsKey("evaluatesToTypeRef") ? node.Attributes["evaluatesToTypeRef"].ProcessedValue : null;
-            if (_evaluatesToTypeRefAttribute is not null) result.EvaluatesToTypeRef = Load<ItemDefinition>((XmlParserComplexNode)_evaluatesToTypeRefAttribute);
-
-            // optional: camunda:resource -> string camunda_resource (0, 1)
-            var _camunda_resourceAttribute = node.Attributes.ContainsKey("camunda:resource") ? node.Attributes["camunda:resource"].ProcessedValue : null;
-            if (_camunda_resourceAttribute is not null) result.Camunda_resource = (string)_camunda_resourceAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // missing: Element body (1, 1)
-            ManualySolve_body_in_FormalExpression(result, node);
-            return result;
-        }
-
-        private GlobalBusinessRuleTask LoadGlobalBusinessRuleTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<GlobalBusinessRuleTask>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: implementation -> string implementation (1, 1)
-            var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
-            if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: supportedInterfaceRef -> Interface supportedInterfaceRefs (0, *)
-            FillElements(node.ChildNodes["supportedInterfaceRef"], result.SupportedInterfaceRefs);
-
-            // element: ioBinding -> InputOutputBinding ioBinding (0, *)
-            FillElements(node.ChildNodes["ioBinding"], result.IoBinding);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            return result;
-        }
-
-        private GlobalChoreographyTask LoadGlobalChoreographyTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<GlobalChoreographyTask>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: isClosed -> bool isClosed (1, 1)
-            var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
-            if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: initiatingParticipantRef -> Participant initiatingParticipantRef (1, 1)
-            var _initiatingParticipantRefAttribute = node.Attributes.ContainsKey("initiatingParticipantRef") ? node.Attributes["initiatingParticipantRef"].ProcessedValue : null;
-            if (_initiatingParticipantRefAttribute is not null) result.InitiatingParticipantRef = Load<Participant>((XmlParserComplexNode)_initiatingParticipantRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: flowElement -> FlowElement flowElements (0, *)
-            FillElements(node.ChildNodes["flowElement"], result.FlowElements);
-
-            // element: choreographyRef -> Choreography choreographyRef (0, *)
-            FillElements(node.ChildNodes["choreographyRef"], result.ChoreographyRef);
-
-            // element: artifact -> Artifact artifacts (0, *)
-            FillElements(node.ChildNodes["artifact"], result.Artifacts);
-
-            // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
-            FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
-
-            // element: messageFlowAssociation -> MessageFlowAssociation messageFlowAssociations (0, *)
-            FillElements(node.ChildNodes["messageFlowAssociation"], result.MessageFlowAssociations);
-
-            // element: conversationAssociation -> ConversationAssociation conversationAssociations (1, 1)
-            result.ConversationAssociations = FillElement<ConversationAssociation>(node.ChildNodes["conversationAssociation"]);
-
-            // element: participant -> Participant participants (0, *)
-            FillElements(node.ChildNodes["participant"], result.Participants);
-
-            // element: messageFlow -> MessageFlow messageFlows (0, *)
-            FillElements(node.ChildNodes["messageFlow"], result.MessageFlows);
-
-            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
-            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
-
-            // element: conversationNode -> ConversationNode conversations (0, *)
-            FillElements(node.ChildNodes["conversationNode"], result.Conversations);
-
-            // element: conversationLink -> ConversationLink conversationLinks (0, *)
-            FillElements(node.ChildNodes["conversationLink"], result.ConversationLinks);
-
-            // empty: LaneSet laneSets (0, *)
-
-            return result;
-        }
-
-        private GlobalConversation LoadGlobalConversation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<GlobalConversation>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: isClosed -> bool isClosed (1, 1)
-            var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
-            if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: choreographyRef -> Choreography choreographyRef (0, *)
-            FillElements(node.ChildNodes["choreographyRef"], result.ChoreographyRef);
-
-            // element: artifact -> Artifact artifacts (0, *)
-            FillElements(node.ChildNodes["artifact"], result.Artifacts);
-
-            // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
-            FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
-
-            // element: messageFlowAssociation -> MessageFlowAssociation messageFlowAssociations (0, *)
-            FillElements(node.ChildNodes["messageFlowAssociation"], result.MessageFlowAssociations);
-
-            // element: conversationAssociation -> ConversationAssociation conversationAssociations (1, 1)
-            result.ConversationAssociations = FillElement<ConversationAssociation>(node.ChildNodes["conversationAssociation"]);
-
-            // element: participant -> Participant participants (0, *)
-            FillElements(node.ChildNodes["participant"], result.Participants);
-
-            // element: messageFlow -> MessageFlow messageFlows (0, *)
-            FillElements(node.ChildNodes["messageFlow"], result.MessageFlows);
-
-            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
-            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
-
-            // element: conversationNode -> ConversationNode conversations (0, *)
-            FillElements(node.ChildNodes["conversationNode"], result.Conversations);
-
-            // element: conversationLink -> ConversationLink conversationLinks (0, *)
-            FillElements(node.ChildNodes["conversationLink"], result.ConversationLinks);
-
-            return result;
-        }
-
-        private GlobalManualTask LoadGlobalManualTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<GlobalManualTask>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: supportedInterfaceRef -> Interface supportedInterfaceRefs (0, *)
-            FillElements(node.ChildNodes["supportedInterfaceRef"], result.SupportedInterfaceRefs);
-
-            // element: ioBinding -> InputOutputBinding ioBinding (0, *)
-            FillElements(node.ChildNodes["ioBinding"], result.IoBinding);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            return result;
-        }
-
-        private GlobalScriptTask LoadGlobalScriptTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<GlobalScriptTask>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: scriptLanguage -> string scriptLanguage (1, 1)
-            var _scriptLanguageAttribute = node.Attributes.ContainsKey("scriptLanguage") ? node.Attributes["scriptLanguage"].ProcessedValue : null;
-            if (_scriptLanguageAttribute is not null) result.ScriptLanguage = (string)_scriptLanguageAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: supportedInterfaceRef -> Interface supportedInterfaceRefs (0, *)
-            FillElements(node.ChildNodes["supportedInterfaceRef"], result.SupportedInterfaceRefs);
-
-            // element: ioBinding -> InputOutputBinding ioBinding (0, *)
-            FillElements(node.ChildNodes["ioBinding"], result.IoBinding);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            // element: script -> string script (1, 1)
-            result.Script = FillElement<string>(node.ChildNodes["script"]);
-
-            return result;
-        }
-
-        private GlobalTask LoadGlobalTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<GlobalTask>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: supportedInterfaceRef -> Interface supportedInterfaceRefs (0, *)
-            FillElements(node.ChildNodes["supportedInterfaceRef"], result.SupportedInterfaceRefs);
-
-            // element: ioBinding -> InputOutputBinding ioBinding (0, *)
-            FillElements(node.ChildNodes["ioBinding"], result.IoBinding);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            return result;
-        }
-
-        private GlobalUserTask LoadGlobalUserTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<GlobalUserTask>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: implementation -> string implementation (1, 1)
-            var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
-            if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: supportedInterfaceRef -> Interface supportedInterfaceRefs (0, *)
-            FillElements(node.ChildNodes["supportedInterfaceRef"], result.SupportedInterfaceRefs);
-
-            // element: ioBinding -> InputOutputBinding ioBinding (0, *)
-            FillElements(node.ChildNodes["ioBinding"], result.IoBinding);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            // element: rendering -> Rendering renderings (0, *)
-            FillElements(node.ChildNodes["rendering"], result.Renderings);
-
-            return result;
-        }
-
-        private Group LoadGroup(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Group>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: categoryValueRef -> CategoryValue categoryValueRef (0, 1)
-            var _categoryValueRefAttribute = node.Attributes.ContainsKey("categoryValueRef") ? node.Attributes["categoryValueRef"].ProcessedValue : null;
-            if (_categoryValueRefAttribute is not null) result.CategoryValueRef = Load<CategoryValue>((XmlParserComplexNode)_categoryValueRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private HumanPerformer LoadHumanPerformer(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<HumanPerformer>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: resourceRef -> Resource resourceRef (0, 1)
-            result.ResourceRef = FillElement<Resource>(node.ChildNodes["resourceRef"]);
-
-            // element: resourceParameterBinding -> ResourceParameterBinding resourceParameterBindings (0, *)
-            FillElements(node.ChildNodes["resourceParameterBinding"], result.ResourceParameterBindings);
-
-            // element: resourceAssignmentExpression -> ResourceAssignmentExpression resourceAssignmentExpression (0, 1)
-            result.ResourceAssignmentExpression = FillElement<ResourceAssignmentExpression>(node.ChildNodes["resourceAssignmentExpression"]);
-
-            return result;
-        }
-
-        private ImplicitThrowEvent LoadImplicitThrowEvent(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ImplicitThrowEvent>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: inputSet -> InputSet inputSet (0, 1)
-            result.InputSet = FillElement<InputSet>(node.ChildNodes["inputSet"]);
-
-            // element: eventDefinitionRef -> EventDefinition eventDefinitionRefs (0, *)
-            FillElements(node.ChildNodes["eventDefinitionRef"], result.EventDefinitionRefs);
-
-            // element: dataInputAssociation -> DataInputAssociation dataInputAssociation (0, *)
-            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociation);
-
-            // element: dataInput -> DataInput dataInputs (0, *)
-            FillElements(node.ChildNodes["dataInput"], result.DataInputs);
-
-            // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
-            FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
-
-            // two way associatio: ImplicitThrowEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: ImplicitThrowEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: ImplicitThrowEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private Import LoadImport(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Import>(node);
-
-            // required: importType -> string importType (1, 1)
-            var _importTypeAttribute = node.Attributes["importType"]?.ProcessedValue;
-            if (_importTypeAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute importType");
-            result.ImportType = (string)_importTypeAttribute;
-
-            // required: location -> string location (1, 1)
-            var _locationAttribute = node.Attributes["location"]?.ProcessedValue;
-            if (_locationAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute location");
-            result.Location = (string)_locationAttribute;
-
-            // required: namespace -> string namespace (1, 1)
-            var _namespaceAttribute = node.Attributes["namespace"]?.ProcessedValue;
-            if (_namespaceAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute namespace");
-            result.Namespace = (string)_namespaceAttribute;
-
-            return result;
-        }
-
-        private InclusiveGateway LoadInclusiveGateway(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<InclusiveGateway>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
-            var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
-            if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // optional: default -> SequenceFlow default (0, 1)
-            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
-            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // two way associatio: InclusiveGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            return result;
-        }
-
-        private InputOutputBinding LoadInputOutputBinding(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<InputOutputBinding>(node);
-
-            // required: inputDataRef -> InputSet inputDataRef (1, 1)
-            var _inputDataRefAttribute = node.Attributes["inputDataRef"]?.ProcessedValue;
-            if (_inputDataRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute inputDataRef");
-            result.InputDataRef = Load<InputSet>((XmlParserComplexNode)_inputDataRefAttribute);
-
-            // required: outputDataRef -> OutputSet outputDataRef (1, 1)
-            var _outputDataRefAttribute = node.Attributes["outputDataRef"]?.ProcessedValue;
-            if (_outputDataRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute outputDataRef");
-            result.OutputDataRef = Load<OutputSet>((XmlParserComplexNode)_outputDataRefAttribute);
-
-            // required: operationRef -> Operation operationRef (1, 1)
-            var _operationRefAttribute = node.Attributes["operationRef"]?.ProcessedValue;
-            if (_operationRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute operationRef");
-            result.OperationRef = Load<Operation>((XmlParserComplexNode)_operationRefAttribute);
-
-            return result;
-        }
-
-        private InputOutputSpecification LoadInputOutputSpecification(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<InputOutputSpecification>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: inputSet -> InputSet inputSets (1, *)
-            FillElements(node.ChildNodes["inputSet"], result.InputSets);
-
-            // element: outputSet -> OutputSet outputSets (1, *)
-            FillElements(node.ChildNodes["outputSet"], result.OutputSets);
-
-            // element: dataInput -> DataInput dataInputs (0, *)
-            FillElements(node.ChildNodes["dataInput"], result.DataInputs);
-
-            // element: dataOutput -> DataOutput dataOutputs (0, *)
-            FillElements(node.ChildNodes["dataOutput"], result.DataOutputs);
-
-            return result;
-        }
-
-        private InputSet LoadInputSet(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<InputSet>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: dataInputRefs -> DataInput dataInputRefs (0, *)
-            FillElements(node.ChildNodes["dataInputRefs"], result.DataInputRefs);
-
-            // element: optionalInputRefs -> DataInput optionalInputRefs (0, *)
-            FillElements(node.ChildNodes["optionalInputRefs"], result.OptionalInputRefs);
-
-            // element: whileExecutingInputRefs -> DataInput whileExecutingInputRefs (0, *)
-            FillElements(node.ChildNodes["whileExecutingInputRefs"], result.WhileExecutingInputRefs);
-
-            // element: outputSetRefs -> OutputSet outputSetRefs (0, *)
-            FillElements(node.ChildNodes["outputSetRefs"], result.OutputSetRefs);
-
-            return result;
-        }
-
-        private Interface LoadInterface(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Interface>(node);
-
-            // required: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes["name"]?.ProcessedValue;
-            if (_nameAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute name");
-            result.Name = (string)_nameAttribute;
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: implementationRef -> Element implementationRef (0, 1)
-            var _implementationRefAttribute = node.Attributes.ContainsKey("implementationRef") ? node.Attributes["implementationRef"].ProcessedValue : null;
-            if (_implementationRefAttribute is not null) result.ImplementationRef = Load<Element>((XmlParserComplexNode)_implementationRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: operation -> Operation operations (1, *)
-            FillElements(node.ChildNodes["operation"], result.Operations);
-
-            return result;
-        }
-
-        private IntermediateCatchEvent LoadIntermediateCatchEvent(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<IntermediateCatchEvent>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // optional: parallelMultiple -> bool parallelMultiple (1, 1)
-            var _parallelMultipleAttribute = node.Attributes.ContainsKey("parallelMultiple") ? node.Attributes["parallelMultiple"].ProcessedValue : null;
-            if (_parallelMultipleAttribute is not null) result.ParallelMultiple = (bool)_parallelMultipleAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: outputSet -> OutputSet outputSet (0, 1)
-            result.OutputSet = FillElement<OutputSet>(node.ChildNodes["outputSet"]);
-
-            // element: eventDefinitionRef -> EventDefinition eventDefinitionRefs (0, *)
-            FillElements(node.ChildNodes["eventDefinitionRef"], result.EventDefinitionRefs);
-
-            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociation (0, *)
-            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociation);
-
-            // element: dataOutput -> DataOutput dataOutputs (0, *)
-            FillElements(node.ChildNodes["dataOutput"], result.DataOutputs);
-
-            // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
-            FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
-
-            // two way associatio: IntermediateCatchEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: IntermediateCatchEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: IntermediateCatchEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private IntermediateThrowEvent LoadIntermediateThrowEvent(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<IntermediateThrowEvent>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: inputSet -> InputSet inputSet (0, 1)
-            result.InputSet = FillElement<InputSet>(node.ChildNodes["inputSet"]);
-
-            // element: eventDefinitionRef -> EventDefinition eventDefinitionRefs (0, *)
-            FillElements(node.ChildNodes["eventDefinitionRef"], result.EventDefinitionRefs);
-
-            // element: dataInputAssociation -> DataInputAssociation dataInputAssociation (0, *)
-            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociation);
-
-            // element: dataInput -> DataInput dataInputs (0, *)
-            FillElements(node.ChildNodes["dataInput"], result.DataInputs);
-
-            // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
-            FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
-
-            // two way associatio: IntermediateThrowEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: IntermediateThrowEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: IntermediateThrowEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private ItemDefinition LoadItemDefinition(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ItemDefinition>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: itemKind -> ItemKind itemKind (1, 1)
-            var _itemKindAttribute = node.Attributes.ContainsKey("itemKind") ? node.Attributes["itemKind"].ProcessedValue : null;
-            if (_itemKindAttribute is not null) result.ItemKind = CreateEnum<ItemKind>((string)_itemKindAttribute);
-
-            // optional: structureRef -> Element structureRef (1, 1)
-            var _structureRefAttribute = node.Attributes.ContainsKey("structureRef") ? node.Attributes["structureRef"].ProcessedValue : null;
-            if (_structureRefAttribute is not null) result.StructureRef = Load<Element>((XmlParserComplexNode)_structureRefAttribute);
-
-            // optional: isCollection -> bool isCollection (1, 1)
-            var _isCollectionAttribute = node.Attributes.ContainsKey("isCollection") ? node.Attributes["isCollection"].ProcessedValue : null;
-            if (_isCollectionAttribute is not null) result.IsCollection = (bool)_isCollectionAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // empty: Import import (0, 1)
-
-            return result;
-        }
-
-        private Lane LoadLane(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Lane>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: partitionElementRef -> BaseElement partitionElementRef (0, 1)
-            var _partitionElementRefAttribute = node.Attributes.ContainsKey("partitionElementRef") ? node.Attributes["partitionElementRef"].ProcessedValue : null;
-            if (_partitionElementRefAttribute is not null) result.PartitionElementRef = Load<BaseElement>((XmlParserComplexNode)_partitionElementRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: childLaneSet -> LaneSet childLaneSet (0, 1)
-            result.ChildLaneSet = FillElement<LaneSet>(node.ChildNodes["childLaneSet"]);
-
-            // element: flowNodeRef -> FlowNode flowNodeRefs (0, *)
-            FillElements(node.ChildNodes["flowNodeRef"], result.FlowNodeRefs);
-
-            // element: partitionElement -> BaseElement partitionElement (0, 1)
-            result.PartitionElement = FillElement<BaseElement>(node.ChildNodes["partitionElement"]);
-
-            return result;
-        }
-
-        private LaneSet LoadLaneSet(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<LaneSet>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (0, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: lane -> Lane lanes (0, *)
-            FillElements(node.ChildNodes["lane"], result.Lanes);
-
-            return result;
-        }
-
-        private LinkEventDefinition LoadLinkEventDefinition(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<LinkEventDefinition>(node);
-
-            // required: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes["name"]?.ProcessedValue;
-            if (_nameAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute name");
-            result.Name = (string)_nameAttribute;
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: target -> LinkEventDefinition target (0, 1)
-            result.Target = FillElement<LinkEventDefinition>(node.ChildNodes["target"]);
-
-            // element: source -> LinkEventDefinition source (0, *)
-            FillElements(node.ChildNodes["source"], result.Source);
-
-            return result;
-        }
-
-        private ManualTask LoadManualTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ManualTask>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: isForCompensation -> bool isForCompensation (1, 1)
-            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
-            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
-
-            // optional: default -> SequenceFlow default (0, 1)
-            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
-            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
-
-            // optional: startQuantity -> long startQuantity (1, 1)
-            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
-
-            // optional: completionQuantity -> long completionQuantity (1, 1)
-            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
-            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
-            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
-
-            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
-            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
-
-            // two way associatio: ManualTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: ManualTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
-            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
-
-            // two way associatio: ManualTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: ManualTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private Message LoadMessage(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Message>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: itemRef -> ItemDefinition itemRef (0, 1)
-            var _itemRefAttribute = node.Attributes.ContainsKey("itemRef") ? node.Attributes["itemRef"].ProcessedValue : null;
-            if (_itemRefAttribute is not null) result.ItemRef = Load<ItemDefinition>((XmlParserComplexNode)_itemRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private MessageEventDefinition LoadMessageEventDefinition(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<MessageEventDefinition>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: messageRef -> Message messageRef (0, 1)
-            var _messageRefAttribute = node.Attributes.ContainsKey("messageRef") ? node.Attributes["messageRef"].ProcessedValue : null;
-            if (_messageRefAttribute is not null) result.MessageRef = Load<Message>((XmlParserComplexNode)_messageRefAttribute);
-
-            // optional: camunda:expression -> string camunda_expression (0, 1)
-            var _camunda_expressionAttribute = node.Attributes.ContainsKey("camunda:expression") ? node.Attributes["camunda:expression"].ProcessedValue : null;
-            if (_camunda_expressionAttribute is not null) result.Camunda_expression = (string)_camunda_expressionAttribute;
-
-            // optional: camunda:class -> string camunda_class (0, 1)
-            var _camunda_classAttribute = node.Attributes.ContainsKey("camunda:class") ? node.Attributes["camunda:class"].ProcessedValue : null;
-            if (_camunda_classAttribute is not null) result.Camunda_class = (string)_camunda_classAttribute;
-
-            // optional: camunda:delegateExpression -> string camunda_delegateExpression (0, 1)
-            var _camunda_delegateExpressionAttribute = node.Attributes.ContainsKey("camunda:delegateExpression") ? node.Attributes["camunda:delegateExpression"].ProcessedValue : null;
-            if (_camunda_delegateExpressionAttribute is not null) result.Camunda_delegateExpression = (string)_camunda_delegateExpressionAttribute;
-
-            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
-            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
-            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
-
-            // optional: camunda:type -> string camunda_type (0, 1)
-            var _camunda_typeAttribute = node.Attributes.ContainsKey("camunda:type") ? node.Attributes["camunda:type"].ProcessedValue : null;
-            if (_camunda_typeAttribute is not null) result.Camunda_type = (string)_camunda_typeAttribute;
-
-            // optional: camunda:topic -> string camunda_topic (0, 1)
-            var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
-            if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
-
-            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
-            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
-            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: operationRef -> Operation operationRef (0, 1)
-            result.OperationRef = FillElement<Operation>(node.ChildNodes["operationRef"]);
-
-            return result;
-        }
-
-        private MessageFlow LoadMessageFlow(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<MessageFlow>(node);
-
-            // required: sourceRef -> InteractionNode sourceRef (1, 1)
-            var _sourceRefAttribute = node.Attributes["sourceRef"]?.ProcessedValue;
-            if (_sourceRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute sourceRef");
-            result.SourceRef = Load<InteractionNode>((XmlParserComplexNode)_sourceRefAttribute);
-
-            // required: targetRef -> InteractionNode targetRef (1, 1)
-            var _targetRefAttribute = node.Attributes["targetRef"]?.ProcessedValue;
-            if (_targetRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute targetRef");
-            result.TargetRef = Load<InteractionNode>((XmlParserComplexNode)_targetRefAttribute);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: messageRef -> Message messageRef (0, 1)
-            var _messageRefAttribute = node.Attributes.ContainsKey("messageRef") ? node.Attributes["messageRef"].ProcessedValue : null;
-            if (_messageRefAttribute is not null) result.MessageRef = Load<Message>((XmlParserComplexNode)_messageRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private MessageFlowAssociation LoadMessageFlowAssociation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<MessageFlowAssociation>(node);
-
-            // required: innerMessageFlowRef -> MessageFlow innerMessageFlowRef (1, 1)
-            var _innerMessageFlowRefAttribute = node.Attributes["innerMessageFlowRef"]?.ProcessedValue;
-            if (_innerMessageFlowRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute innerMessageFlowRef");
-            result.InnerMessageFlowRef = Load<MessageFlow>((XmlParserComplexNode)_innerMessageFlowRefAttribute);
-
-            // required: outerMessageFlowRef -> MessageFlow outerMessageFlowRef (1, 1)
-            var _outerMessageFlowRefAttribute = node.Attributes["outerMessageFlowRef"]?.ProcessedValue;
-            if (_outerMessageFlowRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute outerMessageFlowRef");
-            result.OuterMessageFlowRef = Load<MessageFlow>((XmlParserComplexNode)_outerMessageFlowRefAttribute);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private Monitoring LoadMonitoring(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Monitoring>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private MultiInstanceLoopCharacteristics LoadMultiInstanceLoopCharacteristics(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<MultiInstanceLoopCharacteristics>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: isSequential -> bool isSequential (1, 1)
-            var _isSequentialAttribute = node.Attributes.ContainsKey("isSequential") ? node.Attributes["isSequential"].ProcessedValue : null;
-            if (_isSequentialAttribute is not null) result.IsSequential = (bool)_isSequentialAttribute;
-
-            // optional: behavior -> MultiInstanceBehavior behavior (1, 1)
-            var _behaviorAttribute = node.Attributes.ContainsKey("behavior") ? node.Attributes["behavior"].ProcessedValue : null;
-            if (_behaviorAttribute is not null) result.Behavior = CreateEnum<MultiInstanceBehavior>((string)_behaviorAttribute);
-
-            // optional: oneBehaviorEventRef -> EventDefinition oneBehaviorEventRef (0, 1)
-            var _oneBehaviorEventRefAttribute = node.Attributes.ContainsKey("oneBehaviorEventRef") ? node.Attributes["oneBehaviorEventRef"].ProcessedValue : null;
-            if (_oneBehaviorEventRefAttribute is not null) result.OneBehaviorEventRef = Load<EventDefinition>((XmlParserComplexNode)_oneBehaviorEventRefAttribute);
-
-            // optional: noneBehaviorEventRef -> EventDefinition noneBehaviorEventRef (0, 1)
-            var _noneBehaviorEventRefAttribute = node.Attributes.ContainsKey("noneBehaviorEventRef") ? node.Attributes["noneBehaviorEventRef"].ProcessedValue : null;
-            if (_noneBehaviorEventRefAttribute is not null) result.NoneBehaviorEventRef = Load<EventDefinition>((XmlParserComplexNode)_noneBehaviorEventRefAttribute);
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:collection -> string camunda_collection (0, 1)
-            var _camunda_collectionAttribute = node.Attributes.ContainsKey("camunda:collection") ? node.Attributes["camunda:collection"].ProcessedValue : null;
-            if (_camunda_collectionAttribute is not null) result.Camunda_collection = (string)_camunda_collectionAttribute;
-
-            // optional: camunda:elementVariable -> string camunda_elementVariable (0, 1)
-            var _camunda_elementVariableAttribute = node.Attributes.ContainsKey("camunda:elementVariable") ? node.Attributes["camunda:elementVariable"].ProcessedValue : null;
-            if (_camunda_elementVariableAttribute is not null) result.Camunda_elementVariable = (string)_camunda_elementVariableAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: loopCardinality -> Expression loopCardinality (0, 1)
-            result.LoopCardinality = FillElement<Expression>(node.ChildNodes["loopCardinality"]);
-
-            // element: loopDataInputRef -> ItemAwareElement loopDataInputRef (0, 1)
-            result.LoopDataInputRef = FillElement<ItemAwareElement>(node.ChildNodes["loopDataInputRef"]);
-
-            // element: loopDataOutputRef -> ItemAwareElement loopDataOutputRef (0, 1)
-            result.LoopDataOutputRef = FillElement<ItemAwareElement>(node.ChildNodes["loopDataOutputRef"]);
-
-            // element: inputDataItem -> DataInput inputDataItem (0, 1)
-            result.InputDataItem = FillElement<DataInput>(node.ChildNodes["inputDataItem"]);
-
-            // element: outputDataItem -> DataOutput outputDataItem (0, 1)
-            result.OutputDataItem = FillElement<DataOutput>(node.ChildNodes["outputDataItem"]);
-
-            // element: completionCondition -> Expression completionCondition (0, 1)
-            result.CompletionCondition = FillElement<Expression>(node.ChildNodes["completionCondition"]);
-
-            // element: complexBehaviorDefinition -> ComplexBehaviorDefinition complexBehaviorDefinition (0, *)
-            FillElements(node.ChildNodes["complexBehaviorDefinition"], result.ComplexBehaviorDefinition);
-
-            return result;
-        }
-
-        private Operation LoadOperation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Operation>(node);
-
-            // required: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes["name"]?.ProcessedValue;
-            if (_nameAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute name");
-            result.Name = (string)_nameAttribute;
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: implementationRef -> Element implementationRef (0, 1)
-            var _implementationRefAttribute = node.Attributes.ContainsKey("implementationRef") ? node.Attributes["implementationRef"].ProcessedValue : null;
-            if (_implementationRefAttribute is not null) result.ImplementationRef = Load<Element>((XmlParserComplexNode)_implementationRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: inMessageRef -> Message inMessageRef (1, 1)
-            result.InMessageRef = FillElement<Message>(node.ChildNodes["inMessageRef"]);
-
-            // element: outMessageRef -> Message outMessageRef (0, 1)
-            result.OutMessageRef = FillElement<Message>(node.ChildNodes["outMessageRef"]);
-
-            // element: errorRef -> Error errorRefs (0, *)
-            FillElements(node.ChildNodes["errorRef"], result.ErrorRefs);
-
-            return result;
-        }
-
-        private OutputSet LoadOutputSet(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<OutputSet>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: dataOutputRefs -> DataOutput dataOutputRefs (0, *)
-            FillElements(node.ChildNodes["dataOutputRefs"], result.DataOutputRefs);
-
-            // element: inputSetRefs -> InputSet inputSetRefs (0, *)
-            FillElements(node.ChildNodes["inputSetRefs"], result.InputSetRefs);
-
-            // element: optionalOutputRefs -> DataOutput optionalOutputRefs (0, *)
-            FillElements(node.ChildNodes["optionalOutputRefs"], result.OptionalOutputRefs);
-
-            // element: whileExecutingOutputRefs -> DataOutput whileExecutingOutputRefs (0, *)
-            FillElements(node.ChildNodes["whileExecutingOutputRefs"], result.WhileExecutingOutputRefs);
-
-            return result;
-        }
-
-        private ParallelGateway LoadParallelGateway(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ParallelGateway>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: gatewayDirection -> GatewayDirection gatewayDirection (1, 1)
-            var _gatewayDirectionAttribute = node.Attributes.ContainsKey("gatewayDirection") ? node.Attributes["gatewayDirection"].ProcessedValue : null;
-            if (_gatewayDirectionAttribute is not null) result.GatewayDirection = CreateEnum<GatewayDirection>((string)_gatewayDirectionAttribute);
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // two way associatio: ParallelGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            return result;
-        }
-
-        private Participant LoadParticipant(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Participant>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: processRef -> Process processRef (0, 1)
-            var _processRefAttribute = node.Attributes.ContainsKey("processRef") ? node.Attributes["processRef"].ProcessedValue : null;
-            if (_processRefAttribute is not null) result.ProcessRef = Load<Process>((XmlParserComplexNode)_processRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: interfaceRef -> Interface interfaceRefs (0, *)
-            FillElements(node.ChildNodes["interfaceRef"], result.InterfaceRefs);
-
-            // element: participantMultiplicity -> ParticipantMultiplicity participantMultiplicity (0, 1)
-            result.ParticipantMultiplicity = FillElement<ParticipantMultiplicity>(node.ChildNodes["participantMultiplicity"]);
-
-            // element: endPointRef -> EndPoint endPointRefs (0, *)
-            FillElements(node.ChildNodes["endPointRef"], result.EndPointRefs);
-
-            // two way associatio: Participant(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: Participant(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private ParticipantAssociation LoadParticipantAssociation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ParticipantAssociation>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: innerParticipantRef -> Participant innerParticipantRef (1, 1)
-            result.InnerParticipantRef = FillElement<Participant>(node.ChildNodes["innerParticipantRef"]);
-
-            // element: outerParticipantRef -> Participant outerParticipantRef (1, 1)
-            result.OuterParticipantRef = FillElement<Participant>(node.ChildNodes["outerParticipantRef"]);
-
-            return result;
-        }
-
-        private ParticipantMultiplicity LoadParticipantMultiplicity(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ParticipantMultiplicity>(node);
-
-            // optional: minimum -> long minimum (1, 1)
-            var _minimumAttribute = node.Attributes.ContainsKey("minimum") ? node.Attributes["minimum"].ProcessedValue : null;
-            if (_minimumAttribute is not null) result.Minimum = (long)_minimumAttribute;
-
-            // optional: maximum -> long maximum (0, 1)
-            var _maximumAttribute = node.Attributes.ContainsKey("maximum") ? node.Attributes["maximum"].ProcessedValue : null;
-            if (_maximumAttribute is not null) result.Maximum = (long)_maximumAttribute;
-
-            return result;
-        }
-
-        private PartnerEntity LoadPartnerEntity(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<PartnerEntity>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: participantRef -> Participant participantRef (0, *)
-            FillElements(node.ChildNodes["participantRef"], result.ParticipantRef);
-
-            return result;
-        }
-
-        private PartnerRole LoadPartnerRole(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<PartnerRole>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: participantRef -> Participant participantRef (0, *)
-            FillElements(node.ChildNodes["participantRef"], result.ParticipantRef);
-
-            return result;
-        }
-
-        private Performer LoadPerformer(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Performer>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: resourceRef -> Resource resourceRef (0, 1)
-            result.ResourceRef = FillElement<Resource>(node.ChildNodes["resourceRef"]);
-
-            // element: resourceParameterBinding -> ResourceParameterBinding resourceParameterBindings (0, *)
-            FillElements(node.ChildNodes["resourceParameterBinding"], result.ResourceParameterBindings);
-
-            // element: resourceAssignmentExpression -> ResourceAssignmentExpression resourceAssignmentExpression (0, 1)
-            result.ResourceAssignmentExpression = FillElement<ResourceAssignmentExpression>(node.ChildNodes["resourceAssignmentExpression"]);
-
-            return result;
-        }
-
-        private PotentialOwner LoadPotentialOwner(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<PotentialOwner>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: resourceRef -> Resource resourceRef (0, 1)
-            result.ResourceRef = FillElement<Resource>(node.ChildNodes["resourceRef"]);
-
-            // element: resourceParameterBinding -> ResourceParameterBinding resourceParameterBindings (0, *)
-            FillElements(node.ChildNodes["resourceParameterBinding"], result.ResourceParameterBindings);
-
-            // element: resourceAssignmentExpression -> ResourceAssignmentExpression resourceAssignmentExpression (0, 1)
-            result.ResourceAssignmentExpression = FillElement<ResourceAssignmentExpression>(node.ChildNodes["resourceAssignmentExpression"]);
-
-            return result;
-        }
-
-        private Process LoadProcess(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Process>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: processType -> ProcessType processType (1, 1)
-            var _processTypeAttribute = node.Attributes.ContainsKey("processType") ? node.Attributes["processType"].ProcessedValue : null;
-            if (_processTypeAttribute is not null) result.ProcessType = CreateEnum<ProcessType>((string)_processTypeAttribute);
-
-            // optional: isClosed -> bool isClosed (1, 1)
-            var _isClosedAttribute = node.Attributes.ContainsKey("isClosed") ? node.Attributes["isClosed"].ProcessedValue : null;
-            if (_isClosedAttribute is not null) result.IsClosed = (bool)_isClosedAttribute;
-
-            // optional: definitionalCollaborationRef -> Collaboration definitionalCollaborationRef (0, 1)
-            var _definitionalCollaborationRefAttribute = node.Attributes.ContainsKey("definitionalCollaborationRef") ? node.Attributes["definitionalCollaborationRef"].ProcessedValue : null;
-            if (_definitionalCollaborationRefAttribute is not null) result.DefinitionalCollaborationRef = Load<Collaboration>((XmlParserComplexNode)_definitionalCollaborationRefAttribute);
-
-            // optional: isExecutable -> bool isExecutable (1, 1)
-            var _isExecutableAttribute = node.Attributes.ContainsKey("isExecutable") ? node.Attributes["isExecutable"].ProcessedValue : null;
-            if (_isExecutableAttribute is not null) result.IsExecutable = (bool)_isExecutableAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: camunda:candidateStarterGroups -> string camunda_candidateStarterGroups (0, 1)
-            var _camunda_candidateStarterGroupsAttribute = node.Attributes.ContainsKey("camunda:candidateStarterGroups") ? node.Attributes["camunda:candidateStarterGroups"].ProcessedValue : null;
-            if (_camunda_candidateStarterGroupsAttribute is not null) result.Camunda_candidateStarterGroups = (string)_camunda_candidateStarterGroupsAttribute;
-
-            // optional: camunda:candidateStarterUsers -> string camunda_candidateStarterUsers (0, 1)
-            var _camunda_candidateStarterUsersAttribute = node.Attributes.ContainsKey("camunda:candidateStarterUsers") ? node.Attributes["camunda:candidateStarterUsers"].ProcessedValue : null;
-            if (_camunda_candidateStarterUsersAttribute is not null) result.Camunda_candidateStarterUsers = (string)_camunda_candidateStarterUsersAttribute;
-
-            // optional: camunda:versionTag -> string camunda_versionTag (0, 1)
-            var _camunda_versionTagAttribute = node.Attributes.ContainsKey("camunda:versionTag") ? node.Attributes["camunda:versionTag"].ProcessedValue : null;
-            if (_camunda_versionTagAttribute is not null) result.Camunda_versionTag = (string)_camunda_versionTagAttribute;
-
-            // optional: camunda:historyTimeToLive -> string camunda_historyTimeToLive (0, 1)
-            var _camunda_historyTimeToLiveAttribute = node.Attributes.ContainsKey("camunda:historyTimeToLive") ? node.Attributes["camunda:historyTimeToLive"].ProcessedValue : null;
-            if (_camunda_historyTimeToLiveAttribute is not null) result.Camunda_historyTimeToLive = (string)_camunda_historyTimeToLiveAttribute;
-
-            // optional: camunda:isStartableInTasklist -> bool camunda_isStartableInTasklist (0, 1)
-            var _camunda_isStartableInTasklistAttribute = node.Attributes.ContainsKey("camunda:isStartableInTasklist") ? node.Attributes["camunda:isStartableInTasklist"].ProcessedValue : null;
-            if (_camunda_isStartableInTasklistAttribute is not null) result.Camunda_isStartableInTasklist = (bool)_camunda_isStartableInTasklistAttribute;
-
-            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
-            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
-            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: flowElement -> FlowElement flowElements (0, *)
-            FillElements(node.ChildNodes["flowElement"], result.FlowElements);
-
-            // element: laneSet -> LaneSet laneSets (0, *)
-            FillElements(node.ChildNodes["laneSet"], result.LaneSets);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: supportedInterfaceRef -> Interface supportedInterfaceRefs (0, *)
-            FillElements(node.ChildNodes["supportedInterfaceRef"], result.SupportedInterfaceRefs);
-
-            // element: ioBinding -> InputOutputBinding ioBinding (0, *)
-            FillElements(node.ChildNodes["ioBinding"], result.IoBinding);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: supports -> Process supports (0, *)
-            FillElements(node.ChildNodes["supports"], result.Supports);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            // element: artifact -> Artifact artifacts (0, *)
-            FillElements(node.ChildNodes["artifact"], result.Artifacts);
-
-            // element: correlationSubscription -> CorrelationSubscription correlationSubscriptions (0, *)
-            FillElements(node.ChildNodes["correlationSubscription"], result.CorrelationSubscriptions);
-
-            return result;
-        }
-
-        private Property LoadProperty(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Property>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: itemSubjectRef -> ItemDefinition itemSubjectRef (0, 1)
-            var _itemSubjectRefAttribute = node.Attributes.ContainsKey("itemSubjectRef") ? node.Attributes["itemSubjectRef"].ProcessedValue : null;
-            if (_itemSubjectRefAttribute is not null) result.ItemSubjectRef = Load<ItemDefinition>((XmlParserComplexNode)_itemSubjectRefAttribute);
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: dataState -> DataState dataState (0, 1)
-            result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
-
-            return result;
-        }
-
-        private ReceiveTask LoadReceiveTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ReceiveTask>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: isForCompensation -> bool isForCompensation (1, 1)
-            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
-            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
-
-            // optional: default -> SequenceFlow default (0, 1)
-            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
-            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
-
-            // optional: startQuantity -> long startQuantity (1, 1)
-            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
-
-            // optional: completionQuantity -> long completionQuantity (1, 1)
-            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // optional: implementation -> string implementation (1, 1)
-            var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
-            if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
-
-            // optional: instantiate -> bool instantiate (1, 1)
-            var _instantiateAttribute = node.Attributes.ContainsKey("instantiate") ? node.Attributes["instantiate"].ProcessedValue : null;
-            if (_instantiateAttribute is not null) result.Instantiate = (bool)_instantiateAttribute;
-
-            // optional: operationRef -> Operation operationRef (0, 1)
-            var _operationRefAttribute = node.Attributes.ContainsKey("operationRef") ? node.Attributes["operationRef"].ProcessedValue : null;
-            if (_operationRefAttribute is not null) result.OperationRef = Load<Operation>((XmlParserComplexNode)_operationRefAttribute);
-
-            // optional: messageRef -> Message messageRef (0, 1)
-            var _messageRefAttribute = node.Attributes.ContainsKey("messageRef") ? node.Attributes["messageRef"].ProcessedValue : null;
-            if (_messageRefAttribute is not null) result.MessageRef = Load<Message>((XmlParserComplexNode)_messageRefAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
-            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
-            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
-
-            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
-            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
-
-            // two way associatio: ReceiveTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: ReceiveTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
-            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
-
-            // two way associatio: ReceiveTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: ReceiveTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private Relationship LoadRelationship(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Relationship>(node);
-
-            // required: type -> string type (1, 1)
-            var _typeAttribute = node.Attributes["type"]?.ProcessedValue;
-            if (_typeAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute type");
-            result.Type = (string)_typeAttribute;
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: direction -> RelationshipDirection direction (1, 1)
-            var _directionAttribute = node.Attributes.ContainsKey("direction") ? node.Attributes["direction"].ProcessedValue : null;
-            if (_directionAttribute is not null) result.Direction = CreateEnum<RelationshipDirection>((string)_directionAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: source -> Element sources (1, *)
-            FillElements(node.ChildNodes["source"], result.Sources);
-
-            // element: target -> Element targets (1, *)
-            FillElements(node.ChildNodes["target"], result.Targets);
-
-            return result;
-        }
-
-        private Rendering LoadRendering(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Rendering>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private Resource LoadResource(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Resource>(node);
-
-            // required: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes["name"]?.ProcessedValue;
-            if (_nameAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute name");
-            result.Name = (string)_nameAttribute;
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: resourceParameter -> ResourceParameter resourceParameters (0, *)
-            FillElements(node.ChildNodes["resourceParameter"], result.ResourceParameters);
-
-            return result;
-        }
-
-        private ResourceAssignmentExpression LoadResourceAssignmentExpression(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ResourceAssignmentExpression>(node);
-
-            // element: expression -> Expression expression (1, 1)
-            result.Expression = FillElement<Expression>(node.ChildNodes["expression"]);
-
-            return result;
-        }
-
-        private ResourceParameter LoadResourceParameter(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ResourceParameter>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: isRequired -> bool isRequired (1, 1)
-            var _isRequiredAttribute = node.Attributes.ContainsKey("isRequired") ? node.Attributes["isRequired"].ProcessedValue : null;
-            if (_isRequiredAttribute is not null) result.IsRequired = (bool)_isRequiredAttribute;
-
-            // optional: type -> ItemDefinition type (0, 1)
-            var _typeAttribute = node.Attributes.ContainsKey("type") ? node.Attributes["type"].ProcessedValue : null;
-            if (_typeAttribute is not null) result.Type = Load<ItemDefinition>((XmlParserComplexNode)_typeAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private ResourceParameterBinding LoadResourceParameterBinding(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ResourceParameterBinding>(node);
-
-            // required: parameterRef -> ResourceParameter parameterRef (1, 1)
-            var _parameterRefAttribute = node.Attributes["parameterRef"]?.ProcessedValue;
-            if (_parameterRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute parameterRef");
-            result.ParameterRef = Load<ResourceParameter>((XmlParserComplexNode)_parameterRefAttribute);
-
-            // element: expression -> Expression expression (1, 1)
-            result.Expression = FillElement<Expression>(node.ChildNodes["expression"]);
-
-            return result;
-        }
-
-        private ResourceRole LoadResourceRole(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ResourceRole>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: resourceRef -> Resource resourceRef (0, 1)
-            result.ResourceRef = FillElement<Resource>(node.ChildNodes["resourceRef"]);
-
-            // element: resourceParameterBinding -> ResourceParameterBinding resourceParameterBindings (0, *)
-            FillElements(node.ChildNodes["resourceParameterBinding"], result.ResourceParameterBindings);
-
-            // element: resourceAssignmentExpression -> ResourceAssignmentExpression resourceAssignmentExpression (0, 1)
-            result.ResourceAssignmentExpression = FillElement<ResourceAssignmentExpression>(node.ChildNodes["resourceAssignmentExpression"]);
-
-            return result;
-        }
-
-        private ScriptTask LoadScriptTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ScriptTask>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: isForCompensation -> bool isForCompensation (1, 1)
-            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
-            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
-
-            // optional: default -> SequenceFlow default (0, 1)
-            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
-            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
-
-            // optional: startQuantity -> long startQuantity (1, 1)
-            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
-
-            // optional: completionQuantity -> long completionQuantity (1, 1)
-            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // optional: scriptFormat -> string scriptFormat (1, 1)
-            var _scriptFormatAttribute = node.Attributes.ContainsKey("scriptFormat") ? node.Attributes["scriptFormat"].ProcessedValue : null;
-            if (_scriptFormatAttribute is not null) result.ScriptFormat = (string)_scriptFormatAttribute;
-
-            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
-            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
-            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
-
-            // optional: camunda:resource -> string camunda_resource (0, 1)
-            var _camunda_resourceAttribute = node.Attributes.ContainsKey("camunda:resource") ? node.Attributes["camunda:resource"].ProcessedValue : null;
-            if (_camunda_resourceAttribute is not null) result.Camunda_resource = (string)_camunda_resourceAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
-            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
-            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
-
-            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
-            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
-
-            // element: script -> string script (1, 1)
-            result.Script = FillElement<string>(node.ChildNodes["script"]);
-
-            // two way associatio: ScriptTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: ScriptTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
-            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
-
-            // two way associatio: ScriptTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: ScriptTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private SendTask LoadSendTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<SendTask>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: isForCompensation -> bool isForCompensation (1, 1)
-            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
-            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
-
-            // optional: default -> SequenceFlow default (0, 1)
-            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
-            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
-
-            // optional: startQuantity -> long startQuantity (1, 1)
-            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
-
-            // optional: completionQuantity -> long completionQuantity (1, 1)
-            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // optional: implementation -> string implementation (1, 1)
-            var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
-            if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
-
-            // optional: operationRef -> Operation operationRef (0, 1)
-            var _operationRefAttribute = node.Attributes.ContainsKey("operationRef") ? node.Attributes["operationRef"].ProcessedValue : null;
-            if (_operationRefAttribute is not null) result.OperationRef = Load<Operation>((XmlParserComplexNode)_operationRefAttribute);
-
-            // optional: messageRef -> Message messageRef (0, 1)
-            var _messageRefAttribute = node.Attributes.ContainsKey("messageRef") ? node.Attributes["messageRef"].ProcessedValue : null;
-            if (_messageRefAttribute is not null) result.MessageRef = Load<Message>((XmlParserComplexNode)_messageRefAttribute);
-
-            // optional: camunda:expression -> string camunda_expression (0, 1)
-            var _camunda_expressionAttribute = node.Attributes.ContainsKey("camunda:expression") ? node.Attributes["camunda:expression"].ProcessedValue : null;
-            if (_camunda_expressionAttribute is not null) result.Camunda_expression = (string)_camunda_expressionAttribute;
-
-            // optional: camunda:class -> string camunda_class (0, 1)
-            var _camunda_classAttribute = node.Attributes.ContainsKey("camunda:class") ? node.Attributes["camunda:class"].ProcessedValue : null;
-            if (_camunda_classAttribute is not null) result.Camunda_class = (string)_camunda_classAttribute;
-
-            // optional: camunda:delegateExpression -> string camunda_delegateExpression (0, 1)
-            var _camunda_delegateExpressionAttribute = node.Attributes.ContainsKey("camunda:delegateExpression") ? node.Attributes["camunda:delegateExpression"].ProcessedValue : null;
-            if (_camunda_delegateExpressionAttribute is not null) result.Camunda_delegateExpression = (string)_camunda_delegateExpressionAttribute;
-
-            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
-            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
-            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
-
-            // optional: camunda:type -> string camunda_type (0, 1)
-            var _camunda_typeAttribute = node.Attributes.ContainsKey("camunda:type") ? node.Attributes["camunda:type"].ProcessedValue : null;
-            if (_camunda_typeAttribute is not null) result.Camunda_type = (string)_camunda_typeAttribute;
-
-            // optional: camunda:topic -> string camunda_topic (0, 1)
-            var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
-            if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
-
-            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
-            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
-            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
-            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
-            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
-
-            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
-            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
-
-            // two way associatio: SendTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: SendTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
-            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
-
-            // two way associatio: SendTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: SendTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private SequenceFlow LoadSequenceFlow(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<SequenceFlow>(node);
-
-            // required: sourceRef -> FlowNode sourceRef (1, 1)
-            var _sourceRefAttribute = node.Attributes["sourceRef"]?.ProcessedValue;
-            if (_sourceRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute sourceRef");
-            result.SourceRef = Load<FlowNode>((XmlParserComplexNode)_sourceRefAttribute);
-
-            // required: targetRef -> FlowNode targetRef (1, 1)
-            var _targetRefAttribute = node.Attributes["targetRef"]?.ProcessedValue;
-            if (_targetRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute targetRef");
-            result.TargetRef = Load<FlowNode>((XmlParserComplexNode)_targetRefAttribute);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: isImmediate -> bool isImmediate (0, 1)
-            var _isImmediateAttribute = node.Attributes.ContainsKey("isImmediate") ? node.Attributes["isImmediate"].ProcessedValue : null;
-            if (_isImmediateAttribute is not null) result.IsImmediate = (bool)_isImmediateAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: conditionExpression -> Expression conditionExpression (0, 1)
-            result.ConditionExpression = FillElement<Expression>(node.ChildNodes["conditionExpression"]);
-
-            return result;
-        }
-
-        private ServiceTask LoadServiceTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<ServiceTask>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: isForCompensation -> bool isForCompensation (1, 1)
-            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
-            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
-
-            // optional: default -> SequenceFlow default (0, 1)
-            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
-            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
-
-            // optional: startQuantity -> long startQuantity (1, 1)
-            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
-
-            // optional: completionQuantity -> long completionQuantity (1, 1)
-            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // optional: implementation -> string implementation (1, 1)
-            var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
-            if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
-
-            // optional: operationRef -> Operation operationRef (0, 1)
-            var _operationRefAttribute = node.Attributes.ContainsKey("operationRef") ? node.Attributes["operationRef"].ProcessedValue : null;
-            if (_operationRefAttribute is not null) result.OperationRef = Load<Operation>((XmlParserComplexNode)_operationRefAttribute);
-
-            // optional: camunda:expression -> string camunda_expression (0, 1)
-            var _camunda_expressionAttribute = node.Attributes.ContainsKey("camunda:expression") ? node.Attributes["camunda:expression"].ProcessedValue : null;
-            if (_camunda_expressionAttribute is not null) result.Camunda_expression = (string)_camunda_expressionAttribute;
-
-            // optional: camunda:class -> string camunda_class (0, 1)
-            var _camunda_classAttribute = node.Attributes.ContainsKey("camunda:class") ? node.Attributes["camunda:class"].ProcessedValue : null;
-            if (_camunda_classAttribute is not null) result.Camunda_class = (string)_camunda_classAttribute;
-
-            // optional: camunda:delegateExpression -> string camunda_delegateExpression (0, 1)
-            var _camunda_delegateExpressionAttribute = node.Attributes.ContainsKey("camunda:delegateExpression") ? node.Attributes["camunda:delegateExpression"].ProcessedValue : null;
-            if (_camunda_delegateExpressionAttribute is not null) result.Camunda_delegateExpression = (string)_camunda_delegateExpressionAttribute;
-
-            // optional: camunda:resultVariable -> string camunda_resultVariable (0, 1)
-            var _camunda_resultVariableAttribute = node.Attributes.ContainsKey("camunda:resultVariable") ? node.Attributes["camunda:resultVariable"].ProcessedValue : null;
-            if (_camunda_resultVariableAttribute is not null) result.Camunda_resultVariable = (string)_camunda_resultVariableAttribute;
-
-            // optional: camunda:type -> string camunda_type (0, 1)
-            var _camunda_typeAttribute = node.Attributes.ContainsKey("camunda:type") ? node.Attributes["camunda:type"].ProcessedValue : null;
-            if (_camunda_typeAttribute is not null) result.Camunda_type = (string)_camunda_typeAttribute;
-
-            // optional: camunda:topic -> string camunda_topic (0, 1)
-            var _camunda_topicAttribute = node.Attributes.ContainsKey("camunda:topic") ? node.Attributes["camunda:topic"].ProcessedValue : null;
-            if (_camunda_topicAttribute is not null) result.Camunda_topic = (string)_camunda_topicAttribute;
-
-            // optional: camunda:taskPriority -> string camunda_taskPriority (0, 1)
-            var _camunda_taskPriorityAttribute = node.Attributes.ContainsKey("camunda:taskPriority") ? node.Attributes["camunda:taskPriority"].ProcessedValue : null;
-            if (_camunda_taskPriorityAttribute is not null) result.Camunda_taskPriority = (string)_camunda_taskPriorityAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
-            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
-            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
-
-            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
-            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
-
-            // two way associatio: ServiceTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: ServiceTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
-            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
-
-            // two way associatio: ServiceTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: ServiceTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private Signal LoadSignal(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Signal>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: structureRef -> ItemDefinition structureRef (0, 1)
-            var _structureRefAttribute = node.Attributes.ContainsKey("structureRef") ? node.Attributes["structureRef"].ProcessedValue : null;
-            if (_structureRefAttribute is not null) result.StructureRef = Load<ItemDefinition>((XmlParserComplexNode)_structureRefAttribute);
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private SignalEventDefinition LoadSignalEventDefinition(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<SignalEventDefinition>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: signalRef -> Signal signalRef (0, 1)
-            var _signalRefAttribute = node.Attributes.ContainsKey("signalRef") ? node.Attributes["signalRef"].ProcessedValue : null;
-            if (_signalRefAttribute is not null) result.SignalRef = Load<Signal>((XmlParserComplexNode)_signalRefAttribute);
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private StandardLoopCharacteristics LoadStandardLoopCharacteristics(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<StandardLoopCharacteristics>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: testBefore -> bool testBefore (1, 1)
-            var _testBeforeAttribute = node.Attributes.ContainsKey("testBefore") ? node.Attributes["testBefore"].ProcessedValue : null;
-            if (_testBeforeAttribute is not null) result.TestBefore = (bool)_testBeforeAttribute;
-
-            // optional: loopMaximum -> Expression loopMaximum (0, 1)
-            var _loopMaximumAttribute = node.Attributes.ContainsKey("loopMaximum") ? node.Attributes["loopMaximum"].ProcessedValue : null;
-            if (_loopMaximumAttribute is not null) result.LoopMaximum = Load<Expression>((XmlParserComplexNode)_loopMaximumAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: loopCondition -> Expression loopCondition (0, 1)
-            result.LoopCondition = FillElement<Expression>(node.ChildNodes["loopCondition"]);
-
-            return result;
-        }
-
-        private StartEvent LoadStartEvent(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<StartEvent>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // optional: parallelMultiple -> bool parallelMultiple (1, 1)
-            var _parallelMultipleAttribute = node.Attributes.ContainsKey("parallelMultiple") ? node.Attributes["parallelMultiple"].ProcessedValue : null;
-            if (_parallelMultipleAttribute is not null) result.ParallelMultiple = (bool)_parallelMultipleAttribute;
-
-            // optional: isInterrupting -> bool isInterrupting (1, 1)
-            var _isInterruptingAttribute = node.Attributes.ContainsKey("isInterrupting") ? node.Attributes["isInterrupting"].ProcessedValue : null;
-            if (_isInterruptingAttribute is not null) result.IsInterrupting = (bool)_isInterruptingAttribute;
-
-            // optional: camunda:formHandlerClass -> string camunda_formHandlerClass (0, 1)
-            var _camunda_formHandlerClassAttribute = node.Attributes.ContainsKey("camunda:formHandlerClass") ? node.Attributes["camunda:formHandlerClass"].ProcessedValue : null;
-            if (_camunda_formHandlerClassAttribute is not null) result.Camunda_formHandlerClass = (string)_camunda_formHandlerClassAttribute;
-
-            // optional: camunda:formKey -> string camunda_formKey (0, 1)
-            var _camunda_formKeyAttribute = node.Attributes.ContainsKey("camunda:formKey") ? node.Attributes["camunda:formKey"].ProcessedValue : null;
-            if (_camunda_formKeyAttribute is not null) result.Camunda_formKey = (string)_camunda_formKeyAttribute;
-
-            // optional: camunda:formRef -> string camunda_formRef (0, 1)
-            var _camunda_formRefAttribute = node.Attributes.ContainsKey("camunda:formRef") ? node.Attributes["camunda:formRef"].ProcessedValue : null;
-            if (_camunda_formRefAttribute is not null) result.Camunda_formRef = (string)_camunda_formRefAttribute;
-
-            // optional: camunda:formRefBinding -> string camunda_formRefBinding (0, 1)
-            var _camunda_formRefBindingAttribute = node.Attributes.ContainsKey("camunda:formRefBinding") ? node.Attributes["camunda:formRefBinding"].ProcessedValue : null;
-            if (_camunda_formRefBindingAttribute is not null) result.Camunda_formRefBinding = (string)_camunda_formRefBindingAttribute;
-
-            // optional: camunda:formRefVersion -> string camunda_formRefVersion (0, 1)
-            var _camunda_formRefVersionAttribute = node.Attributes.ContainsKey("camunda:formRefVersion") ? node.Attributes["camunda:formRefVersion"].ProcessedValue : null;
-            if (_camunda_formRefVersionAttribute is not null) result.Camunda_formRefVersion = (string)_camunda_formRefVersionAttribute;
-
-            // optional: camunda:initiator -> string camunda_initiator (0, 1)
-            var _camunda_initiatorAttribute = node.Attributes.ContainsKey("camunda:initiator") ? node.Attributes["camunda:initiator"].ProcessedValue : null;
-            if (_camunda_initiatorAttribute is not null) result.Camunda_initiator = (string)_camunda_initiatorAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: outputSet -> OutputSet outputSet (0, 1)
-            result.OutputSet = FillElement<OutputSet>(node.ChildNodes["outputSet"]);
-
-            // element: eventDefinitionRef -> EventDefinition eventDefinitionRefs (0, *)
-            FillElements(node.ChildNodes["eventDefinitionRef"], result.EventDefinitionRefs);
-
-            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociation (0, *)
-            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociation);
-
-            // element: dataOutput -> DataOutput dataOutputs (0, *)
-            FillElements(node.ChildNodes["dataOutput"], result.DataOutputs);
-
-            // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
-            FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
-
-            // two way associatio: StartEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: StartEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: StartEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private SubChoreography LoadSubChoreography(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<SubChoreography>(node);
-
-            // required: initiatingParticipantRef -> Participant initiatingParticipantRef (1, 1)
-            var _initiatingParticipantRefAttribute = node.Attributes["initiatingParticipantRef"]?.ProcessedValue;
-            if (_initiatingParticipantRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute initiatingParticipantRef");
-            result.InitiatingParticipantRef = Load<Participant>((XmlParserComplexNode)_initiatingParticipantRefAttribute);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: loopType -> ChoreographyLoopType loopType (1, 1)
-            var _loopTypeAttribute = node.Attributes.ContainsKey("loopType") ? node.Attributes["loopType"].ProcessedValue : null;
-            if (_loopTypeAttribute is not null) result.LoopType = CreateEnum<ChoreographyLoopType>((string)_loopTypeAttribute);
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: participantRef -> Participant participantRefs (2, *)
-            FillElements(node.ChildNodes["participantRef"], result.ParticipantRefs);
-
-            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
-            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
-
-            // element: flowElement -> FlowElement flowElements (0, *)
-            FillElements(node.ChildNodes["flowElement"], result.FlowElements);
-
-            // element: artifact -> Artifact artifacts (0, *)
-            FillElements(node.ChildNodes["artifact"], result.Artifacts);
-
-            // two way associatio: SubChoreography(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // empty: LaneSet laneSets (0, *)
-
-            return result;
-        }
-
-        private SubConversation LoadSubConversation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<SubConversation>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: participantRef -> Participant participantRefs (2, *)
-            FillElements(node.ChildNodes["participantRef"], result.ParticipantRefs);
-
-            // element: messageFlowRef -> MessageFlow messageFlowRefs (0, *)
-            FillElements(node.ChildNodes["messageFlowRef"], result.MessageFlowRefs);
-
-            // element: correlationKey -> CorrelationKey correlationKeys (0, *)
-            FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
-
-            // element: conversationNode -> ConversationNode conversationNodes (0, *)
-            FillElements(node.ChildNodes["conversationNode"], result.ConversationNodes);
-
-            // two way associatio: SubConversation(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: SubConversation(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private SubProcess LoadSubProcess(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<SubProcess>(node);
+             var result = GetOrCreate<AdHocSubProcess>(node);
 
             // optional: id -> string id (1, 1)
             var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
@@ -4853,6 +5348,14 @@ namespace BPMNModel.Model
             var _triggeredByEventAttribute = node.Attributes.ContainsKey("triggeredByEvent") ? node.Attributes["triggeredByEvent"].ProcessedValue : null;
             if (_triggeredByEventAttribute is not null) result.TriggeredByEvent = (bool)_triggeredByEventAttribute;
 
+            // optional: ordering -> AdHocOrdering ordering (1, 1)
+            var _orderingAttribute = node.Attributes.ContainsKey("ordering") ? node.Attributes["ordering"].ProcessedValue : null;
+            if (_orderingAttribute is not null) result.Ordering = CreateEnum<AdHocOrdering>((string)_orderingAttribute);
+
+            // optional: cancelRemainingInstances -> bool cancelRemainingInstances (1, 1)
+            var _cancelRemainingInstancesAttribute = node.Attributes.ContainsKey("cancelRemainingInstances") ? node.Attributes["cancelRemainingInstances"].ProcessedValue : null;
+            if (_cancelRemainingInstancesAttribute is not null) result.CancelRemainingInstances = (bool)_cancelRemainingInstancesAttribute;
+
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
@@ -4898,183 +5401,22 @@ namespace BPMNModel.Model
             // element: artifact -> Artifact artifacts (0, *)
             FillElements(node.ChildNodes["artifact"], result.Artifacts);
 
-            // two way associatio: SubProcess(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // element: completionCondition -> Expression completionCondition (1, 1)
+            result.CompletionCondition = FillElement<Expression>(node.ChildNodes["completionCondition"]);
+
+            // two way associatio: AdHocSubProcess(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: SubProcess(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way associatio: AdHocSubProcess(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
             return result;
         }
 
-        private Task LoadTask(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<Task>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: name -> string name (1, 1)
-            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
-            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
-
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
-
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
-
-            // optional: isForCompensation -> bool isForCompensation (1, 1)
-            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
-            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
-
-            // optional: default -> SequenceFlow default (0, 1)
-            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
-            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
-
-            // optional: startQuantity -> long startQuantity (1, 1)
-            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
-
-            // optional: completionQuantity -> long completionQuantity (1, 1)
-            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
-
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
-
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
-
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
-
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
-
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
-            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
-
-            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
-            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
-
-            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
-            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
-
-            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
-            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
-
-            // two way associatio: Task(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: Task(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
-            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
-
-            // two way associatio: Task(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: Task(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
-
-            return result;
-        }
-
-        private TerminateEventDefinition LoadTerminateEventDefinition(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<TerminateEventDefinition>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            return result;
-        }
-
-        private TextAnnotation LoadTextAnnotation(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<TextAnnotation>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // optional: textFormat -> string textFormat (1, 1)
-            var _textFormatAttribute = node.Attributes.ContainsKey("textFormat") ? node.Attributes["textFormat"].ProcessedValue : null;
-            if (_textFormatAttribute is not null) result.TextFormat = (string)_textFormatAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: text -> string text (1, 1)
-            result.Text = FillElement<string>(node.ChildNodes["text"]);
-
-            return result;
-        }
-
-        private TimerEventDefinition LoadTimerEventDefinition(XmlParserComplexNode node)
-        {
-            var result = GetOrCreate<TimerEventDefinition>(node);
-
-            // optional: id -> string id (1, 1)
-            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
-            if (_idAttribute is not null) result.Id = (string)_idAttribute;
-
-            // element: documentation -> Documentation documentation (0, *)
-            FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: timeDate -> Expression timeDate (0, 1)
-            result.TimeDate = FillElement<Expression>(node.ChildNodes["timeDate"]);
-
-            // element: timeCycle -> Expression timeCycle (0, 1)
-            result.TimeCycle = FillElement<Expression>(node.ChildNodes["timeCycle"]);
-
-            // element: timeDuration -> Expression timeDuration (0, 1)
-            result.TimeDuration = FillElement<Expression>(node.ChildNodes["timeDuration"]);
-
-            return result;
-        }
-
+        // Transaction
         private Transaction LoadTransaction(XmlParserComplexNode node)
         {
-            var result = GetOrCreate<Transaction>(node);
+             var result = GetOrCreate<Transaction>(node);
 
             // optional: id -> string id (1, 1)
             var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
@@ -5192,9 +5534,10 @@ namespace BPMNModel.Model
             return result;
         }
 
-        private UserTask LoadUserTask(XmlParserComplexNode node)
+        // GlobalScriptTask
+        private GlobalScriptTask LoadGlobalScriptTask(XmlParserComplexNode node)
         {
-            var result = GetOrCreate<UserTask>(node);
+             var result = GetOrCreate<GlobalScriptTask>(node);
 
             // optional: id -> string id (1, 1)
             var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
@@ -5204,152 +5547,222 @@ namespace BPMNModel.Model
             var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
             if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
-            // optional: camunda:modelerTemplate -> string camunda_modelerTemplate (0, 1)
-            var _camunda_modelerTemplateAttribute = node.Attributes.ContainsKey("camunda:modelerTemplate") ? node.Attributes["camunda:modelerTemplate"].ProcessedValue : null;
-            if (_camunda_modelerTemplateAttribute is not null) result.Camunda_modelerTemplate = (string)_camunda_modelerTemplateAttribute;
+            // optional: scriptLanguage -> string scriptLanguage (1, 1)
+            var _scriptLanguageAttribute = node.Attributes.ContainsKey("scriptLanguage") ? node.Attributes["scriptLanguage"].ProcessedValue : null;
+            if (_scriptLanguageAttribute is not null) result.ScriptLanguage = (string)_scriptLanguageAttribute;
 
-            // optional: camunda:modelerTemplateVersion -> long camunda_modelerTemplateVersion (0, 1)
-            var _camunda_modelerTemplateVersionAttribute = node.Attributes.ContainsKey("camunda:modelerTemplateVersion") ? node.Attributes["camunda:modelerTemplateVersion"].ProcessedValue : null;
-            if (_camunda_modelerTemplateVersionAttribute is not null) result.Camunda_modelerTemplateVersion = (long)_camunda_modelerTemplateVersionAttribute;
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-            // optional: isForCompensation -> bool isForCompensation (1, 1)
-            var _isForCompensationAttribute = node.Attributes.ContainsKey("isForCompensation") ? node.Attributes["isForCompensation"].ProcessedValue : null;
-            if (_isForCompensationAttribute is not null) result.IsForCompensation = (bool)_isForCompensationAttribute;
+            // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
+            result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
 
-            // optional: default -> SequenceFlow default (0, 1)
-            var _defaultAttribute = node.Attributes.ContainsKey("default") ? node.Attributes["default"].ProcessedValue : null;
-            if (_defaultAttribute is not null) result.Default = Load<SequenceFlow>((XmlParserComplexNode)_defaultAttribute);
+            // element: supportedInterfaceRef -> Interface supportedInterfaceRefs (0, *)
+            FillElements(node.ChildNodes["supportedInterfaceRef"], result.SupportedInterfaceRefs);
 
-            // optional: startQuantity -> long startQuantity (1, 1)
-            var _startQuantityAttribute = node.Attributes.ContainsKey("startQuantity") ? node.Attributes["startQuantity"].ProcessedValue : null;
-            if (_startQuantityAttribute is not null) result.StartQuantity = (long)_startQuantityAttribute;
+            // element: ioBinding -> InputOutputBinding ioBinding (0, *)
+            FillElements(node.ChildNodes["ioBinding"], result.IoBinding);
 
-            // optional: completionQuantity -> long completionQuantity (1, 1)
-            var _completionQuantityAttribute = node.Attributes.ContainsKey("completionQuantity") ? node.Attributes["completionQuantity"].ProcessedValue : null;
-            if (_completionQuantityAttribute is not null) result.CompletionQuantity = (long)_completionQuantityAttribute;
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
 
-            // optional: camunda:async -> bool camunda_async (0, 1)
-            var _camunda_asyncAttribute = node.Attributes.ContainsKey("camunda:async") ? node.Attributes["camunda:async"].ProcessedValue : null;
-            if (_camunda_asyncAttribute is not null) result.Camunda_async = (bool)_camunda_asyncAttribute;
+            // element: script -> string script (1, 1)
+            result.Script = FillElement<string>(node.ChildNodes["script"]);
 
-            // optional: camunda:asyncBefore -> bool camunda_asyncBefore (0, 1)
-            var _camunda_asyncBeforeAttribute = node.Attributes.ContainsKey("camunda:asyncBefore") ? node.Attributes["camunda:asyncBefore"].ProcessedValue : null;
-            if (_camunda_asyncBeforeAttribute is not null) result.Camunda_asyncBefore = (bool)_camunda_asyncBeforeAttribute;
+            return result;
+        }
 
-            // optional: camunda:asyncAfter -> bool camunda_asyncAfter (0, 1)
-            var _camunda_asyncAfterAttribute = node.Attributes.ContainsKey("camunda:asyncAfter") ? node.Attributes["camunda:asyncAfter"].ProcessedValue : null;
-            if (_camunda_asyncAfterAttribute is not null) result.Camunda_asyncAfter = (bool)_camunda_asyncAfterAttribute;
+        // GlobalBusinessRuleTask
+        private GlobalBusinessRuleTask LoadGlobalBusinessRuleTask(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<GlobalBusinessRuleTask>(node);
 
-            // optional: camunda:exclusive -> bool camunda_exclusive (0, 1)
-            var _camunda_exclusiveAttribute = node.Attributes.ContainsKey("camunda:exclusive") ? node.Attributes["camunda:exclusive"].ProcessedValue : null;
-            if (_camunda_exclusiveAttribute is not null) result.Camunda_exclusive = (bool)_camunda_exclusiveAttribute;
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
 
-            // optional: camunda:jobPriority -> string camunda_jobPriority (0, 1)
-            var _camunda_jobPriorityAttribute = node.Attributes.ContainsKey("camunda:jobPriority") ? node.Attributes["camunda:jobPriority"].ProcessedValue : null;
-            if (_camunda_jobPriorityAttribute is not null) result.Camunda_jobPriority = (string)_camunda_jobPriorityAttribute;
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
 
             // optional: implementation -> string implementation (1, 1)
             var _implementationAttribute = node.Attributes.ContainsKey("implementation") ? node.Attributes["implementation"].ProcessedValue : null;
             if (_implementationAttribute is not null) result.Implementation = (string)_implementationAttribute;
 
-            // optional: camunda:formHandlerClass -> string camunda_formHandlerClass (0, 1)
-            var _camunda_formHandlerClassAttribute = node.Attributes.ContainsKey("camunda:formHandlerClass") ? node.Attributes["camunda:formHandlerClass"].ProcessedValue : null;
-            if (_camunda_formHandlerClassAttribute is not null) result.Camunda_formHandlerClass = (string)_camunda_formHandlerClassAttribute;
-
-            // optional: camunda:formKey -> string camunda_formKey (0, 1)
-            var _camunda_formKeyAttribute = node.Attributes.ContainsKey("camunda:formKey") ? node.Attributes["camunda:formKey"].ProcessedValue : null;
-            if (_camunda_formKeyAttribute is not null) result.Camunda_formKey = (string)_camunda_formKeyAttribute;
-
-            // optional: camunda:formRef -> string camunda_formRef (0, 1)
-            var _camunda_formRefAttribute = node.Attributes.ContainsKey("camunda:formRef") ? node.Attributes["camunda:formRef"].ProcessedValue : null;
-            if (_camunda_formRefAttribute is not null) result.Camunda_formRef = (string)_camunda_formRefAttribute;
-
-            // optional: camunda:formRefBinding -> string camunda_formRefBinding (0, 1)
-            var _camunda_formRefBindingAttribute = node.Attributes.ContainsKey("camunda:formRefBinding") ? node.Attributes["camunda:formRefBinding"].ProcessedValue : null;
-            if (_camunda_formRefBindingAttribute is not null) result.Camunda_formRefBinding = (string)_camunda_formRefBindingAttribute;
-
-            // optional: camunda:formRefVersion -> string camunda_formRefVersion (0, 1)
-            var _camunda_formRefVersionAttribute = node.Attributes.ContainsKey("camunda:formRefVersion") ? node.Attributes["camunda:formRefVersion"].ProcessedValue : null;
-            if (_camunda_formRefVersionAttribute is not null) result.Camunda_formRefVersion = (string)_camunda_formRefVersionAttribute;
-
-            // optional: camunda:assignee -> string camunda_assignee (0, 1)
-            var _camunda_assigneeAttribute = node.Attributes.ContainsKey("camunda:assignee") ? node.Attributes["camunda:assignee"].ProcessedValue : null;
-            if (_camunda_assigneeAttribute is not null) result.Camunda_assignee = (string)_camunda_assigneeAttribute;
-
-            // optional: camunda:candidateUsers -> string camunda_candidateUsers (0, 1)
-            var _camunda_candidateUsersAttribute = node.Attributes.ContainsKey("camunda:candidateUsers") ? node.Attributes["camunda:candidateUsers"].ProcessedValue : null;
-            if (_camunda_candidateUsersAttribute is not null) result.Camunda_candidateUsers = (string)_camunda_candidateUsersAttribute;
-
-            // optional: camunda:candidateGroups -> string camunda_candidateGroups (0, 1)
-            var _camunda_candidateGroupsAttribute = node.Attributes.ContainsKey("camunda:candidateGroups") ? node.Attributes["camunda:candidateGroups"].ProcessedValue : null;
-            if (_camunda_candidateGroupsAttribute is not null) result.Camunda_candidateGroups = (string)_camunda_candidateGroupsAttribute;
-
-            // optional: camunda:dueDate -> string camunda_dueDate (0, 1)
-            var _camunda_dueDateAttribute = node.Attributes.ContainsKey("camunda:dueDate") ? node.Attributes["camunda:dueDate"].ProcessedValue : null;
-            if (_camunda_dueDateAttribute is not null) result.Camunda_dueDate = (string)_camunda_dueDateAttribute;
-
-            // optional: camunda:followUpDate -> string camunda_followUpDate (0, 1)
-            var _camunda_followUpDateAttribute = node.Attributes.ContainsKey("camunda:followUpDate") ? node.Attributes["camunda:followUpDate"].ProcessedValue : null;
-            if (_camunda_followUpDateAttribute is not null) result.Camunda_followUpDate = (string)_camunda_followUpDateAttribute;
-
-            // optional: camunda:priority -> string camunda_priority (0, 1)
-            var _camunda_priorityAttribute = node.Attributes.ContainsKey("camunda:priority") ? node.Attributes["camunda:priority"].ProcessedValue : null;
-            if (_camunda_priorityAttribute is not null) result.Camunda_priority = (string)_camunda_priorityAttribute;
-
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
-
-            // element: auditing -> Auditing auditing (0, 1)
-            result.Auditing = FillElement<Auditing>(node.ChildNodes["auditing"]);
-
-            // element: monitoring -> Monitoring monitoring (0, 1)
-            result.Monitoring = FillElement<Monitoring>(node.ChildNodes["monitoring"]);
-
-            // element: categoryValueRef -> CategoryValue categoryValueRef (0, *)
-            FillElements(node.ChildNodes["categoryValueRef"], result.CategoryValueRef);
-
-            // element: outgoing -> SequenceFlow outgoing (0, *)
-            FillElements(node.ChildNodes["outgoing"], result.Outgoing);
-
-            // element: incoming -> SequenceFlow incoming (0, *)
-            FillElements(node.ChildNodes["incoming"], result.Incoming);
-
-            // element: loopCharacteristics -> LoopCharacteristics loopCharacteristics (0, 1)
-            result.LoopCharacteristics = FillElement<LoopCharacteristics>(node.ChildNodes["loopCharacteristics"]);
-
-            // element: resourceRole -> ResourceRole resources (0, *)
-            FillElements(node.ChildNodes["resourceRole"], result.Resources);
-
-            // element: property -> Property properties (0, *)
-            FillElements(node.ChildNodes["property"], result.Properties);
 
             // element: ioSpecification -> InputOutputSpecification ioSpecification (0, 1)
             result.IoSpecification = FillElement<InputOutputSpecification>(node.ChildNodes["ioSpecification"]);
 
-            // element: dataInputAssociation -> DataInputAssociation dataInputAssociations (0, *)
-            FillElements(node.ChildNodes["dataInputAssociation"], result.DataInputAssociations);
+            // element: supportedInterfaceRef -> Interface supportedInterfaceRefs (0, *)
+            FillElements(node.ChildNodes["supportedInterfaceRef"], result.SupportedInterfaceRefs);
 
-            // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
-            FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
+            // element: ioBinding -> InputOutputBinding ioBinding (0, *)
+            FillElements(node.ChildNodes["ioBinding"], result.IoBinding);
 
-            // element: rendering -> Rendering renderings (0, *)
-            FillElements(node.ChildNodes["rendering"], result.Renderings);
-
-            // two way associatio: UserTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
-            // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
-
-            // two way associatio: UserTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
-            // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
-
-            // two way associatio: UserTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
-            // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
-
-            // two way associatio: UserTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
-            // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
+            // element: resourceRole -> ResourceRole resources (0, *)
+            FillElements(node.ChildNodes["resourceRole"], result.Resources);
 
             return result;
         }
 
-        #endregion Factories
+        // ComplexBehaviorDefinition
+        private ComplexBehaviorDefinition LoadComplexBehaviorDefinition(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ComplexBehaviorDefinition>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: condition -> FormalExpression condition (1, 1)
+            result.Condition = FillElement<FormalExpression>(node.ChildNodes["condition"]);
+
+            // element: event -> ImplicitThrowEvent event (0, 1)
+            result.Event = FillElement<ImplicitThrowEvent>(node.ChildNodes["event"]);
+
+            return result;
+        }
+
+        // ResourceRole
+        private ResourceRole LoadResourceRole(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ResourceRole>(node);
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // element: documentation -> Documentation documentation (0, *)
+            FillElements(node.ChildNodes["documentation"], result.Documentation);
+
+            // element: resourceRef -> Resource resourceRef (0, 1)
+            result.ResourceRef = FillElement<Resource>(node.ChildNodes["resourceRef"]);
+
+            // element: resourceParameterBinding -> ResourceParameterBinding resourceParameterBindings (0, *)
+            FillElements(node.ChildNodes["resourceParameterBinding"], result.ResourceParameterBindings);
+
+            // element: resourceAssignmentExpression -> ResourceAssignmentExpression resourceAssignmentExpression (0, 1)
+            result.ResourceAssignmentExpression = FillElement<ResourceAssignmentExpression>(node.ChildNodes["resourceAssignmentExpression"]);
+
+            return result;
+        }
+
+        // ResourceParameterBinding
+        private ResourceParameterBinding LoadResourceParameterBinding(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ResourceParameterBinding>(node);
+
+            // required: parameterRef -> ResourceParameter parameterRef (1, 1)
+            var _parameterRefAttribute = node.Attributes["parameterRef"]?.ProcessedValue;
+            if (_parameterRefAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute parameterRef");
+            result.ParameterRef = Load<ResourceParameter>((XmlParserComplexNode)_parameterRefAttribute);
+
+            // element: expression -> Expression expression (1, 1)
+            result.Expression = FillElement<Expression>(node.ChildNodes["expression"]);
+
+            return result;
+        }
+
+        // ResourceAssignmentExpression
+        private ResourceAssignmentExpression LoadResourceAssignmentExpression(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<ResourceAssignmentExpression>(node);
+
+            // element: expression -> Expression expression (1, 1)
+            result.Expression = FillElement<Expression>(node.ChildNodes["expression"]);
+
+            return result;
+        }
+
+        // Import
+        private Import LoadImport(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Import>(node);
+
+            // required: importType -> string importType (1, 1)
+            var _importTypeAttribute = node.Attributes["importType"]?.ProcessedValue;
+            if (_importTypeAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute importType");
+            result.ImportType = (string)_importTypeAttribute;
+
+            // required: location -> string location (1, 1)
+            var _locationAttribute = node.Attributes["location"]?.ProcessedValue;
+            if (_locationAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute location");
+            result.Location = (string)_locationAttribute;
+
+            // required: namespace -> string namespace (1, 1)
+            var _namespaceAttribute = node.Attributes["namespace"]?.ProcessedValue;
+            if (_namespaceAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute namespace");
+            result.Namespace = (string)_namespaceAttribute;
+
+            return result;
+        }
+
+        // Definitions
+        private Definitions LoadDefinitions(XmlParserComplexNode node)
+        {
+             var result = GetOrCreate<Definitions>(node);
+
+            // required: targetNamespace -> string targetNamespace (1, 1)
+            var _targetNamespaceAttribute = node.Attributes["targetNamespace"]?.ProcessedValue;
+            if (_targetNamespaceAttribute is null) throw new BPMNCheckerExceptions($"Node {node.ID} ({(string.IsNullOrWhiteSpace(node.Type?.Name) ? node.Type?.Name : "")}) is missing required attribute targetNamespace");
+            result.TargetNamespace = (string)_targetNamespaceAttribute;
+
+            // optional: id -> string id (1, 1)
+            var _idAttribute = node.Attributes.ContainsKey("id") ? node.Attributes["id"].ProcessedValue : null;
+            if (_idAttribute is not null) result.Id = (string)_idAttribute;
+
+            // optional: name -> string name (1, 1)
+            var _nameAttribute = node.Attributes.ContainsKey("name") ? node.Attributes["name"].ProcessedValue : null;
+            if (_nameAttribute is not null) result.Name = (string)_nameAttribute;
+
+            // optional: expressionLanguage -> string expressionLanguage (1, 1)
+            var _expressionLanguageAttribute = node.Attributes.ContainsKey("expressionLanguage") ? node.Attributes["expressionLanguage"].ProcessedValue : null;
+            if (_expressionLanguageAttribute is not null) result.ExpressionLanguage = (string)_expressionLanguageAttribute;
+
+            // optional: typeLanguage -> string typeLanguage (1, 1)
+            var _typeLanguageAttribute = node.Attributes.ContainsKey("typeLanguage") ? node.Attributes["typeLanguage"].ProcessedValue : null;
+            if (_typeLanguageAttribute is not null) result.TypeLanguage = (string)_typeLanguageAttribute;
+
+            // optional: exporter -> string exporter (1, 1)
+            var _exporterAttribute = node.Attributes.ContainsKey("exporter") ? node.Attributes["exporter"].ProcessedValue : null;
+            if (_exporterAttribute is not null) result.Exporter = (string)_exporterAttribute;
+
+            // optional: exporterVersion -> string exporterVersion (1, 1)
+            var _exporterVersionAttribute = node.Attributes.ContainsKey("exporterVersion") ? node.Attributes["exporterVersion"].ProcessedValue : null;
+            if (_exporterVersionAttribute is not null) result.ExporterVersion = (string)_exporterVersionAttribute;
+
+            // optional: camunda:diagramRelationId -> string camunda_diagramRelationId (0, 1)
+            var _camunda_diagramRelationIdAttribute = node.Attributes.ContainsKey("camunda:diagramRelationId") ? node.Attributes["camunda:diagramRelationId"].ProcessedValue : null;
+            if (_camunda_diagramRelationIdAttribute is not null) result.Camunda_diagramRelationId = (string)_camunda_diagramRelationIdAttribute;
+
+            // element: import -> Import imports (0, *)
+            FillElements(node.ChildNodes["import"], result.Imports);
+
+            // element: extension -> Extension extensions (0, *)
+            FillElements(node.ChildNodes["extension"], result.Extensions);
+
+            // element: relationship -> Relationship relationships (0, *)
+            FillElements(node.ChildNodes["relationship"], result.Relationships);
+
+            // element: rootElement -> RootElement rootElements (0, *)
+            FillElements(node.ChildNodes["rootElement"], result.RootElements);
+
+            // element: BPMNDiagram -> BPMNDiagram diagrams (0, *)
+            FillElements(node.ChildNodes["BPMNDiagram"], result.Diagrams);
+
+            return result;
+        }
+
+        #endregion
+
     }
 }

@@ -44,13 +44,14 @@ namespace BPMNModel.Model
 
     }
 
-    public abstract class DiagramElement
+    public abstract class DiagramElement: IElementWithId
     {
         public Diagram? OwningDiagram { get; set; }
         public DiagramElement? OwningElement { get; set; }
         public Element? ModelElement { get; set; }
         public Style? Style { get; set; }
         public List<DiagramElement> OwnedElement { get; } = new();
+        public string? Id { get; set; }
 
         public DiagramElement()
         {
@@ -79,13 +80,14 @@ namespace BPMNModel.Model
 
     }
 
-    public abstract class Diagram
+    public abstract class Diagram: IElementWithId
     {
         public DiagramElement? RootElement { get; set; }
         public string? Name { get; set; }
         public string? Documentation { get; set; }
         public double? Resolution { get; set; }
         public List<Style> OwnedStyle { get; } = new();
+        public string? Id { get; set; }
 
         public Diagram()
         {
@@ -531,7 +533,7 @@ namespace BPMNModel.Model
 
     }
 
-    public abstract class BaseElement : CamundaExtensionBaseElement
+    public abstract class BaseElement : CamundaExtensionBaseElement, IElementWithId
     {
         public string? Id { get; set; }
         public List<ExtensionDefinition> ExtensionDefinitions { get; } = new();

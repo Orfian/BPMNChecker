@@ -32,6 +32,12 @@ namespace BPMNModel.Model
                     throw new BPMNCheckerExceptions($"Error in parser, {complexNode.ID} has no type.");
                 }
                 string className = complexNode.Type.Name.StartsWith('t') ? complexNode.Type.Name.Substring(1) : complexNode.Type.Name;
+
+                if (className.StartsWith("di") || className.StartsWith("dc") || className.StartsWith("bpmndi"))
+                {
+                    className = CamundaExtensions.RemoveNonCamundaPrefix(className);
+                }
+
                 string fullClassName = "BPMNModel.Model." + className;
                 Type? type = Type.GetType(fullClassName);
 
@@ -126,16 +132,16 @@ namespace BPMNModel.Model
 
             if (factory.Definition is not null)
             {
-                var baseElements = new List<BaseElement>();
+                var baseElements = new List<IElementWithId>();
 
                 foreach (var (_, item) in factory.cacheWithObjects)
                 {
-                    if (item is not BaseElement)
+                    if (item is not IElementWithId)
                     {
                         throw new BPMNCheckerExceptions($"Element {item} is not an instance of BaseElement - no BPMN model item.");
                     }
 
-                    baseElements.Add((BaseElement)item);
+                    baseElements.Add((IElementWithId)item);
                 }
 
                 var modelRoot = new ModelRoot(factory.Definition, baseElements);
@@ -160,15 +166,6 @@ namespace BPMNModel.Model
             return result[0];
         }
 
-        private T CreateEnum<T>(string value) where T : struct
-        {
-            if (Enum.TryParse(value, out T result))
-            {
-                return result;
-            }
-            throw new BPMNCheckerExceptions($"Can not convert {value} to Enum type {typeof(T).Name}.");
-        }
-
         public void FillElements<T>(List<XmlParserNode> data, List<T> target)
         {
             foreach (XmlParserNode node in data)
@@ -188,6 +185,15 @@ namespace BPMNModel.Model
                     throw new BPMNCheckerExceptions($"Not processing this node type now.");
                 }
             }
+        }
+
+        private T CreateEnum<T>(string value) where T : struct
+        {
+            if (Enum.TryParse(value, out T result))
+            {
+                return result;
+            }
+            throw new BPMNCheckerExceptions($"Can not convert {value} to Enum type {typeof(T).Name}.");
         }
 
         private T GetOrCreate<T>(XmlParserComplexNode complexNode) where T : class, new()
@@ -240,6 +246,12 @@ namespace BPMNModel.Model
             }
 
             var realName = complexNode.Type.Name.StartsWith('t') ? complexNode.Type.Name.Substring(1) : complexNode.Type.Name;
+
+            if (realName.StartsWith("di") || realName.StartsWith("dc") || realName.StartsWith("bpmndi"))
+            {
+                realName = CamundaExtensions.RemoveNonCamundaPrefix(realName);
+            }
+
             var fullName = "Load" + realName;
             var method = type.GetMethod(fullName, BindingFlags.NonPublic | BindingFlags.Instance);
             if (method == null)

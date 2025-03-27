@@ -2,7 +2,12 @@
 
 namespace BPMNModel.Model
 {
-    public class CamundaExtensionBaseElement
+    public interface IElementWithId
+    {
+        string? Id { get; }
+    }
+
+    public abstract class CamundaExtensionBaseElement
     {
         public List<ICamundaBaseElement> CamundaElements { get; } = new();
     }

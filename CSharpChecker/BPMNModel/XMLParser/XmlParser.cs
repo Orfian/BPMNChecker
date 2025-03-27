@@ -1,4 +1,5 @@
-﻿using BPMNModel.XMLElements;
+﻿using BPMNModel.Camunda;
+using BPMNModel.XMLElements;
 using Serilog;
 using System.Collections.Immutable;
 using System.Xml;
@@ -172,7 +173,8 @@ namespace BPMNModel.XMLParser
                 {
                     AllErrors.Add(message);
                 }
-            }else if (reportOtherNamespacesErrorsAsWarnings && !namespaces.ContainsValue(element.Name.Namespace)) 
+            }
+            else if (reportOtherNamespacesErrorsAsWarnings && !namespaces.ContainsValue(element.Name.Namespace))
             {
                 AllWarnings.Add(message);
             }
@@ -330,7 +332,8 @@ namespace BPMNModel.XMLParser
             while (currentCategoryIndex < allCategories.Count)
             {
                 var currentCategory = allCategories[currentCategoryIndex];
-                node.ChildNodes.Add(currentCategory.Name, []);
+                var simpleName = CamundaExtensions.RemoveNonCamundaPrefix(currentCategory.Name);
+                node.ChildNodes.Add(simpleName, []);
                 currentCategoryIndex++;
 
                 logger.Debug(GetNiceMessage(element, $"  Processing: {currentCategory.Name}"));
@@ -352,7 +355,7 @@ namespace BPMNModel.XMLParser
                                 var createdNode = LoadAndCheck(currentElement, generator.Elements[generatorName]);
                                 if (createdNode != null)
                                 {
-                                    node.ChildNodes[currentCategory.Name].Add(createdNode);
+                                    node.ChildNodes[simpleName].Add(createdNode);
                                     Log.Debug(GetNiceMessage(element, $"    {createdNode}"));
                                 }
                                 currentElementIndex++;
@@ -387,7 +390,7 @@ namespace BPMNModel.XMLParser
                                         if (generator.Types.ContainsKey(castType) && generator.Types[castType] is ComplexType castingType)
                                         {
                                             var createdNode = new XmlParserCastNode(castingType, currentElement.Value);
-                                            node.ChildNodes[currentCategory.Name].Add(createdNode);
+                                            node.ChildNodes[simpleName].Add(createdNode);
                                             Log.Debug(GetNiceMessage(element, $"    {createdNode}"));
                                         }
                                         else
@@ -410,7 +413,7 @@ namespace BPMNModel.XMLParser
 
                                     if (namedNode != null)
                                     {
-                                        node.ChildNodes[currentCategory.Name].Add(namedNode);
+                                        node.ChildNodes[simpleName].Add(namedNode);
                                     }
                                     currentElementIndex++;
                                     continue;
@@ -426,7 +429,7 @@ namespace BPMNModel.XMLParser
                             {
                                 var realValue = currentElement.Value;
                                 var targetNode = GetReferecne(realValue);
-                                node.ChildNodes[currentCategory.Name].Add(targetNode);
+                                node.ChildNodes[simpleName].Add(targetNode);
                                 Log.Debug(GetNiceMessage(element, $"    {targetNode}"));
                             }
                             currentElementIndex++;
@@ -465,7 +468,7 @@ namespace BPMNModel.XMLParser
                         else
                         {
                             var createdNode = new XmlParserAnyNode(currentElement);
-                            node.ChildNodes[currentCategory.Name].Add(createdNode);
+                            node.ChildNodes[simpleName].Add(createdNode);
                             Log.Debug(GetNiceMessage(element, $"    {createdNode}"));
                         }
                         currentElementIndex++;
@@ -478,7 +481,7 @@ namespace BPMNModel.XMLParser
                     }
                 }
 
-                int realOccurences = node.ChildNodes[currentCategory.Name].Count;
+                int realOccurences = node.ChildNodes[simpleName].Count;
                 if (currentCategory.MinOccurs is null || currentCategory.MaxOccurs is null) throw new BPMNCheckerExceptions($"For {currentCategory.Name} something went wrong - number of occurences should be filed now.");
                 int minOccurences = currentCategory.MinOccurs ?? 0;
                 int maxOccurences = currentCategory.MaxOccurs ?? 0;
@@ -675,7 +678,7 @@ namespace BPMNModel.XMLParser
                         {
                             AddError(innerElement, $"Type {type.Name} have several [{string.Join(",", targetInCurrentInnerCategories.Select(x => x.Value.Name))}] targets for type {targetType.Name} - do not know what is the target. ");
                         }
-                    } 
+                    }
                     else
                     {
                         if (convertedName.StartsWith("bpmn:"))
@@ -691,7 +694,6 @@ namespace BPMNModel.XMLParser
                                 {
                                     //TODO: Is casting possible here? I hve no example of casting, so checking directly
                                     var targetInCurrentInnerCategories = type.InnerElementsByTypeElementName.Where(x => x.Value is RootElement c && c.Type.Name.Equals(targetBPMNElement.Type.Name)).ToList();
-
 
                                     if (targetInCurrentInnerCategories.Count == 0)
                                     {

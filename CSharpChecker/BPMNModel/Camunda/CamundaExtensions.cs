@@ -1,7 +1,6 @@
 ﻿using BPMNModel.XMLElements;
 using Serilog;
 using System.Text.Json;
-using System.Xml.Linq;
 using Utility;
 using Attribute = BPMNModel.XMLElements.Attribute;
 
@@ -350,7 +349,8 @@ namespace BPMNModel.Camunda
                             if (generator.Elements.ContainsKey(bpmnName))
                             {
                                 camundaType.InnerElementsByTypeElementName.Add(convertedElementName, generator.Elements[bpmnName]);
-                            }else
+                            }
+                            else
                             {
                                 throw new BPMNCheckerExceptions($"Unknown BPMN element in camunda.json: {elType}");
                             }
@@ -432,7 +432,7 @@ namespace BPMNModel.Camunda
             }
         }
 
-        private static string RemoveNonCamundaPrefix(string name)
+        public static string RemoveNonCamundaPrefix(string name)
         {
             if (name.Contains(':'))
             {
@@ -442,7 +442,7 @@ namespace BPMNModel.Camunda
                     if (prefix.Equals("camunda"))
                         return name;
                     else
-                        return name.Substring(prefix.Length+1);
+                        return name.Substring(prefix.Length + 1);
                 }
             }
             return name;
@@ -714,7 +714,8 @@ namespace BPMNModel.Camunda
                         }
                         else if (elIsMany)
                         {
-                            if (elType.StartsWith("bpmn:")) {
+                            if (elType.StartsWith("bpmn:"))
+                            {
                                 //if (node.ChildNodes["camunda:eventDefinitions"].Count > 0) bpmnFactory.FillElements(node.ChildNodes["camunda:eventDefinitions"], EventDefinitions);
                                 file.WriteLine($"\t\t\tif (node.ChildNodes[\"{convertedName}\"].Count>0) bpmnFactory.FillElements(node.ChildNodes[\"{convertedName}\"], {CapitalizeFirstLetter(elNameJSON)});");
                             }

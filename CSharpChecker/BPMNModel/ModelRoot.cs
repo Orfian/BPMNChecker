@@ -8,9 +8,9 @@ namespace BPMNModel
 {
     public class ModelRoot
     {
-        private SortedDictionary<string, BaseElement> allObjectsWithIds = new();
+        private SortedDictionary<string, IElementWithId> allObjectsWithIds = new();
 
-        public ModelRoot(Definitions definitions, IEnumerable<BaseElement> elements)
+        public ModelRoot(Definitions definitions, IEnumerable<IElementWithId> elements)
         {
             foreach (var (element, index) in elements.Select((value, index) => (value, index)))
             {
@@ -24,7 +24,7 @@ namespace BPMNModel
             Definition = definitions;
         }
 
-        public SortedDictionary<string, BaseElement> AllObjectsWithIds => allObjectsWithIds;
+        public SortedDictionary<string, IElementWithId> AllObjectsWithIds => allObjectsWithIds;
         public Definitions Definition { get; private set; }
 
         public void DumpModel(string fileName)
@@ -73,7 +73,7 @@ namespace BPMNModel
             {
                 var nullableString = isNulable ? "?" : "";
 
-                if (propertyRealType == typeof(string) || propertyRealType == typeof(long) || propertyRealType == typeof(bool))
+                if (propertyRealType == typeof(string) || propertyRealType == typeof(long) || propertyRealType == typeof(bool) || propertyRealType == typeof(double))
                 {
                     var value = property.GetValue(item);
                     if (value != null)
