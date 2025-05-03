@@ -1,0 +1,20 @@
+<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M 256 128 L 336 128 L 336 896 L 256 896 Z"
+    fill="black"
+    stroke="black"
+    stroke-width="64"
+  />
+  <path
+    d="M 472 128 L 552 128 L 552 896 L 472 896 Z"
+    fill="black"
+    stroke="black"
+    stroke-width="64"
+  />
+  <path
+    d="M 688 128 L 768 128 L 768 896 L 688 896 Z"
+    fill="black"
+    stroke="black"
+    stroke-width="64"
+  />
+</svg>

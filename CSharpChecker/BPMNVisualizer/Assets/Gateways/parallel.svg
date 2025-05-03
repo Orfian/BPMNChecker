@@ -1,0 +1,8 @@
+<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M 128 448 L 448 448 L 448 128 L 576 128 L 576 448 L 896 448 L 896 576 L 576 576 L 576 896 L 448 896 L 448 576 L 128 576 Z"
+    fill="black"
+    stroke="black"
+    stroke-width="64"
+  />
+</svg>

@@ -32,6 +32,7 @@
     <None Remove="diagrams\single_user_task.bpmn" />
     <None Remove="diagrams\subprocesses.bpmn" />
     <None Remove="diagrams\timing.bpmn" />
+    <None Remove="diagrams\test.bpmn" />
   </ItemGroup>
 
   <ItemGroup>
@@ -68,10 +69,26 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="diagrams\timing.bpmn" />
+    <EmbeddedResource Include="diagrams\test.bpmn" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="diagrams\tests\empty_pools.bpmn" />
+    <EmbeddedResource Include="diagrams\tests\empty_pools.bpmn" />
+    <None Remove="diagrams\tests\event-event.bpmn" />
+    <EmbeddedResource Include="diagrams\tests\event-event.bpmn" />
+    <None Remove="diagrams\tests\event-pool.bpmn" />
+    <EmbeddedResource Include="diagrams\tests\event-pool.bpmn" />
+    <None Remove="diagrams\tests\events.bpmn" />
+    <EmbeddedResource Include="diagrams\tests\events.bpmn" />
+    <None Remove="diagrams\tests\pool-event.bpmn" />
+    <EmbeddedResource Include="diagrams\tests\pool-event.bpmn" />
+    <None Remove="diagrams\tests\pool-pool.bpmn" />
+    <EmbeddedResource Include="diagrams\tests\pool-pool.bpmn" />
   </ItemGroup>
 
 </Project>

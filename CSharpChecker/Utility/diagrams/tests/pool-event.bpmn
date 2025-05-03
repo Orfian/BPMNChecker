@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0ozf6uv" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.6.1">
+  <bpmn:collaboration id="Collaboration_16q86a4">
+    <bpmn:participant id="Participant_1yfm0hv" processRef="Process_0w6rydq" />
+    <bpmn:participant id="Participant_06qv2fh" processRef="Process_1sy2f8o" />
+    <bpmn:messageFlow id="Flow_1nixwta" sourceRef="Participant_06qv2fh" targetRef="Activity_1viucky" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_0w6rydq">
+    <bpmn:task id="Activity_1viucky" />
+  </bpmn:process>
+  <bpmn:process id="Process_1sy2f8o">
+    <bpmn:task id="Activity_1gt73l6" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_16q86a4">
+      <bpmndi:BPMNShape id="Participant_1yfm0hv_di" bpmnElement="Participant_1yfm0hv" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="600" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1viucky_di" bpmnElement="Activity_1viucky">
+        <dc:Bounds x="340" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_06qv2fh_di" bpmnElement="Participant_06qv2fh" isHorizontal="true">
+        <dc:Bounds x="190" y="430" width="600" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1gt73l6_di" bpmnElement="Activity_1gt73l6">
+        <dc:Bounds x="560" y="530" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1nixwta_di" bpmnElement="Flow_1nixwta">
+        <di:waypoint x="390" y="430" />
+        <di:waypoint x="390" y="240" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

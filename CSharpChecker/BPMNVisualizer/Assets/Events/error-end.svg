@@ -1,0 +1,9 @@
+<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M 192 832 L 320 256 L 640 512 L 832 192 L 704 768 L 384 512 Z"
+    fill="black"
+    stroke="black"
+    stroke-width="64"
+    stroke-miterlimit="64"
+  />
+</svg>

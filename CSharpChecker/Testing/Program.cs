@@ -47,8 +47,9 @@ namespace Testing
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/all_icons.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/BookHolidaySagaPatternV2.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/CamundaModeler_almost_all_set.bpmn");
-            XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/CamundaModeler_almost_all_set_color.bpmn");
+            //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/CamundaModeler_almost_all_set_color.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/timing.bpmn");
+            XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/test.bpmn");
             var parser = XmlParser.Parse(Log.Logger, generator, doc, false, true);
 
             if (parser.HasErrors)

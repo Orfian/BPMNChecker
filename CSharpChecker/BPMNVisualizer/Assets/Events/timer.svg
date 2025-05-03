@@ -1,0 +1,30 @@
+<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
+  <circle
+    cx="512"
+    cy="512"
+    r="448"
+    fill="none"
+    stroke="black"
+    stroke-width="64"
+  />
+  <circle
+    cx="512"
+    cy="512"
+    r="32"
+    fill="none"
+    stroke="black"
+    stroke-width="64"
+  />
+  <path
+    d="M 772 256 L 512 512"
+    fill="none"
+    stroke="black"
+    stroke-width="64"
+  />
+  <path
+    d="M 512 512 L 772 512"
+    fill="none"
+    stroke="black"
+    stroke-width="64"
+  />
+</svg>
