@@ -5,7 +5,6 @@
 - Fix Expanded Subprocesses
 - Collapsed SubProcesses (Second Image)
 - [Done] Activity Markers
-- Coloring
 - [Done] Conditional and Default Connections
 - [Done] Non-Interrupting (Dashed) Events
 - [Done] Cross Pool Connections

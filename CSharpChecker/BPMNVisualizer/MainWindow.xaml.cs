@@ -21,7 +21,7 @@ namespace BPMNVisualizer
             _modelLoader = new ModelLoader(_logger);
             _visualizer = new Visualizer(_logger, BPMNCanvas);
 
-            LoadAndVisualizeBPMN(@"diagrams/test.bpmn");
+            LoadAndVisualizeBPMN(@"diagrams/CamundaModeler_almost_all_set.bpmn");
         }
 
         private void LoadAndVisualizeBPMN(string filePath)

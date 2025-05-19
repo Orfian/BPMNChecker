@@ -38,7 +38,7 @@ namespace Testing
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/single_user_task.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/subprocesses.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/MonthlyInvoicing-solution.bpmn");
-            //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn");
+            XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn");
 
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/httpConnector.bpmn");
 
@@ -49,7 +49,7 @@ namespace Testing
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/CamundaModeler_almost_all_set.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/CamundaModeler_almost_all_set_color.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/timing.bpmn");
-            XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/test.bpmn");
+            //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/test.bpmn");
             var parser = XmlParser.Parse(Log.Logger, generator, doc, false, true);
 
             if (parser.HasErrors)
