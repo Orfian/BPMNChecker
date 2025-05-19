@@ -3,10 +3,32 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:BPMNVisualizer"
         mc:Ignorable="d"
         Title="BPMN Visualizer" Height="540" Width="960">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-        <Canvas Name="BPMNCanvas" Background="White" />
-    </ScrollViewer>
+    
+    <Window.Resources>
+        <Style x:Key="ExportButtonStyle" TargetType="Button">
+            <Setter Property="Content" Value="Export to PNG"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="10 4"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Background" Value="#FFE0F0FF"/>
+            <Setter Property="BorderBrush" Value="#FF0078D7"/>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel LastChildFill="True">
+        <ToolBar DockPanel.Dock="Top" 
+                 Background="#FFF0F0F0">
+            <Button Style="{StaticResource ExportButtonStyle}"
+                    Click="ExportButton_Click"
+                    ToolTip="Save diagram as PNG image"/>
+        </ToolBar>
+
+        <ScrollViewer x:Name="MainScrollViewer"
+                      VerticalScrollBarVisibility="Auto" 
+                      HorizontalScrollBarVisibility="Auto">
+            <Canvas Name="BPMNCanvas" Background="White"/>
+        </ScrollViewer>
+    </DockPanel>
 </Window>
