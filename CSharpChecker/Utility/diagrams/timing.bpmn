@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_0xusmz3</bpmn:outgoing>
@@ -63,61 +63,6 @@
       <bpmn:outgoing>SequenceFlow_0t78z89</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_0t78z89" sourceRef="ExclusiveGateway_0b91s5d" targetRef="IntermediateCatchEvent_1tm2fi4" />
-    <!-- Add this inside the <bpmn:process> section -->
-<bpmn:callActivity id="Activity_Test1" name="Test Activity">
-  <bpmn:incoming>SequenceFlow_0fq51im</bpmn:incoming>
-  <bpmn:outgoing>SequenceFlow_New</bpmn:outgoing>
-  
-  <!-- Documentation -->
-  <bpmn:documentation>Primary documentation entry</bpmn:documentation>
-  <bpmn:documentation format="text/html">&lt;p&gt;HTML formatted &lt;b&gt;docs&lt;/b&gt;&lt;/p&gt;</bpmn:documentation>
-  
-  <!-- Loop Characteristics -->
-  <bpmn:multiInstanceLoopCharacteristics isSequential="false">
-    <bpmn:loopDataInputRef>itemList</bpmn:loopDataInputRef>
-  </bpmn:multiInstanceLoopCharacteristics>
-  
-  <!-- Camunda Extensions -->
-  <bpmn:extensionElements>
-    <camunda:properties>
-        <camunda:property name="priority" value="high" />
-        <camunda:property name="retries" value="3" />
-    </camunda:properties>
-    <camunda:inputOutput>
-        <camunda:inputParameter name="inputParam">${inputValue}</camunda:inputParameter>
-        <camunda:outputParameter name="outputParam">${result}</camunda:outputParameter>
-    </camunda:inputOutput>
-</bpmn:extensionElements>
-  
-  <!-- Resources -->
-  <bpmn:resourceRef>Resource_1</bpmn:resourceRef>
-  
-  <!-- I/O Specification -->
-  <bpmn:ioSpecification>
-    <bpmn:dataInput id="DataInput_1" name="input1" />
-    <bpmn:dataInput id="DataInput_2" name="input2" />
-    <bpmn:dataOutput id="DataOutput_1" name="output1" />
-    <bpmn:dataOutput id="DataOutput_2" name="output2" />
-  </bpmn:ioSpecification>
-  
-  <!-- Boundary Events -->
-  <bpmn:boundaryEvent id="BoundaryEvent_Test1" attachedToRef="Activity_Test1">
-    <bpmn:errorEventDefinition errorRef="Error_1" />
-  </bpmn:boundaryEvent>
-  <bpmn:boundaryEvent id="BoundaryEvent_Test2" attachedToRef="Activity_Test1">
-    <bpmn:timerEventDefinition>
-      <bpmn:timeDuration>PT1H</bpmn:timeDuration>
-    </bpmn:timerEventDefinition>
-  </bpmn:boundaryEvent>
-</bpmn:callActivity>
-
-<!-- Add these supporting elements -->
-<bpmn:resource id="Resource_1" name="Test Resource" />
-<bpmn:error id="Error_1" errorCode="TEST_ERROR" />
-<bpmn:sequenceFlow id="SequenceFlow_New" sourceRef="Activity_Test1" targetRef="ExclusiveGateway_0b91s5d" />
-
-<!-- Update existing flow to point to new activity -->
-<bpmn:sequenceFlow id="SequenceFlow_0fq51im" sourceRef="Task_0peqa8k" targetRef="Activity_Test1" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
@@ -220,23 +165,6 @@
           <dc:Bounds x="559.5" y="251" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <!-- Add these inside the <bpmndi:BPMNPlane> -->
-<bpmndi:BPMNShape id="Activity_Test1_di" bpmnElement="Activity_Test1">
-  <dc:Bounds x="500" y="169" width="100" height="80" />
-</bpmndi:BPMNShape>
-
-<bpmndi:BPMNShape id="BoundaryEvent_Test1_di" bpmnElement="BoundaryEvent_Test1">
-  <dc:Bounds x="550" y="231" width="36" height="36" />
-</bpmndi:BPMNShape>
-
-<bpmndi:BPMNShape id="BoundaryEvent_Test2_di" bpmnElement="BoundaryEvent_Test2">
-  <dc:Bounds x="600" y="231" width="36" height="36" />
-</bpmndi:BPMNShape>
-
-<bpmndi:BPMNEdge id="SequenceFlow_New_di" bpmnElement="SequenceFlow_New">
-  <di:waypoint xsi:type="dc:Point" x="600" y="209" />
-  <di:waypoint xsi:type="dc:Point" x="553" y="236" />
-</bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
