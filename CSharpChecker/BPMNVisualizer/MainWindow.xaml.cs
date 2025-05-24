@@ -1,9 +1,7 @@
 ﻿using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 using BPMNVisualizer.Services;
 using BPMNVisualizer.Visualization;
 using Microsoft.Win32;
@@ -61,44 +59,45 @@ namespace BPMNVisualizer
         {
             try
             {
-                // Temporarily reset scroll position
-                var originalVerticalOffset = MainScrollViewer.ContentVerticalOffset;
-                var originalHorizontalOffset = MainScrollViewer.ContentHorizontalOffset;
-                MainScrollViewer.ScrollToTop();
-                MainScrollViewer.ScrollToLeftEnd();
-                
-                // Force UI update
-                BPMNCanvas.UpdateLayout();
+                var contentBounds = VisualTreeHelper.GetDescendantBounds(BPMNCanvas);
+                if (contentBounds.IsEmpty || contentBounds.Width < 1 || contentBounds.Height < 1)
+                {
+                    _logger.Warning("No diagram elements found to export");
+                    return;
+                }
 
-                // Get full content dimensions
-                double contentWidth = MainScrollViewer.ExtentWidth;
-                double contentHeight = MainScrollViewer.ExtentHeight;
-                
-                // Create render target
                 var renderTarget = new RenderTargetBitmap(
-                    (int)Math.Ceiling(contentWidth),
-                    (int)Math.Ceiling(contentHeight),
-                    96, 96, PixelFormats.Pbgra32);
+                    (int)Math.Ceiling(contentBounds.Width),
+                    (int)Math.Ceiling(contentBounds.Height),
+                    96, 96,
+                    PixelFormats.Pbgra32
+                );
 
-                // Render canvas
-                renderTarget.Render(BPMNCanvas);
+                var visual = new DrawingVisual();
+                using (var dc = visual.RenderOpen())
+                {
+                    dc.PushTransform(new TranslateTransform(-contentBounds.X, -contentBounds.Y));
 
-                // Restore original scroll position
-                MainScrollViewer.ScrollToVerticalOffset(originalVerticalOffset);
-                MainScrollViewer.ScrollToHorizontalOffset(originalHorizontalOffset);
+                    var vb = new VisualBrush(BPMNCanvas);
+                    dc.DrawRectangle(vb, null, new Rect(contentBounds.TopLeft, contentBounds.Size));
+                }
 
-                // Save to file
+                renderTarget.Render(visual);
+
                 using var stream = File.Create(filePath);
-                new PngBitmapEncoder { Frames = { BitmapFrame.Create(renderTarget) } }.Save(stream);
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(renderTarget));
+                encoder.Save(stream);
 
-                _logger.Information($"Exported full diagram to: {filePath}");
+                _logger.Information($"Exported diagram content to: {filePath}");
             }
             catch (Exception ex)
             {
                 _logger.Error($"Export failed: {ex.Message}");
-                MessageBox.Show("Error saving image. Check path permissions.");
+                MessageBox.Show("Error saving image. See logs for details.");
             }
         }
+
     }
 
     public static class LoggerFactory
