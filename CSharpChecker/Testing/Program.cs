@@ -40,7 +40,7 @@ namespace Testing
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/MonthlyInvoicing-solution.bpmn");
             XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn");
 
-            //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/httpConnector.bpmn");
+            XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/httpConnector.bpmn");
 
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/httpConnectorPOST.bpmn");
             //XDocument doc = ResourcesUtility.LoadResourceAsXDocument($@"diagrams/all_tasks.bpmn");
