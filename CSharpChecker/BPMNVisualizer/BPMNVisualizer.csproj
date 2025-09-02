@@ -1,0 +1,120 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Assets\Data\" />
+      <Folder Include="Assets\Events\" />
+      <Folder Include="Assets\Activities\Tasks\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Assets\Data\data-input.svg" />
+      <Resource Include="Assets\Data\data-input.svg" />
+      <None Remove="Assets\Data\data-object.svg" />
+      <Resource Include="Assets\Data\data-object.svg" />
+      <None Remove="Assets\Data\data-output.svg" />
+      <Resource Include="Assets\Data\data-output.svg" />
+      <None Remove="Assets\Data\data-store.svg" />
+      <Resource Include="Assets\Data\data-store.svg" />
+      <None Remove="Assets\Events\cancel.svg" />
+      <Resource Include="Assets\Events\cancel.svg" />
+      <None Remove="Assets\Events\cancel-end.svg" />
+      <Resource Include="Assets\Events\cancel-end.svg" />
+      <None Remove="Assets\Events\compensation.svg" />
+      <Resource Include="Assets\Events\compensation.svg" />
+      <None Remove="Assets\Events\compensation-end.svg" />
+      <Resource Include="Assets\Events\compensation-end.svg" />
+      <None Remove="Assets\Events\condition.svg" />
+      <Resource Include="Assets\Events\condition.svg" />
+      <None Remove="Assets\Events\error.svg" />
+      <Resource Include="Assets\Events\error.svg" />
+      <None Remove="Assets\Events\error-end.svg" />
+      <Resource Include="Assets\Events\error-end.svg" />
+      <None Remove="Assets\Events\escalation.svg" />
+      <Resource Include="Assets\Events\escalation.svg" />
+      <None Remove="Assets\Events\escalation-end.svg" />
+      <Resource Include="Assets\Events\escalation-end.svg" />
+      <None Remove="Assets\Events\link.svg" />
+      <Resource Include="Assets\Events\link.svg" />
+      <None Remove="Assets\Events\link-end.svg" />
+      <Resource Include="Assets\Events\link-end.svg" />
+      <None Remove="Assets\Events\message.svg" />
+      <Resource Include="Assets\Events\message.svg" />
+      <None Remove="Assets\Events\message-end.svg" />
+      <Resource Include="Assets\Events\message-end.svg" />
+      <None Remove="Assets\Events\multiple.svg" />
+      <Resource Include="Assets\Events\multiple.svg" />
+      <None Remove="Assets\Events\multiple-end.svg" />
+      <Resource Include="Assets\Events\multiple-end.svg" />
+      <None Remove="Assets\Events\parallel-multiple.svg" />
+      <Resource Include="Assets\Events\parallel-multiple.svg" />
+      <None Remove="Assets\Events\signal.svg" />
+      <Resource Include="Assets\Events\signal.svg" />
+      <None Remove="Assets\Events\signal-end.svg" />
+      <Resource Include="Assets\Events\signal-end.svg" />
+      <None Remove="Assets\Events\timer.svg" />
+      <Resource Include="Assets\Events\timer.svg" />
+      <None Remove="Assets\Activities\Tasks\business-rule.svg" />
+      <Resource Include="Assets\Activities\Tasks\business-rule.svg" />
+      <None Remove="Assets\Activities\Tasks\manual.svg" />
+      <Resource Include="Assets\Activities\Tasks\manual.svg" />
+      <None Remove="Assets\Activities\Tasks\receive.svg" />
+      <Resource Include="Assets\Activities\Tasks\receive.svg" />
+      <None Remove="Assets\Activities\Tasks\script.svg" />
+      <Resource Include="Assets\Activities\Tasks\script.svg" />
+      <None Remove="Assets\Activities\Tasks\send.svg" />
+      <Resource Include="Assets\Activities\Tasks\send.svg" />
+      <None Remove="Assets\Activities\Tasks\service.svg" />
+      <Resource Include="Assets\Activities\Tasks\service.svg" />
+      <None Remove="Assets\Activities\Tasks\user.svg" />
+      <Resource Include="Assets\Activities\Tasks\user.svg" />
+      <None Remove="Assets\Events\termination-end.svg" />
+      <Resource Include="Assets\Events\termination-end.svg" />
+      <None Remove="Assets\Gateways\event.svg" />
+      <Resource Include="Assets\Gateways\event.svg" />
+      <None Remove="Assets\Gateways\exclusive.svg" />
+      <Resource Include="Assets\Gateways\exclusive.svg" />
+      <None Remove="Assets\Gateways\inclusive.svg" />
+      <Resource Include="Assets\Gateways\inclusive.svg" />
+      <None Remove="Assets\Gateways\parallel.svg" />
+      <Resource Include="Assets\Gateways\parallel.svg" />
+      <None Remove="Assets\Activities\subprocess.svg" />
+      <Resource Include="Assets\Activities\subprocess.svg" />
+      <None Remove="Assets\Activities\adhoc.svg" />
+      <Resource Include="Assets\Activities\adhoc.svg" />
+      <None Remove="Assets\Activities\parallel.svg" />
+      <Resource Include="Assets\Activities\parallel.svg" />
+      <None Remove="Assets\Activities\sequential.svg" />
+      <Resource Include="Assets\Activities\sequential.svg" />
+      <None Remove="Assets\Activities\loop.svg" />
+      <Resource Include="Assets\Activities\loop.svg" />
+      <None Remove="Assets\Activities\compensation.svg" />
+      <Resource Include="Assets\Activities\compensation.svg" />
+      <None Remove="Assets\Gateways\complex.svg" />
+      <Resource Include="Assets\Gateways\complex.svg" />
+      <None Remove="Assets\Activities\subprocess-expanded.svg" />
+      <Resource Include="Assets\Activities\subprocess-expanded.svg" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BPMNChecker\BPMNChecker.csproj" />
+      <ProjectReference Include="..\BPMNModel\BPMNModel.csproj" />
+      <ProjectReference Include="..\Utility\Utility.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Serilog" Version="4.2.1-dev-02352" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.1-dev-00953" />
+      <PackageReference Include="Serilog.Sinks.File" Version="7.0.0-dev-02301" />
+      <PackageReference Include="SharpVectors" Version="1.8.4.2" />
+      <PackageReference Include="SharpVectors.Wpf" Version="1.8.4.2" />
+    </ItemGroup>
+
+</Project>

@@ -16,585 +16,582 @@ using BPMNModel.XMLParser;
 
 namespace BPMNModel.Camunda
 {
-    public class CamundaConnector : ICamundaLoaderBase, ICamundaBaseElement
-    {
-        // Allowed: camunda:ServiceTaskLike
+	public class CamundaConnector : ICamundaLoaderBase, ICamundaBaseElement
+	{
+		// Allowed: camunda:ServiceTaskLike
 
-        public string? ConnectorId { get; set; }
+		// Extension Elements:
+		public CamundaInputOutput? InputOutput { get; set; } 
+		public string? ConnectorId { get; set; } 
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading element: InputOutput inputOutput - camunda:inputOutput
+			if (node.ChildNodes["camunda:inputOutput"].Count==1) InputOutput = (CamundaInputOutput)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:inputOutput"][0], bpmnFactory);
 
-        // Extension Elements:
-        public CamundaInputOutput? InputOutput { get; set; }
+			//Loading element: String connectorId - camunda:connectorId
+			if (node.ChildNodes["camunda:connectorId"].Count==1) ConnectorId = ((XmlParserStringNode)node.ChildNodes["camunda:connectorId"][0]).Value;
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading element: InputOutput inputOutput - camunda:inputOutput
-            if (node.ChildNodes["camunda:inputOutput"].Count == 1) InputOutput = (CamundaInputOutput)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:inputOutput"][0], bpmnFactory);
+		}
+	}
 
-            //Loading element: String connectorId - camunda:connectorId
-            if (node.ChildNodes["camunda:connectorId"].Count == 1) ConnectorId = ((XmlParserStringNode)node.ChildNodes["camunda:connectorId"][0]).Value;
-        }
-    }
+	public class CamundaConstraint : ICamundaLoaderBase
+	{
 
-    public class CamundaConstraint : ICamundaLoaderBase
-    {
-        public string? Config { get; set; }
+		// Attributes:
+		public string? Name {get; set;} 
+		public string? Config {get; set;} 
 
-        // Attributes:
-        public string? Name { get; set; }
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading attribute: String name
+			if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading attribute: String name
-            if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
+			//Loading attribute: String config
+			if (node.Attributes.ContainsKey("config")) Config = node.Attributes["config"].Value;
 
-            //Loading attribute: String config
-            if (node.Attributes.ContainsKey("config")) Config = node.Attributes["config"].Value;
-        }
-    }
+		}
+	}
 
-    public class CamundaEntry : ICamundaLoaderBase
-    {
-        public CamundaInputOutputParameterDefinition? Definition { get; set; }
+	public class CamundaEntry : ICamundaLoaderBase
+	{
 
-        // Attributes:
-        public string? Key { get; set; }
+		// Attributes:
+		public string? Key {get; set;} 
 
-        // Extension Elements:
-        public string? Value { get; set; }
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading attribute: String key
-            if (node.Attributes.ContainsKey("key")) Key = node.Attributes["key"].Value;
+		// Extension Elements:
+		public string? Value { get; set; } 
+		public CamundaInputOutputParameterDefinition? Definition { get; set; } 
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading attribute: String key
+			if (node.Attributes.ContainsKey("key")) Key = node.Attributes["key"].Value;
 
-            //Loading element: String value - camunda:value
-            if (node.ChildNodes.ContainsKey("value") && node.ChildNodes["value"].Count == 1) Value = ((XmlParserStringNode)node.ChildNodes["value"][0]).Value;
+			//Loading element: String value - camunda:value
+			if (node.ChildNodes.ContainsKey("value") && node.ChildNodes["value"].Count==1) Value = ((XmlParserStringNode)node.ChildNodes["value"][0]).Value;
 
-            //Loading element: InputOutputParameterDefinition definition - camunda:definition
-            if (node.ChildNodes["camunda:definition"].Count == 1) Definition = (CamundaInputOutputParameterDefinition)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:definition"][0], bpmnFactory);
-        }
-    }
+			//Loading element: InputOutputParameterDefinition definition - camunda:definition
+			if (node.ChildNodes["camunda:definition"].Count==1) Definition = (CamundaInputOutputParameterDefinition)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:definition"][0], bpmnFactory);
 
-    public class CamundaErrorEventDefinition : ErrorEventDefinition, ICamundaLoaderBase, ICamundaBaseElement
-    {
-        // Allowed: bpmn:ServiceTask
+		}
+	}
 
-        // Attributes:
-        public string? Expression { get; set; }
+	public class CamundaErrorEventDefinition : ErrorEventDefinition, ICamundaLoaderBase, ICamundaBaseElement
+	{
+		// Allowed: bpmn:ServiceTask
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            throw new Utility.BPMNCheckerExceptions("Do not know how to solve this - need to implement it in the generator.");
-        }
-    }
+		// Attributes:
+		public string? Expression {get; set;} 
 
-    public class CamundaExecutionListener : ICamundaLoaderBase, ICamundaBaseElement
-    {
-        // Allowed: bpmn:Task, bpmn:ServiceTask, bpmn:UserTask, bpmn:BusinessRuleTask, bpmn:ScriptTask, bpmn:ReceiveTask, bpmn:ManualTask, bpmn:ExclusiveGateway, bpmn:SequenceFlow, bpmn:ParallelGateway, bpmn:InclusiveGateway, bpmn:EventBasedGateway, bpmn:StartEvent, bpmn:IntermediateCatchEvent, bpmn:IntermediateThrowEvent, bpmn:EndEvent, bpmn:BoundaryEvent, bpmn:CallActivity, bpmn:SubProcess, bpmn:Process
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			throw new Utility.BPMNCheckerExceptions("Do not know how to solve this - need to implement it in the generator.");
+		}
+	}
 
-        public string? Class { get; set; }
+	public class CamundaExecutionListener : ICamundaLoaderBase, ICamundaBaseElement
+	{
+		// Allowed: bpmn:Task, bpmn:ServiceTask, bpmn:UserTask, bpmn:BusinessRuleTask, bpmn:ScriptTask, bpmn:ReceiveTask, bpmn:ManualTask, bpmn:ExclusiveGateway, bpmn:SequenceFlow, bpmn:ParallelGateway, bpmn:InclusiveGateway, bpmn:EventBasedGateway, bpmn:StartEvent, bpmn:IntermediateCatchEvent, bpmn:IntermediateThrowEvent, bpmn:EndEvent, bpmn:BoundaryEvent, bpmn:CallActivity, bpmn:SubProcess, bpmn:Process
 
-        public string? DelegateExpression { get; set; }
+		// Attributes:
+		public string? Expression {get; set;} 
+		public string? Class {get; set;} 
+		public string? DelegateExpression {get; set;} 
+		public string? Event {get; set;} 
 
-        public string? Event { get; set; }
 
-        // Attributes:
-        public string? Expression { get; set; }
+		// Extension Elements:
+		public CamundaScript? Script { get; set; } 
+		public List<CamundaField> Fields { get; } = new();
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading attribute: String expression
+			if (node.Attributes.ContainsKey("expression")) Expression = node.Attributes["expression"].Value;
 
-        public List<CamundaField> Fields { get; } = new();
+			//Loading attribute: String class
+			if (node.Attributes.ContainsKey("class")) Class = node.Attributes["class"].Value;
 
-        // Extension Elements:
-        public CamundaScript? Script { get; set; }
+			//Loading attribute: String delegateExpression
+			if (node.Attributes.ContainsKey("delegateExpression")) DelegateExpression = node.Attributes["delegateExpression"].Value;
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading attribute: String expression
-            if (node.Attributes.ContainsKey("expression")) Expression = node.Attributes["expression"].Value;
+			//Loading attribute: String event
+			if (node.Attributes.ContainsKey("event")) Event = node.Attributes["event"].Value;
 
-            //Loading attribute: String class
-            if (node.Attributes.ContainsKey("class")) Class = node.Attributes["class"].Value;
+			//Loading element: Script script - camunda:script
+			if (node.ChildNodes["camunda:script"].Count==1) Script = (CamundaScript)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:script"][0], bpmnFactory);
 
-            //Loading attribute: String delegateExpression
-            if (node.Attributes.ContainsKey("delegateExpression")) DelegateExpression = node.Attributes["delegateExpression"].Value;
+			//Loading element: Field* fields - camunda:fields
+			if (node.ChildNodes["camunda:fields"].Count>0) CamundaFactory.LoadElements<CamundaField>(Fields, node.ChildNodes["camunda:fields"], bpmnFactory);
 
-            //Loading attribute: String event
-            if (node.Attributes.ContainsKey("event")) Event = node.Attributes["event"].Value;
+		}
+	}
 
-            //Loading element: Script script - camunda:script
-            if (node.ChildNodes["camunda:script"].Count == 1) Script = (CamundaScript)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:script"][0], bpmnFactory);
+	public class CamundaFailedJobRetryTimeCycle : ICamundaLoaderBase, ICamundaBaseElement
+	{
+		// Allowed: camunda:AsyncCapable, bpmn:MultiInstanceLoopCharacteristics
 
-            //Loading element: Field* fields - camunda:fields
-            if (node.ChildNodes["camunda:fields"].Count > 0) CamundaFactory.LoadElements<CamundaField>(Fields, node.ChildNodes["camunda:fields"], bpmnFactory);
-        }
-    }
+		// Extension Elements:
+		public string? Body { get; set; } 
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading element: String body - camunda:body
+			if (node.ChildNodes.ContainsKey("body") && node.ChildNodes["body"].Count==1) Body = ((XmlParserStringNode)node.ChildNodes["body"][0]).Value;
 
-    public class CamundaFailedJobRetryTimeCycle : ICamundaLoaderBase, ICamundaBaseElement
-    {
-        // Allowed: camunda:AsyncCapable, bpmn:MultiInstanceLoopCharacteristics
+		}
+	}
 
-        // Extension Elements:
-        public string? Body { get; set; }
+	public class CamundaField : ICamundaLoaderBase, ICamundaBaseElement
+	{
+		// Allowed: camunda:ServiceTaskLike, camunda:ExecutionListener, camunda:TaskListener
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading element: String body - camunda:body
-            if (node.ChildNodes.ContainsKey("body") && node.ChildNodes["body"].Count == 1) Body = ((XmlParserStringNode)node.ChildNodes["body"][0]).Value;
-        }
-    }
+		// Attributes:
+		public string? Name {get; set;} 
+		public string? StringValue {get; set;} 
 
-    public class CamundaField : ICamundaLoaderBase, ICamundaBaseElement
-    {
-        // Allowed: camunda:ServiceTaskLike, camunda:ExecutionListener, camunda:TaskListener
 
-        // Extension Elements:
-        public string? Expression { get; set; }
+		// Extension Elements:
+		public string? Expression { get; set; } 
+		public string? String { get; set; } 
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading attribute: String name
+			if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
 
-        // Attributes:
-        public string? Name { get; set; }
+			//Loading attribute: String stringValue
+			if (node.Attributes.ContainsKey("stringValue")) StringValue = node.Attributes["stringValue"].Value;
 
-        public string? String { get; set; }
-        public string? StringValue { get; set; }
+			//Loading element: String expression - camunda:expression
+			if (node.ChildNodes["camunda:expression"].Count==1) Expression = ((XmlParserStringNode)node.ChildNodes["camunda:expression"][0]).Value;
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading attribute: String name
-            if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
+			//Loading element: String string - camunda:string
+			if (node.ChildNodes["camunda:string"].Count==1) String = ((XmlParserStringNode)node.ChildNodes["camunda:string"][0]).Value;
 
-            //Loading attribute: String stringValue
-            if (node.Attributes.ContainsKey("stringValue")) StringValue = node.Attributes["stringValue"].Value;
+		}
+	}
 
-            //Loading element: String expression - camunda:expression
-            if (node.ChildNodes["camunda:expression"].Count == 1) Expression = ((XmlParserStringNode)node.ChildNodes["camunda:expression"][0]).Value;
+	public class CamundaFormData : ICamundaLoaderBase, ICamundaBaseElement
+	{
+		// Allowed: bpmn:StartEvent, bpmn:UserTask
 
-            //Loading element: String string - camunda:string
-            if (node.ChildNodes["camunda:string"].Count == 1) String = ((XmlParserStringNode)node.ChildNodes["camunda:string"][0]).Value;
-        }
-    }
+		// Attributes:
+		public string? BusinessKey {get; set;} 
 
-    public class CamundaFormData : ICamundaLoaderBase, ICamundaBaseElement
-    {
-        // Allowed: bpmn:StartEvent, bpmn:UserTask
 
-        // Attributes:
-        public string? BusinessKey { get; set; }
+		// Extension Elements:
+		public List<CamundaFormField> Fields { get; } = new();
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading attribute: String businessKey
+			if (node.Attributes.ContainsKey("businessKey")) BusinessKey = node.Attributes["businessKey"].Value;
 
-        // Extension Elements:
-        public List<CamundaFormField> Fields { get; } = new();
+			//Loading element: FormField* fields - camunda:fields
+			if (node.ChildNodes["camunda:fields"].Count>0) CamundaFactory.LoadElements<CamundaFormField>(Fields, node.ChildNodes["camunda:fields"], bpmnFactory);
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading attribute: String businessKey
-            if (node.Attributes.ContainsKey("businessKey")) BusinessKey = node.Attributes["businessKey"].Value;
+		}
+	}
 
-            //Loading element: FormField* fields - camunda:fields
-            if (node.ChildNodes["camunda:fields"].Count > 0) CamundaFactory.LoadElements<CamundaFormField>(Fields, node.ChildNodes["camunda:fields"], bpmnFactory);
-        }
-    }
+	public class CamundaFormField : ICamundaLoaderBase
+	{
 
-    public class CamundaFormField : ICamundaLoaderBase
-    {
-        public string? DatePattern { get; set; }
+		// Attributes:
+		public string? Id {get; set;} 
+		public string? Label {get; set;} 
+		public string? Type {get; set;} 
+		public string? DatePattern {get; set;} 
+		public string? DefaultValue {get; set;} 
 
-        public string? DefaultValue { get; set; }
 
-        // Attributes:
-        public string? Id { get; set; }
+		// Extension Elements:
+		public CamundaProperties? Properties { get; set; } 
+		public CamundaValidation? Validation { get; set; } 
+		public List<CamundaValue> Values { get; } = new();
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading attribute: String id
+			if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
 
-        public string? Label { get; set; }
+			//Loading attribute: String label
+			if (node.Attributes.ContainsKey("label")) Label = node.Attributes["label"].Value;
 
-        // Extension Elements:
-        public CamundaProperties? Properties { get; set; }
+			//Loading attribute: String type
+			if (node.Attributes.ContainsKey("type")) Type = node.Attributes["type"].Value;
 
-        public string? Type { get; set; }
-        public CamundaValidation? Validation { get; set; }
-        public List<CamundaValue> Values { get; } = new();
+			//Loading attribute: String datePattern
+			if (node.Attributes.ContainsKey("datePattern")) DatePattern = node.Attributes["datePattern"].Value;
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading attribute: String id
-            if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
+			//Loading attribute: String defaultValue
+			if (node.Attributes.ContainsKey("defaultValue")) DefaultValue = node.Attributes["defaultValue"].Value;
 
-            //Loading attribute: String label
-            if (node.Attributes.ContainsKey("label")) Label = node.Attributes["label"].Value;
+			//Loading element: Properties properties - camunda:properties
+			if (node.ChildNodes["camunda:properties"].Count==1) Properties = (CamundaProperties)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:properties"][0], bpmnFactory);
 
-            //Loading attribute: String type
-            if (node.Attributes.ContainsKey("type")) Type = node.Attributes["type"].Value;
+			//Loading element: Validation validation - camunda:validation
+			if (node.ChildNodes["camunda:validation"].Count==1) Validation = (CamundaValidation)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:validation"][0], bpmnFactory);
 
-            //Loading attribute: String datePattern
-            if (node.Attributes.ContainsKey("datePattern")) DatePattern = node.Attributes["datePattern"].Value;
+			//Loading element: Value* values - camunda:values
+			if (node.ChildNodes["camunda:values"].Count>0) CamundaFactory.LoadElements<CamundaValue>(Values, node.ChildNodes["camunda:values"], bpmnFactory);
 
-            //Loading attribute: String defaultValue
-            if (node.Attributes.ContainsKey("defaultValue")) DefaultValue = node.Attributes["defaultValue"].Value;
+		}
+	}
 
-            //Loading element: Properties properties - camunda:properties
-            if (node.ChildNodes["camunda:properties"].Count == 1) Properties = (CamundaProperties)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:properties"][0], bpmnFactory);
+	public class CamundaFormProperty : ICamundaLoaderBase, ICamundaBaseElement
+	{
+		// Allowed: bpmn:StartEvent, bpmn:UserTask
 
-            //Loading element: Validation validation - camunda:validation
-            if (node.ChildNodes["camunda:validation"].Count == 1) Validation = (CamundaValidation)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:validation"][0], bpmnFactory);
+		// Attributes:
+		public string? Id {get; set;} 
+		public string? Name {get; set;} 
+		public string? Type {get; set;} 
+		public string? Required {get; set;} 
+		public string? Readable {get; set;} 
+		public string? Writable {get; set;} 
+		public string? Variable {get; set;} 
+		public string? Expression {get; set;} 
+		public string? DatePattern {get; set;} 
+		public string? Default {get; set;} 
 
-            //Loading element: Value* values - camunda:values
-            if (node.ChildNodes["camunda:values"].Count > 0) CamundaFactory.LoadElements<CamundaValue>(Values, node.ChildNodes["camunda:values"], bpmnFactory);
-        }
-    }
 
-    public class CamundaFormProperty : ICamundaLoaderBase, ICamundaBaseElement
-    {
-        // Allowed: bpmn:StartEvent, bpmn:UserTask
+		// Extension Elements:
+		public List<CamundaValue> Values { get; } = new();
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading attribute: String id
+			if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
 
-        public string? DatePattern { get; set; }
+			//Loading attribute: String name
+			if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
 
-        public string? Default { get; set; }
+			//Loading attribute: String type
+			if (node.Attributes.ContainsKey("type")) Type = node.Attributes["type"].Value;
 
-        public string? Expression { get; set; }
+			//Loading attribute: String required
+			if (node.Attributes.ContainsKey("required")) Required = node.Attributes["required"].Value;
 
-        // Attributes:
-        public string? Id { get; set; }
+			//Loading attribute: String readable
+			if (node.Attributes.ContainsKey("readable")) Readable = node.Attributes["readable"].Value;
 
-        public string? Name { get; set; }
-        public string? Readable { get; set; }
-        public string? Required { get; set; }
-        public string? Type { get; set; }
+			//Loading attribute: String writable
+			if (node.Attributes.ContainsKey("writable")) Writable = node.Attributes["writable"].Value;
 
-        // Extension Elements:
-        public List<CamundaValue> Values { get; } = new();
+			//Loading attribute: String variable
+			if (node.Attributes.ContainsKey("variable")) Variable = node.Attributes["variable"].Value;
 
-        public string? Variable { get; set; }
-        public string? Writable { get; set; }
+			//Loading attribute: String expression
+			if (node.Attributes.ContainsKey("expression")) Expression = node.Attributes["expression"].Value;
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading attribute: String id
-            if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
+			//Loading attribute: String datePattern
+			if (node.Attributes.ContainsKey("datePattern")) DatePattern = node.Attributes["datePattern"].Value;
 
-            //Loading attribute: String name
-            if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
+			//Loading attribute: String default
+			if (node.Attributes.ContainsKey("default")) Default = node.Attributes["default"].Value;
 
-            //Loading attribute: String type
-            if (node.Attributes.ContainsKey("type")) Type = node.Attributes["type"].Value;
+			//Loading element: Value* values - camunda:values
+			if (node.ChildNodes["camunda:values"].Count>0) CamundaFactory.LoadElements<CamundaValue>(Values, node.ChildNodes["camunda:values"], bpmnFactory);
 
-            //Loading attribute: String required
-            if (node.Attributes.ContainsKey("required")) Required = node.Attributes["required"].Value;
+		}
+	}
 
-            //Loading attribute: String readable
-            if (node.Attributes.ContainsKey("readable")) Readable = node.Attributes["readable"].Value;
+	public class CamundaIn : CamundaInOutBinding, ICamundaLoaderBase, ICamundaBaseElement
+	{
+		// Allowed: bpmn:CallActivity, bpmn:SignalEventDefinition
 
-            //Loading attribute: String writable
-            if (node.Attributes.ContainsKey("writable")) Writable = node.Attributes["writable"].Value;
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			base.Load(node, bpmnFactory);
+		}
+	}
 
-            //Loading attribute: String variable
-            if (node.Attributes.ContainsKey("variable")) Variable = node.Attributes["variable"].Value;
+	public abstract class CamundaInOutBinding : ICamundaLoaderBase
+	{
 
-            //Loading attribute: String expression
-            if (node.Attributes.ContainsKey("expression")) Expression = node.Attributes["expression"].Value;
+		// Attributes:
+		public string? Source {get; set;} 
+		public string? SourceExpression {get; set;} 
+		public string? Target {get; set;} 
+		public string? BusinessKey {get; set;} 
+		public bool? Local {get; set;}  = false;
+		public string? Variables {get; set;} 
 
-            //Loading attribute: String datePattern
-            if (node.Attributes.ContainsKey("datePattern")) DatePattern = node.Attributes["datePattern"].Value;
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading attribute: String source
+			if (node.Attributes.ContainsKey("source")) Source = node.Attributes["source"].Value;
 
-            //Loading attribute: String default
-            if (node.Attributes.ContainsKey("default")) Default = node.Attributes["default"].Value;
+			//Loading attribute: String sourceExpression
+			if (node.Attributes.ContainsKey("sourceExpression")) SourceExpression = node.Attributes["sourceExpression"].Value;
 
-            //Loading element: Value* values - camunda:values
-            if (node.ChildNodes["camunda:values"].Count > 0) CamundaFactory.LoadElements<CamundaValue>(Values, node.ChildNodes["camunda:values"], bpmnFactory);
-        }
-    }
+			//Loading attribute: String target
+			if (node.Attributes.ContainsKey("target")) Target = node.Attributes["target"].Value;
 
-    public class CamundaIn : CamundaInOutBinding, ICamundaLoaderBase, ICamundaBaseElement
-    {
-        // Allowed: bpmn:CallActivity, bpmn:SignalEventDefinition
+			//Loading attribute: String businessKey
+			if (node.Attributes.ContainsKey("businessKey")) BusinessKey = node.Attributes["businessKey"].Value;
 
-        public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            base.Load(node, bpmnFactory);
-        }
-    }
+			//Loading attribute: Boolean local(False)
+			if (node.Attributes.ContainsKey("local")) Local = string.Equals(node.Attributes["local"].Value, "true");
+			else Local = false;
 
-    public abstract class CamundaInOutBinding : ICamundaLoaderBase
-    {
-        public string? BusinessKey { get; set; }
+			//Loading attribute: String variables
+			if (node.Attributes.ContainsKey("variables")) Variables = node.Attributes["variables"].Value;
 
-        public bool? Local { get; set; } = false;
+		}
+	}
 
-        // Attributes:
-        public string? Source { get; set; }
+	public class CamundaInputOutput : ICamundaLoaderBase, ICamundaBaseElement
+	{
+		// Allowed: bpmn:FlowNode, camunda:Connector
 
-        public string? SourceExpression { get; set; }
-        public string? Target { get; set; }
-        public string? Variables { get; set; }
+		// Extension Elements:
+		public CamundaInputOutput? InputOutput { get; set; } 
+		public string? ConnectorId { get; set; } 
+		public List<CamundaInputParameter> InputParameters { get; } = new();
+		public List<CamundaOutputParameter> OutputParameters { get; } = new();
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading element: InputOutput inputOutput - camunda:inputOutput
+			if (node.ChildNodes["camunda:inputOutput"].Count==1) InputOutput = (CamundaInputOutput)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:inputOutput"][0], bpmnFactory);
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading attribute: String source
-            if (node.Attributes.ContainsKey("source")) Source = node.Attributes["source"].Value;
+			//Loading element: String connectorId - camunda:connectorId
+			if (node.ChildNodes["camunda:connectorId"].Count==1) ConnectorId = ((XmlParserStringNode)node.ChildNodes["camunda:connectorId"][0]).Value;
 
-            //Loading attribute: String sourceExpression
-            if (node.Attributes.ContainsKey("sourceExpression")) SourceExpression = node.Attributes["sourceExpression"].Value;
+			//Loading element: InputParameter* inputParameters - camunda:inputParameters
+			if (node.ChildNodes["camunda:inputParameters"].Count>0) CamundaFactory.LoadElements<CamundaInputParameter>(InputParameters, node.ChildNodes["camunda:inputParameters"], bpmnFactory);
 
-            //Loading attribute: String target
-            if (node.Attributes.ContainsKey("target")) Target = node.Attributes["target"].Value;
+			//Loading element: OutputParameter* outputParameters - camunda:outputParameters
+			if (node.ChildNodes["camunda:outputParameters"].Count>0) CamundaFactory.LoadElements<CamundaOutputParameter>(OutputParameters, node.ChildNodes["camunda:outputParameters"], bpmnFactory);
 
-            //Loading attribute: String businessKey
-            if (node.Attributes.ContainsKey("businessKey")) BusinessKey = node.Attributes["businessKey"].Value;
+		}
+	}
 
-            //Loading attribute: Boolean local(False)
-            if (node.Attributes.ContainsKey("local")) Local = string.Equals(node.Attributes["local"].Value, "true");
-            else Local = false;
+	public class CamundaInputOutputParameter : ICamundaLoaderBase
+	{
 
-            //Loading attribute: String variables
-            if (node.Attributes.ContainsKey("variables")) Variables = node.Attributes["variables"].Value;
-        }
-    }
+		// Attributes:
+		public string? Name {get; set;} 
 
-    public class CamundaInputOutput : ICamundaLoaderBase, ICamundaBaseElement
-    {
-        // Allowed: bpmn:FlowNode, camunda:Connector
 
-        public string? ConnectorId { get; set; }
+		// Extension Elements:
+		public string? Value { get; set; } 
+		public CamundaInputOutputParameterDefinition? Definition { get; set; } 
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading attribute: String name
+			if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
 
-        // Extension Elements:
-        public CamundaInputOutput? InputOutput { get; set; }
+			//Loading element: String value - camunda:value
+			if (node.ChildNodes.ContainsKey("value") && node.ChildNodes["value"].Count==1) Value = ((XmlParserStringNode)node.ChildNodes["value"][0]).Value;
 
-        public List<CamundaInputParameter> InputParameters { get; } = new();
-        public List<CamundaOutputParameter> OutputParameters { get; } = new();
+			//Loading element: InputOutputParameterDefinition definition - camunda:definition
+			if (node.ChildNodes["camunda:definition"].Count==1) Definition = (CamundaInputOutputParameterDefinition)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:definition"][0], bpmnFactory);
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading element: InputOutput inputOutput - camunda:inputOutput
-            if (node.ChildNodes["camunda:inputOutput"].Count == 1) InputOutput = (CamundaInputOutput)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:inputOutput"][0], bpmnFactory);
+		}
+	}
 
-            //Loading element: String connectorId - camunda:connectorId
-            if (node.ChildNodes["camunda:connectorId"].Count == 1) ConnectorId = ((XmlParserStringNode)node.ChildNodes["camunda:connectorId"][0]).Value;
+	public abstract class CamundaInputOutputParameterDefinition : ICamundaLoaderBase
+	{
 
-            //Loading element: InputParameter* inputParameters - camunda:inputParameters
-            if (node.ChildNodes["camunda:inputParameters"].Count > 0) CamundaFactory.LoadElements<CamundaInputParameter>(InputParameters, node.ChildNodes["camunda:inputParameters"], bpmnFactory);
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+		}
+	}
 
-            //Loading element: OutputParameter* outputParameters - camunda:outputParameters
-            if (node.ChildNodes["camunda:outputParameters"].Count > 0) CamundaFactory.LoadElements<CamundaOutputParameter>(OutputParameters, node.ChildNodes["camunda:outputParameters"], bpmnFactory);
-        }
-    }
+	public class CamundaInputParameter : CamundaInputOutputParameter, ICamundaLoaderBase
+	{
 
-    public class CamundaInputOutputParameter : ICamundaLoaderBase
-    {
-        public CamundaInputOutputParameterDefinition? Definition { get; set; }
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			base.Load(node, bpmnFactory);
+		}
+	}
 
-        // Attributes:
-        public string? Name { get; set; }
+	public class CamundaList : CamundaInputOutputParameterDefinition, ICamundaLoaderBase
+	{
 
-        // Extension Elements:
-        public string? Value { get; set; }
+		// Extension Elements:
+		public List<CamundaInputOutputParameterDefinition> Items { get; } = new();
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			base.Load(node, bpmnFactory);
+			//Loading element: InputOutputParameterDefinition* items - camunda:items
+			if (node.ChildNodes["camunda:items"].Count>0) CamundaFactory.LoadElements<CamundaInputOutputParameterDefinition>(Items, node.ChildNodes["camunda:items"], bpmnFactory);
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading attribute: String name
-            if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
+		}
+	}
 
-            //Loading element: String value - camunda:value
-            if (node.ChildNodes.ContainsKey("value") && node.ChildNodes["value"].Count == 1) Value = ((XmlParserStringNode)node.ChildNodes["value"][0]).Value;
+	public class CamundaMap : CamundaInputOutputParameterDefinition, ICamundaLoaderBase
+	{
 
-            //Loading element: InputOutputParameterDefinition definition - camunda:definition
-            if (node.ChildNodes["camunda:definition"].Count == 1) Definition = (CamundaInputOutputParameterDefinition)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:definition"][0], bpmnFactory);
-        }
-    }
+		// Extension Elements:
+		public List<CamundaEntry> Entries { get; } = new();
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			base.Load(node, bpmnFactory);
+			//Loading element: Entry* entries - camunda:entries
+			if (node.ChildNodes["camunda:entries"].Count>0) CamundaFactory.LoadElements<CamundaEntry>(Entries, node.ChildNodes["camunda:entries"], bpmnFactory);
 
-    public abstract class CamundaInputOutputParameterDefinition : ICamundaLoaderBase
-    {
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-        }
-    }
+		}
+	}
 
-    public class CamundaInputParameter : CamundaInputOutputParameter, ICamundaLoaderBase
-    {
-        public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            base.Load(node, bpmnFactory);
-        }
-    }
+	public class CamundaOut : CamundaInOutBinding, ICamundaLoaderBase, ICamundaBaseElement
+	{
+		// Allowed: bpmn:CallActivity
 
-    public class CamundaList : CamundaInputOutputParameterDefinition, ICamundaLoaderBase
-    {
-        // Extension Elements:
-        public List<CamundaInputOutputParameterDefinition> Items { get; } = new();
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			base.Load(node, bpmnFactory);
+		}
+	}
 
-        public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            base.Load(node, bpmnFactory);
-            //Loading element: InputOutputParameterDefinition* items - camunda:items
-            if (node.ChildNodes["camunda:items"].Count > 0) CamundaFactory.LoadElements<CamundaInputOutputParameterDefinition>(Items, node.ChildNodes["camunda:items"], bpmnFactory);
-        }
-    }
+	public class CamundaOutputParameter : CamundaInputOutputParameter, ICamundaLoaderBase
+	{
 
-    public class CamundaMap : CamundaInputOutputParameterDefinition, ICamundaLoaderBase
-    {
-        // Extension Elements:
-        public List<CamundaEntry> Entries { get; } = new();
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			base.Load(node, bpmnFactory);
+		}
+	}
 
-        public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            base.Load(node, bpmnFactory);
-            //Loading element: Entry* entries - camunda:entries
-            if (node.ChildNodes["camunda:entries"].Count > 0) CamundaFactory.LoadElements<CamundaEntry>(Entries, node.ChildNodes["camunda:entries"], bpmnFactory);
-        }
-    }
+	public class CamundaProperties : ICamundaLoaderBase, ICamundaBaseElement
+	{
+		// Allowed: *
 
-    public class CamundaOut : CamundaInOutBinding, ICamundaLoaderBase, ICamundaBaseElement
-    {
-        // Allowed: bpmn:CallActivity
+		// Extension Elements:
+		public List<CamundaProperty> Values { get; } = new();
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading element: Property* values - camunda:values
+			if (node.ChildNodes["camunda:values"].Count>0) CamundaFactory.LoadElements<CamundaProperty>(Values, node.ChildNodes["camunda:values"], bpmnFactory);
 
-        public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            base.Load(node, bpmnFactory);
-        }
-    }
+		}
+	}
 
-    public class CamundaOutputParameter : CamundaInputOutputParameter, ICamundaLoaderBase
-    {
-        public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            base.Load(node, bpmnFactory);
-        }
-    }
+	public class CamundaProperty : ICamundaLoaderBase
+	{
 
-    public class CamundaProperties : ICamundaLoaderBase, ICamundaBaseElement
-    {
-        // Allowed: *
+		// Attributes:
+		public string? Id {get; set;} 
+		public string? Name {get; set;} 
+		public string? Value {get; set;} 
 
-        // Extension Elements:
-        public List<CamundaProperty> Values { get; } = new();
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading attribute: String id
+			if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading element: Property* values - camunda:values
-            if (node.ChildNodes["camunda:values"].Count > 0) CamundaFactory.LoadElements<CamundaProperty>(Values, node.ChildNodes["camunda:values"], bpmnFactory);
-        }
-    }
+			//Loading attribute: String name
+			if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
 
-    public class CamundaProperty : ICamundaLoaderBase
-    {
-        // Attributes:
-        public string? Id { get; set; }
+			//Loading attribute: String value
+			if (node.Attributes.ContainsKey("value")) Value = node.Attributes["value"].Value;
 
-        public string? Name { get; set; }
-        public string? Value { get; set; }
+		}
+	}
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading attribute: String id
-            if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
+	public class CamundaScript : CamundaInputOutputParameterDefinition, ICamundaLoaderBase
+	{
 
-            //Loading attribute: String name
-            if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
+		// Attributes:
+		public string? ScriptFormat {get; set;} 
+		public string? Resource {get; set;} 
 
-            //Loading attribute: String value
-            if (node.Attributes.ContainsKey("value")) Value = node.Attributes["value"].Value;
-        }
-    }
 
-    public class CamundaScript : CamundaInputOutputParameterDefinition, ICamundaLoaderBase
-    {
-        public string? Resource { get; set; }
+		// Extension Elements:
+		public string? Value { get; set; } 
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			base.Load(node, bpmnFactory);
+			//Loading attribute: String scriptFormat
+			if (node.Attributes.ContainsKey("scriptFormat")) ScriptFormat = node.Attributes["scriptFormat"].Value;
 
-        // Attributes:
-        public string? ScriptFormat { get; set; }
+			//Loading attribute: String resource
+			if (node.Attributes.ContainsKey("resource")) Resource = node.Attributes["resource"].Value;
 
-        // Extension Elements:
-        public string? Value { get; set; }
+			//Loading element: String value - camunda:value
+			if (node.ChildNodes.ContainsKey("value") && node.ChildNodes["value"].Count==1) Value = ((XmlParserStringNode)node.ChildNodes["value"][0]).Value;
 
-        public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            base.Load(node, bpmnFactory);
-            //Loading attribute: String scriptFormat
-            if (node.Attributes.ContainsKey("scriptFormat")) ScriptFormat = node.Attributes["scriptFormat"].Value;
+		}
+	}
 
-            //Loading attribute: String resource
-            if (node.Attributes.ContainsKey("resource")) Resource = node.Attributes["resource"].Value;
+	public class CamundaTaskListener : ICamundaLoaderBase, ICamundaBaseElement
+	{
+		// Allowed: bpmn:UserTask
 
-            //Loading element: String value - camunda:value
-            if (node.ChildNodes.ContainsKey("value") && node.ChildNodes["value"].Count == 1) Value = ((XmlParserStringNode)node.ChildNodes["value"][0]).Value;
-        }
-    }
+		// Attributes:
+		public string? Expression {get; set;} 
+		public string? Class {get; set;} 
+		public string? DelegateExpression {get; set;} 
+		public string? Event {get; set;} 
+		public string? Id {get; set;} 
 
-    public class CamundaTaskListener : ICamundaLoaderBase, ICamundaBaseElement
-    {
-        // Allowed: bpmn:UserTask
 
-        public string? Class { get; set; }
+		// Extension Elements:
+		public CamundaScript? Script { get; set; } 
+		public List<CamundaField> Fields { get; } = new();
+		public List<TimerEventDefinition> EventDefinitions { get; } = new();
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading attribute: String expression
+			if (node.Attributes.ContainsKey("expression")) Expression = node.Attributes["expression"].Value;
 
-        public string? DelegateExpression { get; set; }
+			//Loading attribute: String class
+			if (node.Attributes.ContainsKey("class")) Class = node.Attributes["class"].Value;
 
-        public string? Event { get; set; }
+			//Loading attribute: String delegateExpression
+			if (node.Attributes.ContainsKey("delegateExpression")) DelegateExpression = node.Attributes["delegateExpression"].Value;
 
-        public List<TimerEventDefinition> EventDefinitions { get; } = new();
+			//Loading attribute: String event
+			if (node.Attributes.ContainsKey("event")) Event = node.Attributes["event"].Value;
 
-        // Attributes:
-        public string? Expression { get; set; }
+			//Loading attribute: String id
+			if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
 
-        public List<CamundaField> Fields { get; } = new();
-        public string? Id { get; set; }
+			//Loading element: Script script - camunda:script
+			if (node.ChildNodes["camunda:script"].Count==1) Script = (CamundaScript)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:script"][0], bpmnFactory);
 
-        // Extension Elements:
-        public CamundaScript? Script { get; set; }
+			//Loading element: Field* fields - camunda:fields
+			if (node.ChildNodes["camunda:fields"].Count>0) CamundaFactory.LoadElements<CamundaField>(Fields, node.ChildNodes["camunda:fields"], bpmnFactory);
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading attribute: String expression
-            if (node.Attributes.ContainsKey("expression")) Expression = node.Attributes["expression"].Value;
+			//Loading element: bpmn:TimerEventDefinition* eventDefinitions - camunda:eventDefinitions
+			if (node.ChildNodes["camunda:eventDefinitions"].Count>0) bpmnFactory.FillElements(node.ChildNodes["camunda:eventDefinitions"], EventDefinitions);
 
-            //Loading attribute: String class
-            if (node.Attributes.ContainsKey("class")) Class = node.Attributes["class"].Value;
+		}
+	}
 
-            //Loading attribute: String delegateExpression
-            if (node.Attributes.ContainsKey("delegateExpression")) DelegateExpression = node.Attributes["delegateExpression"].Value;
+	public class CamundaValidation : ICamundaLoaderBase
+	{
 
-            //Loading attribute: String event
-            if (node.Attributes.ContainsKey("event")) Event = node.Attributes["event"].Value;
+		// Extension Elements:
+		public List<CamundaConstraint> Constraints { get; } = new();
+		public  void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			//Loading element: Constraint* constraints - camunda:constraints
+			if (node.ChildNodes["camunda:constraints"].Count>0) CamundaFactory.LoadElements<CamundaConstraint>(Constraints, node.ChildNodes["camunda:constraints"], bpmnFactory);
 
-            //Loading attribute: String id
-            if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
+		}
+	}
 
-            //Loading element: Script script - camunda:script
-            if (node.ChildNodes["camunda:script"].Count == 1) Script = (CamundaScript)CamundaFactory.Load((XmlParserCamundaNode)node.ChildNodes["camunda:script"][0], bpmnFactory);
+	public class CamundaValue : CamundaInputOutputParameterDefinition, ICamundaLoaderBase
+	{
 
-            //Loading element: Field* fields - camunda:fields
-            if (node.ChildNodes["camunda:fields"].Count > 0) CamundaFactory.LoadElements<CamundaField>(Fields, node.ChildNodes["camunda:fields"], bpmnFactory);
+		// Attributes:
+		public string? Id {get; set;} 
+		public string? Name {get; set;} 
 
-            //Loading element: bpmn:TimerEventDefinition* eventDefinitions - camunda:eventDefinitions
-            if (node.ChildNodes["camunda:eventDefinitions"].Count > 0) bpmnFactory.FillElements(node.ChildNodes["camunda:eventDefinitions"], EventDefinitions);
-        }
-    }
 
-    public class CamundaValidation : ICamundaLoaderBase
-    {
-        // Extension Elements:
-        public List<CamundaConstraint> Constraints { get; } = new();
+		// Extension Elements:
+		public string? Value { get; set; } 
+		public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
+		{
+			base.Load(node, bpmnFactory);
+			//Loading attribute: String id
+			if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
 
-        public void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            //Loading element: Constraint* constraints - camunda:constraints
-            if (node.ChildNodes["camunda:constraints"].Count > 0) CamundaFactory.LoadElements<CamundaConstraint>(Constraints, node.ChildNodes["camunda:constraints"], bpmnFactory);
-        }
-    }
+			//Loading attribute: String name
+			if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
 
-    public class CamundaValue : CamundaInputOutputParameterDefinition, ICamundaLoaderBase
-    {
-        // Attributes:
-        public string? Id { get; set; }
+			//Loading element: String value - camunda:value
+			if (node.ChildNodes.ContainsKey("value") && node.ChildNodes["value"].Count==1) Value = ((XmlParserStringNode)node.ChildNodes["value"][0]).Value;
 
-        public string? Name { get; set; }
+		}
+	}
 
-        // Extension Elements:
-        public string? Value { get; set; }
-
-        public new void Load(XmlParserCamundaNode node, Factory bpmnFactory)
-        {
-            base.Load(node, bpmnFactory);
-            //Loading attribute: String id
-            if (node.Attributes.ContainsKey("id")) Id = node.Attributes["id"].Value;
-
-            //Loading attribute: String name
-            if (node.Attributes.ContainsKey("name")) Name = node.Attributes["name"].Value;
-
-            //Loading element: String value - camunda:value
-            if (node.ChildNodes.ContainsKey("value") && node.ChildNodes["value"].Count == 1) Value = ((XmlParserStringNode)node.ChildNodes["value"][0]).Value;
-        }
-    }
 }

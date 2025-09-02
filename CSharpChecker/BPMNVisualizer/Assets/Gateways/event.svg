@@ -1,0 +1,24 @@
+<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
+  <circle
+    cx="512"
+    cy="512"
+    r="400"
+    fill="none"
+    stroke="black"
+    stroke-width="32"
+  />
+  <circle
+    cx="512"
+    cy="512"
+    r="336"
+    fill="none"
+    stroke="black"
+    stroke-width="32"
+  />
+    <polygon
+    points="512 256, 755 433, 662 719, 362 719, 269 433"
+    fill="none"
+    stroke="black"
+    stroke-width="64"
+  />
+</svg>

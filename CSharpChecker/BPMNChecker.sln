@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BPMNModel", "BPMNModel\BPMN
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{D2112413-A627-483C-8A0C-E32425BDF47B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BPMNVisualizer", "BPMNVisualizer\BPMNVisualizer.csproj", "{D16D4813-E5FA-46DA-A5A9-7EBE9FF657FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{D2112413-A627-483C-8A0C-E32425BDF47B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2112413-A627-483C-8A0C-E32425BDF47B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2112413-A627-483C-8A0C-E32425BDF47B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D16D4813-E5FA-46DA-A5A9-7EBE9FF657FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D16D4813-E5FA-46DA-A5A9-7EBE9FF657FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D16D4813-E5FA-46DA-A5A9-7EBE9FF657FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D16D4813-E5FA-46DA-A5A9-7EBE9FF657FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
