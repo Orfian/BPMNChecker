@@ -40,7 +40,7 @@ namespace BPMNVisualizer.Visualization.Renderers
         
         private void RenderSequenceFlow(SequenceFlow flow, IEnumerable<Point> points)
         {
-            var visual = CreateBaseConnection(points, dashArray: null);
+            var visual = CreateBaseConnection(points, []);
         
             if (IsDefaultFlow(flow))
                 AddDefaultFlowMarker(points.First(), points.ElementAt(1));

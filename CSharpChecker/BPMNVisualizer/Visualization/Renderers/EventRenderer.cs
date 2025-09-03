@@ -131,11 +131,11 @@ namespace BPMNVisualizer.Visualization.Renderers
             // ========== Event-Specific Properties ==========
             if (evt is StartEvent startEvent)
             {
-                AddDetailRow(grid, "Interrupting:", startEvent.IsInterrupting?.ToString(), ref rowIndex);
+                AddDetailRow(grid, "Interrupting:", startEvent.IsInterrupting?.ToString() ?? "null", ref rowIndex);
             }
             else if (evt is BoundaryEvent boundaryEvent)
             {
-                AddDetailRow(grid, "Cancel Activity:", boundaryEvent.CancelActivity?.ToString(), ref rowIndex);
+                AddDetailRow(grid, "Cancel Activity:", boundaryEvent.CancelActivity?.ToString() ?? "null", ref rowIndex);
                 AddDetailRow(grid, "Attached To:", boundaryEvent.AttachedToRef?.Id ?? "null", ref rowIndex);
             }
 
@@ -308,7 +308,7 @@ namespace BPMNVisualizer.Visualization.Renderers
                     extensionInfo.AppendLine($"• {def.Name}");
                     foreach (var attr in def.ExtensionAttributeDefinitions)
                     {
-                        var typeInfo = (bool)attr.IsReference ? "Reference" : attr.Type;
+                        var typeInfo = attr.IsReference != null && attr.IsReference.Value ? attr.Type : "Reference";
                         extensionInfo.AppendLine($"  - {attr.Name} ({typeInfo})");
                     }
                 }
@@ -376,14 +376,14 @@ namespace BPMNVisualizer.Visualization.Renderers
         {
             return flows.Any()
                 ? string.Join("\n", flows.Select(f => $"• {f.Id}"))
-                : null;
+                : "";
         }
 
         private string FormatLanes(IEnumerable<Lane> lanes)
         {
             return lanes.Any()
                 ? string.Join("\n", lanes.Select(l => $"• {l.Name ?? l.Id}"))
-                : null;
+                : "";
         }
 
         private string GetElementId(object element)

@@ -49,7 +49,9 @@ namespace BPMNVisualizer.Visualization
         {
             var allBounds = plane.PlaneElement
                 .OfType<BPMNShape>()
-                .Select(s => s.Bounds.ToRect(ScaleFactor));
+                .Select(x=>x.Bounds)
+                .Where(bounds => bounds != null)
+                .Select(b => b!.ToRect(ScaleFactor));
 
             if (!allBounds.Any()) return;
 
@@ -62,7 +64,7 @@ namespace BPMNVisualizer.Visualization
             _logger.Debug("Rendering structural elements");
             foreach (var shape in plane.PlaneElement.OfType<BPMNShape>())
             {
-                if (!IsStructuralElement(shape.BpmnElement) || shape.Bounds == null) continue;
+                if (shape.BpmnElement == null || !IsStructuralElement(shape.BpmnElement) || shape.Bounds == null) continue;
                 
                 var renderer = _rendererFactory.GetStructureRenderer(shape.BpmnElement);
                 renderer?.RenderShape(shape.BpmnElement, shape.Bounds.ToRect(ScaleFactor));
@@ -74,7 +76,7 @@ namespace BPMNVisualizer.Visualization
             _logger.Debug("Rendering process elements");
             foreach (var shape in plane.PlaneElement.OfType<BPMNShape>())
             {
-                if (IsStructuralElement(shape.BpmnElement) || shape.Bounds == null) continue;
+                if (shape.BpmnElement == null || IsStructuralElement(shape.BpmnElement) || shape.Bounds == null) continue;
 
                 var renderer = _rendererFactory.GetShapeRenderer(shape.BpmnElement);
                 renderer?.RenderShape(shape.BpmnElement, shape.Bounds.ToRect(ScaleFactor));
@@ -88,8 +90,11 @@ namespace BPMNVisualizer.Visualization
             {
                 if (edge.Waypoint.Count < 2) continue;
 
-                var renderer = _rendererFactory.GetConnectionRenderer(edge.BpmnElement);
-                renderer?.RenderConnection(edge.BpmnElement, edge.Waypoint.ToPoints(ScaleFactor));
+                if (edge.BpmnElement != null)
+                {
+                    var renderer = _rendererFactory.GetConnectionRenderer(edge.BpmnElement);
+                    renderer?.RenderConnection(edge.BpmnElement, edge.Waypoint.ToPoints(ScaleFactor));
+                }
             }
         }
 

@@ -115,7 +115,7 @@ namespace BPMNVisualizer.Visualization.Renderers
             AddDetailRow(grid, "ID:", gateway.Id ?? "null", ref rowIndex);
             AddDetailRow(grid, "Name:", gateway.Name ?? "null", ref rowIndex);
             AddDetailRow(grid, "Type:", gateway.GetType().Name, ref rowIndex);
-            AddDetailRow(grid, "Direction:", gateway.GatewayDirection?.ToString(), ref rowIndex);
+            AddDetailRow(grid, "Direction:", gateway.GatewayDirection?.ToString() ?? "null", ref rowIndex);
 
             // ========== Gateway-Specific Properties ==========
             switch (gateway)
@@ -129,13 +129,14 @@ namespace BPMNVisualizer.Visualization.Renderers
                     break;
 
                 case EventBasedGateway eventGateway:
-                    AddDetailRow(grid, "Instantiate:", eventGateway.Instantiate?.ToString(), ref rowIndex);
-                    AddDetailRow(grid, "Event Type:", eventGateway.EventGatewayType?.ToString(), ref rowIndex);
+                    AddDetailRow(grid, "Instantiate:", eventGateway.Instantiate?.ToString() ?? "null", ref rowIndex);
+                    AddDetailRow(grid, "Event Type:", eventGateway.EventGatewayType?.ToString() ?? "null", ref rowIndex);
                     break;
 
                 case ComplexGateway complex:
                     AddDetailRow(grid, "Activation Condition:",
-                        (complex.ActivationCondition as FormalExpression)?.Body, ref rowIndex);
+                       complex.ActivationCondition != null ? (complex.ActivationCondition is FormalExpression expr?  (expr.Body == null? "null" : expr.Body) : complex.ActivationCondition) :  "Null" ,
+                       ref rowIndex);
                     AddDetailRow(grid, "Default Flow:", complex.Default?.Id ?? "None", ref rowIndex);
                     break;
 
@@ -224,14 +225,17 @@ namespace BPMNVisualizer.Visualization.Renderers
                 foreach (var conn in connectors)
                 {
                     camundaInfo.AppendLine($"• {conn.ConnectorId}:");
-                    foreach (var param in conn.InputOutput.InputParameters)
+                    if (conn.InputOutput != null)
                     {
-                        camundaInfo.AppendLine($"  - Input {param.Name}: {param.Value}");
-                    }
+                        foreach (var param in conn.InputOutput.InputParameters)
+                        {
+                            camundaInfo.AppendLine($"  - Input {param.Name}: {param.Value}");
+                        }
 
-                    foreach (var param in conn.InputOutput.OutputParameters)
-                    {
-                        camundaInfo.AppendLine($"  - Output {param.Name}: {param.Value}");
+                        foreach (var param in conn.InputOutput.OutputParameters)
+                        {
+                            camundaInfo.AppendLine($"  - Output {param.Name}: {param.Value}");
+                        }
                     }
                 }
             }
@@ -313,7 +317,7 @@ namespace BPMNVisualizer.Visualization.Renderers
                     sb.Append("[DEFAULT] ");
 
                 if (flow.ConditionExpression is FormalExpression expr)
-                    sb.AppendLine(expr.Body.ToString());
+                    sb.AppendLine(expr.Body == null ? "" : expr.Body.ToString());
                 else if (gateway is InclusiveGateway)
                     sb.AppendLine("Inclusive Condition");
                 else
@@ -338,14 +342,14 @@ namespace BPMNVisualizer.Visualization.Renderers
         {
             return flows.Any()
                 ? string.Join("\n", flows.Select(f => $"• {f.Id}"))
-                : null;
+                : "";
         }
 
         private string FormatLanes(IEnumerable<Lane> lanes)
         {
             return lanes.Any()
                 ? string.Join("\n", lanes.Select(l => $"• {l.Name ?? l.Id}"))
-                : null;
+                : "";
         }
 
         private string FormatDocumentation(IEnumerable<Documentation> docs)

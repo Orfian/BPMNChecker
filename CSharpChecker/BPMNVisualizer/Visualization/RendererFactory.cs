@@ -5,6 +5,7 @@ using BPMNVisualizer.Utilities;
 using BPMNVisualizer.Utility;
 using BPMNVisualizer.Visualization.Renderers;
 using Serilog;
+using Utility;
 
 namespace BPMNVisualizer.Visualization
 {
@@ -31,7 +32,7 @@ namespace BPMNVisualizer.Visualization
         }
         
 
-        public IShapeRenderer GetShapeRenderer(BaseElement element)
+        public IShapeRenderer? GetShapeRenderer(BaseElement element)
         {
             switch (element)
             {
@@ -53,6 +54,7 @@ namespace BPMNVisualizer.Visualization
                 default:
                     _logger.Warning("No renderer found for element type: {ElementType}", element.GetType());
                     return null;
+                    //throw new BPMNCheckerExceptions($"No renderer found for element type: {element.GetType()}");
             }
         }
 

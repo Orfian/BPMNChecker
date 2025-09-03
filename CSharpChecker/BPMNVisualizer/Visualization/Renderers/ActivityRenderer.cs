@@ -204,9 +204,9 @@ public class ActivityRenderer : IShapeRenderer
         AddDetailRow(grid, "Type:", activity.GetType().Name, ref rowIndex);
 
         // ========== Activity-Specific Properties ==========
-        AddDetailRow(grid, "Compensation:", activity.IsForCompensation?.ToString(), ref rowIndex);
-        AddDetailRow(grid, "Start Qty:", activity.StartQuantity?.ToString(), ref rowIndex);
-        AddDetailRow(grid, "Complete Qty:", activity.CompletionQuantity?.ToString(), ref rowIndex);
+        AddDetailRow(grid, "Compensation:", activity.IsForCompensation?.ToString() ?? "null", ref rowIndex);
+        AddDetailRow(grid, "Start Qty:", activity.StartQuantity?.ToString() ?? "null", ref rowIndex);
+        AddDetailRow(grid, "Complete Qty:", activity.CompletionQuantity?.ToString() ?? "null", ref rowIndex);
 
         // ========== Flow Relationships ==========
         AddDetailRow(grid, "Incoming:", FormatConnections(activity.Incoming), ref rowIndex);
@@ -251,7 +251,7 @@ public class ActivityRenderer : IShapeRenderer
                 conversationInfo.AppendLine("Incoming Conversations:");
                 foreach (var conv in interactionNode.IncomingConversationLinks)
                 {
-                    conversationInfo.AppendLine($"• From: {GetElementDisplay(conv.SourceRef)}");
+                    conversationInfo.AppendLine($"• From: {(conv.SourceRef != null ? GetElementDisplay(conv.SourceRef) : "null")}");
                 }
             }
 
@@ -260,7 +260,7 @@ public class ActivityRenderer : IShapeRenderer
                 conversationInfo.AppendLine("Outgoing Conversations:");
                 foreach (var conv in interactionNode.OutgoingConversationLinks)
                 {
-                    conversationInfo.AppendLine($"• To: {GetElementDisplay(conv.TargetRef)}");
+                    conversationInfo.AppendLine($"• To: {(conv.TargetRef != null ? GetElementDisplay(conv.TargetRef) : "null")}");
                 }
             }
 
@@ -414,7 +414,7 @@ public class ActivityRenderer : IShapeRenderer
                 foreach (var val in activity.ExtensionValues)
                 {
                     var value = val.Value ?? val.ValueRef;
-                    extensionInfo.AppendLine($"• {val.ExtensionAttributeDefinition?.Name}: {value.Value}");
+                    extensionInfo.AppendLine($"• {val.ExtensionAttributeDefinition?.Name}: {(value is null? "" :value.Value)}");
                 }
             }
 
@@ -435,14 +435,14 @@ public class ActivityRenderer : IShapeRenderer
     {
         return flows.Any()
             ? string.Join("\n", flows.Select(f => $"• {f.Id}"))
-            : null;
+            : "";
     }
 
     private string FormatLanes(IEnumerable<Lane> lanes)
     {
         return lanes.Any()
             ? string.Join("\n", lanes.Select(l => $"• {l.Name ?? l.Id}"))
-            : null;
+            : "";
     }
 
     private string GetTaskSpecificInfo(Task task)
@@ -510,7 +510,7 @@ public class ActivityRenderer : IShapeRenderer
             foreach (var assoc in activity.DataInputAssociations)
             {
                 sb.AppendLine($"• Sources: {string.Join(", ", assoc.SourceRef.Select(GetElementId))}");
-                sb.AppendLine($"  → Target: {GetElementId(assoc.TargetRef)}");
+                sb.AppendLine($"  → Target: {(assoc.TargetRef is null ? "null" : GetElementId(assoc.TargetRef))}");
             }
         }
 
@@ -520,7 +520,7 @@ public class ActivityRenderer : IShapeRenderer
             foreach (var assoc in activity.DataOutputAssociations)
             {
                 sb.AppendLine($"• Sources: {string.Join(", ", assoc.SourceRef.Select(GetElementId))}");
-                sb.AppendLine($"  → Target: {GetElementId(assoc.TargetRef)}");
+                sb.AppendLine($"  → Target: {(assoc.TargetRef is null ? "null" : GetElementId(assoc.TargetRef))}");
             }
         }
 

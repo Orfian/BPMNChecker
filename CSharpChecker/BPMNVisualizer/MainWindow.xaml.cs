@@ -31,7 +31,9 @@ namespace BPMNVisualizer
         private void LoadAndVisualizeBPMN(string filePath)
         {
             var model = _modelLoader.LoadModel(filePath);
-            _visualizer.Visualize(model);
+            if (model != null)
+                _visualizer.Visualize(model);
+            else MessageBox.Show("Failed to load BPMN model. Check logs for details.");
         }
 
         private void ExportButton_Click(object sender, RoutedEventArgs e)

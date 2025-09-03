@@ -19,7 +19,7 @@ namespace BPMNVisualizer.Services
             _logger = logger;
         }
 
-        public ModelRoot LoadModel(string filePath)
+        public ModelRoot? LoadModel(string filePath)
         {
             XDocument doc = ResourcesUtility.LoadResourceAsXDocument(filePath);
             var generator = Generator.CreateGenerator(_logger);

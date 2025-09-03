@@ -3,6 +3,7 @@ using Serilog;
 using System.Collections.Concurrent;
 using BPMNModel.Model;
 using Task = BPMNModel.Model.Task;
+using Utility;
 
 namespace BPMNVisualizer.Utilities
 {
@@ -32,7 +33,8 @@ namespace BPMNVisualizer.Utilities
                 catch (Exception ex)
                 {
                     _logger.Error(ex, $"Failed to create URI for SVG resource: {cacheKey}");
-                    return null;
+                    //return null;
+                    throw new BPMNCheckerExceptions($"Failed to create URI for SVG resource: {cacheKey}", ex);
                 }
             }) is Uri uri ? new SvgViewbox { Source = uri } : null;
         }
@@ -132,7 +134,7 @@ namespace BPMNVisualizer.Utilities
             };
         }
 
-        public SvgViewbox GetDataIcon(string elementType)
+        public SvgViewbox? GetDataIcon(string elementType)
         {
             var fileName = elementType switch
             {
@@ -140,7 +142,7 @@ namespace BPMNVisualizer.Utilities
                 "DataStore" => "data-store",
                 "DataInput" => "data-input",
                 "DataOutput" => "data-output",
-                _ => null
+                _ => throw new BPMNCheckerExceptions($"No icon found for data element type: {elementType}")
             };
 
             return GetSvg("Data", fileName);
