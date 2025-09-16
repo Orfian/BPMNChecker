@@ -198,6 +198,7 @@ camundaAttributes = {
 interfaces = ["InteractionNode", "FlowElementsContainer", "ItemAwareElement"] 
 
 enumNames = []
+dataClassesNames = []
 
 def capitalize_first_letter(s):
     if not s:
@@ -263,8 +264,12 @@ def print_model(path, model):
     out.write("namespace BPMNModel.Model").nl()
     out.write("{").nl()
     out.inc()
-    print_classes_and_data_types(out, model.get_all_data_types() + model.get_all_classes(), mappings)
+
+    for c in model.get_all_data_types():
+        dataClassesNames.append(c.name)
+
     print_enumerations(out, model.get_all_enumerations())
+    print_classes_and_data_types(out, model.get_all_data_types() + model.get_all_classes(), mappings)
     out.dec()
     out.write("}").nl()
    
@@ -498,7 +503,7 @@ def print_factory(out, c, mappings):
                     targetParentType = print_csharp_type(target.parent)
                     targetName = target.name
                     targetType = print_csharp_type(target.type)
-                    out.write("// two way associatio: " +c.name +"("+itemType + " "+ itemName + get_arity(l,h)+")")
+                    out.write("// two way association: " +c.name +"("+itemType + " "+ itemName + get_arity(l,h)+")")
                     out.write(" <---> "+ targetParentType + "(" + targetType + " " + targetName + " " + get_arity(targetLower, targetUpper)+ ")").nl()
                     out.write("// In "+ targetParentType + " get " + targetName);
                     if targetUpper == 1:
@@ -556,7 +561,7 @@ def print_class_or_data_type(out, c, mappings):
     out.write("public ")
     isInterface = c.name in interfaces
     if isInterface:
-        out.write("interface " + c.name)
+        out.write("interface " + c.name + " : ITraversableNode")
         if c.is_abstract:
             out.write (" // abstract ")
     else:
@@ -581,9 +586,11 @@ def print_class_or_data_type(out, c, mappings):
             else:
                 out.write(", ".join([x.name for x in parentClasses] + [x.name for x in implementedInterfaces] ))
         if c.name == "BaseElement":
-            out.write(" : CamundaExtensionBaseElement, IElementWithId")            
-        if c.name in ["Diagram", "DiagramElement"]:
-            out.write(": IElementWithId")
+            out.write(" : CamundaExtensionBaseElement, IElementWithId, ITraversableNode")            
+        elif c.name in ["Diagram", "DiagramElement"]:
+            out.write(" : IElementWithId, ITraversableNode")
+        elif len(scls)==0 and not isInterface:
+            out.write(" : ITraversableNode")
 
     out.nl()
     out.write("{").nl()
@@ -609,12 +616,63 @@ def print_class_or_data_type(out, c, mappings):
         out.nl();
 
     if not isInterface:
-                
         out.write("public "+c.name+"()").nl()
         out.write("{").nl()
         out.write("}").nl().nl()
+
+    if isinstance(c, M_Class) and not isInterface :
+        if c.name in ["BaseElement", "Diagram", "DiagramElement"] or len(c.superclasses) == 0:
+            out.write("virtual public  List<ITraversableNode> GetChildElements()").nl()
+            out.write("{").nl()
+            out.inc()
+            out.write("var result = new List<ITraversableNode>();").nl()
+        else:
+            out.write("override public  List<ITraversableNode> GetChildElements()").nl()
+            out.write("{").nl()
+            out.inc()
+            out.write("var result = base.GetChildElements();").nl()
+        
+        #for attr in c.attributes:
+
+        for attr in c.attributes:
+            print_visit_for_attribute(out, attr)
+        if implementedInterface != None:
+            out.write("// Implementing: "+implementedInterface.name).nl()
+            for attr in implementedInterface.attributes:
+                print_visit_for_attribute(out, attr)
+
+        if c.name in camundaAttributes:
+            out.write("// Camunda attributes").nl()
+            for (camundaType, camundaName) in camundaAttributes[c.name]:
+                if isComplexType(camundaType):
+                    out.write("// TODO - wrong for: ").write(camundaName).nl()
+
+        out.write("return result;").nl()
+        out.dec()
+        out.write("}").nl()
+
+    else:
+        out.write("/* No method to get child elements - it is interface or data class. */").nl()
+
     out.dec()
+
     out.write("}").nl()
+
+def get_all_parents_names(referencedObject):
+    if (isinstance(referencedObject, M_HRef_Type)) : 
+        currentClass = referencedObject.type
+        assert isinstance(currentClass, M_Class)
+    else:
+        currentClass = referencedObject
+        assert isinstance(currentClass, M_Class)
+
+    result = []
+    if currentClass not in interfaces:
+        parentClasses = [sc for sc in currentClass.superclasses]
+        for parentClass in parentClasses:
+            result += get_all_parents_names(parentClass)
+    result.append(currentClass.name)
+    return result
 
 # def get_all_attributes_with_mapping(currentClass, mappings):
 #     assert isinstance(currentClass, M_Class)
@@ -794,6 +852,35 @@ def print_csharp_type(type):
     if convert == "Real":
         return "double"
     return convert
+
+
+def isComplexType(type):
+    if isinstance(type, M_Type):
+        convert = type.name
+    else: 
+        convert = type
+
+    if convert == "String" or convert == "Boolean" or convert == "Integer" or convert == "Real":
+        return False
+    if convert in enumNames:
+        return False
+    if convert in dataClassesNames:
+        return False
+    return True
+
+def print_visit_for_attribute(out, c):
+    realName = capitalize_first_letter(c.name)
+    card = c.cardinality
+    assert isinstance(card, M_Cardinality)
+    lower = card.lower
+    upper = card.upper
+    if isComplexType(c.type):
+        if upper == 1:
+            out.write("if ("+realName+" is not null) result.Add("+ realName + ");")
+        else:
+            out.write("result.AddRange("+realName + ");")
+        out.nl()
+
 
 def print_Attribute(out, c, isInInterface):
     #TODO Override for diagrams.
