@@ -1,6 +1,7 @@
-﻿namespace BPMNModel.Model
+﻿
+namespace BPMNModel.Model
 {
-    public class Element
+    public class Element : ITraversableNode
     {
         public Element(string value)
         {
@@ -8,5 +9,10 @@
         }
 
         public string Value { get; init; }
+
+        public List<ITraversableNode> GetChildElements()
+        {
+            return new List<ITraversableNode>();
+        }
     }
 }

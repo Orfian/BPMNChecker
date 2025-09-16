@@ -3,2028 +3,6 @@
 /// </summary>
 namespace BPMNModel.Model
 {
-    #region Classes (156 items)
-
-    public class Font
-    {
-        public string? Name { get; set; }
-        public double? Size { get; set; }
-        public bool? IsBold { get; set; }
-        public bool? IsItalic { get; set; }
-        public bool? IsUnderline { get; set; }
-        public bool? IsStrikeThrough { get; set; }
-
-        public Font()
-        {
-        }
-
-    }
-
-    public class Point
-    {
-        public double? X { get; set; }
-        public double? Y { get; set; }
-
-        public Point()
-        {
-        }
-
-    }
-
-    public class Bounds
-    {
-        public double? X { get; set; }
-        public double? Y { get; set; }
-        public double? Width { get; set; }
-        public double? Height { get; set; }
-
-        public Bounds()
-        {
-        }
-
-    }
-
-    public abstract class DiagramElement: IElementWithId
-    {
-        public Diagram? OwningDiagram { get; set; }
-        public DiagramElement? OwningElement { get; set; }
-        public Element? ModelElement { get; set; }
-        public Style? Style { get; set; }
-        public List<DiagramElement> OwnedElement { get; } = new();
-        public string? Id { get; set; }
-
-        public DiagramElement()
-        {
-        }
-
-    }
-
-    public abstract class Node : DiagramElement
-    {
-
-        public Node()
-        {
-        }
-
-    }
-
-    public abstract class Edge : DiagramElement
-    {
-        public DiagramElement? Source { get; set; }
-        public DiagramElement? Target { get; set; }
-        public List<Point> Waypoint { get; } = new();
-
-        public Edge()
-        {
-        }
-
-    }
-
-    public abstract class Diagram: IElementWithId
-    {
-        public DiagramElement? RootElement { get; set; }
-        public string? Name { get; set; }
-        public string? Documentation { get; set; }
-        public double? Resolution { get; set; }
-        public List<Style> OwnedStyle { get; } = new();
-        public string? Id { get; set; }
-
-        public Diagram()
-        {
-        }
-
-    }
-
-    public abstract class Shape : Node
-    {
-        public Bounds? Bounds { get; set; }
-
-        public Shape()
-        {
-        }
-
-    }
-
-    public abstract class Plane : Node
-    {
-        public List<DiagramElement> PlaneElement { get; } = new();
-
-        public Plane()
-        {
-        }
-
-    }
-
-    public abstract class LabeledEdge : Edge
-    {
-        public List<Label> OwnedLabel { get; } = new();
-
-        public LabeledEdge()
-        {
-        }
-
-    }
-
-    public abstract class LabeledShape : Shape
-    {
-        public List<Label> OwnedLabel { get; } = new();
-
-        public LabeledShape()
-        {
-        }
-
-    }
-
-    public abstract class Label : Node
-    {
-        public Bounds? Bounds { get; set; }
-
-        public Label()
-        {
-        }
-
-    }
-
-    public abstract class Style
-    {
-
-        public Style()
-        {
-        }
-
-    }
-
-    public class BPMNDiagram : Diagram
-    {
-        public BPMNPlane? Plane { get; set; }
-        public List<BPMNLabelStyle> LabelStyle { get; } = new();
-
-        public BPMNDiagram()
-        {
-        }
-
-    }
-
-    public class BPMNPlane : Plane
-    {
-        public BaseElement? BpmnElement { get; set; }
-
-        public BPMNPlane()
-        {
-        }
-
-    }
-
-    public class BPMNShape : LabeledShape
-    {
-        public BaseElement? BpmnElement { get; set; }
-        public bool? IsHorizontal { get; set; }
-        public bool? IsExpanded { get; set; }
-        public bool? IsMarkerVisible { get; set; }
-        public BPMNLabel? Label { get; set; }
-        public bool? IsMessageVisible { get; set; }
-        public ParticipantBandKind? ParticipantBandKind { get; set; }
-        public BPMNShape? ChoreographyActivityShape { get; set; }
-
-        public BPMNShape()
-        {
-        }
-
-    }
-
-    public class BPMNEdge : LabeledEdge
-    {
-        public BPMNLabel? Label { get; set; }
-        public BaseElement? BpmnElement { get; set; }
-        public DiagramElement? SourceElement { get; set; }
-        public DiagramElement? TargetElement { get; set; }
-        public MessageVisibleKind? MessageVisibleKind { get; set; }
-
-        public BPMNEdge()
-        {
-        }
-
-    }
-
-    public class BPMNLabel : Label
-    {
-        public BPMNLabelStyle? LabelStyle { get; set; }
-
-        public BPMNLabel()
-        {
-        }
-
-    }
-
-    public class BPMNLabelStyle : Style
-    {
-        public Font? Font { get; set; }
-
-        public BPMNLabelStyle()
-        {
-        }
-
-    }
-
-    public class Interface : RootElement
-    {
-        public string? Name { get; set; }
-        public List<Operation> Operations { get; } = new();
-        public Element? ImplementationRef { get; set; }
-
-        public Interface()
-        {
-        }
-
-    }
-
-    public class Operation : BaseElement
-    {
-        public string? Name { get; set; }
-        public Message? InMessageRef { get; set; }
-        public Message? OutMessageRef { get; set; }
-        public List<Error> ErrorRefs { get; } = new();
-        public Element? ImplementationRef { get; set; }
-
-        public Operation()
-        {
-        }
-
-    }
-
-    public class EndPoint : RootElement
-    {
-
-        public EndPoint()
-        {
-        }
-
-    }
-
-    public class Auditing : BaseElement
-    {
-
-        public Auditing()
-        {
-        }
-
-    }
-
-    public class GlobalTask : CallableElement
-    {
-        public List<ResourceRole> Resources { get; } = new();
-
-        public GlobalTask()
-        {
-        }
-
-    }
-
-    public class Monitoring : BaseElement
-    {
-
-        public Monitoring()
-        {
-        }
-
-    }
-
-    public class Performer : ResourceRole
-    {
-
-        public Performer()
-        {
-        }
-
-    }
-
-    public class Process : CallableElement, FlowElementsContainer
-    {
-        public ProcessType? ProcessType { get; set; }
-        public bool? IsClosed { get; set; }
-        public Auditing? Auditing { get; set; }
-        public Monitoring? Monitoring { get; set; }
-        public List<Property> Properties { get; } = new();
-        public List<Process> Supports { get; } = new();
-        public Collaboration? DefinitionalCollaborationRef { get; set; }
-        public bool? IsExecutable { get; set; }
-        public List<ResourceRole> Resources { get; } = new();
-        public List<Artifact> Artifacts { get; } = new();
-        public List<CorrelationSubscription> CorrelationSubscriptions { get; } = new();
-
-
-        #region Implementing: FlowElementsContainer
-        public List<FlowElement> FlowElements { get; } = new();
-        public List<LaneSet> LaneSets { get; } = new();
-        #endregion
-
-        #region Camunda attributes
-        public string? Camunda_jobPriority { get; set; }
-        public string? Camunda_modelerTemplate { get; set; }
-        public long? Camunda_modelerTemplateVersion { get; set; }
-        public string? Camunda_candidateStarterGroups { get; set; }
-        public string? Camunda_candidateStarterUsers { get; set; }
-        public string? Camunda_versionTag { get; set; }
-        public string? Camunda_historyTimeToLive { get; set; }
-        public bool? Camunda_isStartableInTasklist { get; set; }
-        public string? Camunda_taskPriority { get; set; }
-        #endregion
-
-        public Process()
-        {
-        }
-
-    }
-
-    public class LaneSet : BaseElement
-    {
-        public List<Lane> Lanes { get; } = new();
-        public string? Name { get; set; }
-
-        public LaneSet()
-        {
-        }
-
-    }
-
-    public class Lane : BaseElement
-    {
-        public string? Name { get; set; }
-        public LaneSet? ChildLaneSet { get; set; }
-        public BaseElement? PartitionElementRef { get; set; }
-        public List<FlowNode> FlowNodeRefs { get; } = new();
-        public BaseElement? PartitionElement { get; set; }
-
-        public Lane()
-        {
-        }
-
-    }
-
-    public class GlobalManualTask : GlobalTask
-    {
-
-        public GlobalManualTask()
-        {
-        }
-
-    }
-
-    public class ManualTask : Task
-    {
-
-        public ManualTask()
-        {
-        }
-
-    }
-
-    public class UserTask : Task
-    {
-        public List<Rendering> Renderings { get; } = new();
-        public string? Implementation { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_formHandlerClass { get; set; }
-        public string? Camunda_formKey { get; set; }
-        public string? Camunda_formRef { get; set; }
-        public string? Camunda_formRefBinding { get; set; }
-        public string? Camunda_formRefVersion { get; set; }
-        public string? Camunda_assignee { get; set; }
-        public string? Camunda_candidateUsers { get; set; }
-        public string? Camunda_candidateGroups { get; set; }
-        public string? Camunda_dueDate { get; set; }
-        public string? Camunda_followUpDate { get; set; }
-        public string? Camunda_priority { get; set; }
-        #endregion
-
-        public UserTask()
-        {
-        }
-
-    }
-
-    public class Rendering : BaseElement
-    {
-
-        public Rendering()
-        {
-        }
-
-    }
-
-    public class HumanPerformer : Performer
-    {
-
-        public HumanPerformer()
-        {
-        }
-
-    }
-
-    public class PotentialOwner : HumanPerformer
-    {
-
-        public PotentialOwner()
-        {
-        }
-
-    }
-
-    public class GlobalUserTask : GlobalTask
-    {
-        public string? Implementation { get; set; }
-        public List<Rendering> Renderings { get; } = new();
-
-        public GlobalUserTask()
-        {
-        }
-
-    }
-
-    public abstract class Gateway : FlowNode
-    {
-        public GatewayDirection? GatewayDirection { get; set; }
-
-        #region Camunda attributes
-        public bool? Camunda_async { get; set; }
-        public bool? Camunda_asyncBefore { get; set; }
-        public bool? Camunda_asyncAfter { get; set; }
-        public bool? Camunda_exclusive { get; set; }
-        public string? Camunda_jobPriority { get; set; }
-        #endregion
-
-        public Gateway()
-        {
-        }
-
-    }
-
-    public class EventBasedGateway : Gateway
-    {
-        public bool? Instantiate { get; set; }
-        public EventBasedGatewayType? EventGatewayType { get; set; }
-
-        public EventBasedGateway()
-        {
-        }
-
-    }
-
-    public class ComplexGateway : Gateway
-    {
-        public Expression? ActivationCondition { get; set; }
-        public SequenceFlow? Default { get; set; }
-
-        public ComplexGateway()
-        {
-        }
-
-    }
-
-    public class ExclusiveGateway : Gateway
-    {
-        public SequenceFlow? Default { get; set; }
-
-        public ExclusiveGateway()
-        {
-        }
-
-    }
-
-    public class InclusiveGateway : Gateway
-    {
-        public SequenceFlow? Default { get; set; }
-
-        public InclusiveGateway()
-        {
-        }
-
-    }
-
-    public class ParallelGateway : Gateway
-    {
-
-        public ParallelGateway()
-        {
-        }
-
-    }
-
-    public abstract class RootElement : BaseElement
-    {
-
-        public RootElement()
-        {
-        }
-
-    }
-
-    public class Relationship : BaseElement
-    {
-        public string? Type { get; set; }
-        public RelationshipDirection? Direction { get; set; }
-        public List<Element> Sources { get; } = new();
-        public List<Element> Targets { get; } = new();
-
-        public Relationship()
-        {
-        }
-
-    }
-
-    public abstract class BaseElement : CamundaExtensionBaseElement, IElementWithId
-    {
-        public string? Id { get; set; }
-        public List<ExtensionDefinition> ExtensionDefinitions { get; } = new();
-        public List<ExtensionAttributeValue> ExtensionValues { get; } = new();
-        public List<Documentation> Documentation { get; } = new();
-
-        public BaseElement()
-        {
-        }
-
-    }
-
-    public class Extension
-    {
-        public bool? MustUnderstand { get; set; }
-        public ExtensionDefinition? Definition { get; set; }
-
-        public Extension()
-        {
-        }
-
-    }
-
-    public class ExtensionDefinition
-    {
-        public string? Name { get; set; }
-        public List<ExtensionAttributeDefinition> ExtensionAttributeDefinitions { get; } = new();
-
-        public ExtensionDefinition()
-        {
-        }
-
-    }
-
-    public class ExtensionAttributeDefinition
-    {
-        public string? Name { get; set; }
-        public string? Type { get; set; }
-        public bool? IsReference { get; set; }
-        public ExtensionDefinition? ExtensionDefinition { get; set; }
-
-        public ExtensionAttributeDefinition()
-        {
-        }
-
-    }
-
-    public class ExtensionAttributeValue
-    {
-        public Element? ValueRef { get; set; }
-        public Element? Value { get; set; }
-        public ExtensionAttributeDefinition? ExtensionAttributeDefinition { get; set; }
-
-        public ExtensionAttributeValue()
-        {
-        }
-
-    }
-
-    public class Documentation : BaseElement
-    {
-        public string? Text { get; set; }
-        public string? TextFormat { get; set; }
-
-        public Documentation()
-        {
-        }
-
-    }
-
-    public abstract class Event : FlowNode, InteractionNode
-    {
-        public List<Property> Properties { get; } = new();
-
-
-        #region Implementing: InteractionNode
-        public List<ConversationLink> IncomingConversationLinks { get; } = new();
-        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
-        #endregion
-
-        #region Camunda attributes
-        public bool? Camunda_async { get; set; }
-        public bool? Camunda_asyncBefore { get; set; }
-        public bool? Camunda_asyncAfter { get; set; }
-        public bool? Camunda_exclusive { get; set; }
-        public string? Camunda_jobPriority { get; set; }
-        #endregion
-
-        public Event()
-        {
-        }
-
-    }
-
-    public class IntermediateCatchEvent : CatchEvent
-    {
-
-        public IntermediateCatchEvent()
-        {
-        }
-
-    }
-
-    public class IntermediateThrowEvent : ThrowEvent
-    {
-
-        public IntermediateThrowEvent()
-        {
-        }
-
-    }
-
-    public class EndEvent : ThrowEvent
-    {
-
-        public EndEvent()
-        {
-        }
-
-    }
-
-    public class StartEvent : CatchEvent
-    {
-        public bool? IsInterrupting { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_formHandlerClass { get; set; }
-        public string? Camunda_formKey { get; set; }
-        public string? Camunda_formRef { get; set; }
-        public string? Camunda_formRefBinding { get; set; }
-        public string? Camunda_formRefVersion { get; set; }
-        public string? Camunda_initiator { get; set; }
-        #endregion
-
-        public StartEvent()
-        {
-        }
-
-    }
-
-    public abstract class ThrowEvent : Event
-    {
-        public InputSet? InputSet { get; set; }
-        public List<EventDefinition> EventDefinitionRefs { get; } = new();
-        public List<DataInputAssociation> DataInputAssociation { get; } = new();
-        public List<DataInput> DataInputs { get; } = new();
-        public List<EventDefinition> EventDefinitions { get; } = new();
-
-        public ThrowEvent()
-        {
-        }
-
-    }
-
-    public abstract class CatchEvent : Event
-    {
-        public bool? ParallelMultiple { get; set; }
-        public OutputSet? OutputSet { get; set; }
-        public List<EventDefinition> EventDefinitionRefs { get; } = new();
-        public List<DataOutputAssociation> DataOutputAssociation { get; } = new();
-        public List<DataOutput> DataOutputs { get; } = new();
-        public List<EventDefinition> EventDefinitions { get; } = new();
-
-        public CatchEvent()
-        {
-        }
-
-    }
-
-    public class BoundaryEvent : CatchEvent
-    {
-        public bool? CancelActivity { get; set; }
-        public Activity? AttachedToRef { get; set; }
-
-        public BoundaryEvent()
-        {
-        }
-
-    }
-
-    public abstract class EventDefinition : RootElement
-    {
-
-        public EventDefinition()
-        {
-        }
-
-    }
-
-    public class CancelEventDefinition : EventDefinition
-    {
-
-        public CancelEventDefinition()
-        {
-        }
-
-    }
-
-    public class ErrorEventDefinition : EventDefinition
-    {
-        public Error? ErrorRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_errorCodeVariable { get; set; }
-        public string? Camunda_errorMessageVariable { get; set; }
-        #endregion
-
-        public ErrorEventDefinition()
-        {
-        }
-
-    }
-
-    public class TerminateEventDefinition : EventDefinition
-    {
-
-        public TerminateEventDefinition()
-        {
-        }
-
-    }
-
-    public class EscalationEventDefinition : EventDefinition
-    {
-        public Escalation? EscalationRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_escalationCodeVariable { get; set; }
-        #endregion
-
-        public EscalationEventDefinition()
-        {
-        }
-
-    }
-
-    public class Escalation
-    {
-        public ItemDefinition? StructureRef { get; set; }
-        public string? Name { get; set; }
-        public string? EscalationCode { get; set; }
-
-        public Escalation()
-        {
-        }
-
-    }
-
-    public class CompensateEventDefinition : EventDefinition
-    {
-        public bool? WaitForCompletion { get; set; }
-        public Activity? ActivityRef { get; set; }
-
-        public CompensateEventDefinition()
-        {
-        }
-
-    }
-
-    public class TimerEventDefinition : EventDefinition
-    {
-        public Expression? TimeDate { get; set; }
-        public Expression? TimeCycle { get; set; }
-        public Expression? TimeDuration { get; set; }
-
-        public TimerEventDefinition()
-        {
-        }
-
-    }
-
-    public class LinkEventDefinition : EventDefinition
-    {
-        public string? Name { get; set; }
-        public LinkEventDefinition? Target { get; set; }
-        public List<LinkEventDefinition> Source { get; } = new();
-
-        public LinkEventDefinition()
-        {
-        }
-
-    }
-
-    public class MessageEventDefinition : EventDefinition
-    {
-        public Message? MessageRef { get; set; }
-        public Operation? OperationRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_expression { get; set; }
-        public string? Camunda_class { get; set; }
-        public string? Camunda_delegateExpression { get; set; }
-        public string? Camunda_resultVariable { get; set; }
-        public string? Camunda_type { get; set; }
-        public string? Camunda_topic { get; set; }
-        public string? Camunda_taskPriority { get; set; }
-        #endregion
-
-        public MessageEventDefinition()
-        {
-        }
-
-    }
-
-    public class ConditionalEventDefinition : EventDefinition
-    {
-        public Expression? Condition { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_variableName { get; set; }
-        public string? Camunda_variableEvents { get; set; }
-        #endregion
-
-        public ConditionalEventDefinition()
-        {
-        }
-
-    }
-
-    public class SignalEventDefinition : EventDefinition
-    {
-        public Signal? SignalRef { get; set; }
-
-        #region Camunda attributes
-        public bool? Camunda_async { get; set; }
-        #endregion
-
-        public SignalEventDefinition()
-        {
-        }
-
-    }
-
-    public class Signal : RootElement
-    {
-        public ItemDefinition? StructureRef { get; set; }
-        public string? Name { get; set; }
-
-        public Signal()
-        {
-        }
-
-    }
-
-    public class ImplicitThrowEvent : ThrowEvent
-    {
-
-        public ImplicitThrowEvent()
-        {
-        }
-
-    }
-
-    public class DataState : BaseElement
-    {
-        public string? Name { get; set; }
-
-        public DataState()
-        {
-        }
-
-    }
-
-    public interface ItemAwareElement
-    {
-        ItemDefinition? ItemSubjectRef { get; set; }
-        DataState? DataState { get; set; }
-
-    }
-
-    public class DataAssociation : BaseElement
-    {
-        public FormalExpression? Transformation { get; set; }
-        public List<Assignment> Assignment { get; } = new();
-        public ItemAwareElement? TargetRef { get; set; }
-        public List<ItemAwareElement> SourceRef { get; } = new();
-
-        public DataAssociation()
-        {
-        }
-
-    }
-
-    public class DataInput : BaseElement, ItemAwareElement
-    {
-        public string? Name { get; set; }
-        public bool? IsCollection { get; set; }
-        public List<InputSet> InputSetRefs { get; } = new();
-        public List<InputSet> InputSetWithOptional { get; } = new();
-        public List<InputSet> InputSetWithWhileExecuting { get; } = new();
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public DataInput()
-        {
-        }
-
-    }
-
-    public class DataOutput : BaseElement, ItemAwareElement
-    {
-        public string? Name { get; set; }
-        public bool? IsCollection { get; set; }
-        public List<OutputSet> OutputSetRefs { get; } = new();
-        public List<OutputSet> OutputSetWithOptional { get; } = new();
-        public List<OutputSet> OutputSetWithWhileExecuting { get; } = new();
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public DataOutput()
-        {
-        }
-
-    }
-
-    public class InputSet : BaseElement
-    {
-        public string? Name { get; set; }
-        public List<DataInput> DataInputRefs { get; } = new();
-        public List<DataInput> OptionalInputRefs { get; } = new();
-        public List<DataInput> WhileExecutingInputRefs { get; } = new();
-        public List<OutputSet> OutputSetRefs { get; } = new();
-
-        public InputSet()
-        {
-        }
-
-    }
-
-    public class OutputSet : BaseElement
-    {
-        public List<DataOutput> DataOutputRefs { get; } = new();
-        public string? Name { get; set; }
-        public List<InputSet> InputSetRefs { get; } = new();
-        public List<DataOutput> OptionalOutputRefs { get; } = new();
-        public List<DataOutput> WhileExecutingOutputRefs { get; } = new();
-
-        public OutputSet()
-        {
-        }
-
-    }
-
-    public class Property : BaseElement, ItemAwareElement
-    {
-        public string? Name { get; set; }
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public Property()
-        {
-        }
-
-    }
-
-    public class DataInputAssociation : DataAssociation
-    {
-
-        public DataInputAssociation()
-        {
-        }
-
-    }
-
-    public class DataOutputAssociation : DataAssociation
-    {
-
-        public DataOutputAssociation()
-        {
-        }
-
-    }
-
-    public class InputOutputSpecification : BaseElement
-    {
-        public List<InputSet> InputSets { get; } = new();
-        public List<OutputSet> OutputSets { get; } = new();
-        public List<DataInput> DataInputs { get; } = new();
-        public List<DataOutput> DataOutputs { get; } = new();
-
-        public InputOutputSpecification()
-        {
-        }
-
-    }
-
-    public class DataObject : FlowElement, ItemAwareElement
-    {
-        public bool? IsCollection { get; set; }
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public DataObject()
-        {
-        }
-
-    }
-
-    public class InputOutputBinding
-    {
-        public InputSet? InputDataRef { get; set; }
-        public OutputSet? OutputDataRef { get; set; }
-        public Operation? OperationRef { get; set; }
-
-        public InputOutputBinding()
-        {
-        }
-
-    }
-
-    public class Assignment : BaseElement
-    {
-        public Expression? From { get; set; }
-        public Expression? To { get; set; }
-
-        public Assignment()
-        {
-        }
-
-    }
-
-    public class DataStore : RootElement, ItemAwareElement
-    {
-        public string? Name { get; set; }
-        public long? Capacity { get; set; }
-        public bool? IsUnlimited { get; set; }
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public DataStore()
-        {
-        }
-
-    }
-
-    public class DataStoreReference : FlowElement, ItemAwareElement
-    {
-        public DataStore? DataStoreRef { get; set; }
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public DataStoreReference()
-        {
-        }
-
-    }
-
-    public class DataObjectReference : FlowElement, ItemAwareElement
-    {
-        public DataObject? DataObjectRef { get; set; }
-
-
-        #region Implementing: ItemAwareElement
-        public ItemDefinition? ItemSubjectRef { get; set; }
-        public DataState? DataState { get; set; }
-        #endregion
-
-        public DataObjectReference()
-        {
-        }
-
-    }
-
-    public class ConversationLink : BaseElement
-    {
-        public InteractionNode? SourceRef { get; set; }
-        public InteractionNode? TargetRef { get; set; }
-        public string? Name { get; set; }
-
-        public ConversationLink()
-        {
-        }
-
-    }
-
-    public class ConversationAssociation : BaseElement
-    {
-        public ConversationNode? InnerConversationNodeRef { get; set; }
-        public ConversationNode? OuterConversationNodeRef { get; set; }
-
-        public ConversationAssociation()
-        {
-        }
-
-    }
-
-    public class CallConversation : ConversationNode
-    {
-        public Collaboration? CalledCollaborationRef { get; set; }
-        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
-
-        public CallConversation()
-        {
-        }
-
-    }
-
-    public class Conversation : ConversationNode
-    {
-
-        public Conversation()
-        {
-        }
-
-    }
-
-    public class SubConversation : ConversationNode
-    {
-        public List<ConversationNode> ConversationNodes { get; } = new();
-
-        public SubConversation()
-        {
-        }
-
-    }
-
-    public abstract class ConversationNode : BaseElement, InteractionNode
-    {
-        public string? Name { get; set; }
-        public List<Participant> ParticipantRefs { get; } = new();
-        public List<MessageFlow> MessageFlowRefs { get; } = new();
-        public List<CorrelationKey> CorrelationKeys { get; } = new();
-
-
-        #region Implementing: InteractionNode
-        public List<ConversationLink> IncomingConversationLinks { get; } = new();
-        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
-        #endregion
-
-        public ConversationNode()
-        {
-        }
-
-    }
-
-    public class GlobalConversation : Collaboration
-    {
-
-        public GlobalConversation()
-        {
-        }
-
-    }
-
-    public class PartnerEntity : RootElement
-    {
-        public string? Name { get; set; }
-        public List<Participant> ParticipantRef { get; } = new();
-
-        public PartnerEntity()
-        {
-        }
-
-    }
-
-    public class PartnerRole : RootElement
-    {
-        public string? Name { get; set; }
-        public List<Participant> ParticipantRef { get; } = new();
-
-        public PartnerRole()
-        {
-        }
-
-    }
-
-    public class CorrelationProperty : RootElement
-    {
-        public List<CorrelationPropertyRetrievalExpression> CorrelationPropertyRetrievalExpression { get; } = new();
-        public string? Name { get; set; }
-        public ItemDefinition? Type { get; set; }
-
-        public CorrelationProperty()
-        {
-        }
-
-    }
-
-    public class Error : RootElement
-    {
-        public ItemDefinition? StructureRef { get; set; }
-        public string? Name { get; set; }
-        public string? ErrorCode { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_errorMessage { get; set; }
-        #endregion
-
-        public Error()
-        {
-        }
-
-    }
-
-    public class CorrelationKey : BaseElement
-    {
-        public List<CorrelationProperty> CorrelationPropertyRef { get; } = new();
-        public string? Name { get; set; }
-
-        public CorrelationKey()
-        {
-        }
-
-    }
-
-    public class Expression : BaseElement
-    {
-
-        public Expression()
-        {
-        }
-
-    }
-
-    public class FormalExpression : Expression
-    {
-        public string? Language { get; set; }
-        public Element? Body { get; set; }
-        public ItemDefinition? EvaluatesToTypeRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_resource { get; set; }
-        #endregion
-
-        public FormalExpression()
-        {
-        }
-
-    }
-
-    public class Message : RootElement
-    {
-        public string? Name { get; set; }
-        public ItemDefinition? ItemRef { get; set; }
-
-        public Message()
-        {
-        }
-
-    }
-
-    public class ItemDefinition : RootElement
-    {
-        public ItemKind? ItemKind { get; set; }
-        public Element? StructureRef { get; set; }
-        public bool? IsCollection { get; set; }
-        public Import? Import { get; set; }
-
-        public ItemDefinition()
-        {
-        }
-
-    }
-
-    public abstract class FlowElement : BaseElement
-    {
-        public string? Name { get; set; }
-        public Auditing? Auditing { get; set; }
-        public Monitoring? Monitoring { get; set; }
-        public List<CategoryValue> CategoryValueRef { get; } = new();
-
-        #region Camunda attributes
-        public string? Camunda_modelerTemplate { get; set; }
-        public long? Camunda_modelerTemplateVersion { get; set; }
-        #endregion
-
-        public FlowElement()
-        {
-        }
-
-    }
-
-    public class SequenceFlow : FlowElement
-    {
-        public bool? IsImmediate { get; set; }
-        public Expression? ConditionExpression { get; set; }
-        public FlowNode? SourceRef { get; set; }
-        public FlowNode? TargetRef { get; set; }
-
-        public SequenceFlow()
-        {
-        }
-
-    }
-
-    public interface FlowElementsContainer // abstract 
-    {
-        List<FlowElement> FlowElements { get; }
-        List<LaneSet> LaneSets { get; }
-
-    }
-
-    public abstract class CallableElement : RootElement
-    {
-        public string? Name { get; set; }
-        public InputOutputSpecification? IoSpecification { get; set; }
-        public List<Interface> SupportedInterfaceRefs { get; } = new();
-        public List<InputOutputBinding> IoBinding { get; } = new();
-
-        public CallableElement()
-        {
-        }
-
-    }
-
-    public abstract class FlowNode : FlowElement
-    {
-        public List<SequenceFlow> Outgoing { get; } = new();
-        public List<SequenceFlow> Incoming { get; } = new();
-        public List<Lane> Lanes { get; } = new();
-
-        public FlowNode()
-        {
-        }
-
-    }
-
-    public class CorrelationPropertyRetrievalExpression : BaseElement
-    {
-        public FormalExpression? MessagePath { get; set; }
-        public Message? MessageRef { get; set; }
-
-        public CorrelationPropertyRetrievalExpression()
-        {
-        }
-
-    }
-
-    public class CorrelationPropertyBinding : BaseElement
-    {
-        public FormalExpression? DataPath { get; set; }
-        public CorrelationProperty? CorrelationPropertyRef { get; set; }
-
-        public CorrelationPropertyBinding()
-        {
-        }
-
-    }
-
-    public class Resource : RootElement
-    {
-        public string? Name { get; set; }
-        public List<ResourceParameter> ResourceParameters { get; } = new();
-
-        public Resource()
-        {
-        }
-
-    }
-
-    public class ResourceParameter : BaseElement
-    {
-        public string? Name { get; set; }
-        public bool? IsRequired { get; set; }
-        public ItemDefinition? Type { get; set; }
-
-        public ResourceParameter()
-        {
-        }
-
-    }
-
-    public class CorrelationSubscription : BaseElement
-    {
-        public CorrelationKey? CorrelationKeyRef { get; set; }
-        public List<CorrelationPropertyBinding> CorrelationPropertyBinding { get; } = new();
-
-        public CorrelationSubscription()
-        {
-        }
-
-    }
-
-    public class MessageFlow : BaseElement
-    {
-        public string? Name { get; set; }
-        public InteractionNode? SourceRef { get; set; }
-        public InteractionNode? TargetRef { get; set; }
-        public Message? MessageRef { get; set; }
-
-        public MessageFlow()
-        {
-        }
-
-    }
-
-    public class MessageFlowAssociation : BaseElement
-    {
-        public MessageFlow? InnerMessageFlowRef { get; set; }
-        public MessageFlow? OuterMessageFlowRef { get; set; }
-
-        public MessageFlowAssociation()
-        {
-        }
-
-    }
-
-    public interface InteractionNode // abstract 
-    {
-        List<ConversationLink> IncomingConversationLinks { get; }
-        List<ConversationLink> OutgoingConversationLinks { get; }
-
-    }
-
-    public class Participant : BaseElement, InteractionNode
-    {
-        public string? Name { get; set; }
-        public List<Interface> InterfaceRefs { get; } = new();
-        public ParticipantMultiplicity? ParticipantMultiplicity { get; set; }
-        public List<EndPoint> EndPointRefs { get; } = new();
-        public Process? ProcessRef { get; set; }
-
-
-        #region Implementing: InteractionNode
-        public List<ConversationLink> IncomingConversationLinks { get; } = new();
-        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
-        #endregion
-
-        public Participant()
-        {
-        }
-
-    }
-
-    public class ParticipantAssociation : BaseElement
-    {
-        public Participant? InnerParticipantRef { get; set; }
-        public Participant? OuterParticipantRef { get; set; }
-
-        public ParticipantAssociation()
-        {
-        }
-
-    }
-
-    public class ParticipantMultiplicity
-    {
-        public long? Minimum { get; set; }
-        public long? Maximum { get; set; }
-
-        public ParticipantMultiplicity()
-        {
-        }
-
-    }
-
-    public class Collaboration : RootElement
-    {
-        public string? Name { get; set; }
-        public bool? IsClosed { get; set; }
-        public List<Choreography> ChoreographyRef { get; } = new();
-        public List<Artifact> Artifacts { get; } = new();
-        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
-        public List<MessageFlowAssociation> MessageFlowAssociations { get; } = new();
-        public ConversationAssociation? ConversationAssociations { get; set; }
-        public List<Participant> Participants { get; } = new();
-        public List<MessageFlow> MessageFlows { get; } = new();
-        public List<CorrelationKey> CorrelationKeys { get; } = new();
-        public List<ConversationNode> Conversations { get; } = new();
-        public List<ConversationLink> ConversationLinks { get; } = new();
-
-        #region Camunda attributes
-        public string? Camunda_modelerTemplate { get; set; }
-        public long? Camunda_modelerTemplateVersion { get; set; }
-        #endregion
-
-        public Collaboration()
-        {
-        }
-
-    }
-
-    public abstract class ChoreographyActivity : FlowNode
-    {
-        public List<Participant> ParticipantRefs { get; } = new();
-        public Participant? InitiatingParticipantRef { get; set; }
-        public List<CorrelationKey> CorrelationKeys { get; } = new();
-        public ChoreographyLoopType? LoopType { get; set; }
-
-        public ChoreographyActivity()
-        {
-        }
-
-    }
-
-    public class CallChoreography : ChoreographyActivity
-    {
-        public Choreography? CalledChoreographyRef { get; set; }
-        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
-
-        public CallChoreography()
-        {
-        }
-
-    }
-
-    public class SubChoreography : ChoreographyActivity, FlowElementsContainer
-    {
-        public List<Artifact> Artifacts { get; } = new();
-
-
-        #region Implementing: FlowElementsContainer
-        public List<FlowElement> FlowElements { get; } = new();
-        public List<LaneSet> LaneSets { get; } = new();
-        #endregion
-
-        public SubChoreography()
-        {
-        }
-
-    }
-
-    public class ChoreographyTask : ChoreographyActivity
-    {
-        public List<MessageFlow> MessageFlowRef { get; } = new();
-
-        public ChoreographyTask()
-        {
-        }
-
-    }
-
-    public class Choreography : Collaboration, FlowElementsContainer
-    {
-
-
-        #region Implementing: FlowElementsContainer
-        public List<FlowElement> FlowElements { get; } = new();
-        public List<LaneSet> LaneSets { get; } = new();
-        #endregion
-
-        public Choreography()
-        {
-        }
-
-    }
-
-    public class GlobalChoreographyTask : Choreography
-    {
-        public Participant? InitiatingParticipantRef { get; set; }
-
-        public GlobalChoreographyTask()
-        {
-        }
-
-    }
-
-    public class TextAnnotation : Artifact
-    {
-        public string? Text { get; set; }
-        public string? TextFormat { get; set; }
-
-        public TextAnnotation()
-        {
-        }
-
-    }
-
-    public class Group : Artifact
-    {
-        public CategoryValue? CategoryValueRef { get; set; }
-
-        public Group()
-        {
-        }
-
-    }
-
-    public class Association : Artifact
-    {
-        public AssociationDirection? AssociationDirection { get; set; }
-        public BaseElement? SourceRef { get; set; }
-        public BaseElement? TargetRef { get; set; }
-
-        public Association()
-        {
-        }
-
-    }
-
-    public class Category : RootElement
-    {
-        public List<CategoryValue> CategoryValue { get; } = new();
-        public string? Name { get; set; }
-
-        public Category()
-        {
-        }
-
-    }
-
-    public abstract class Artifact : BaseElement
-    {
-
-        public Artifact()
-        {
-        }
-
-    }
-
-    public class CategoryValue : BaseElement
-    {
-        public List<FlowElement> CategorizedFlowElements { get; } = new();
-        public string? Value { get; set; }
-
-        public CategoryValue()
-        {
-        }
-
-    }
-
-    public abstract class Activity : FlowNode
-    {
-        public bool? IsForCompensation { get; set; }
-        public LoopCharacteristics? LoopCharacteristics { get; set; }
-        public List<ResourceRole> Resources { get; } = new();
-        public SequenceFlow? Default { get; set; }
-        public List<Property> Properties { get; } = new();
-        public InputOutputSpecification? IoSpecification { get; set; }
-        public List<BoundaryEvent> BoundaryEventRefs { get; } = new();
-        public List<DataInputAssociation> DataInputAssociations { get; } = new();
-        public List<DataOutputAssociation> DataOutputAssociations { get; } = new();
-        public long? StartQuantity { get; set; }
-        public long? CompletionQuantity { get; set; }
-
-        #region Camunda attributes
-        public bool? Camunda_async { get; set; }
-        public bool? Camunda_asyncBefore { get; set; }
-        public bool? Camunda_asyncAfter { get; set; }
-        public bool? Camunda_exclusive { get; set; }
-        public string? Camunda_jobPriority { get; set; }
-        #endregion
-
-        public Activity()
-        {
-        }
-
-    }
-
-    public class ServiceTask : Task
-    {
-        public string? Implementation { get; set; }
-        public Operation? OperationRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_expression { get; set; }
-        public string? Camunda_class { get; set; }
-        public string? Camunda_delegateExpression { get; set; }
-        public string? Camunda_resultVariable { get; set; }
-        public string? Camunda_type { get; set; }
-        public string? Camunda_topic { get; set; }
-        public string? Camunda_taskPriority { get; set; }
-        #endregion
-
-        public ServiceTask()
-        {
-        }
-
-    }
-
-    public class SubProcess : Activity, FlowElementsContainer
-    {
-        public bool? TriggeredByEvent { get; set; }
-        public List<Artifact> Artifacts { get; } = new();
-
-
-        #region Implementing: FlowElementsContainer
-        public List<FlowElement> FlowElements { get; } = new();
-        public List<LaneSet> LaneSets { get; } = new();
-        #endregion
-
-        public SubProcess()
-        {
-        }
-
-    }
-
-    public abstract class LoopCharacteristics : BaseElement
-    {
-
-        public LoopCharacteristics()
-        {
-        }
-
-    }
-
-    public class MultiInstanceLoopCharacteristics : LoopCharacteristics
-    {
-        public bool? IsSequential { get; set; }
-        public MultiInstanceBehavior? Behavior { get; set; }
-        public Expression? LoopCardinality { get; set; }
-        public ItemAwareElement? LoopDataInputRef { get; set; }
-        public ItemAwareElement? LoopDataOutputRef { get; set; }
-        public DataInput? InputDataItem { get; set; }
-        public DataOutput? OutputDataItem { get; set; }
-        public Expression? CompletionCondition { get; set; }
-        public List<ComplexBehaviorDefinition> ComplexBehaviorDefinition { get; } = new();
-        public EventDefinition? OneBehaviorEventRef { get; set; }
-        public EventDefinition? NoneBehaviorEventRef { get; set; }
-
-        #region Camunda attributes
-        public bool? Camunda_async { get; set; }
-        public bool? Camunda_asyncBefore { get; set; }
-        public bool? Camunda_asyncAfter { get; set; }
-        public bool? Camunda_exclusive { get; set; }
-        public string? Camunda_collection { get; set; }
-        public string? Camunda_elementVariable { get; set; }
-        #endregion
-
-        public MultiInstanceLoopCharacteristics()
-        {
-        }
-
-    }
-
-    public class StandardLoopCharacteristics : LoopCharacteristics
-    {
-        public bool? TestBefore { get; set; }
-        public Expression? LoopCondition { get; set; }
-        public Expression? LoopMaximum { get; set; }
-
-        public StandardLoopCharacteristics()
-        {
-        }
-
-    }
-
-    public class CallActivity : Activity
-    {
-        public CallableElement? CalledElementRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_calledElementBinding { get; set; }
-        public string? Camunda_calledElementVersion { get; set; }
-        public string? Camunda_calledElementVersionTag { get; set; }
-        public string? Camunda_calledElementTenantId { get; set; }
-        public string? Camunda_caseRef { get; set; }
-        public string? Camunda_caseBinding { get; set; }
-        public string? Camunda_caseVersion { get; set; }
-        public string? Camunda_caseTenantId { get; set; }
-        public string? Camunda_variableMappingClass { get; set; }
-        public string? Camunda_variableMappingDelegateExpression { get; set; }
-        #endregion
-
-        public CallActivity()
-        {
-        }
-
-    }
-
-    public class Task : Activity, InteractionNode
-    {
-
-
-        #region Implementing: InteractionNode
-        public List<ConversationLink> IncomingConversationLinks { get; } = new();
-        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
-        #endregion
-
-        public Task()
-        {
-        }
-
-    }
-
-    public class SendTask : Task
-    {
-        public string? Implementation { get; set; }
-        public Operation? OperationRef { get; set; }
-        public Message? MessageRef { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_expression { get; set; }
-        public string? Camunda_class { get; set; }
-        public string? Camunda_delegateExpression { get; set; }
-        public string? Camunda_resultVariable { get; set; }
-        public string? Camunda_type { get; set; }
-        public string? Camunda_topic { get; set; }
-        public string? Camunda_taskPriority { get; set; }
-        #endregion
-
-        public SendTask()
-        {
-        }
-
-    }
-
-    public class ReceiveTask : Task
-    {
-        public string? Implementation { get; set; }
-        public bool? Instantiate { get; set; }
-        public Operation? OperationRef { get; set; }
-        public Message? MessageRef { get; set; }
-
-        public ReceiveTask()
-        {
-        }
-
-    }
-
-    public class ScriptTask : Task
-    {
-        public string? ScriptFormat { get; set; }
-        public string? Script { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_resultVariable { get; set; }
-        public string? Camunda_resource { get; set; }
-        #endregion
-
-        public ScriptTask()
-        {
-        }
-
-    }
-
-    public class BusinessRuleTask : Task
-    {
-        public string? Implementation { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_expression { get; set; }
-        public string? Camunda_class { get; set; }
-        public string? Camunda_delegateExpression { get; set; }
-        public string? Camunda_resultVariable { get; set; }
-        public string? Camunda_type { get; set; }
-        public string? Camunda_topic { get; set; }
-        public string? Camunda_taskPriority { get; set; }
-        public string? Camunda_decisionRef { get; set; }
-        public string? Camunda_decisionRefBinding { get; set; }
-        public string? Camunda_decisionRefVersion { get; set; }
-        public string? Camunda_mapDecisionResult { get; set; }
-        public string? Camunda_decisionRefTenantId { get; set; }
-        #endregion
-
-        public BusinessRuleTask()
-        {
-        }
-
-    }
-
-    public class AdHocSubProcess : SubProcess
-    {
-        public Expression? CompletionCondition { get; set; }
-        public AdHocOrdering? Ordering { get; set; }
-        public bool? CancelRemainingInstances { get; set; }
-
-        public AdHocSubProcess()
-        {
-        }
-
-    }
-
-    public class Transaction : SubProcess
-    {
-        public string? Protocol { get; set; }
-        public string? Method { get; set; }
-
-        public Transaction()
-        {
-        }
-
-    }
-
-    public class GlobalScriptTask : GlobalTask
-    {
-        public string? ScriptLanguage { get; set; }
-        public string? Script { get; set; }
-
-        public GlobalScriptTask()
-        {
-        }
-
-    }
-
-    public class GlobalBusinessRuleTask : GlobalTask
-    {
-        public string? Implementation { get; set; }
-
-        public GlobalBusinessRuleTask()
-        {
-        }
-
-    }
-
-    public class ComplexBehaviorDefinition : BaseElement
-    {
-        public FormalExpression? Condition { get; set; }
-        public ImplicitThrowEvent? Event { get; set; }
-
-        public ComplexBehaviorDefinition()
-        {
-        }
-
-    }
-
-    public class ResourceRole : BaseElement
-    {
-        public Resource? ResourceRef { get; set; }
-        public List<ResourceParameterBinding> ResourceParameterBindings { get; } = new();
-        public ResourceAssignmentExpression? ResourceAssignmentExpression { get; set; }
-        public string? Name { get; set; }
-
-        public ResourceRole()
-        {
-        }
-
-    }
-
-    public class ResourceParameterBinding
-    {
-        public Expression? Expression { get; set; }
-        public ResourceParameter? ParameterRef { get; set; }
-
-        public ResourceParameterBinding()
-        {
-        }
-
-    }
-
-    public class ResourceAssignmentExpression
-    {
-        public Expression? Expression { get; set; }
-
-        public ResourceAssignmentExpression()
-        {
-        }
-
-    }
-
-    public class Import
-    {
-        public string? ImportType { get; set; }
-        public string? Location { get; set; }
-        public string? Namespace { get; set; }
-
-        public Import()
-        {
-        }
-
-    }
-
-    public class Definitions : BaseElement
-    {
-        public string? Name { get; set; }
-        public string? TargetNamespace { get; set; }
-        public string? ExpressionLanguage { get; set; }
-        public string? TypeLanguage { get; set; }
-        public List<Import> Imports { get; } = new();
-        public List<Extension> Extensions { get; } = new();
-        public List<Relationship> Relationships { get; } = new();
-        public List<RootElement> RootElements { get; } = new();
-        public List<BPMNDiagram> Diagrams { get; } = new();
-        public string? Exporter { get; set; }
-        public string? ExporterVersion { get; set; }
-
-        #region Camunda attributes
-        public string? Camunda_diagramRelationId { get; set; }
-        #endregion
-
-        public Definitions()
-        {
-        }
-
-    }
-    #endregion
-
     #region Enumerations (11 items)
     public enum ParticipantBandKind
     {
@@ -2107,4 +85,3079 @@ namespace BPMNModel.Model
     }
 
     #endregion
+    #region Classes (156 items)
+
+    public class Font
+    {
+        public string? Name { get; set; }
+        public double? Size { get; set; }
+        public bool? IsBold { get; set; }
+        public bool? IsItalic { get; set; }
+        public bool? IsUnderline { get; set; }
+        public bool? IsStrikeThrough { get; set; }
+
+        public Font()
+        {
+        }
+
+        /* No method to get child elements - it is interface or data class. */
+    }
+
+    public class Point
+    {
+        public double? X { get; set; }
+        public double? Y { get; set; }
+
+        public Point()
+        {
+        }
+
+        /* No method to get child elements - it is interface or data class. */
+    }
+
+    public class Bounds
+    {
+        public double? X { get; set; }
+        public double? Y { get; set; }
+        public double? Width { get; set; }
+        public double? Height { get; set; }
+
+        public Bounds()
+        {
+        }
+
+        /* No method to get child elements - it is interface or data class. */
+    }
+
+    public abstract class DiagramElement : IElementWithId, ITraversableNode
+    {
+        public Diagram? OwningDiagram { get; set; }
+        public DiagramElement? OwningElement { get; set; }
+        public Element? ModelElement { get; set; }
+        public Style? Style { get; set; }
+        public List<DiagramElement> OwnedElement { get; } = new();
+        public string? Id { get; set; }
+
+        public DiagramElement()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            if (OwningDiagram is not null) result.Add(OwningDiagram);
+            if (OwningElement is not null) result.Add(OwningElement);
+            if (ModelElement is not null) result.Add(ModelElement);
+            if (Style is not null) result.Add(Style);
+            result.AddRange(OwnedElement);
+            return result;
+        }
+    }
+
+    public abstract class Node : DiagramElement
+    {
+
+        public Node()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public abstract class Edge : DiagramElement
+    {
+        public DiagramElement? Source { get; set; }
+        public DiagramElement? Target { get; set; }
+        public List<Point> Waypoint { get; } = new();
+
+        public Edge()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Source is not null) result.Add(Source);
+            if (Target is not null) result.Add(Target);
+            return result;
+        }
+    }
+
+    public abstract class Diagram : IElementWithId, ITraversableNode
+    {
+        public DiagramElement? RootElement { get; set; }
+        public string? Name { get; set; }
+        public string? Documentation { get; set; }
+        public double? Resolution { get; set; }
+        public List<Style> OwnedStyle { get; } = new();
+        public string? Id { get; set; }
+
+        public Diagram()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            if (RootElement is not null) result.Add(RootElement);
+            result.AddRange(OwnedStyle);
+            return result;
+        }
+    }
+
+    public abstract class Shape : Node
+    {
+        public Bounds? Bounds { get; set; }
+
+        public Shape()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public abstract class Plane : Node
+    {
+        public List<DiagramElement> PlaneElement { get; } = new();
+
+        public Plane()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(PlaneElement);
+            return result;
+        }
+    }
+
+    public abstract class LabeledEdge : Edge
+    {
+        public List<Label> OwnedLabel { get; } = new();
+
+        public LabeledEdge()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(OwnedLabel);
+            return result;
+        }
+    }
+
+    public abstract class LabeledShape : Shape
+    {
+        public List<Label> OwnedLabel { get; } = new();
+
+        public LabeledShape()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(OwnedLabel);
+            return result;
+        }
+    }
+
+    public abstract class Label : Node
+    {
+        public Bounds? Bounds { get; set; }
+
+        public Label()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public abstract class Style : ITraversableNode
+    {
+
+        public Style()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            return result;
+        }
+    }
+
+    public class BPMNDiagram : Diagram
+    {
+        public BPMNPlane? Plane { get; set; }
+        public List<BPMNLabelStyle> LabelStyle { get; } = new();
+
+        public BPMNDiagram()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Plane is not null) result.Add(Plane);
+            result.AddRange(LabelStyle);
+            return result;
+        }
+    }
+
+    public class BPMNPlane : Plane
+    {
+        public BaseElement? BpmnElement { get; set; }
+
+        public BPMNPlane()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (BpmnElement is not null) result.Add(BpmnElement);
+            return result;
+        }
+    }
+
+    public class BPMNShape : LabeledShape
+    {
+        public BaseElement? BpmnElement { get; set; }
+        public bool? IsHorizontal { get; set; }
+        public bool? IsExpanded { get; set; }
+        public bool? IsMarkerVisible { get; set; }
+        public BPMNLabel? Label { get; set; }
+        public bool? IsMessageVisible { get; set; }
+        public ParticipantBandKind? ParticipantBandKind { get; set; }
+        public BPMNShape? ChoreographyActivityShape { get; set; }
+
+        public BPMNShape()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (BpmnElement is not null) result.Add(BpmnElement);
+            if (Label is not null) result.Add(Label);
+            if (ChoreographyActivityShape is not null) result.Add(ChoreographyActivityShape);
+            return result;
+        }
+    }
+
+    public class BPMNEdge : LabeledEdge
+    {
+        public BPMNLabel? Label { get; set; }
+        public BaseElement? BpmnElement { get; set; }
+        public DiagramElement? SourceElement { get; set; }
+        public DiagramElement? TargetElement { get; set; }
+        public MessageVisibleKind? MessageVisibleKind { get; set; }
+
+        public BPMNEdge()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Label is not null) result.Add(Label);
+            if (BpmnElement is not null) result.Add(BpmnElement);
+            if (SourceElement is not null) result.Add(SourceElement);
+            if (TargetElement is not null) result.Add(TargetElement);
+            return result;
+        }
+    }
+
+    public class BPMNLabel : Label
+    {
+        public BPMNLabelStyle? LabelStyle { get; set; }
+
+        public BPMNLabel()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (LabelStyle is not null) result.Add(LabelStyle);
+            return result;
+        }
+    }
+
+    public class BPMNLabelStyle : Style
+    {
+        public Font? Font { get; set; }
+
+        public BPMNLabelStyle()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class Interface : RootElement
+    {
+        public string? Name { get; set; }
+        public List<Operation> Operations { get; } = new();
+        public Element? ImplementationRef { get; set; }
+
+        public Interface()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(Operations);
+            if (ImplementationRef is not null) result.Add(ImplementationRef);
+            return result;
+        }
+    }
+
+    public class Operation : BaseElement
+    {
+        public string? Name { get; set; }
+        public Message? InMessageRef { get; set; }
+        public Message? OutMessageRef { get; set; }
+        public List<Error> ErrorRefs { get; } = new();
+        public Element? ImplementationRef { get; set; }
+
+        public Operation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (InMessageRef is not null) result.Add(InMessageRef);
+            if (OutMessageRef is not null) result.Add(OutMessageRef);
+            result.AddRange(ErrorRefs);
+            if (ImplementationRef is not null) result.Add(ImplementationRef);
+            return result;
+        }
+    }
+
+    public class EndPoint : RootElement
+    {
+
+        public EndPoint()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class Auditing : BaseElement
+    {
+
+        public Auditing()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class GlobalTask : CallableElement
+    {
+        public List<ResourceRole> Resources { get; } = new();
+
+        public GlobalTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(Resources);
+            return result;
+        }
+    }
+
+    public class Monitoring : BaseElement
+    {
+
+        public Monitoring()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class Performer : ResourceRole
+    {
+
+        public Performer()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class Process : CallableElement, FlowElementsContainer
+    {
+        public ProcessType? ProcessType { get; set; }
+        public bool? IsClosed { get; set; }
+        public Auditing? Auditing { get; set; }
+        public Monitoring? Monitoring { get; set; }
+        public List<Property> Properties { get; } = new();
+        public List<Process> Supports { get; } = new();
+        public Collaboration? DefinitionalCollaborationRef { get; set; }
+        public bool? IsExecutable { get; set; }
+        public List<ResourceRole> Resources { get; } = new();
+        public List<Artifact> Artifacts { get; } = new();
+        public List<CorrelationSubscription> CorrelationSubscriptions { get; } = new();
+
+
+        #region Implementing: FlowElementsContainer
+        public List<FlowElement> FlowElements { get; } = new();
+        public List<LaneSet> LaneSets { get; } = new();
+        #endregion
+
+        #region Camunda attributes
+        public string? Camunda_jobPriority { get; set; }
+        public string? Camunda_modelerTemplate { get; set; }
+        public long? Camunda_modelerTemplateVersion { get; set; }
+        public string? Camunda_candidateStarterGroups { get; set; }
+        public string? Camunda_candidateStarterUsers { get; set; }
+        public string? Camunda_versionTag { get; set; }
+        public string? Camunda_historyTimeToLive { get; set; }
+        public bool? Camunda_isStartableInTasklist { get; set; }
+        public string? Camunda_taskPriority { get; set; }
+        #endregion
+
+        public Process()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Auditing is not null) result.Add(Auditing);
+            if (Monitoring is not null) result.Add(Monitoring);
+            result.AddRange(Properties);
+            result.AddRange(Supports);
+            if (DefinitionalCollaborationRef is not null) result.Add(DefinitionalCollaborationRef);
+            result.AddRange(Resources);
+            result.AddRange(Artifacts);
+            result.AddRange(CorrelationSubscriptions);
+            // Implementing: FlowElementsContainer
+            result.AddRange(FlowElements);
+            result.AddRange(LaneSets);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class LaneSet : BaseElement
+    {
+        public List<Lane> Lanes { get; } = new();
+        public string? Name { get; set; }
+
+        public LaneSet()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(Lanes);
+            return result;
+        }
+    }
+
+    public class Lane : BaseElement
+    {
+        public string? Name { get; set; }
+        public LaneSet? ChildLaneSet { get; set; }
+        public BaseElement? PartitionElementRef { get; set; }
+        public List<FlowNode> FlowNodeRefs { get; } = new();
+        public BaseElement? PartitionElement { get; set; }
+
+        public Lane()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (ChildLaneSet is not null) result.Add(ChildLaneSet);
+            if (PartitionElementRef is not null) result.Add(PartitionElementRef);
+            result.AddRange(FlowNodeRefs);
+            if (PartitionElement is not null) result.Add(PartitionElement);
+            return result;
+        }
+    }
+
+    public class GlobalManualTask : GlobalTask
+    {
+
+        public GlobalManualTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class ManualTask : Task
+    {
+
+        public ManualTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class UserTask : Task
+    {
+        public List<Rendering> Renderings { get; } = new();
+        public string? Implementation { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_formHandlerClass { get; set; }
+        public string? Camunda_formKey { get; set; }
+        public string? Camunda_formRef { get; set; }
+        public string? Camunda_formRefBinding { get; set; }
+        public string? Camunda_formRefVersion { get; set; }
+        public string? Camunda_assignee { get; set; }
+        public string? Camunda_candidateUsers { get; set; }
+        public string? Camunda_candidateGroups { get; set; }
+        public string? Camunda_dueDate { get; set; }
+        public string? Camunda_followUpDate { get; set; }
+        public string? Camunda_priority { get; set; }
+        #endregion
+
+        public UserTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(Renderings);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class Rendering : BaseElement
+    {
+
+        public Rendering()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class HumanPerformer : Performer
+    {
+
+        public HumanPerformer()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class PotentialOwner : HumanPerformer
+    {
+
+        public PotentialOwner()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class GlobalUserTask : GlobalTask
+    {
+        public string? Implementation { get; set; }
+        public List<Rendering> Renderings { get; } = new();
+
+        public GlobalUserTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(Renderings);
+            return result;
+        }
+    }
+
+    public abstract class Gateway : FlowNode
+    {
+        public GatewayDirection? GatewayDirection { get; set; }
+
+        #region Camunda attributes
+        public bool? Camunda_async { get; set; }
+        public bool? Camunda_asyncBefore { get; set; }
+        public bool? Camunda_asyncAfter { get; set; }
+        public bool? Camunda_exclusive { get; set; }
+        public string? Camunda_jobPriority { get; set; }
+        #endregion
+
+        public Gateway()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class EventBasedGateway : Gateway
+    {
+        public bool? Instantiate { get; set; }
+        public EventBasedGatewayType? EventGatewayType { get; set; }
+
+        public EventBasedGateway()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class ComplexGateway : Gateway
+    {
+        public Expression? ActivationCondition { get; set; }
+        public SequenceFlow? Default { get; set; }
+
+        public ComplexGateway()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (ActivationCondition is not null) result.Add(ActivationCondition);
+            if (Default is not null) result.Add(Default);
+            return result;
+        }
+    }
+
+    public class ExclusiveGateway : Gateway
+    {
+        public SequenceFlow? Default { get; set; }
+
+        public ExclusiveGateway()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Default is not null) result.Add(Default);
+            return result;
+        }
+    }
+
+    public class InclusiveGateway : Gateway
+    {
+        public SequenceFlow? Default { get; set; }
+
+        public InclusiveGateway()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Default is not null) result.Add(Default);
+            return result;
+        }
+    }
+
+    public class ParallelGateway : Gateway
+    {
+
+        public ParallelGateway()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public abstract class RootElement : BaseElement
+    {
+
+        public RootElement()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class Relationship : BaseElement
+    {
+        public string? Type { get; set; }
+        public RelationshipDirection? Direction { get; set; }
+        public List<Element> Sources { get; } = new();
+        public List<Element> Targets { get; } = new();
+
+        public Relationship()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(Sources);
+            result.AddRange(Targets);
+            return result;
+        }
+    }
+
+    public abstract class BaseElement : CamundaExtensionBaseElement, IElementWithId, ITraversableNode
+    {
+        public string? Id { get; set; }
+        public List<ExtensionDefinition> ExtensionDefinitions { get; } = new();
+        public List<ExtensionAttributeValue> ExtensionValues { get; } = new();
+        public List<Documentation> Documentation { get; } = new();
+
+        public BaseElement()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            result.AddRange(ExtensionDefinitions);
+            result.AddRange(ExtensionValues);
+            result.AddRange(Documentation);
+            return result;
+        }
+    }
+
+    public class Extension : ITraversableNode
+    {
+        public bool? MustUnderstand { get; set; }
+        public ExtensionDefinition? Definition { get; set; }
+
+        public Extension()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            if (Definition is not null) result.Add(Definition);
+            return result;
+        }
+    }
+
+    public class ExtensionDefinition : ITraversableNode
+    {
+        public string? Name { get; set; }
+        public List<ExtensionAttributeDefinition> ExtensionAttributeDefinitions { get; } = new();
+
+        public ExtensionDefinition()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            result.AddRange(ExtensionAttributeDefinitions);
+            return result;
+        }
+    }
+
+    public class ExtensionAttributeDefinition : ITraversableNode
+    {
+        public string? Name { get; set; }
+        public string? Type { get; set; }
+        public bool? IsReference { get; set; }
+        public ExtensionDefinition? ExtensionDefinition { get; set; }
+
+        public ExtensionAttributeDefinition()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            if (ExtensionDefinition is not null) result.Add(ExtensionDefinition);
+            return result;
+        }
+    }
+
+    public class ExtensionAttributeValue : ITraversableNode
+    {
+        public Element? ValueRef { get; set; }
+        public Element? Value { get; set; }
+        public ExtensionAttributeDefinition? ExtensionAttributeDefinition { get; set; }
+
+        public ExtensionAttributeValue()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            if (ValueRef is not null) result.Add(ValueRef);
+            if (Value is not null) result.Add(Value);
+            if (ExtensionAttributeDefinition is not null) result.Add(ExtensionAttributeDefinition);
+            return result;
+        }
+    }
+
+    public class Documentation : BaseElement
+    {
+        public string? Text { get; set; }
+        public string? TextFormat { get; set; }
+
+        public Documentation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public abstract class Event : FlowNode, InteractionNode
+    {
+        public List<Property> Properties { get; } = new();
+
+
+        #region Implementing: InteractionNode
+        public List<ConversationLink> IncomingConversationLinks { get; } = new();
+        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
+        #endregion
+
+        #region Camunda attributes
+        public bool? Camunda_async { get; set; }
+        public bool? Camunda_asyncBefore { get; set; }
+        public bool? Camunda_asyncAfter { get; set; }
+        public bool? Camunda_exclusive { get; set; }
+        public string? Camunda_jobPriority { get; set; }
+        #endregion
+
+        public Event()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(Properties);
+            // Implementing: InteractionNode
+            result.AddRange(IncomingConversationLinks);
+            result.AddRange(OutgoingConversationLinks);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class IntermediateCatchEvent : CatchEvent
+    {
+
+        public IntermediateCatchEvent()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class IntermediateThrowEvent : ThrowEvent
+    {
+
+        public IntermediateThrowEvent()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class EndEvent : ThrowEvent
+    {
+
+        public EndEvent()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class StartEvent : CatchEvent
+    {
+        public bool? IsInterrupting { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_formHandlerClass { get; set; }
+        public string? Camunda_formKey { get; set; }
+        public string? Camunda_formRef { get; set; }
+        public string? Camunda_formRefBinding { get; set; }
+        public string? Camunda_formRefVersion { get; set; }
+        public string? Camunda_initiator { get; set; }
+        #endregion
+
+        public StartEvent()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public abstract class ThrowEvent : Event
+    {
+        public InputSet? InputSet { get; set; }
+        public List<EventDefinition> EventDefinitionRefs { get; } = new();
+        public List<DataInputAssociation> DataInputAssociation { get; } = new();
+        public List<DataInput> DataInputs { get; } = new();
+        public List<EventDefinition> EventDefinitions { get; } = new();
+
+        public ThrowEvent()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (InputSet is not null) result.Add(InputSet);
+            result.AddRange(EventDefinitionRefs);
+            result.AddRange(DataInputAssociation);
+            result.AddRange(DataInputs);
+            result.AddRange(EventDefinitions);
+            return result;
+        }
+    }
+
+    public abstract class CatchEvent : Event
+    {
+        public bool? ParallelMultiple { get; set; }
+        public OutputSet? OutputSet { get; set; }
+        public List<EventDefinition> EventDefinitionRefs { get; } = new();
+        public List<DataOutputAssociation> DataOutputAssociation { get; } = new();
+        public List<DataOutput> DataOutputs { get; } = new();
+        public List<EventDefinition> EventDefinitions { get; } = new();
+
+        public CatchEvent()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (OutputSet is not null) result.Add(OutputSet);
+            result.AddRange(EventDefinitionRefs);
+            result.AddRange(DataOutputAssociation);
+            result.AddRange(DataOutputs);
+            result.AddRange(EventDefinitions);
+            return result;
+        }
+    }
+
+    public class BoundaryEvent : CatchEvent
+    {
+        public bool? CancelActivity { get; set; }
+        public Activity? AttachedToRef { get; set; }
+
+        public BoundaryEvent()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (AttachedToRef is not null) result.Add(AttachedToRef);
+            return result;
+        }
+    }
+
+    public abstract class EventDefinition : RootElement
+    {
+
+        public EventDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class CancelEventDefinition : EventDefinition
+    {
+
+        public CancelEventDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class ErrorEventDefinition : EventDefinition
+    {
+        public Error? ErrorRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_errorCodeVariable { get; set; }
+        public string? Camunda_errorMessageVariable { get; set; }
+        #endregion
+
+        public ErrorEventDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (ErrorRef is not null) result.Add(ErrorRef);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class TerminateEventDefinition : EventDefinition
+    {
+
+        public TerminateEventDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class EscalationEventDefinition : EventDefinition
+    {
+        public Escalation? EscalationRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_escalationCodeVariable { get; set; }
+        #endregion
+
+        public EscalationEventDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (EscalationRef is not null) result.Add(EscalationRef);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class Escalation : ITraversableNode
+    {
+        public ItemDefinition? StructureRef { get; set; }
+        public string? Name { get; set; }
+        public string? EscalationCode { get; set; }
+
+        public Escalation()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            if (StructureRef is not null) result.Add(StructureRef);
+            return result;
+        }
+    }
+
+    public class CompensateEventDefinition : EventDefinition
+    {
+        public bool? WaitForCompletion { get; set; }
+        public Activity? ActivityRef { get; set; }
+
+        public CompensateEventDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (ActivityRef is not null) result.Add(ActivityRef);
+            return result;
+        }
+    }
+
+    public class TimerEventDefinition : EventDefinition
+    {
+        public Expression? TimeDate { get; set; }
+        public Expression? TimeCycle { get; set; }
+        public Expression? TimeDuration { get; set; }
+
+        public TimerEventDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (TimeDate is not null) result.Add(TimeDate);
+            if (TimeCycle is not null) result.Add(TimeCycle);
+            if (TimeDuration is not null) result.Add(TimeDuration);
+            return result;
+        }
+    }
+
+    public class LinkEventDefinition : EventDefinition
+    {
+        public string? Name { get; set; }
+        public LinkEventDefinition? Target { get; set; }
+        public List<LinkEventDefinition> Source { get; } = new();
+
+        public LinkEventDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Target is not null) result.Add(Target);
+            result.AddRange(Source);
+            return result;
+        }
+    }
+
+    public class MessageEventDefinition : EventDefinition
+    {
+        public Message? MessageRef { get; set; }
+        public Operation? OperationRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_expression { get; set; }
+        public string? Camunda_class { get; set; }
+        public string? Camunda_delegateExpression { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_type { get; set; }
+        public string? Camunda_topic { get; set; }
+        public string? Camunda_taskPriority { get; set; }
+        #endregion
+
+        public MessageEventDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (MessageRef is not null) result.Add(MessageRef);
+            if (OperationRef is not null) result.Add(OperationRef);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class ConditionalEventDefinition : EventDefinition
+    {
+        public Expression? Condition { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_variableName { get; set; }
+        public string? Camunda_variableEvents { get; set; }
+        #endregion
+
+        public ConditionalEventDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Condition is not null) result.Add(Condition);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class SignalEventDefinition : EventDefinition
+    {
+        public Signal? SignalRef { get; set; }
+
+        #region Camunda attributes
+        public bool? Camunda_async { get; set; }
+        #endregion
+
+        public SignalEventDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (SignalRef is not null) result.Add(SignalRef);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class Signal : RootElement
+    {
+        public ItemDefinition? StructureRef { get; set; }
+        public string? Name { get; set; }
+
+        public Signal()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (StructureRef is not null) result.Add(StructureRef);
+            return result;
+        }
+    }
+
+    public class ImplicitThrowEvent : ThrowEvent
+    {
+
+        public ImplicitThrowEvent()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class DataState : BaseElement
+    {
+        public string? Name { get; set; }
+
+        public DataState()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public interface ItemAwareElement : ITraversableNode
+    {
+        ItemDefinition? ItemSubjectRef { get; set; }
+        DataState? DataState { get; set; }
+
+        /* No method to get child elements - it is interface or data class. */
+    }
+
+    public class DataAssociation : BaseElement
+    {
+        public FormalExpression? Transformation { get; set; }
+        public List<Assignment> Assignment { get; } = new();
+        public ItemAwareElement? TargetRef { get; set; }
+        public List<ItemAwareElement> SourceRef { get; } = new();
+
+        public DataAssociation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Transformation is not null) result.Add(Transformation);
+            result.AddRange(Assignment);
+            if (TargetRef is not null) result.Add(TargetRef);
+            result.AddRange(SourceRef);
+            return result;
+        }
+    }
+
+    public class DataInput : BaseElement, ItemAwareElement
+    {
+        public string? Name { get; set; }
+        public bool? IsCollection { get; set; }
+        public List<InputSet> InputSetRefs { get; } = new();
+        public List<InputSet> InputSetWithOptional { get; } = new();
+        public List<InputSet> InputSetWithWhileExecuting { get; } = new();
+
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public DataInput()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(InputSetRefs);
+            result.AddRange(InputSetWithOptional);
+            result.AddRange(InputSetWithWhileExecuting);
+            // Implementing: ItemAwareElement
+            if (ItemSubjectRef is not null) result.Add(ItemSubjectRef);
+            if (DataState is not null) result.Add(DataState);
+            return result;
+        }
+    }
+
+    public class DataOutput : BaseElement, ItemAwareElement
+    {
+        public string? Name { get; set; }
+        public bool? IsCollection { get; set; }
+        public List<OutputSet> OutputSetRefs { get; } = new();
+        public List<OutputSet> OutputSetWithOptional { get; } = new();
+        public List<OutputSet> OutputSetWithWhileExecuting { get; } = new();
+
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public DataOutput()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(OutputSetRefs);
+            result.AddRange(OutputSetWithOptional);
+            result.AddRange(OutputSetWithWhileExecuting);
+            // Implementing: ItemAwareElement
+            if (ItemSubjectRef is not null) result.Add(ItemSubjectRef);
+            if (DataState is not null) result.Add(DataState);
+            return result;
+        }
+    }
+
+    public class InputSet : BaseElement
+    {
+        public string? Name { get; set; }
+        public List<DataInput> DataInputRefs { get; } = new();
+        public List<DataInput> OptionalInputRefs { get; } = new();
+        public List<DataInput> WhileExecutingInputRefs { get; } = new();
+        public List<OutputSet> OutputSetRefs { get; } = new();
+
+        public InputSet()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(DataInputRefs);
+            result.AddRange(OptionalInputRefs);
+            result.AddRange(WhileExecutingInputRefs);
+            result.AddRange(OutputSetRefs);
+            return result;
+        }
+    }
+
+    public class OutputSet : BaseElement
+    {
+        public List<DataOutput> DataOutputRefs { get; } = new();
+        public string? Name { get; set; }
+        public List<InputSet> InputSetRefs { get; } = new();
+        public List<DataOutput> OptionalOutputRefs { get; } = new();
+        public List<DataOutput> WhileExecutingOutputRefs { get; } = new();
+
+        public OutputSet()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(DataOutputRefs);
+            result.AddRange(InputSetRefs);
+            result.AddRange(OptionalOutputRefs);
+            result.AddRange(WhileExecutingOutputRefs);
+            return result;
+        }
+    }
+
+    public class Property : BaseElement, ItemAwareElement
+    {
+        public string? Name { get; set; }
+
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public Property()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            // Implementing: ItemAwareElement
+            if (ItemSubjectRef is not null) result.Add(ItemSubjectRef);
+            if (DataState is not null) result.Add(DataState);
+            return result;
+        }
+    }
+
+    public class DataInputAssociation : DataAssociation
+    {
+
+        public DataInputAssociation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class DataOutputAssociation : DataAssociation
+    {
+
+        public DataOutputAssociation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class InputOutputSpecification : BaseElement
+    {
+        public List<InputSet> InputSets { get; } = new();
+        public List<OutputSet> OutputSets { get; } = new();
+        public List<DataInput> DataInputs { get; } = new();
+        public List<DataOutput> DataOutputs { get; } = new();
+
+        public InputOutputSpecification()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(InputSets);
+            result.AddRange(OutputSets);
+            result.AddRange(DataInputs);
+            result.AddRange(DataOutputs);
+            return result;
+        }
+    }
+
+    public class DataObject : FlowElement, ItemAwareElement
+    {
+        public bool? IsCollection { get; set; }
+
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public DataObject()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            // Implementing: ItemAwareElement
+            if (ItemSubjectRef is not null) result.Add(ItemSubjectRef);
+            if (DataState is not null) result.Add(DataState);
+            return result;
+        }
+    }
+
+    public class InputOutputBinding : ITraversableNode
+    {
+        public InputSet? InputDataRef { get; set; }
+        public OutputSet? OutputDataRef { get; set; }
+        public Operation? OperationRef { get; set; }
+
+        public InputOutputBinding()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            if (InputDataRef is not null) result.Add(InputDataRef);
+            if (OutputDataRef is not null) result.Add(OutputDataRef);
+            if (OperationRef is not null) result.Add(OperationRef);
+            return result;
+        }
+    }
+
+    public class Assignment : BaseElement
+    {
+        public Expression? From { get; set; }
+        public Expression? To { get; set; }
+
+        public Assignment()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (From is not null) result.Add(From);
+            if (To is not null) result.Add(To);
+            return result;
+        }
+    }
+
+    public class DataStore : RootElement, ItemAwareElement
+    {
+        public string? Name { get; set; }
+        public long? Capacity { get; set; }
+        public bool? IsUnlimited { get; set; }
+
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public DataStore()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            // Implementing: ItemAwareElement
+            if (ItemSubjectRef is not null) result.Add(ItemSubjectRef);
+            if (DataState is not null) result.Add(DataState);
+            return result;
+        }
+    }
+
+    public class DataStoreReference : FlowElement, ItemAwareElement
+    {
+        public DataStore? DataStoreRef { get; set; }
+
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public DataStoreReference()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (DataStoreRef is not null) result.Add(DataStoreRef);
+            // Implementing: ItemAwareElement
+            if (ItemSubjectRef is not null) result.Add(ItemSubjectRef);
+            if (DataState is not null) result.Add(DataState);
+            return result;
+        }
+    }
+
+    public class DataObjectReference : FlowElement, ItemAwareElement
+    {
+        public DataObject? DataObjectRef { get; set; }
+
+
+        #region Implementing: ItemAwareElement
+        public ItemDefinition? ItemSubjectRef { get; set; }
+        public DataState? DataState { get; set; }
+        #endregion
+
+        public DataObjectReference()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (DataObjectRef is not null) result.Add(DataObjectRef);
+            // Implementing: ItemAwareElement
+            if (ItemSubjectRef is not null) result.Add(ItemSubjectRef);
+            if (DataState is not null) result.Add(DataState);
+            return result;
+        }
+    }
+
+    public class ConversationLink : BaseElement
+    {
+        public InteractionNode? SourceRef { get; set; }
+        public InteractionNode? TargetRef { get; set; }
+        public string? Name { get; set; }
+
+        public ConversationLink()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (SourceRef is not null) result.Add(SourceRef);
+            if (TargetRef is not null) result.Add(TargetRef);
+            return result;
+        }
+    }
+
+    public class ConversationAssociation : BaseElement
+    {
+        public ConversationNode? InnerConversationNodeRef { get; set; }
+        public ConversationNode? OuterConversationNodeRef { get; set; }
+
+        public ConversationAssociation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (InnerConversationNodeRef is not null) result.Add(InnerConversationNodeRef);
+            if (OuterConversationNodeRef is not null) result.Add(OuterConversationNodeRef);
+            return result;
+        }
+    }
+
+    public class CallConversation : ConversationNode
+    {
+        public Collaboration? CalledCollaborationRef { get; set; }
+        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
+
+        public CallConversation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (CalledCollaborationRef is not null) result.Add(CalledCollaborationRef);
+            result.AddRange(ParticipantAssociations);
+            return result;
+        }
+    }
+
+    public class Conversation : ConversationNode
+    {
+
+        public Conversation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class SubConversation : ConversationNode
+    {
+        public List<ConversationNode> ConversationNodes { get; } = new();
+
+        public SubConversation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(ConversationNodes);
+            return result;
+        }
+    }
+
+    public abstract class ConversationNode : BaseElement, InteractionNode
+    {
+        public string? Name { get; set; }
+        public List<Participant> ParticipantRefs { get; } = new();
+        public List<MessageFlow> MessageFlowRefs { get; } = new();
+        public List<CorrelationKey> CorrelationKeys { get; } = new();
+
+
+        #region Implementing: InteractionNode
+        public List<ConversationLink> IncomingConversationLinks { get; } = new();
+        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
+        #endregion
+
+        public ConversationNode()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(ParticipantRefs);
+            result.AddRange(MessageFlowRefs);
+            result.AddRange(CorrelationKeys);
+            // Implementing: InteractionNode
+            result.AddRange(IncomingConversationLinks);
+            result.AddRange(OutgoingConversationLinks);
+            return result;
+        }
+    }
+
+    public class GlobalConversation : Collaboration
+    {
+
+        public GlobalConversation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class PartnerEntity : RootElement
+    {
+        public string? Name { get; set; }
+        public List<Participant> ParticipantRef { get; } = new();
+
+        public PartnerEntity()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(ParticipantRef);
+            return result;
+        }
+    }
+
+    public class PartnerRole : RootElement
+    {
+        public string? Name { get; set; }
+        public List<Participant> ParticipantRef { get; } = new();
+
+        public PartnerRole()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(ParticipantRef);
+            return result;
+        }
+    }
+
+    public class CorrelationProperty : RootElement
+    {
+        public List<CorrelationPropertyRetrievalExpression> CorrelationPropertyRetrievalExpression { get; } = new();
+        public string? Name { get; set; }
+        public ItemDefinition? Type { get; set; }
+
+        public CorrelationProperty()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(CorrelationPropertyRetrievalExpression);
+            if (Type is not null) result.Add(Type);
+            return result;
+        }
+    }
+
+    public class Error : RootElement
+    {
+        public ItemDefinition? StructureRef { get; set; }
+        public string? Name { get; set; }
+        public string? ErrorCode { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_errorMessage { get; set; }
+        #endregion
+
+        public Error()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (StructureRef is not null) result.Add(StructureRef);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class CorrelationKey : BaseElement
+    {
+        public List<CorrelationProperty> CorrelationPropertyRef { get; } = new();
+        public string? Name { get; set; }
+
+        public CorrelationKey()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(CorrelationPropertyRef);
+            return result;
+        }
+    }
+
+    public class Expression : BaseElement
+    {
+
+        public Expression()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class FormalExpression : Expression
+    {
+        public string? Language { get; set; }
+        public Element? Body { get; set; }
+        public ItemDefinition? EvaluatesToTypeRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_resource { get; set; }
+        #endregion
+
+        public FormalExpression()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Body is not null) result.Add(Body);
+            if (EvaluatesToTypeRef is not null) result.Add(EvaluatesToTypeRef);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class Message : RootElement
+    {
+        public string? Name { get; set; }
+        public ItemDefinition? ItemRef { get; set; }
+
+        public Message()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (ItemRef is not null) result.Add(ItemRef);
+            return result;
+        }
+    }
+
+    public class ItemDefinition : RootElement
+    {
+        public ItemKind? ItemKind { get; set; }
+        public Element? StructureRef { get; set; }
+        public bool? IsCollection { get; set; }
+        public Import? Import { get; set; }
+
+        public ItemDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (StructureRef is not null) result.Add(StructureRef);
+            if (Import is not null) result.Add(Import);
+            return result;
+        }
+    }
+
+    public abstract class FlowElement : BaseElement
+    {
+        public string? Name { get; set; }
+        public Auditing? Auditing { get; set; }
+        public Monitoring? Monitoring { get; set; }
+        public List<CategoryValue> CategoryValueRef { get; } = new();
+
+        #region Camunda attributes
+        public string? Camunda_modelerTemplate { get; set; }
+        public long? Camunda_modelerTemplateVersion { get; set; }
+        #endregion
+
+        public FlowElement()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Auditing is not null) result.Add(Auditing);
+            if (Monitoring is not null) result.Add(Monitoring);
+            result.AddRange(CategoryValueRef);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class SequenceFlow : FlowElement
+    {
+        public bool? IsImmediate { get; set; }
+        public Expression? ConditionExpression { get; set; }
+        public FlowNode? SourceRef { get; set; }
+        public FlowNode? TargetRef { get; set; }
+
+        public SequenceFlow()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (ConditionExpression is not null) result.Add(ConditionExpression);
+            if (SourceRef is not null) result.Add(SourceRef);
+            if (TargetRef is not null) result.Add(TargetRef);
+            return result;
+        }
+    }
+
+    public interface FlowElementsContainer : ITraversableNode // abstract 
+    {
+        List<FlowElement> FlowElements { get; }
+        List<LaneSet> LaneSets { get; }
+
+        /* No method to get child elements - it is interface or data class. */
+    }
+
+    public abstract class CallableElement : RootElement
+    {
+        public string? Name { get; set; }
+        public InputOutputSpecification? IoSpecification { get; set; }
+        public List<Interface> SupportedInterfaceRefs { get; } = new();
+        public List<InputOutputBinding> IoBinding { get; } = new();
+
+        public CallableElement()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (IoSpecification is not null) result.Add(IoSpecification);
+            result.AddRange(SupportedInterfaceRefs);
+            result.AddRange(IoBinding);
+            return result;
+        }
+    }
+
+    public abstract class FlowNode : FlowElement
+    {
+        public List<SequenceFlow> Outgoing { get; } = new();
+        public List<SequenceFlow> Incoming { get; } = new();
+        public List<Lane> Lanes { get; } = new();
+
+        public FlowNode()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(Outgoing);
+            result.AddRange(Incoming);
+            result.AddRange(Lanes);
+            return result;
+        }
+    }
+
+    public class CorrelationPropertyRetrievalExpression : BaseElement
+    {
+        public FormalExpression? MessagePath { get; set; }
+        public Message? MessageRef { get; set; }
+
+        public CorrelationPropertyRetrievalExpression()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (MessagePath is not null) result.Add(MessagePath);
+            if (MessageRef is not null) result.Add(MessageRef);
+            return result;
+        }
+    }
+
+    public class CorrelationPropertyBinding : BaseElement
+    {
+        public FormalExpression? DataPath { get; set; }
+        public CorrelationProperty? CorrelationPropertyRef { get; set; }
+
+        public CorrelationPropertyBinding()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (DataPath is not null) result.Add(DataPath);
+            if (CorrelationPropertyRef is not null) result.Add(CorrelationPropertyRef);
+            return result;
+        }
+    }
+
+    public class Resource : RootElement
+    {
+        public string? Name { get; set; }
+        public List<ResourceParameter> ResourceParameters { get; } = new();
+
+        public Resource()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(ResourceParameters);
+            return result;
+        }
+    }
+
+    public class ResourceParameter : BaseElement
+    {
+        public string? Name { get; set; }
+        public bool? IsRequired { get; set; }
+        public ItemDefinition? Type { get; set; }
+
+        public ResourceParameter()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Type is not null) result.Add(Type);
+            return result;
+        }
+    }
+
+    public class CorrelationSubscription : BaseElement
+    {
+        public CorrelationKey? CorrelationKeyRef { get; set; }
+        public List<CorrelationPropertyBinding> CorrelationPropertyBinding { get; } = new();
+
+        public CorrelationSubscription()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (CorrelationKeyRef is not null) result.Add(CorrelationKeyRef);
+            result.AddRange(CorrelationPropertyBinding);
+            return result;
+        }
+    }
+
+    public class MessageFlow : BaseElement
+    {
+        public string? Name { get; set; }
+        public InteractionNode? SourceRef { get; set; }
+        public InteractionNode? TargetRef { get; set; }
+        public Message? MessageRef { get; set; }
+
+        public MessageFlow()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (SourceRef is not null) result.Add(SourceRef);
+            if (TargetRef is not null) result.Add(TargetRef);
+            if (MessageRef is not null) result.Add(MessageRef);
+            return result;
+        }
+    }
+
+    public class MessageFlowAssociation : BaseElement
+    {
+        public MessageFlow? InnerMessageFlowRef { get; set; }
+        public MessageFlow? OuterMessageFlowRef { get; set; }
+
+        public MessageFlowAssociation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (InnerMessageFlowRef is not null) result.Add(InnerMessageFlowRef);
+            if (OuterMessageFlowRef is not null) result.Add(OuterMessageFlowRef);
+            return result;
+        }
+    }
+
+    public interface InteractionNode : ITraversableNode // abstract 
+    {
+        List<ConversationLink> IncomingConversationLinks { get; }
+        List<ConversationLink> OutgoingConversationLinks { get; }
+
+        /* No method to get child elements - it is interface or data class. */
+    }
+
+    public class Participant : BaseElement, InteractionNode
+    {
+        public string? Name { get; set; }
+        public List<Interface> InterfaceRefs { get; } = new();
+        public ParticipantMultiplicity? ParticipantMultiplicity { get; set; }
+        public List<EndPoint> EndPointRefs { get; } = new();
+        public Process? ProcessRef { get; set; }
+
+
+        #region Implementing: InteractionNode
+        public List<ConversationLink> IncomingConversationLinks { get; } = new();
+        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
+        #endregion
+
+        public Participant()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(InterfaceRefs);
+            if (ParticipantMultiplicity is not null) result.Add(ParticipantMultiplicity);
+            result.AddRange(EndPointRefs);
+            if (ProcessRef is not null) result.Add(ProcessRef);
+            // Implementing: InteractionNode
+            result.AddRange(IncomingConversationLinks);
+            result.AddRange(OutgoingConversationLinks);
+            return result;
+        }
+    }
+
+    public class ParticipantAssociation : BaseElement
+    {
+        public Participant? InnerParticipantRef { get; set; }
+        public Participant? OuterParticipantRef { get; set; }
+
+        public ParticipantAssociation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (InnerParticipantRef is not null) result.Add(InnerParticipantRef);
+            if (OuterParticipantRef is not null) result.Add(OuterParticipantRef);
+            return result;
+        }
+    }
+
+    public class ParticipantMultiplicity : ITraversableNode
+    {
+        public long? Minimum { get; set; }
+        public long? Maximum { get; set; }
+
+        public ParticipantMultiplicity()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            return result;
+        }
+    }
+
+    public class Collaboration : RootElement
+    {
+        public string? Name { get; set; }
+        public bool? IsClosed { get; set; }
+        public List<Choreography> ChoreographyRef { get; } = new();
+        public List<Artifact> Artifacts { get; } = new();
+        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
+        public List<MessageFlowAssociation> MessageFlowAssociations { get; } = new();
+        public ConversationAssociation? ConversationAssociations { get; set; }
+        public List<Participant> Participants { get; } = new();
+        public List<MessageFlow> MessageFlows { get; } = new();
+        public List<CorrelationKey> CorrelationKeys { get; } = new();
+        public List<ConversationNode> Conversations { get; } = new();
+        public List<ConversationLink> ConversationLinks { get; } = new();
+
+        #region Camunda attributes
+        public string? Camunda_modelerTemplate { get; set; }
+        public long? Camunda_modelerTemplateVersion { get; set; }
+        #endregion
+
+        public Collaboration()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(ChoreographyRef);
+            result.AddRange(Artifacts);
+            result.AddRange(ParticipantAssociations);
+            result.AddRange(MessageFlowAssociations);
+            if (ConversationAssociations is not null) result.Add(ConversationAssociations);
+            result.AddRange(Participants);
+            result.AddRange(MessageFlows);
+            result.AddRange(CorrelationKeys);
+            result.AddRange(Conversations);
+            result.AddRange(ConversationLinks);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public abstract class ChoreographyActivity : FlowNode
+    {
+        public List<Participant> ParticipantRefs { get; } = new();
+        public Participant? InitiatingParticipantRef { get; set; }
+        public List<CorrelationKey> CorrelationKeys { get; } = new();
+        public ChoreographyLoopType? LoopType { get; set; }
+
+        public ChoreographyActivity()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(ParticipantRefs);
+            if (InitiatingParticipantRef is not null) result.Add(InitiatingParticipantRef);
+            result.AddRange(CorrelationKeys);
+            return result;
+        }
+    }
+
+    public class CallChoreography : ChoreographyActivity
+    {
+        public Choreography? CalledChoreographyRef { get; set; }
+        public List<ParticipantAssociation> ParticipantAssociations { get; } = new();
+
+        public CallChoreography()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (CalledChoreographyRef is not null) result.Add(CalledChoreographyRef);
+            result.AddRange(ParticipantAssociations);
+            return result;
+        }
+    }
+
+    public class SubChoreography : ChoreographyActivity, FlowElementsContainer
+    {
+        public List<Artifact> Artifacts { get; } = new();
+
+
+        #region Implementing: FlowElementsContainer
+        public List<FlowElement> FlowElements { get; } = new();
+        public List<LaneSet> LaneSets { get; } = new();
+        #endregion
+
+        public SubChoreography()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(Artifacts);
+            // Implementing: FlowElementsContainer
+            result.AddRange(FlowElements);
+            result.AddRange(LaneSets);
+            return result;
+        }
+    }
+
+    public class ChoreographyTask : ChoreographyActivity
+    {
+        public List<MessageFlow> MessageFlowRef { get; } = new();
+
+        public ChoreographyTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(MessageFlowRef);
+            return result;
+        }
+    }
+
+    public class Choreography : Collaboration, FlowElementsContainer
+    {
+
+
+        #region Implementing: FlowElementsContainer
+        public List<FlowElement> FlowElements { get; } = new();
+        public List<LaneSet> LaneSets { get; } = new();
+        #endregion
+
+        public Choreography()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            // Implementing: FlowElementsContainer
+            result.AddRange(FlowElements);
+            result.AddRange(LaneSets);
+            return result;
+        }
+    }
+
+    public class GlobalChoreographyTask : Choreography
+    {
+        public Participant? InitiatingParticipantRef { get; set; }
+
+        public GlobalChoreographyTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (InitiatingParticipantRef is not null) result.Add(InitiatingParticipantRef);
+            return result;
+        }
+    }
+
+    public class TextAnnotation : Artifact
+    {
+        public string? Text { get; set; }
+        public string? TextFormat { get; set; }
+
+        public TextAnnotation()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class Group : Artifact
+    {
+        public CategoryValue? CategoryValueRef { get; set; }
+
+        public Group()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (CategoryValueRef is not null) result.Add(CategoryValueRef);
+            return result;
+        }
+    }
+
+    public class Association : Artifact
+    {
+        public AssociationDirection? AssociationDirection { get; set; }
+        public BaseElement? SourceRef { get; set; }
+        public BaseElement? TargetRef { get; set; }
+
+        public Association()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (SourceRef is not null) result.Add(SourceRef);
+            if (TargetRef is not null) result.Add(TargetRef);
+            return result;
+        }
+    }
+
+    public class Category : RootElement
+    {
+        public List<CategoryValue> CategoryValue { get; } = new();
+        public string? Name { get; set; }
+
+        public Category()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(CategoryValue);
+            return result;
+        }
+    }
+
+    public abstract class Artifact : BaseElement
+    {
+
+        public Artifact()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class CategoryValue : BaseElement
+    {
+        public List<FlowElement> CategorizedFlowElements { get; } = new();
+        public string? Value { get; set; }
+
+        public CategoryValue()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(CategorizedFlowElements);
+            return result;
+        }
+    }
+
+    public abstract class Activity : FlowNode
+    {
+        public bool? IsForCompensation { get; set; }
+        public LoopCharacteristics? LoopCharacteristics { get; set; }
+        public List<ResourceRole> Resources { get; } = new();
+        public SequenceFlow? Default { get; set; }
+        public List<Property> Properties { get; } = new();
+        public InputOutputSpecification? IoSpecification { get; set; }
+        public List<BoundaryEvent> BoundaryEventRefs { get; } = new();
+        public List<DataInputAssociation> DataInputAssociations { get; } = new();
+        public List<DataOutputAssociation> DataOutputAssociations { get; } = new();
+        public long? StartQuantity { get; set; }
+        public long? CompletionQuantity { get; set; }
+
+        #region Camunda attributes
+        public bool? Camunda_async { get; set; }
+        public bool? Camunda_asyncBefore { get; set; }
+        public bool? Camunda_asyncAfter { get; set; }
+        public bool? Camunda_exclusive { get; set; }
+        public string? Camunda_jobPriority { get; set; }
+        #endregion
+
+        public Activity()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (LoopCharacteristics is not null) result.Add(LoopCharacteristics);
+            result.AddRange(Resources);
+            if (Default is not null) result.Add(Default);
+            result.AddRange(Properties);
+            if (IoSpecification is not null) result.Add(IoSpecification);
+            result.AddRange(BoundaryEventRefs);
+            result.AddRange(DataInputAssociations);
+            result.AddRange(DataOutputAssociations);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class ServiceTask : Task
+    {
+        public string? Implementation { get; set; }
+        public Operation? OperationRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_expression { get; set; }
+        public string? Camunda_class { get; set; }
+        public string? Camunda_delegateExpression { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_type { get; set; }
+        public string? Camunda_topic { get; set; }
+        public string? Camunda_taskPriority { get; set; }
+        #endregion
+
+        public ServiceTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (OperationRef is not null) result.Add(OperationRef);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class SubProcess : Activity, FlowElementsContainer
+    {
+        public bool? TriggeredByEvent { get; set; }
+        public List<Artifact> Artifacts { get; } = new();
+
+
+        #region Implementing: FlowElementsContainer
+        public List<FlowElement> FlowElements { get; } = new();
+        public List<LaneSet> LaneSets { get; } = new();
+        #endregion
+
+        public SubProcess()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(Artifacts);
+            // Implementing: FlowElementsContainer
+            result.AddRange(FlowElements);
+            result.AddRange(LaneSets);
+            return result;
+        }
+    }
+
+    public abstract class LoopCharacteristics : BaseElement
+    {
+
+        public LoopCharacteristics()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class MultiInstanceLoopCharacteristics : LoopCharacteristics
+    {
+        public bool? IsSequential { get; set; }
+        public MultiInstanceBehavior? Behavior { get; set; }
+        public Expression? LoopCardinality { get; set; }
+        public ItemAwareElement? LoopDataInputRef { get; set; }
+        public ItemAwareElement? LoopDataOutputRef { get; set; }
+        public DataInput? InputDataItem { get; set; }
+        public DataOutput? OutputDataItem { get; set; }
+        public Expression? CompletionCondition { get; set; }
+        public List<ComplexBehaviorDefinition> ComplexBehaviorDefinition { get; } = new();
+        public EventDefinition? OneBehaviorEventRef { get; set; }
+        public EventDefinition? NoneBehaviorEventRef { get; set; }
+
+        #region Camunda attributes
+        public bool? Camunda_async { get; set; }
+        public bool? Camunda_asyncBefore { get; set; }
+        public bool? Camunda_asyncAfter { get; set; }
+        public bool? Camunda_exclusive { get; set; }
+        public string? Camunda_collection { get; set; }
+        public string? Camunda_elementVariable { get; set; }
+        #endregion
+
+        public MultiInstanceLoopCharacteristics()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (LoopCardinality is not null) result.Add(LoopCardinality);
+            if (LoopDataInputRef is not null) result.Add(LoopDataInputRef);
+            if (LoopDataOutputRef is not null) result.Add(LoopDataOutputRef);
+            if (InputDataItem is not null) result.Add(InputDataItem);
+            if (OutputDataItem is not null) result.Add(OutputDataItem);
+            if (CompletionCondition is not null) result.Add(CompletionCondition);
+            result.AddRange(ComplexBehaviorDefinition);
+            if (OneBehaviorEventRef is not null) result.Add(OneBehaviorEventRef);
+            if (NoneBehaviorEventRef is not null) result.Add(NoneBehaviorEventRef);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class StandardLoopCharacteristics : LoopCharacteristics
+    {
+        public bool? TestBefore { get; set; }
+        public Expression? LoopCondition { get; set; }
+        public Expression? LoopMaximum { get; set; }
+
+        public StandardLoopCharacteristics()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (LoopCondition is not null) result.Add(LoopCondition);
+            if (LoopMaximum is not null) result.Add(LoopMaximum);
+            return result;
+        }
+    }
+
+    public class CallActivity : Activity
+    {
+        public CallableElement? CalledElementRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_calledElementBinding { get; set; }
+        public string? Camunda_calledElementVersion { get; set; }
+        public string? Camunda_calledElementVersionTag { get; set; }
+        public string? Camunda_calledElementTenantId { get; set; }
+        public string? Camunda_caseRef { get; set; }
+        public string? Camunda_caseBinding { get; set; }
+        public string? Camunda_caseVersion { get; set; }
+        public string? Camunda_caseTenantId { get; set; }
+        public string? Camunda_variableMappingClass { get; set; }
+        public string? Camunda_variableMappingDelegateExpression { get; set; }
+        #endregion
+
+        public CallActivity()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (CalledElementRef is not null) result.Add(CalledElementRef);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class Task : Activity, InteractionNode
+    {
+
+
+        #region Implementing: InteractionNode
+        public List<ConversationLink> IncomingConversationLinks { get; } = new();
+        public List<ConversationLink> OutgoingConversationLinks { get; } = new();
+        #endregion
+
+        public Task()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            // Implementing: InteractionNode
+            result.AddRange(IncomingConversationLinks);
+            result.AddRange(OutgoingConversationLinks);
+            return result;
+        }
+    }
+
+    public class SendTask : Task
+    {
+        public string? Implementation { get; set; }
+        public Operation? OperationRef { get; set; }
+        public Message? MessageRef { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_expression { get; set; }
+        public string? Camunda_class { get; set; }
+        public string? Camunda_delegateExpression { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_type { get; set; }
+        public string? Camunda_topic { get; set; }
+        public string? Camunda_taskPriority { get; set; }
+        #endregion
+
+        public SendTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (OperationRef is not null) result.Add(OperationRef);
+            if (MessageRef is not null) result.Add(MessageRef);
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class ReceiveTask : Task
+    {
+        public string? Implementation { get; set; }
+        public bool? Instantiate { get; set; }
+        public Operation? OperationRef { get; set; }
+        public Message? MessageRef { get; set; }
+
+        public ReceiveTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (OperationRef is not null) result.Add(OperationRef);
+            if (MessageRef is not null) result.Add(MessageRef);
+            return result;
+        }
+    }
+
+    public class ScriptTask : Task
+    {
+        public string? ScriptFormat { get; set; }
+        public string? Script { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_resource { get; set; }
+        #endregion
+
+        public ScriptTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class BusinessRuleTask : Task
+    {
+        public string? Implementation { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_expression { get; set; }
+        public string? Camunda_class { get; set; }
+        public string? Camunda_delegateExpression { get; set; }
+        public string? Camunda_resultVariable { get; set; }
+        public string? Camunda_type { get; set; }
+        public string? Camunda_topic { get; set; }
+        public string? Camunda_taskPriority { get; set; }
+        public string? Camunda_decisionRef { get; set; }
+        public string? Camunda_decisionRefBinding { get; set; }
+        public string? Camunda_decisionRefVersion { get; set; }
+        public string? Camunda_mapDecisionResult { get; set; }
+        public string? Camunda_decisionRefTenantId { get; set; }
+        #endregion
+
+        public BusinessRuleTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            // Camunda attributes
+            return result;
+        }
+    }
+
+    public class AdHocSubProcess : SubProcess
+    {
+        public Expression? CompletionCondition { get; set; }
+        public AdHocOrdering? Ordering { get; set; }
+        public bool? CancelRemainingInstances { get; set; }
+
+        public AdHocSubProcess()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (CompletionCondition is not null) result.Add(CompletionCondition);
+            return result;
+        }
+    }
+
+    public class Transaction : SubProcess
+    {
+        public string? Protocol { get; set; }
+        public string? Method { get; set; }
+
+        public Transaction()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class GlobalScriptTask : GlobalTask
+    {
+        public string? ScriptLanguage { get; set; }
+        public string? Script { get; set; }
+
+        public GlobalScriptTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class GlobalBusinessRuleTask : GlobalTask
+    {
+        public string? Implementation { get; set; }
+
+        public GlobalBusinessRuleTask()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            return result;
+        }
+    }
+
+    public class ComplexBehaviorDefinition : BaseElement
+    {
+        public FormalExpression? Condition { get; set; }
+        public ImplicitThrowEvent? Event { get; set; }
+
+        public ComplexBehaviorDefinition()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (Condition is not null) result.Add(Condition);
+            if (Event is not null) result.Add(Event);
+            return result;
+        }
+    }
+
+    public class ResourceRole : BaseElement
+    {
+        public Resource? ResourceRef { get; set; }
+        public List<ResourceParameterBinding> ResourceParameterBindings { get; } = new();
+        public ResourceAssignmentExpression? ResourceAssignmentExpression { get; set; }
+        public string? Name { get; set; }
+
+        public ResourceRole()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            if (ResourceRef is not null) result.Add(ResourceRef);
+            result.AddRange(ResourceParameterBindings);
+            if (ResourceAssignmentExpression is not null) result.Add(ResourceAssignmentExpression);
+            return result;
+        }
+    }
+
+    public class ResourceParameterBinding : ITraversableNode
+    {
+        public Expression? Expression { get; set; }
+        public ResourceParameter? ParameterRef { get; set; }
+
+        public ResourceParameterBinding()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            if (Expression is not null) result.Add(Expression);
+            if (ParameterRef is not null) result.Add(ParameterRef);
+            return result;
+        }
+    }
+
+    public class ResourceAssignmentExpression : ITraversableNode
+    {
+        public Expression? Expression { get; set; }
+
+        public ResourceAssignmentExpression()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            if (Expression is not null) result.Add(Expression);
+            return result;
+        }
+    }
+
+    public class Import : ITraversableNode
+    {
+        public string? ImportType { get; set; }
+        public string? Location { get; set; }
+        public string? Namespace { get; set; }
+
+        public Import()
+        {
+        }
+
+        virtual public  List<ITraversableNode> GetChildElements()
+        {
+            var result = new List<ITraversableNode>();
+            return result;
+        }
+    }
+
+    public class Definitions : BaseElement
+    {
+        public string? Name { get; set; }
+        public string? TargetNamespace { get; set; }
+        public string? ExpressionLanguage { get; set; }
+        public string? TypeLanguage { get; set; }
+        public List<Import> Imports { get; } = new();
+        public List<Extension> Extensions { get; } = new();
+        public List<Relationship> Relationships { get; } = new();
+        public List<RootElement> RootElements { get; } = new();
+        public List<BPMNDiagram> Diagrams { get; } = new();
+        public string? Exporter { get; set; }
+        public string? ExporterVersion { get; set; }
+
+        #region Camunda attributes
+        public string? Camunda_diagramRelationId { get; set; }
+        #endregion
+
+        public Definitions()
+        {
+        }
+
+        override public  List<ITraversableNode> GetChildElements()
+        {
+            var result = base.GetChildElements();
+            result.AddRange(Imports);
+            result.AddRange(Extensions);
+            result.AddRange(Relationships);
+            result.AddRange(RootElements);
+            result.AddRange(Diagrams);
+            // Camunda attributes
+            return result;
+        }
+    }
+    #endregion
+
 }

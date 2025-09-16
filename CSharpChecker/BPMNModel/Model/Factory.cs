@@ -731,16 +731,16 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
-            // two way associatio: ManualTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: ManualTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: ManualTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way association: ManualTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
-            // two way associatio: ManualTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: ManualTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: ManualTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: ManualTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -890,16 +890,16 @@ namespace BPMNModel.Model
             // element: rendering -> Rendering renderings (0, *)
             FillElements(node.ChildNodes["rendering"], result.Renderings);
 
-            // two way associatio: UserTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: UserTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: UserTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way association: UserTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
-            // two way associatio: UserTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: UserTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: UserTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: UserTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -1086,7 +1086,7 @@ namespace BPMNModel.Model
             // element: incoming -> SequenceFlow incoming (0, *)
             FillElements(node.ChildNodes["incoming"], result.Incoming);
 
-            // two way associatio: EventBasedGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: EventBasedGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
             return result;
@@ -1162,7 +1162,7 @@ namespace BPMNModel.Model
             // element: activationCondition -> Expression activationCondition (0, 1)
             result.ActivationCondition = FillElement<Expression>(node.ChildNodes["activationCondition"]);
 
-            // two way associatio: ComplexGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: ComplexGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
             return result;
@@ -1235,7 +1235,7 @@ namespace BPMNModel.Model
             // element: incoming -> SequenceFlow incoming (0, *)
             FillElements(node.ChildNodes["incoming"], result.Incoming);
 
-            // two way associatio: ExclusiveGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: ExclusiveGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
             return result;
@@ -1308,7 +1308,7 @@ namespace BPMNModel.Model
             // element: incoming -> SequenceFlow incoming (0, *)
             FillElements(node.ChildNodes["incoming"], result.Incoming);
 
-            // two way associatio: InclusiveGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: InclusiveGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
             return result;
@@ -1377,7 +1377,7 @@ namespace BPMNModel.Model
             // element: incoming -> SequenceFlow incoming (0, *)
             FillElements(node.ChildNodes["incoming"], result.Incoming);
 
-            // two way associatio: ParallelGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: ParallelGateway(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
             return result;
@@ -1534,13 +1534,13 @@ namespace BPMNModel.Model
             // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
             FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
 
-            // two way associatio: IntermediateCatchEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: IntermediateCatchEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: IntermediateCatchEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: IntermediateCatchEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: IntermediateCatchEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: IntermediateCatchEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -1623,13 +1623,13 @@ namespace BPMNModel.Model
             // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
             FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
 
-            // two way associatio: IntermediateThrowEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: IntermediateThrowEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: IntermediateThrowEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: IntermediateThrowEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: IntermediateThrowEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: IntermediateThrowEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -1712,13 +1712,13 @@ namespace BPMNModel.Model
             // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
             FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
 
-            // two way associatio: EndEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: EndEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: EndEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: EndEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: EndEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: EndEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -1833,13 +1833,13 @@ namespace BPMNModel.Model
             // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
             FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
 
-            // two way associatio: StartEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: StartEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: StartEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: StartEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: StartEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: StartEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -1937,13 +1937,13 @@ namespace BPMNModel.Model
             // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
             FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
 
-            // two way associatio: BoundaryEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: BoundaryEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: BoundaryEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: BoundaryEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: BoundaryEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: BoundaryEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -2322,13 +2322,13 @@ namespace BPMNModel.Model
             // element: eventDefinition -> EventDefinition eventDefinitions (0, *)
             FillElements(node.ChildNodes["eventDefinition"], result.EventDefinitions);
 
-            // two way associatio: ImplicitThrowEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: ImplicitThrowEvent(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: ImplicitThrowEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: ImplicitThrowEvent(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: ImplicitThrowEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: ImplicitThrowEvent(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -2408,13 +2408,13 @@ namespace BPMNModel.Model
             // element: dataState -> DataState dataState (0, 1)
             result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
 
-            // two way associatio: DataInput(InputSet inputSetRefs (1, *)) <---> InputSet(DataInput dataInputRefs  (0, *))
+            // two way association: DataInput(InputSet inputSetRefs (1, *)) <---> InputSet(DataInput dataInputRefs  (0, *))
             // In InputSet get dataInputRefs for all elements used like DataInput, put THIS into its List inputSetRefs
 
-            // two way associatio: DataInput(InputSet inputSetWithOptional (0, *)) <---> InputSet(DataInput optionalInputRefs  (0, *))
+            // two way association: DataInput(InputSet inputSetWithOptional (0, *)) <---> InputSet(DataInput optionalInputRefs  (0, *))
             // In InputSet get optionalInputRefs for all elements used like DataInput, put THIS into its List inputSetWithOptional
 
-            // two way associatio: DataInput(InputSet inputSetWithWhileExecuting (0, *)) <---> InputSet(DataInput whileExecutingInputRefs  (0, *))
+            // two way association: DataInput(InputSet inputSetWithWhileExecuting (0, *)) <---> InputSet(DataInput whileExecutingInputRefs  (0, *))
             // In InputSet get whileExecutingInputRefs for all elements used like DataInput, put THIS into its List inputSetWithWhileExecuting
 
             return result;
@@ -2447,13 +2447,13 @@ namespace BPMNModel.Model
             // element: dataState -> DataState dataState (0, 1)
             result.DataState = FillElement<DataState>(node.ChildNodes["dataState"]);
 
-            // two way associatio: DataOutput(OutputSet outputSetRefs (1, *)) <---> OutputSet(DataOutput dataOutputRefs  (0, *))
+            // two way association: DataOutput(OutputSet outputSetRefs (1, *)) <---> OutputSet(DataOutput dataOutputRefs  (0, *))
             // In OutputSet get dataOutputRefs for all elements used like DataOutput, put THIS into its List outputSetRefs
 
-            // two way associatio: DataOutput(OutputSet outputSetWithOptional (0, *)) <---> OutputSet(DataOutput optionalOutputRefs  (0, *))
+            // two way association: DataOutput(OutputSet outputSetWithOptional (0, *)) <---> OutputSet(DataOutput optionalOutputRefs  (0, *))
             // In OutputSet get optionalOutputRefs for all elements used like DataOutput, put THIS into its List outputSetWithOptional
 
-            // two way associatio: DataOutput(OutputSet outputSetWithWhileExecuting (0, *)) <---> OutputSet(DataOutput whileExecutingOutputRefs  (0, *))
+            // two way association: DataOutput(OutputSet outputSetWithWhileExecuting (0, *)) <---> OutputSet(DataOutput whileExecutingOutputRefs  (0, *))
             // In OutputSet get whileExecutingOutputRefs for all elements used like DataOutput, put THIS into its List outputSetWithWhileExecuting
 
             return result;
@@ -2933,10 +2933,10 @@ namespace BPMNModel.Model
             // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
             FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
 
-            // two way associatio: CallConversation(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: CallConversation(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: CallConversation(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: CallConversation(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -2967,10 +2967,10 @@ namespace BPMNModel.Model
             // element: correlationKey -> CorrelationKey correlationKeys (0, *)
             FillElements(node.ChildNodes["correlationKey"], result.CorrelationKeys);
 
-            // two way associatio: Conversation(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: Conversation(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: Conversation(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: Conversation(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -3004,10 +3004,10 @@ namespace BPMNModel.Model
             // element: conversationNode -> ConversationNode conversationNodes (0, *)
             FillElements(node.ChildNodes["conversationNode"], result.ConversationNodes);
 
-            // two way associatio: SubConversation(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: SubConversation(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: SubConversation(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: SubConversation(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -3558,10 +3558,10 @@ namespace BPMNModel.Model
             // element: endPointRef -> EndPoint endPointRefs (0, *)
             FillElements(node.ChildNodes["endPointRef"], result.EndPointRefs);
 
-            // two way associatio: Participant(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: Participant(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: Participant(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: Participant(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -3727,7 +3727,7 @@ namespace BPMNModel.Model
             // element: participantAssociation -> ParticipantAssociation participantAssociations (0, *)
             FillElements(node.ChildNodes["participantAssociation"], result.ParticipantAssociations);
 
-            // two way associatio: CallChoreography(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: CallChoreography(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
             return result;
@@ -3793,7 +3793,7 @@ namespace BPMNModel.Model
             // element: artifact -> Artifact artifacts (0, *)
             FillElements(node.ChildNodes["artifact"], result.Artifacts);
 
-            // two way associatio: SubChoreography(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: SubChoreography(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
             // empty: LaneSet laneSets (0, *)
@@ -3858,7 +3858,7 @@ namespace BPMNModel.Model
             // element: messageFlowRef -> MessageFlow messageFlowRef (1, 2)
             FillElements(node.ChildNodes["messageFlowRef"], result.MessageFlowRef);
 
-            // two way associatio: ChoreographyTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: ChoreographyTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
             return result;
@@ -4109,7 +4109,7 @@ namespace BPMNModel.Model
             // element: documentation -> Documentation documentation (0, *)
             FillElements(node.ChildNodes["documentation"], result.Documentation);
 
-            // two way associatio: CategoryValue(FlowElement categorizedFlowElements (0, *)) <---> FlowElement(CategoryValue categoryValueRef  (0, *))
+            // two way association: CategoryValue(FlowElement categorizedFlowElements (0, *)) <---> FlowElement(CategoryValue categoryValueRef  (0, *))
             // In FlowElement get categoryValueRef for all elements used like CategoryValue, put THIS into its List categorizedFlowElements
 
             return result;
@@ -4245,16 +4245,16 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
-            // two way associatio: ServiceTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: ServiceTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: ServiceTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way association: ServiceTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
-            // two way associatio: ServiceTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: ServiceTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: ServiceTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: ServiceTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -4366,10 +4366,10 @@ namespace BPMNModel.Model
             // element: artifact -> Artifact artifacts (0, *)
             FillElements(node.ChildNodes["artifact"], result.Artifacts);
 
-            // two way associatio: SubProcess(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: SubProcess(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: SubProcess(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way association: SubProcess(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
             return result;
@@ -4615,10 +4615,10 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
-            // two way associatio: CallActivity(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: CallActivity(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: CallActivity(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way association: CallActivity(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
             return result;
@@ -4717,16 +4717,16 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
-            // two way associatio: Task(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: Task(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: Task(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way association: Task(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
-            // two way associatio: Task(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: Task(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: Task(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: Task(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -4865,16 +4865,16 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
-            // two way associatio: SendTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: SendTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: SendTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way association: SendTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
-            // two way associatio: SendTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: SendTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: SendTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: SendTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -4989,16 +4989,16 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
-            // two way associatio: ReceiveTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: ReceiveTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: ReceiveTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way association: ReceiveTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
-            // two way associatio: ReceiveTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: ReceiveTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: ReceiveTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: ReceiveTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -5112,16 +5112,16 @@ namespace BPMNModel.Model
             // element: script -> string script (1, 1)
             result.Script = FillElement<string>(node.ChildNodes["script"]);
 
-            // two way associatio: ScriptTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: ScriptTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: ScriptTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way association: ScriptTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
-            // two way associatio: ScriptTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: ScriptTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: ScriptTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: ScriptTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -5272,16 +5272,16 @@ namespace BPMNModel.Model
             // element: dataOutputAssociation -> DataOutputAssociation dataOutputAssociations (0, *)
             FillElements(node.ChildNodes["dataOutputAssociation"], result.DataOutputAssociations);
 
-            // two way associatio: BusinessRuleTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: BusinessRuleTask(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: BusinessRuleTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way association: BusinessRuleTask(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
-            // two way associatio: BusinessRuleTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
+            // two way association: BusinessRuleTask(ConversationLink incomingConversationLinks (0, *)) <---> ConversationLink(InteractionNode targetRef  (1, 1))
             // In ConversationLink get targetRef use it like InteractionNode, put THIS into its List incomingConversationLinks
 
-            // two way associatio: BusinessRuleTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
+            // two way association: BusinessRuleTask(ConversationLink outgoingConversationLinks (0, *)) <---> ConversationLink(InteractionNode sourceRef  (1, 1))
             // In ConversationLink get sourceRef use it like InteractionNode, put THIS into its List outgoingConversationLinks
 
             return result;
@@ -5404,10 +5404,10 @@ namespace BPMNModel.Model
             // element: completionCondition -> Expression completionCondition (1, 1)
             result.CompletionCondition = FillElement<Expression>(node.ChildNodes["completionCondition"]);
 
-            // two way associatio: AdHocSubProcess(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: AdHocSubProcess(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: AdHocSubProcess(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way association: AdHocSubProcess(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
             return result;
@@ -5523,10 +5523,10 @@ namespace BPMNModel.Model
             // element: artifact -> Artifact artifacts (0, *)
             FillElements(node.ChildNodes["artifact"], result.Artifacts);
 
-            // two way associatio: Transaction(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
+            // two way association: Transaction(Lane lanes (0, *)) <---> Lane(FlowNode flowNodeRefs  (0, *))
             // In Lane get flowNodeRefs for all elements used like FlowNode, put THIS into its List lanes
 
-            // two way associatio: Transaction(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
+            // two way association: Transaction(BoundaryEvent boundaryEventRefs (0, *)) <---> BoundaryEvent(Activity attachedToRef  (1, 1))
             // In BoundaryEvent get attachedToRef use it like Activity, put THIS into its List boundaryEventRefs
 
             // missing: string protocol (0, 1)
