@@ -78,8 +78,6 @@ namespace Testing
                     var model = Factory.ProcessModel(Log.Logger, parser);
                     model.DumpModel("processedCMOF.cmof");
 
-                    var items = model.Definition.GetChildElements();
-
                     var analyzer = new StaticAnalysis();
                     analyzer.ProcessAnalysis(model);
 

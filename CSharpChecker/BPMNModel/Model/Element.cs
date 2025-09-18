@@ -10,6 +10,11 @@ namespace BPMNModel.Model
 
         public string Value { get; init; }
 
+        public TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            throw new NotImplementedException();
+        }
+
         public List<ITraversableNode> GetChildElements()
         {
             return new List<ITraversableNode>();

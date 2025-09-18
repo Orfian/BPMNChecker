@@ -2,10 +2,6 @@
 
 namespace BPMNModel.Model
 {
-    public interface ITraversableNode
-    {
-        List<ITraversableNode> GetChildElements();
-    }
 
     public interface IElementWithId
     {

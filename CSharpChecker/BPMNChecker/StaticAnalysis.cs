@@ -13,8 +13,9 @@ namespace BPMNChecker
 
         public void ProcessAnalysis(ModelRoot modelRoot)
         {
+            var step1 = new StepOne();
 
+            step1.VisitOnce(modelRoot.Definition);
         }
-
     }
 }

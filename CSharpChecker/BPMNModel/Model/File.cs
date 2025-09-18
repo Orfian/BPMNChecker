@@ -101,6 +101,7 @@ namespace BPMNModel.Model
         }
 
         /* No method to get child elements - it is interface or data class. */
+        /* No Accept method - it is interface or data class. */
     }
 
     public class Point
@@ -113,6 +114,7 @@ namespace BPMNModel.Model
         }
 
         /* No method to get child elements - it is interface or data class. */
+        /* No Accept method - it is interface or data class. */
     }
 
     public class Bounds
@@ -127,6 +129,7 @@ namespace BPMNModel.Model
         }
 
         /* No method to get child elements - it is interface or data class. */
+        /* No Accept method - it is interface or data class. */
     }
 
     public abstract class DiagramElement : IElementWithId, ITraversableNode
@@ -152,6 +155,12 @@ namespace BPMNModel.Model
             result.AddRange(OwnedElement);
             return result;
         }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDiagramElement(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public abstract class Node : DiagramElement
@@ -165,6 +174,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitNode(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -184,6 +199,12 @@ namespace BPMNModel.Model
             if (Source is not null) result.Add(Source);
             if (Target is not null) result.Add(Target);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitEdge(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -207,6 +228,12 @@ namespace BPMNModel.Model
             result.AddRange(OwnedStyle);
             return result;
         }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDiagram(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public abstract class Shape : Node
@@ -221,6 +248,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitShape(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -238,6 +271,12 @@ namespace BPMNModel.Model
             result.AddRange(PlaneElement);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitPlane(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public abstract class LabeledEdge : Edge
@@ -253,6 +292,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             result.AddRange(OwnedLabel);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitLabeledEdge(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -270,6 +315,12 @@ namespace BPMNModel.Model
             result.AddRange(OwnedLabel);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitLabeledShape(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public abstract class Label : Node
@@ -285,6 +336,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitLabel(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public abstract class Style : ITraversableNode
@@ -298,6 +355,12 @@ namespace BPMNModel.Model
         {
             var result = new List<ITraversableNode>();
             return result;
+        }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitStyle(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -317,6 +380,12 @@ namespace BPMNModel.Model
             result.AddRange(LabelStyle);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitBPMNDiagram(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class BPMNPlane : Plane
@@ -332,6 +401,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             if (BpmnElement is not null) result.Add(BpmnElement);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitBPMNPlane(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -358,6 +433,12 @@ namespace BPMNModel.Model
             if (ChoreographyActivityShape is not null) result.Add(ChoreographyActivityShape);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitBPMNShape(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class BPMNEdge : LabeledEdge
@@ -381,6 +462,12 @@ namespace BPMNModel.Model
             if (TargetElement is not null) result.Add(TargetElement);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitBPMNEdge(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class BPMNLabel : Label
@@ -397,6 +484,12 @@ namespace BPMNModel.Model
             if (LabelStyle is not null) result.Add(LabelStyle);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitBPMNLabel(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class BPMNLabelStyle : Style
@@ -411,6 +504,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitBPMNLabelStyle(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -430,6 +529,12 @@ namespace BPMNModel.Model
             result.AddRange(Operations);
             if (ImplementationRef is not null) result.Add(ImplementationRef);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitInterface(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -454,6 +559,12 @@ namespace BPMNModel.Model
             if (ImplementationRef is not null) result.Add(ImplementationRef);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitOperation(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class EndPoint : RootElement
@@ -468,6 +579,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitEndPoint(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Auditing : BaseElement
@@ -481,6 +598,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitAuditing(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -498,6 +621,12 @@ namespace BPMNModel.Model
             result.AddRange(Resources);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitGlobalTask(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Monitoring : BaseElement
@@ -512,6 +641,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitMonitoring(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Performer : ResourceRole
@@ -525,6 +660,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitPerformer(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -581,6 +722,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitProcess(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class LaneSet : BaseElement
@@ -597,6 +744,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             result.AddRange(Lanes);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitLaneSet(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -621,6 +774,12 @@ namespace BPMNModel.Model
             if (PartitionElement is not null) result.Add(PartitionElement);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitLane(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class GlobalManualTask : GlobalTask
@@ -635,6 +794,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitGlobalManualTask(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ManualTask : Task
@@ -648,6 +813,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitManualTask(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -681,6 +852,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitUserTask(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Rendering : BaseElement
@@ -694,6 +871,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitRendering(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -709,6 +892,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitHumanPerformer(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class PotentialOwner : HumanPerformer
@@ -722,6 +911,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitPotentialOwner(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -739,6 +934,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             result.AddRange(Renderings);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitGlobalUserTask(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -764,6 +965,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitGateway(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class EventBasedGateway : Gateway
@@ -779,6 +986,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitEventBasedGateway(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -798,6 +1011,12 @@ namespace BPMNModel.Model
             if (Default is not null) result.Add(Default);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitComplexGateway(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ExclusiveGateway : Gateway
@@ -813,6 +1032,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             if (Default is not null) result.Add(Default);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitExclusiveGateway(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -830,6 +1055,12 @@ namespace BPMNModel.Model
             if (Default is not null) result.Add(Default);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitInclusiveGateway(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ParallelGateway : Gateway
@@ -844,6 +1075,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitParallelGateway(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public abstract class RootElement : BaseElement
@@ -857,6 +1094,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitRootElement(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -877,6 +1120,12 @@ namespace BPMNModel.Model
             result.AddRange(Sources);
             result.AddRange(Targets);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitRelationship(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -899,6 +1148,12 @@ namespace BPMNModel.Model
             result.AddRange(Documentation);
             return result;
         }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitBaseElement(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Extension : ITraversableNode
@@ -916,6 +1171,12 @@ namespace BPMNModel.Model
             if (Definition is not null) result.Add(Definition);
             return result;
         }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitExtension(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ExtensionDefinition : ITraversableNode
@@ -932,6 +1193,12 @@ namespace BPMNModel.Model
             var result = new List<ITraversableNode>();
             result.AddRange(ExtensionAttributeDefinitions);
             return result;
+        }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitExtensionDefinition(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -951,6 +1218,12 @@ namespace BPMNModel.Model
             var result = new List<ITraversableNode>();
             if (ExtensionDefinition is not null) result.Add(ExtensionDefinition);
             return result;
+        }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitExtensionAttributeDefinition(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -972,6 +1245,12 @@ namespace BPMNModel.Model
             if (ExtensionAttributeDefinition is not null) result.Add(ExtensionAttributeDefinition);
             return result;
         }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitExtensionAttributeValue(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Documentation : BaseElement
@@ -987,6 +1266,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDocumentation(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1022,6 +1307,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitEvent(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class IntermediateCatchEvent : CatchEvent
@@ -1035,6 +1326,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitIntermediateCatchEvent(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1050,6 +1347,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitIntermediateThrowEvent(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class EndEvent : ThrowEvent
@@ -1063,6 +1366,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitEndEvent(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1089,6 +1398,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitStartEvent(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public abstract class ThrowEvent : Event
@@ -1112,6 +1427,12 @@ namespace BPMNModel.Model
             result.AddRange(DataInputs);
             result.AddRange(EventDefinitions);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitThrowEvent(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1138,6 +1459,12 @@ namespace BPMNModel.Model
             result.AddRange(EventDefinitions);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCatchEvent(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class BoundaryEvent : CatchEvent
@@ -1155,6 +1482,12 @@ namespace BPMNModel.Model
             if (AttachedToRef is not null) result.Add(AttachedToRef);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitBoundaryEvent(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public abstract class EventDefinition : RootElement
@@ -1169,6 +1502,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitEventDefinition(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class CancelEventDefinition : EventDefinition
@@ -1182,6 +1521,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCancelEventDefinition(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1205,6 +1550,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitErrorEventDefinition(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class TerminateEventDefinition : EventDefinition
@@ -1218,6 +1569,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitTerminateEventDefinition(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1240,6 +1597,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitEscalationEventDefinition(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Escalation : ITraversableNode
@@ -1258,6 +1621,12 @@ namespace BPMNModel.Model
             if (StructureRef is not null) result.Add(StructureRef);
             return result;
         }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitEscalation(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class CompensateEventDefinition : EventDefinition
@@ -1274,6 +1643,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             if (ActivityRef is not null) result.Add(ActivityRef);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCompensateEventDefinition(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1295,6 +1670,12 @@ namespace BPMNModel.Model
             if (TimeDuration is not null) result.Add(TimeDuration);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitTimerEventDefinition(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class LinkEventDefinition : EventDefinition
@@ -1313,6 +1694,12 @@ namespace BPMNModel.Model
             if (Target is not null) result.Add(Target);
             result.AddRange(Source);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitLinkEventDefinition(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1343,6 +1730,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitMessageEventDefinition(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ConditionalEventDefinition : EventDefinition
@@ -1365,6 +1758,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitConditionalEventDefinition(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class SignalEventDefinition : EventDefinition
@@ -1386,6 +1785,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitSignalEventDefinition(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Signal : RootElement
@@ -1403,6 +1808,12 @@ namespace BPMNModel.Model
             if (StructureRef is not null) result.Add(StructureRef);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitSignal(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ImplicitThrowEvent : ThrowEvent
@@ -1416,6 +1827,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitImplicitThrowEvent(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1432,6 +1849,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDataState(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public interface ItemAwareElement : ITraversableNode
@@ -1440,6 +1863,7 @@ namespace BPMNModel.Model
         DataState? DataState { get; set; }
 
         /* No method to get child elements - it is interface or data class. */
+        /* No Accept method - it is interface or data class. */
     }
 
     public class DataAssociation : BaseElement
@@ -1461,6 +1885,12 @@ namespace BPMNModel.Model
             if (TargetRef is not null) result.Add(TargetRef);
             result.AddRange(SourceRef);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDataAssociation(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1493,6 +1923,12 @@ namespace BPMNModel.Model
             if (DataState is not null) result.Add(DataState);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDataInput(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class DataOutput : BaseElement, ItemAwareElement
@@ -1524,6 +1960,12 @@ namespace BPMNModel.Model
             if (DataState is not null) result.Add(DataState);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDataOutput(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class InputSet : BaseElement
@@ -1547,6 +1989,12 @@ namespace BPMNModel.Model
             result.AddRange(OutputSetRefs);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitInputSet(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class OutputSet : BaseElement
@@ -1569,6 +2017,12 @@ namespace BPMNModel.Model
             result.AddRange(OptionalOutputRefs);
             result.AddRange(WhileExecutingOutputRefs);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitOutputSet(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1594,6 +2048,12 @@ namespace BPMNModel.Model
             if (DataState is not null) result.Add(DataState);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitProperty(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class DataInputAssociation : DataAssociation
@@ -1608,6 +2068,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDataInputAssociation(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class DataOutputAssociation : DataAssociation
@@ -1621,6 +2087,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDataOutputAssociation(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1643,6 +2115,12 @@ namespace BPMNModel.Model
             result.AddRange(DataInputs);
             result.AddRange(DataOutputs);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitInputOutputSpecification(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1668,6 +2146,12 @@ namespace BPMNModel.Model
             if (DataState is not null) result.Add(DataState);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDataObject(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class InputOutputBinding : ITraversableNode
@@ -1688,6 +2172,12 @@ namespace BPMNModel.Model
             if (OperationRef is not null) result.Add(OperationRef);
             return result;
         }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitInputOutputBinding(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Assignment : BaseElement
@@ -1705,6 +2195,12 @@ namespace BPMNModel.Model
             if (From is not null) result.Add(From);
             if (To is not null) result.Add(To);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitAssignment(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1732,6 +2228,12 @@ namespace BPMNModel.Model
             if (DataState is not null) result.Add(DataState);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDataStore(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class DataStoreReference : FlowElement, ItemAwareElement
@@ -1756,6 +2258,12 @@ namespace BPMNModel.Model
             if (ItemSubjectRef is not null) result.Add(ItemSubjectRef);
             if (DataState is not null) result.Add(DataState);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDataStoreReference(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1782,6 +2290,12 @@ namespace BPMNModel.Model
             if (DataState is not null) result.Add(DataState);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDataObjectReference(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ConversationLink : BaseElement
@@ -1801,6 +2315,12 @@ namespace BPMNModel.Model
             if (TargetRef is not null) result.Add(TargetRef);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitConversationLink(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ConversationAssociation : BaseElement
@@ -1818,6 +2338,12 @@ namespace BPMNModel.Model
             if (InnerConversationNodeRef is not null) result.Add(InnerConversationNodeRef);
             if (OuterConversationNodeRef is not null) result.Add(OuterConversationNodeRef);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitConversationAssociation(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1837,6 +2363,12 @@ namespace BPMNModel.Model
             result.AddRange(ParticipantAssociations);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCallConversation(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Conversation : ConversationNode
@@ -1850,6 +2382,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitConversation(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1866,6 +2404,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             result.AddRange(ConversationNodes);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitSubConversation(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1897,6 +2441,12 @@ namespace BPMNModel.Model
             result.AddRange(OutgoingConversationLinks);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitConversationNode(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class GlobalConversation : Collaboration
@@ -1910,6 +2460,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitGlobalConversation(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1928,6 +2484,12 @@ namespace BPMNModel.Model
             result.AddRange(ParticipantRef);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitPartnerEntity(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class PartnerRole : RootElement
@@ -1944,6 +2506,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             result.AddRange(ParticipantRef);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitPartnerRole(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1963,6 +2531,12 @@ namespace BPMNModel.Model
             result.AddRange(CorrelationPropertyRetrievalExpression);
             if (Type is not null) result.Add(Type);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCorrelationProperty(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -1987,6 +2561,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitError(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class CorrelationKey : BaseElement
@@ -2004,6 +2584,12 @@ namespace BPMNModel.Model
             result.AddRange(CorrelationPropertyRef);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCorrelationKey(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Expression : BaseElement
@@ -2017,6 +2603,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitExpression(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2042,6 +2634,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitFormalExpression(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Message : RootElement
@@ -2058,6 +2656,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             if (ItemRef is not null) result.Add(ItemRef);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitMessage(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2078,6 +2682,12 @@ namespace BPMNModel.Model
             if (StructureRef is not null) result.Add(StructureRef);
             if (Import is not null) result.Add(Import);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitItemDefinition(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2106,6 +2716,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitFlowElement(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class SequenceFlow : FlowElement
@@ -2127,6 +2743,12 @@ namespace BPMNModel.Model
             if (TargetRef is not null) result.Add(TargetRef);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitSequenceFlow(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public interface FlowElementsContainer : ITraversableNode // abstract 
@@ -2135,6 +2757,7 @@ namespace BPMNModel.Model
         List<LaneSet> LaneSets { get; }
 
         /* No method to get child elements - it is interface or data class. */
+        /* No Accept method - it is interface or data class. */
     }
 
     public abstract class CallableElement : RootElement
@@ -2156,6 +2779,12 @@ namespace BPMNModel.Model
             result.AddRange(IoBinding);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCallableElement(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public abstract class FlowNode : FlowElement
@@ -2176,6 +2805,12 @@ namespace BPMNModel.Model
             result.AddRange(Lanes);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitFlowNode(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class CorrelationPropertyRetrievalExpression : BaseElement
@@ -2193,6 +2828,12 @@ namespace BPMNModel.Model
             if (MessagePath is not null) result.Add(MessagePath);
             if (MessageRef is not null) result.Add(MessageRef);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCorrelationPropertyRetrievalExpression(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2212,6 +2853,12 @@ namespace BPMNModel.Model
             if (CorrelationPropertyRef is not null) result.Add(CorrelationPropertyRef);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCorrelationPropertyBinding(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Resource : RootElement
@@ -2228,6 +2875,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             result.AddRange(ResourceParameters);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitResource(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2247,6 +2900,12 @@ namespace BPMNModel.Model
             if (Type is not null) result.Add(Type);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitResourceParameter(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class CorrelationSubscription : BaseElement
@@ -2264,6 +2923,12 @@ namespace BPMNModel.Model
             if (CorrelationKeyRef is not null) result.Add(CorrelationKeyRef);
             result.AddRange(CorrelationPropertyBinding);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCorrelationSubscription(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2286,6 +2951,12 @@ namespace BPMNModel.Model
             if (MessageRef is not null) result.Add(MessageRef);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitMessageFlow(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class MessageFlowAssociation : BaseElement
@@ -2304,6 +2975,12 @@ namespace BPMNModel.Model
             if (OuterMessageFlowRef is not null) result.Add(OuterMessageFlowRef);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitMessageFlowAssociation(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public interface InteractionNode : ITraversableNode // abstract 
@@ -2312,6 +2989,7 @@ namespace BPMNModel.Model
         List<ConversationLink> OutgoingConversationLinks { get; }
 
         /* No method to get child elements - it is interface or data class. */
+        /* No Accept method - it is interface or data class. */
     }
 
     public class Participant : BaseElement, InteractionNode
@@ -2344,6 +3022,12 @@ namespace BPMNModel.Model
             result.AddRange(OutgoingConversationLinks);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitParticipant(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ParticipantAssociation : BaseElement
@@ -2362,6 +3046,12 @@ namespace BPMNModel.Model
             if (OuterParticipantRef is not null) result.Add(OuterParticipantRef);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitParticipantAssociation(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ParticipantMultiplicity : ITraversableNode
@@ -2377,6 +3067,12 @@ namespace BPMNModel.Model
         {
             var result = new List<ITraversableNode>();
             return result;
+        }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitParticipantMultiplicity(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2420,6 +3116,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCollaboration(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public abstract class ChoreographyActivity : FlowNode
@@ -2441,6 +3143,12 @@ namespace BPMNModel.Model
             result.AddRange(CorrelationKeys);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitChoreographyActivity(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class CallChoreography : ChoreographyActivity
@@ -2458,6 +3166,12 @@ namespace BPMNModel.Model
             if (CalledChoreographyRef is not null) result.Add(CalledChoreographyRef);
             result.AddRange(ParticipantAssociations);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCallChoreography(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2484,6 +3198,12 @@ namespace BPMNModel.Model
             result.AddRange(LaneSets);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitSubChoreography(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ChoreographyTask : ChoreographyActivity
@@ -2499,6 +3219,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             result.AddRange(MessageFlowRef);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitChoreographyTask(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2523,6 +3249,12 @@ namespace BPMNModel.Model
             result.AddRange(LaneSets);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitChoreography(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class GlobalChoreographyTask : Choreography
@@ -2538,6 +3270,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             if (InitiatingParticipantRef is not null) result.Add(InitiatingParticipantRef);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitGlobalChoreographyTask(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2555,6 +3293,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitTextAnnotation(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Group : Artifact
@@ -2570,6 +3314,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             if (CategoryValueRef is not null) result.Add(CategoryValueRef);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitGroup(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2590,6 +3340,12 @@ namespace BPMNModel.Model
             if (TargetRef is not null) result.Add(TargetRef);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitAssociation(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Category : RootElement
@@ -2607,6 +3363,12 @@ namespace BPMNModel.Model
             result.AddRange(CategoryValue);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCategory(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public abstract class Artifact : BaseElement
@@ -2620,6 +3382,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitArtifact(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2637,6 +3405,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             result.AddRange(CategorizedFlowElements);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCategoryValue(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2680,6 +3454,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitActivity(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ServiceTask : Task
@@ -2708,6 +3488,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitServiceTask(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class SubProcess : Activity, FlowElementsContainer
@@ -2734,6 +3520,12 @@ namespace BPMNModel.Model
             result.AddRange(LaneSets);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitSubProcess(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public abstract class LoopCharacteristics : BaseElement
@@ -2747,6 +3539,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitLoopCharacteristics(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2792,6 +3590,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitMultiInstanceLoopCharacteristics(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class StandardLoopCharacteristics : LoopCharacteristics
@@ -2810,6 +3614,12 @@ namespace BPMNModel.Model
             if (LoopCondition is not null) result.Add(LoopCondition);
             if (LoopMaximum is not null) result.Add(LoopMaximum);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitStandardLoopCharacteristics(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2841,6 +3651,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitCallActivity(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Task : Activity, InteractionNode
@@ -2863,6 +3679,12 @@ namespace BPMNModel.Model
             result.AddRange(IncomingConversationLinks);
             result.AddRange(OutgoingConversationLinks);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitTask(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2894,6 +3716,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitSendTask(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ReceiveTask : Task
@@ -2913,6 +3741,12 @@ namespace BPMNModel.Model
             if (OperationRef is not null) result.Add(OperationRef);
             if (MessageRef is not null) result.Add(MessageRef);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitReceiveTask(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2935,6 +3769,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             // Camunda attributes
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitScriptTask(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -2967,6 +3807,12 @@ namespace BPMNModel.Model
             // Camunda attributes
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitBusinessRuleTask(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class AdHocSubProcess : SubProcess
@@ -2985,6 +3831,12 @@ namespace BPMNModel.Model
             if (CompletionCondition is not null) result.Add(CompletionCondition);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitAdHocSubProcess(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class Transaction : SubProcess
@@ -3000,6 +3852,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitTransaction(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -3017,6 +3875,12 @@ namespace BPMNModel.Model
             var result = base.GetChildElements();
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitGlobalScriptTask(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class GlobalBusinessRuleTask : GlobalTask
@@ -3031,6 +3895,12 @@ namespace BPMNModel.Model
         {
             var result = base.GetChildElements();
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitGlobalBusinessRuleTask(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -3049,6 +3919,12 @@ namespace BPMNModel.Model
             if (Condition is not null) result.Add(Condition);
             if (Event is not null) result.Add(Event);
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitComplexBehaviorDefinition(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -3071,6 +3947,12 @@ namespace BPMNModel.Model
             if (ResourceAssignmentExpression is not null) result.Add(ResourceAssignmentExpression);
             return result;
         }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitResourceRole(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ResourceParameterBinding : ITraversableNode
@@ -3089,6 +3971,12 @@ namespace BPMNModel.Model
             if (ParameterRef is not null) result.Add(ParameterRef);
             return result;
         }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitResourceParameterBinding(this);
+            else return visitor.VisitOnceChildren(this);
+        }
     }
 
     public class ResourceAssignmentExpression : ITraversableNode
@@ -3104,6 +3992,12 @@ namespace BPMNModel.Model
             var result = new List<ITraversableNode>();
             if (Expression is not null) result.Add(Expression);
             return result;
+        }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitResourceAssignmentExpression(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -3121,6 +4015,12 @@ namespace BPMNModel.Model
         {
             var result = new List<ITraversableNode>();
             return result;
+        }
+        public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitImport(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
 
@@ -3156,6 +4056,12 @@ namespace BPMNModel.Model
             result.AddRange(Diagrams);
             // Camunda attributes
             return result;
+        }
+        public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class
+        {
+            IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDefinitions(this);
+            else return visitor.VisitOnceChildren(this);
         }
     }
     #endregion
