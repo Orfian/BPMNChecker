@@ -259,6 +259,41 @@ def print_model(path, model):
     
     print_mapping(mappings, [c.name for c in (model.get_all_data_types() + model.get_all_classes())])
 
+    out = Output(open(path + r"\IModelVisitor.cs", "w"))
+    print_file_header(out)
+    out.write("namespace BPMNModel.Model").nl()
+    out.write("{").nl()
+    out.inc()
+    out.write("public interface IModelVisitor<TResult> : IBaseVisitor<TResult> where TResult : class").nl()
+    out.write("{").nl()
+    out.inc()
+    for c in model.get_all_classes():
+        if not (c.name in interfaces):
+            out.write("TResult? Visit"+c.name+"([NotNull] "+c.name+" context);").nl()
+
+    out.dec()
+    out.write("}").nl()
+    out.dec()
+    out.write("}").nl()
+
+    out = Output(open(path + r"\BaseModelVisitor.cs", "w"))
+    print_file_header(out)
+    out.write("namespace BPMNModel.Model").nl()
+    out.write("{").nl()
+    out.inc()
+    out.write("public abstract class BaseModelVisitor<TResult> : AbstractModelVisitor<TResult>, IModelVisitor<TResult> where TResult : class").nl()
+    out.write("{").nl()
+    out.inc()
+    for c in model.get_all_classes():
+        if not (c.name in interfaces):
+            out.write("public virtual TResult? Visit"+c.name+"([NotNull] "+c.name+" context) { return VisitOnceChildren(context); }").nl()
+
+    out.dec()
+    out.write("}").nl()
+    out.dec()
+    out.write("}").nl()
+
+
     out = Output(open(path + r"\File.cs", "w"))
     print_file_header(out)
     out.write("namespace BPMNModel.Model").nl()
@@ -273,6 +308,7 @@ def print_model(path, model):
     out.dec()
     out.write("}").nl()
    
+
     out = Output(open(path + r"\Factory.cs", "w"))
     print_file_header(out)
     out.write("namespace BPMNModel.Model").nl()
@@ -619,7 +655,7 @@ def print_class_or_data_type(out, c, mappings):
         out.write("public "+c.name+"()").nl()
         out.write("{").nl()
         out.write("}").nl().nl()
-
+    # Get child nodes method
     if isinstance(c, M_Class) and not isInterface :
         if c.name in ["BaseElement", "Diagram", "DiagramElement"] or len(c.superclasses) == 0:
             out.write("virtual public  List<ITraversableNode> GetChildElements()").nl()
@@ -653,6 +689,25 @@ def print_class_or_data_type(out, c, mappings):
 
     else:
         out.write("/* No method to get child elements - it is interface or data class. */").nl()
+
+    # Accept method
+    if isinstance(c, M_Class) and not isInterface :
+        if c.name in ["BaseElement", "Diagram", "DiagramElement"] or len(c.superclasses) == 0:
+            out.write("public virtual TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class").nl()
+            out.write("{").nl()
+        else:
+            out.write("public override TResult? Accept<TResult>(IBaseVisitor<TResult> visitor) where TResult : class").nl()
+            out.write("{").nl()
+        
+        out.inc()
+        out.write("IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;").nl()
+        out.write("if (typedVisitor != null) return typedVisitor.Visit"+c.name+"(this);").nl()
+        out.write("else return visitor.VisitOnceChildren(this);").nl()
+        out.dec()
+        out.write("}").nl()
+
+    else:
+        out.write("/* No Accept method - it is interface or data class. */").nl()
 
     out.dec()
 
