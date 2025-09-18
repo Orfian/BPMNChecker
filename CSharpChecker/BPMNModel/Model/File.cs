@@ -101,7 +101,7 @@ namespace BPMNModel.Model
         }
 
         /* No method to get child elements - it is interface or data class. */
-        /* No Accept method - it is interface or data class. */
+        /* No Accept, Enter or Exit methods - it is interface or data class. */
     }
 
     public class Point
@@ -114,7 +114,7 @@ namespace BPMNModel.Model
         }
 
         /* No method to get child elements - it is interface or data class. */
-        /* No Accept method - it is interface or data class. */
+        /* No Accept, Enter or Exit methods - it is interface or data class. */
     }
 
     public class Bounds
@@ -129,7 +129,7 @@ namespace BPMNModel.Model
         }
 
         /* No method to get child elements - it is interface or data class. */
-        /* No Accept method - it is interface or data class. */
+        /* No Accept, Enter or Exit methods - it is interface or data class. */
     }
 
     public abstract class DiagramElement : IElementWithId, ITraversableNode
@@ -161,6 +161,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitDiagramElement(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDiagramElement(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDiagramElement(this);
+        }
     }
 
     public abstract class Node : DiagramElement
@@ -180,6 +190,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitNode(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterNode(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitNode(this);
         }
     }
 
@@ -205,6 +225,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitEdge(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterEdge(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitEdge(this);
         }
     }
 
@@ -234,6 +264,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitDiagram(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDiagram(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDiagram(this);
+        }
     }
 
     public abstract class Shape : Node
@@ -254,6 +294,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitShape(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterShape(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitShape(this);
         }
     }
 
@@ -277,6 +327,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitPlane(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterPlane(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitPlane(this);
+        }
     }
 
     public abstract class LabeledEdge : Edge
@@ -298,6 +358,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitLabeledEdge(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterLabeledEdge(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitLabeledEdge(this);
         }
     }
 
@@ -321,6 +391,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitLabeledShape(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterLabeledShape(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitLabeledShape(this);
+        }
     }
 
     public abstract class Label : Node
@@ -342,6 +422,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitLabel(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterLabel(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitLabel(this);
+        }
     }
 
     public abstract class Style : ITraversableNode
@@ -361,6 +451,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitStyle(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterStyle(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitStyle(this);
         }
     }
 
@@ -386,6 +486,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitBPMNDiagram(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterBPMNDiagram(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitBPMNDiagram(this);
+        }
     }
 
     public class BPMNPlane : Plane
@@ -407,6 +517,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitBPMNPlane(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterBPMNPlane(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitBPMNPlane(this);
         }
     }
 
@@ -439,6 +559,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitBPMNShape(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterBPMNShape(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitBPMNShape(this);
+        }
     }
 
     public class BPMNEdge : LabeledEdge
@@ -468,6 +598,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitBPMNEdge(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterBPMNEdge(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitBPMNEdge(this);
+        }
     }
 
     public class BPMNLabel : Label
@@ -490,6 +630,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitBPMNLabel(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterBPMNLabel(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitBPMNLabel(this);
+        }
     }
 
     public class BPMNLabelStyle : Style
@@ -510,6 +660,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitBPMNLabelStyle(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterBPMNLabelStyle(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitBPMNLabelStyle(this);
         }
     }
 
@@ -535,6 +695,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitInterface(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterInterface(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitInterface(this);
         }
     }
 
@@ -565,6 +735,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitOperation(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterOperation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitOperation(this);
+        }
     }
 
     public class EndPoint : RootElement
@@ -585,6 +765,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitEndPoint(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterEndPoint(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitEndPoint(this);
+        }
     }
 
     public class Auditing : BaseElement
@@ -604,6 +794,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitAuditing(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterAuditing(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitAuditing(this);
         }
     }
 
@@ -627,6 +827,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitGlobalTask(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterGlobalTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitGlobalTask(this);
+        }
     }
 
     public class Monitoring : BaseElement
@@ -647,6 +857,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitMonitoring(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterMonitoring(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitMonitoring(this);
+        }
     }
 
     public class Performer : ResourceRole
@@ -666,6 +886,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitPerformer(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterPerformer(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitPerformer(this);
         }
     }
 
@@ -728,6 +958,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitProcess(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterProcess(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitProcess(this);
+        }
     }
 
     public class LaneSet : BaseElement
@@ -750,6 +990,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitLaneSet(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterLaneSet(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitLaneSet(this);
         }
     }
 
@@ -780,6 +1030,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitLane(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterLane(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitLane(this);
+        }
     }
 
     public class GlobalManualTask : GlobalTask
@@ -800,6 +1060,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitGlobalManualTask(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterGlobalManualTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitGlobalManualTask(this);
+        }
     }
 
     public class ManualTask : Task
@@ -819,6 +1089,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitManualTask(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterManualTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitManualTask(this);
         }
     }
 
@@ -858,6 +1138,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitUserTask(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterUserTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitUserTask(this);
+        }
     }
 
     public class Rendering : BaseElement
@@ -877,6 +1167,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitRendering(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterRendering(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitRendering(this);
         }
     }
 
@@ -898,6 +1198,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitHumanPerformer(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterHumanPerformer(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitHumanPerformer(this);
+        }
     }
 
     public class PotentialOwner : HumanPerformer
@@ -917,6 +1227,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitPotentialOwner(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterPotentialOwner(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitPotentialOwner(this);
         }
     }
 
@@ -940,6 +1260,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitGlobalUserTask(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterGlobalUserTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitGlobalUserTask(this);
         }
     }
 
@@ -971,6 +1301,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitGateway(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterGateway(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitGateway(this);
+        }
     }
 
     public class EventBasedGateway : Gateway
@@ -992,6 +1332,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitEventBasedGateway(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterEventBasedGateway(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitEventBasedGateway(this);
         }
     }
 
@@ -1017,6 +1367,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitComplexGateway(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterComplexGateway(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitComplexGateway(this);
+        }
     }
 
     public class ExclusiveGateway : Gateway
@@ -1038,6 +1398,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitExclusiveGateway(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterExclusiveGateway(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitExclusiveGateway(this);
         }
     }
 
@@ -1061,6 +1431,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitInclusiveGateway(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterInclusiveGateway(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitInclusiveGateway(this);
+        }
     }
 
     public class ParallelGateway : Gateway
@@ -1081,6 +1461,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitParallelGateway(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterParallelGateway(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitParallelGateway(this);
+        }
     }
 
     public abstract class RootElement : BaseElement
@@ -1100,6 +1490,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitRootElement(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterRootElement(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitRootElement(this);
         }
     }
 
@@ -1126,6 +1526,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitRelationship(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterRelationship(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitRelationship(this);
         }
     }
 
@@ -1154,6 +1564,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitBaseElement(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterBaseElement(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitBaseElement(this);
+        }
     }
 
     public class Extension : ITraversableNode
@@ -1177,6 +1597,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitExtension(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterExtension(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitExtension(this);
+        }
     }
 
     public class ExtensionDefinition : ITraversableNode
@@ -1199,6 +1629,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitExtensionDefinition(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterExtensionDefinition(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitExtensionDefinition(this);
         }
     }
 
@@ -1224,6 +1664,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitExtensionAttributeDefinition(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterExtensionAttributeDefinition(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitExtensionAttributeDefinition(this);
         }
     }
 
@@ -1251,6 +1701,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitExtensionAttributeValue(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterExtensionAttributeValue(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitExtensionAttributeValue(this);
+        }
     }
 
     public class Documentation : BaseElement
@@ -1272,6 +1732,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitDocumentation(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDocumentation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDocumentation(this);
         }
     }
 
@@ -1313,6 +1783,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitEvent(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterEvent(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitEvent(this);
+        }
     }
 
     public class IntermediateCatchEvent : CatchEvent
@@ -1332,6 +1812,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitIntermediateCatchEvent(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterIntermediateCatchEvent(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitIntermediateCatchEvent(this);
         }
     }
 
@@ -1353,6 +1843,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitIntermediateThrowEvent(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterIntermediateThrowEvent(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitIntermediateThrowEvent(this);
+        }
     }
 
     public class EndEvent : ThrowEvent
@@ -1372,6 +1872,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitEndEvent(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterEndEvent(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitEndEvent(this);
         }
     }
 
@@ -1404,6 +1914,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitStartEvent(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterStartEvent(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitStartEvent(this);
+        }
     }
 
     public abstract class ThrowEvent : Event
@@ -1433,6 +1953,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitThrowEvent(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterThrowEvent(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitThrowEvent(this);
         }
     }
 
@@ -1465,6 +1995,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitCatchEvent(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCatchEvent(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCatchEvent(this);
+        }
     }
 
     public class BoundaryEvent : CatchEvent
@@ -1488,6 +2028,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitBoundaryEvent(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterBoundaryEvent(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitBoundaryEvent(this);
+        }
     }
 
     public abstract class EventDefinition : RootElement
@@ -1508,6 +2058,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitEventDefinition(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterEventDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitEventDefinition(this);
+        }
     }
 
     public class CancelEventDefinition : EventDefinition
@@ -1527,6 +2087,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitCancelEventDefinition(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCancelEventDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCancelEventDefinition(this);
         }
     }
 
@@ -1556,6 +2126,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitErrorEventDefinition(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterErrorEventDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitErrorEventDefinition(this);
+        }
     }
 
     public class TerminateEventDefinition : EventDefinition
@@ -1575,6 +2155,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitTerminateEventDefinition(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterTerminateEventDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitTerminateEventDefinition(this);
         }
     }
 
@@ -1603,6 +2193,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitEscalationEventDefinition(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterEscalationEventDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitEscalationEventDefinition(this);
+        }
     }
 
     public class Escalation : ITraversableNode
@@ -1627,6 +2227,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitEscalation(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterEscalation(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitEscalation(this);
+        }
     }
 
     public class CompensateEventDefinition : EventDefinition
@@ -1649,6 +2259,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitCompensateEventDefinition(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCompensateEventDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCompensateEventDefinition(this);
         }
     }
 
@@ -1676,6 +2296,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitTimerEventDefinition(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterTimerEventDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitTimerEventDefinition(this);
+        }
     }
 
     public class LinkEventDefinition : EventDefinition
@@ -1700,6 +2330,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitLinkEventDefinition(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterLinkEventDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitLinkEventDefinition(this);
         }
     }
 
@@ -1736,6 +2376,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitMessageEventDefinition(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterMessageEventDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitMessageEventDefinition(this);
+        }
     }
 
     public class ConditionalEventDefinition : EventDefinition
@@ -1764,6 +2414,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitConditionalEventDefinition(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterConditionalEventDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitConditionalEventDefinition(this);
+        }
     }
 
     public class SignalEventDefinition : EventDefinition
@@ -1791,6 +2451,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitSignalEventDefinition(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterSignalEventDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitSignalEventDefinition(this);
+        }
     }
 
     public class Signal : RootElement
@@ -1814,6 +2484,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitSignal(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterSignal(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitSignal(this);
+        }
     }
 
     public class ImplicitThrowEvent : ThrowEvent
@@ -1833,6 +2513,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitImplicitThrowEvent(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterImplicitThrowEvent(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitImplicitThrowEvent(this);
         }
     }
 
@@ -1855,6 +2545,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitDataState(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDataState(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDataState(this);
+        }
     }
 
     public interface ItemAwareElement : ITraversableNode
@@ -1863,7 +2563,7 @@ namespace BPMNModel.Model
         DataState? DataState { get; set; }
 
         /* No method to get child elements - it is interface or data class. */
-        /* No Accept method - it is interface or data class. */
+        /* No Accept, Enter or Exit methods - it is interface or data class. */
     }
 
     public class DataAssociation : BaseElement
@@ -1891,6 +2591,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitDataAssociation(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDataAssociation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDataAssociation(this);
         }
     }
 
@@ -1929,6 +2639,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitDataInput(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDataInput(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDataInput(this);
+        }
     }
 
     public class DataOutput : BaseElement, ItemAwareElement
@@ -1966,6 +2686,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitDataOutput(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDataOutput(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDataOutput(this);
+        }
     }
 
     public class InputSet : BaseElement
@@ -1995,6 +2725,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitInputSet(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterInputSet(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitInputSet(this);
+        }
     }
 
     public class OutputSet : BaseElement
@@ -2023,6 +2763,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitOutputSet(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterOutputSet(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitOutputSet(this);
         }
     }
 
@@ -2054,6 +2804,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitProperty(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterProperty(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitProperty(this);
+        }
     }
 
     public class DataInputAssociation : DataAssociation
@@ -2074,6 +2834,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitDataInputAssociation(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDataInputAssociation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDataInputAssociation(this);
+        }
     }
 
     public class DataOutputAssociation : DataAssociation
@@ -2093,6 +2863,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitDataOutputAssociation(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDataOutputAssociation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDataOutputAssociation(this);
         }
     }
 
@@ -2121,6 +2901,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitInputOutputSpecification(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterInputOutputSpecification(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitInputOutputSpecification(this);
         }
     }
 
@@ -2152,6 +2942,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitDataObject(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDataObject(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDataObject(this);
+        }
     }
 
     public class InputOutputBinding : ITraversableNode
@@ -2178,6 +2978,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitInputOutputBinding(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterInputOutputBinding(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitInputOutputBinding(this);
+        }
     }
 
     public class Assignment : BaseElement
@@ -2201,6 +3011,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitAssignment(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterAssignment(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitAssignment(this);
         }
     }
 
@@ -2234,6 +3054,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitDataStore(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDataStore(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDataStore(this);
+        }
     }
 
     public class DataStoreReference : FlowElement, ItemAwareElement
@@ -2264,6 +3094,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitDataStoreReference(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDataStoreReference(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDataStoreReference(this);
         }
     }
 
@@ -2296,6 +3136,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitDataObjectReference(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDataObjectReference(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDataObjectReference(this);
+        }
     }
 
     public class ConversationLink : BaseElement
@@ -2321,6 +3171,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitConversationLink(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterConversationLink(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitConversationLink(this);
+        }
     }
 
     public class ConversationAssociation : BaseElement
@@ -2344,6 +3204,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitConversationAssociation(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterConversationAssociation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitConversationAssociation(this);
         }
     }
 
@@ -2369,6 +3239,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitCallConversation(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCallConversation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCallConversation(this);
+        }
     }
 
     public class Conversation : ConversationNode
@@ -2388,6 +3268,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitConversation(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterConversation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitConversation(this);
         }
     }
 
@@ -2410,6 +3300,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitSubConversation(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterSubConversation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitSubConversation(this);
         }
     }
 
@@ -2447,6 +3347,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitConversationNode(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterConversationNode(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitConversationNode(this);
+        }
     }
 
     public class GlobalConversation : Collaboration
@@ -2466,6 +3376,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitGlobalConversation(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterGlobalConversation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitGlobalConversation(this);
         }
     }
 
@@ -2490,6 +3410,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitPartnerEntity(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterPartnerEntity(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitPartnerEntity(this);
+        }
     }
 
     public class PartnerRole : RootElement
@@ -2512,6 +3442,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitPartnerRole(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterPartnerRole(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitPartnerRole(this);
         }
     }
 
@@ -2537,6 +3477,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitCorrelationProperty(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCorrelationProperty(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCorrelationProperty(this);
         }
     }
 
@@ -2567,6 +3517,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitError(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterError(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitError(this);
+        }
     }
 
     public class CorrelationKey : BaseElement
@@ -2590,6 +3550,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitCorrelationKey(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCorrelationKey(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCorrelationKey(this);
+        }
     }
 
     public class Expression : BaseElement
@@ -2609,6 +3579,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitExpression(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterExpression(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitExpression(this);
         }
     }
 
@@ -2640,6 +3620,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitFormalExpression(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterFormalExpression(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitFormalExpression(this);
+        }
     }
 
     public class Message : RootElement
@@ -2662,6 +3652,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitMessage(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterMessage(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitMessage(this);
         }
     }
 
@@ -2688,6 +3688,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitItemDefinition(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterItemDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitItemDefinition(this);
         }
     }
 
@@ -2722,6 +3732,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitFlowElement(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterFlowElement(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitFlowElement(this);
+        }
     }
 
     public class SequenceFlow : FlowElement
@@ -2749,6 +3769,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitSequenceFlow(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterSequenceFlow(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitSequenceFlow(this);
+        }
     }
 
     public interface FlowElementsContainer : ITraversableNode // abstract 
@@ -2757,7 +3787,7 @@ namespace BPMNModel.Model
         List<LaneSet> LaneSets { get; }
 
         /* No method to get child elements - it is interface or data class. */
-        /* No Accept method - it is interface or data class. */
+        /* No Accept, Enter or Exit methods - it is interface or data class. */
     }
 
     public abstract class CallableElement : RootElement
@@ -2785,6 +3815,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitCallableElement(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCallableElement(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCallableElement(this);
+        }
     }
 
     public abstract class FlowNode : FlowElement
@@ -2811,6 +3851,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitFlowNode(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterFlowNode(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitFlowNode(this);
+        }
     }
 
     public class CorrelationPropertyRetrievalExpression : BaseElement
@@ -2834,6 +3884,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitCorrelationPropertyRetrievalExpression(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCorrelationPropertyRetrievalExpression(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCorrelationPropertyRetrievalExpression(this);
         }
     }
 
@@ -2859,6 +3919,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitCorrelationPropertyBinding(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCorrelationPropertyBinding(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCorrelationPropertyBinding(this);
+        }
     }
 
     public class Resource : RootElement
@@ -2881,6 +3951,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitResource(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterResource(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitResource(this);
         }
     }
 
@@ -2906,6 +3986,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitResourceParameter(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterResourceParameter(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitResourceParameter(this);
+        }
     }
 
     public class CorrelationSubscription : BaseElement
@@ -2929,6 +4019,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitCorrelationSubscription(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCorrelationSubscription(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCorrelationSubscription(this);
         }
     }
 
@@ -2957,6 +4057,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitMessageFlow(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterMessageFlow(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitMessageFlow(this);
+        }
     }
 
     public class MessageFlowAssociation : BaseElement
@@ -2981,6 +4091,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitMessageFlowAssociation(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterMessageFlowAssociation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitMessageFlowAssociation(this);
+        }
     }
 
     public interface InteractionNode : ITraversableNode // abstract 
@@ -2989,7 +4109,7 @@ namespace BPMNModel.Model
         List<ConversationLink> OutgoingConversationLinks { get; }
 
         /* No method to get child elements - it is interface or data class. */
-        /* No Accept method - it is interface or data class. */
+        /* No Accept, Enter or Exit methods - it is interface or data class. */
     }
 
     public class Participant : BaseElement, InteractionNode
@@ -3028,6 +4148,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitParticipant(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterParticipant(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitParticipant(this);
+        }
     }
 
     public class ParticipantAssociation : BaseElement
@@ -3052,6 +4182,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitParticipantAssociation(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterParticipantAssociation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitParticipantAssociation(this);
+        }
     }
 
     public class ParticipantMultiplicity : ITraversableNode
@@ -3073,6 +4213,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitParticipantMultiplicity(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterParticipantMultiplicity(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitParticipantMultiplicity(this);
         }
     }
 
@@ -3122,6 +4272,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitCollaboration(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCollaboration(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCollaboration(this);
+        }
     }
 
     public abstract class ChoreographyActivity : FlowNode
@@ -3149,6 +4309,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitChoreographyActivity(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterChoreographyActivity(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitChoreographyActivity(this);
+        }
     }
 
     public class CallChoreography : ChoreographyActivity
@@ -3172,6 +4342,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitCallChoreography(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCallChoreography(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCallChoreography(this);
         }
     }
 
@@ -3204,6 +4384,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitSubChoreography(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterSubChoreography(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitSubChoreography(this);
+        }
     }
 
     public class ChoreographyTask : ChoreographyActivity
@@ -3225,6 +4415,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitChoreographyTask(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterChoreographyTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitChoreographyTask(this);
         }
     }
 
@@ -3255,6 +4455,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitChoreography(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterChoreography(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitChoreography(this);
+        }
     }
 
     public class GlobalChoreographyTask : Choreography
@@ -3276,6 +4486,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitGlobalChoreographyTask(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterGlobalChoreographyTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitGlobalChoreographyTask(this);
         }
     }
 
@@ -3299,6 +4519,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitTextAnnotation(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterTextAnnotation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitTextAnnotation(this);
+        }
     }
 
     public class Group : Artifact
@@ -3320,6 +4550,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitGroup(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterGroup(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitGroup(this);
         }
     }
 
@@ -3346,6 +4586,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitAssociation(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterAssociation(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitAssociation(this);
+        }
     }
 
     public class Category : RootElement
@@ -3369,6 +4619,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitCategory(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCategory(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCategory(this);
+        }
     }
 
     public abstract class Artifact : BaseElement
@@ -3388,6 +4648,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitArtifact(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterArtifact(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitArtifact(this);
         }
     }
 
@@ -3411,6 +4681,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitCategoryValue(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCategoryValue(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCategoryValue(this);
         }
     }
 
@@ -3460,6 +4740,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitActivity(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterActivity(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitActivity(this);
+        }
     }
 
     public class ServiceTask : Task
@@ -3494,6 +4784,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitServiceTask(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterServiceTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitServiceTask(this);
+        }
     }
 
     public class SubProcess : Activity, FlowElementsContainer
@@ -3526,6 +4826,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitSubProcess(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterSubProcess(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitSubProcess(this);
+        }
     }
 
     public abstract class LoopCharacteristics : BaseElement
@@ -3545,6 +4855,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitLoopCharacteristics(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterLoopCharacteristics(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitLoopCharacteristics(this);
         }
     }
 
@@ -3596,6 +4916,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitMultiInstanceLoopCharacteristics(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterMultiInstanceLoopCharacteristics(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitMultiInstanceLoopCharacteristics(this);
+        }
     }
 
     public class StandardLoopCharacteristics : LoopCharacteristics
@@ -3620,6 +4950,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitStandardLoopCharacteristics(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterStandardLoopCharacteristics(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitStandardLoopCharacteristics(this);
         }
     }
 
@@ -3657,6 +4997,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitCallActivity(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterCallActivity(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitCallActivity(this);
+        }
     }
 
     public class Task : Activity, InteractionNode
@@ -3685,6 +5035,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitTask(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitTask(this);
         }
     }
 
@@ -3722,6 +5082,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitSendTask(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterSendTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitSendTask(this);
+        }
     }
 
     public class ReceiveTask : Task
@@ -3747,6 +5117,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitReceiveTask(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterReceiveTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitReceiveTask(this);
         }
     }
 
@@ -3775,6 +5155,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitScriptTask(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterScriptTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitScriptTask(this);
         }
     }
 
@@ -3813,6 +5203,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitBusinessRuleTask(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterBusinessRuleTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitBusinessRuleTask(this);
+        }
     }
 
     public class AdHocSubProcess : SubProcess
@@ -3837,6 +5237,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitAdHocSubProcess(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterAdHocSubProcess(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitAdHocSubProcess(this);
+        }
     }
 
     public class Transaction : SubProcess
@@ -3858,6 +5268,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitTransaction(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterTransaction(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitTransaction(this);
         }
     }
 
@@ -3881,6 +5301,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitGlobalScriptTask(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterGlobalScriptTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitGlobalScriptTask(this);
+        }
     }
 
     public class GlobalBusinessRuleTask : GlobalTask
@@ -3901,6 +5331,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitGlobalBusinessRuleTask(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterGlobalBusinessRuleTask(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitGlobalBusinessRuleTask(this);
         }
     }
 
@@ -3925,6 +5365,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitComplexBehaviorDefinition(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterComplexBehaviorDefinition(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitComplexBehaviorDefinition(this);
         }
     }
 
@@ -3953,6 +5403,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitResourceRole(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterResourceRole(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitResourceRole(this);
+        }
     }
 
     public class ResourceParameterBinding : ITraversableNode
@@ -3977,6 +5437,16 @@ namespace BPMNModel.Model
             if (typedVisitor != null) return typedVisitor.VisitResourceParameterBinding(this);
             else return visitor.VisitOnceChildren(this);
         }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterResourceParameterBinding(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitResourceParameterBinding(this);
+        }
     }
 
     public class ResourceAssignmentExpression : ITraversableNode
@@ -3998,6 +5468,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitResourceAssignmentExpression(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterResourceAssignmentExpression(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitResourceAssignmentExpression(this);
         }
     }
 
@@ -4021,6 +5501,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitImport(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public virtual void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterImport(this);
+        }
+        public virtual void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitImport(this);
         }
     }
 
@@ -4062,6 +5552,16 @@ namespace BPMNModel.Model
             IModelVisitor<TResult>? typedVisitor = visitor as IModelVisitor<TResult>;
             if (typedVisitor != null) return typedVisitor.VisitDefinitions(this);
             else return visitor.VisitOnceChildren(this);
+        }
+        public override void Enter(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.EnterDefinitions(this);
+        }
+        public override void Exit(IBaseListener listener)
+        {
+            IModelListener? typedListener = listener as IModelListener;
+            if (typedListener != null) typedListener.ExitDefinitions(this);
         }
     }
     #endregion

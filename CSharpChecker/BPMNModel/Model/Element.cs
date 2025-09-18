@@ -15,6 +15,16 @@ namespace BPMNModel.Model
             throw new NotImplementedException();
         }
 
+        public void Enter([NotNull] IBaseListener listener)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Exit([NotNull] IBaseListener listener)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<ITraversableNode> GetChildElements()
         {
             return new List<ITraversableNode>();

@@ -1,4 +1,5 @@
 ﻿using BPMNModel;
+using BPMNModel.Model;
 using System.Reflection.Metadata;
 using System.Xml;
 
@@ -16,6 +17,8 @@ namespace BPMNChecker
             var step1 = new StepOne();
 
             step1.VisitOnce(modelRoot.Definition);
+
+            new LinearWalker().Walk(modelRoot.Definition, new StepTwo());
         }
     }
 }

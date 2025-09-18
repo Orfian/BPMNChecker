@@ -11,7 +11,7 @@ namespace BPMNChecker
     {
         public override string? VisitEndEvent([NotNull] EndEvent context)
         {
-            Console.WriteLine($"EndEvent found with id: {context.Id}");
+            Console.WriteLine($"EndEvent found with id: {context.Id} by visitor.");
             return base.VisitEndEvent(context);
         }
     }

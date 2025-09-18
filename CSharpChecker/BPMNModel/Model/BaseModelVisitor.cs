@@ -3,7 +3,7 @@
 /// </summary>
 namespace BPMNModel.Model
 {
-    public class BaseModelVisitor<TResult> : AbstractModelVisitor<TResult>, IModelVisitor<TResult> where TResult : class
+    public abstract class BaseModelVisitor<TResult> : AbstractModelVisitor<TResult>, IModelVisitor<TResult> where TResult : class
     {
         public virtual TResult? VisitDiagramElement([NotNull] DiagramElement context) { return VisitOnceChildren(context); }
         public virtual TResult? VisitNode([NotNull] Node context) { return VisitOnceChildren(context); }
