@@ -276,6 +276,24 @@ def print_model(path, model):
     out.dec()
     out.write("}").nl()
 
+    out = Output(open(path + r"\IModelListener.cs", "w"))
+    print_file_header(out)
+    out.write("namespace BPMNModel.Model").nl()
+    out.write("{").nl()
+    out.inc()
+    out.write("public interface IModelListener : IBaseListener").nl()
+    out.write("{").nl()
+    out.inc()
+    for c in model.get_all_classes():
+        if not (c.name in interfaces):
+            out.write("void Enter"+c.name+"([NotNull] "+c.name+" context);").nl()
+            out.write("void Exit"+c.name+"([NotNull] "+c.name+" context);").nl()
+
+    out.dec()
+    out.write("}").nl()
+    out.dec()
+    out.write("}").nl()
+
     out = Output(open(path + r"\BaseModelVisitor.cs", "w"))
     print_file_header(out)
     out.write("namespace BPMNModel.Model").nl()
@@ -287,11 +305,28 @@ def print_model(path, model):
     for c in model.get_all_classes():
         if not (c.name in interfaces):
             out.write("public virtual TResult? Visit"+c.name+"([NotNull] "+c.name+" context) { return VisitOnceChildren(context); }").nl()
+    out.dec()
+    out.write("}").nl()
+    out.dec()
+    out.write("}").nl()
 
+    out = Output(open(path + r"\BaseModelListener.cs", "w"))
+    print_file_header(out)
+    out.write("namespace BPMNModel.Model").nl()
+    out.write("{").nl()
+    out.inc()
+    out.write("public abstract class BaseModelListener : IModelListener").nl()
+    out.write("{").nl()
+    out.inc()
+    for c in model.get_all_classes():
+        if not (c.name in interfaces):
+            out.write("public virtual void Enter"+c.name+"([NotNull] "+c.name+" context) { }").nl()
+            out.write("public virtual void Exit"+c.name+"([NotNull] "+c.name+" context) { }").nl()
     out.dec()
     out.write("}").nl()
     out.dec()
     out.write("}").nl()
+
 
 
     out = Output(open(path + r"\File.cs", "w"))
@@ -706,8 +741,33 @@ def print_class_or_data_type(out, c, mappings):
         out.dec()
         out.write("}").nl()
 
+        if c.name in ["BaseElement", "Diagram", "DiagramElement"] or len(c.superclasses) == 0:
+            out.write("public virtual void Enter(IBaseListener listener)").nl()
+            out.write("{").nl()
+        else:
+            out.write("public override void Enter(IBaseListener listener)").nl()
+            out.write("{").nl()
+        out.inc()
+        out.write("IModelListener? typedListener = listener as IModelListener;").nl()
+        out.write("if (typedListener != null) typedListener.Enter"+c.name+"(this);").nl()
+        out.dec()
+        out.write("}").nl()
+
+        if c.name in ["BaseElement", "Diagram", "DiagramElement"] or len(c.superclasses) == 0:
+            out.write("public virtual void Exit(IBaseListener listener)").nl()
+            out.write("{").nl()
+        else:
+            out.write("public override void Exit(IBaseListener listener)").nl()
+            out.write("{").nl()
+        out.inc()
+        out.write("IModelListener? typedListener = listener as IModelListener;").nl()
+        out.write("if (typedListener != null) typedListener.Exit"+c.name+"(this);").nl()
+        out.dec()
+        out.write("}").nl()
     else:
-        out.write("/* No Accept method - it is interface or data class. */").nl()
+        out.write("/* No Accept, Enter or Exit methods - it is interface or data class. */").nl()
+
+
 
     out.dec()
 
