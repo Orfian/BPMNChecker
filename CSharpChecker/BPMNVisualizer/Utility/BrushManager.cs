@@ -22,8 +22,8 @@ namespace BPMNVisualizer.Utility
             _semanticCache.TryAdd("Event.Start", Brushes.LightGreen);
             _semanticCache.TryAdd("Event.End", Brushes.LightCoral);
             _semanticCache.TryAdd("Event.Boundary", Brushes.LightGoldenrodYellow);
-            _semanticCache.TryAdd("Event.Intermediate.Catch", Brushes.PaleGreen);
-            _semanticCache.TryAdd("Event.Intermediate.Throw", Brushes.PaleVioletRed);
+            _semanticCache.TryAdd("Event.Intermediate.Catch", new SolidColorBrush(Brushes.LightGreen.Color) { Opacity = 0.25 });
+            _semanticCache.TryAdd("Event.Intermediate.Throw", new SolidColorBrush(Brushes.LightCoral.Color) { Opacity = 0.25 });
 
             // Task brushes
             _semanticCache.TryAdd("Task.Default", Brushes.LightGray);
