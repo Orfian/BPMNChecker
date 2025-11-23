@@ -13,13 +13,13 @@ namespace BPMNVisualizer.Visualization.Renderers
     {
         private readonly ILogger _logger;
         private readonly Canvas _canvas;
-        private readonly ShapeManager _shapeManager;
+        private readonly Dictionary<string, IEnumerable<Point>> _paths;
 
-        public ConnectionRenderer(ILogger logger, Canvas canvas, ShapeManager shapeManager)
+        public ConnectionRenderer(ILogger logger, Canvas canvas, Dictionary<string, IEnumerable<Point>> paths)
         {
             _logger = logger;
             _canvas = canvas;
-            _shapeManager = shapeManager;
+            _paths = paths;
         }
 
         public void RenderConnection(BaseElement element, IEnumerable<Point> points)
@@ -36,6 +36,8 @@ namespace BPMNVisualizer.Visualization.Renderers
                     RenderAssociation(association, points);
                     break;
             }
+            
+            _paths[element.Id] = points;
         }
         
         private void RenderSequenceFlow(SequenceFlow flow, IEnumerable<Point> points)
@@ -55,6 +57,7 @@ namespace BPMNVisualizer.Visualization.Renderers
         private void RenderMessageFlow(MessageFlow messageFlow, IEnumerable<Point> points)
         {
             var visual = CreateBaseConnection(points, [4.0, 2.0]);
+            
             AddOpenArrowhead(points.Last(), GetDirection(points));
             AddMessageLabel(messageFlow, points);
         }
@@ -62,6 +65,7 @@ namespace BPMNVisualizer.Visualization.Renderers
         private void RenderAssociation(Association association, IEnumerable<Point> points)
         {
             var visual = CreateBaseConnection(points, [4.0, 2.0]);
+            
             AddDottedCircleMarker(points.First());
         
             if (association.AssociationDirection == AssociationDirection.One ||
@@ -87,7 +91,17 @@ namespace BPMNVisualizer.Visualization.Renderers
 
         private bool IsConditionalFlow(SequenceFlow flow)
         {
-            return flow.ConditionExpression != null;
+            if (flow.ConditionExpression != null)
+            {
+                if (flow.SourceRef is Gateway)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            return false;
         }
         
         private Polyline CreateBaseConnection(IEnumerable<Point> points, DoubleCollection dashArray)
@@ -101,6 +115,7 @@ namespace BPMNVisualizer.Visualization.Renderers
             };
 
             _canvas.Children.Add(polyline);
+            
             return polyline;
         }
         

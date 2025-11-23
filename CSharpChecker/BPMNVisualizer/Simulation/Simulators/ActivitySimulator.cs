@@ -1,0 +1,116 @@
+﻿using System.Windows;
+using BPMNModel;
+using BPMNModel.Model;
+using Serilog;
+using Point = System.Windows.Point;
+
+namespace BPMNVisualizer.Simulation.Simulators;
+
+public class ActivitySimulator : DefaultSimulator
+{
+    private readonly Dictionary<string, List<BPMNToken>> _waitUserTask = new(StringComparer.OrdinalIgnoreCase);
+    
+    public ActivitySimulator(ILogger logger, TokenManager tokenManager, ModelRoot model, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
+        : base(logger, tokenManager, model, objectBounds, paths)
+    {
+    }
+    
+    public override void OnTokenArrived(BPMNToken token)
+    {
+        if (token?.CurrentElement == null)
+        {
+            _logger.Warning("Token or its current element is null in ActivitySimulator.");
+            return;
+        }
+        
+        if (token.CurrentElement is not Activity activity)
+        {
+            base.OnTokenArrived(token);
+            return;
+        }
+
+        switch (activity)
+        {
+            case SendTask sendTask:
+                HandleSendTask(token, sendTask);
+                break;
+            case ReceiveTask receiveTask:
+                HandleReceiveTask(token, receiveTask);
+                break;
+            case UserTask userTask:
+                HandleUserTask(token, userTask);
+                break;
+            case ManualTask manualTask:
+                HandleManualTask(token, manualTask);
+                break;
+            case BusinessRuleTask businessRuleTask:
+                HandleBusinessRuleTask(token, businessRuleTask);
+                break;
+            case ServiceTask serviceTask:
+                HandleServiceTask(token, serviceTask);
+                break;
+            case ScriptTask scriptTask:
+                HandleScriptTask(token, scriptTask);
+                break;
+            case SubProcess subProcess:
+                HandleSubProcess(token, subProcess);
+                break;
+            case CallActivity callActivity:
+                HandleCallActivity(token, callActivity);
+                break;
+            default:
+                HandleDefaultActivity(token, activity);
+                break;
+        }
+    }
+    
+    private void HandleSendTask(BPMNToken token, SendTask sendTask)
+    {
+        base.OnTokenArrived(token);
+    }
+    
+    private void HandleReceiveTask(BPMNToken token, ReceiveTask receiveTask)
+    {
+        base.OnTokenArrived(token);
+    }
+    
+    private void HandleUserTask(BPMNToken token, UserTask userTask)
+    {
+        base.OnTokenArrived(token);
+    }
+    
+    private void HandleManualTask(BPMNToken token, ManualTask manualTask)
+    {
+        base.OnTokenArrived(token);
+    }
+    
+    private void HandleBusinessRuleTask(BPMNToken token, BusinessRuleTask businessRuleTask)
+    {
+        base.OnTokenArrived(token);
+    }
+    
+    private void HandleServiceTask(BPMNToken token, ServiceTask serviceTask)
+    {
+        base.OnTokenArrived(token);
+    }
+    
+    private void HandleScriptTask(BPMNToken token, ScriptTask scriptTask)
+    {
+        base.OnTokenArrived(token);
+    }
+    
+    private void HandleSubProcess(BPMNToken token, SubProcess subProcess)
+    {
+        base.OnTokenArrived(token);
+    }
+    
+    private void HandleCallActivity(BPMNToken token, CallActivity callActivity)
+    {
+        base.OnTokenArrived(token);
+    }
+    
+    private void HandleDefaultActivity(BPMNToken token, Activity activity)
+    {
+        base.OnTokenArrived(token);
+    }
+}

@@ -18,20 +18,25 @@ namespace BPMNVisualizer.Visualization.Renderers
         private readonly BrushManager _brushManager;
         private readonly ShapeManager _shapeManager;
         private readonly SvgResourceManager _svgResourceManager;
+        private readonly Dictionary<string, Rect> _objectBounds;
+        private readonly Dictionary<string, FrameworkElement> _eventNotes = new();
 
         public EventRenderer(ILogger logger, Canvas canvas, BrushManager brushManager, ShapeManager shapeManager,
-            SvgResourceManager svgResourceManager)
+            SvgResourceManager svgResourceManager, Dictionary<string, Rect> objectBounds)
         {
             _logger = logger;
             _canvas = canvas;
             _brushManager = brushManager;
             _shapeManager = shapeManager;
             _svgResourceManager = svgResourceManager;
+            _objectBounds = objectBounds;
         }
 
         public void RenderShape(BaseElement element, Rect bounds)
         {
             if (element is not Event evt) return;
+            
+            _objectBounds[evt.Id] = bounds;
 
             var shape = DrawElement(evt, bounds);
             shape.MouseDown += (s, e) => ShowEventDetails(evt);
@@ -54,6 +59,14 @@ namespace BPMNVisualizer.Visualization.Renderers
                 Canvas.SetLeft(label, bounds.Left + (bounds.Width - label.Width) / 2);
                 Canvas.SetTop(label, bounds.Top + bounds.Height * 1.1);
                 _canvas.Children.Add(label);
+            }
+            
+            var note = DrawNote(evt, bounds);
+            if (note != null)
+            {
+                Canvas.SetLeft(note, bounds.Left + 5);
+                Canvas.SetTop(note, bounds.Top - note.Height - 5);
+                _canvas.Children.Add(note);
             }
         }
 
@@ -101,6 +114,45 @@ namespace BPMNVisualizer.Visualization.Renderers
 
             return _shapeManager.WrapInContainer(label, bounds);
         }
+        
+        private Border DrawNote(Event evt, Rect bounds)
+        {
+            var noteText = ElementNotes.GetNote(evt.Id);
+            if (string.IsNullOrEmpty(noteText)) return null;
+
+            var border = new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(100, 255, 255, 64)),
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(4, 2, 4, 2),
+                Margin = new Thickness(2),
+                MaxWidth = bounds.Width * 3,
+                Child = new TextBlock
+                {
+                    Text = noteText,
+                    FontSize = 10,
+                    FontStyle = FontStyles.Italic,
+                    FontWeight = FontWeights.Normal,
+                    Foreground = Brushes.DarkSlateGray,
+                    TextWrapping = TextWrapping.Wrap,
+                    TextTrimming = TextTrimming.CharacterEllipsis
+                }
+            };
+
+            border.LayoutUpdated += (s, e) => 
+            {
+                var actualHeight = border.ActualHeight;
+                Canvas.SetTop(border, bounds.Top - actualHeight - 5);
+            };
+
+            Canvas.SetLeft(border, bounds.Left + 5);
+            Canvas.SetTop(border, bounds.Top);
+
+            border.Measure(new Size(bounds.Width, double.PositiveInfinity));
+            border.Arrange(new Rect(border.DesiredSize));
+
+            return border;
+        }
 
         private void ShowEventDetails(Event evt)
         {
@@ -110,12 +162,72 @@ namespace BPMNVisualizer.Visualization.Renderers
                 Width = 600,
                 Height = 400,
                 Content = CreateDetailContent(evt),
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
+                Owner = Application.Current.MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
             };
             detailWindow.Show();
+            detailWindow.Activate();
         }
 
         private UIElement CreateDetailContent(Event evt)
+        {
+            var mainGrid = new Grid();
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+            // ========== Note Section ==========
+            var notePanel = new StackPanel { Margin = new Thickness(10) };
+    
+            var noteTextBox = new TextBox
+            {
+                Text = ElementNotes.GetNote(evt.Id) ?? "",
+                AcceptsReturn = true,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Height = 30,
+                Margin = new Thickness(0, 0, 0, 5)
+            };
+    
+            var saveButton = new Button
+            {
+                Content = "Save Note",
+                Margin = new Thickness(0, 5, 0, 10),
+                Padding = new Thickness(5)
+            };
+    
+            saveButton.Click += (s, e) => 
+            {
+                ElementNotes.SetNote(evt.Id, noteTextBox.Text);
+                RefreshEventVisual(evt);
+            };
+    
+            notePanel.Children.Add(new TextBlock { 
+                Text = "Event Note:", 
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(0, 0, 0, 5)
+            });
+            notePanel.Children.Add(noteTextBox);
+            notePanel.Children.Add(saveButton);
+
+            Grid.SetRow(notePanel, 0);
+            mainGrid.Children.Add(notePanel);
+
+            // ========== Details Section ==========
+            var detailsScroll = new ScrollViewer
+            {
+                Content = CreateDetailsGrid(evt),
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            };
+            Grid.SetRow(detailsScroll, 1);
+            mainGrid.Children.Add(detailsScroll);
+
+            return new Border
+            {
+                Padding = new Thickness(10),
+                Child = mainGrid
+            };
+        }
+
+        private Grid CreateDetailsGrid(Event evt)
         {
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
@@ -184,10 +296,10 @@ namespace BPMNVisualizer.Visualization.Renderers
                 AddDetailRow(grid, "Docs:", FormatDocumentation(evt.Documentation), ref rowIndex);
             }
 
-// ========== Camunda Extensions ==========
+            // ========== Camunda Extensions ==========
             var camundaInfo = new StringBuilder();
 
-// General Camunda properties
+            // General Camunda properties
             if (evt.Camunda_asyncBefore.HasValue)
                 camundaInfo.AppendLine($"• Async Before: {evt.Camunda_asyncBefore}");
             if (evt.Camunda_asyncAfter.HasValue)
@@ -195,10 +307,10 @@ namespace BPMNVisualizer.Visualization.Renderers
             if (!string.IsNullOrEmpty(evt.Camunda_jobPriority))
                 camundaInfo.AppendLine($"• Job Priority: {evt.Camunda_jobPriority}");
 
-// Camunda elements
+            // Camunda elements
             var camundaElements = evt.CamundaElements;
 
-// Camunda Properties
+            // Camunda Properties
             var camundaProps = camundaElements
                 .OfType<CamundaProperties>()
                 .SelectMany(p => p.Values)
@@ -213,7 +325,7 @@ namespace BPMNVisualizer.Visualization.Renderers
                 }
             }
 
-// Execution Listeners
+            // Execution Listeners
             var listeners = camundaElements
                 .OfType<CamundaExecutionListener>()
                 .ToList();
@@ -230,7 +342,7 @@ namespace BPMNVisualizer.Visualization.Renderers
                 }
             }
 
-// Connectors
+            // Connectors
             var connectors = camundaElements
                 .OfType<CamundaConnector>()
                 .ToList();
@@ -331,13 +443,7 @@ namespace BPMNVisualizer.Visualization.Renderers
                 AddDetailRow(grid, "Extensions:", extensionInfo.ToString(), ref rowIndex);
             }
 
-            return new ScrollViewer
-            {
-                Content = grid,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                Padding = new Thickness(10),
-                MaxHeight = 600
-            };
+            return grid;
         }
 
         // ========== Helper Methods ==========
@@ -435,6 +541,35 @@ namespace BPMNVisualizer.Visualization.Renderers
             grid.Children.Add(valueBlock);
 
             row++;
+        }
+        
+        private void RefreshEventVisual(Event evt)
+        {
+            RefreshEventNote(evt);
+        
+            if (_eventNotes.TryGetValue(evt.Id, out var note))
+            {
+                Panel.SetZIndex(note, int.MaxValue);
+            }
+        }
+    
+        private void RefreshEventNote(Event evt)
+        {
+            if (_eventNotes.TryGetValue(evt.Id, out var existingNote))
+            {
+                _canvas.Children.Remove(existingNote);
+            }
+
+            var note = DrawNote(evt, _objectBounds[evt.Id]);
+            if (note != null)
+            {
+                note.Tag = $"{evt.Id}_note";
+                _eventNotes[evt.Id] = note;
+            
+                Canvas.SetLeft(note, _objectBounds[evt.Id].Left + 5);
+                Canvas.SetTop(note, _objectBounds[evt.Id].Top - 20);
+                _canvas.Children.Add(note);
+            }
         }
     }
 }

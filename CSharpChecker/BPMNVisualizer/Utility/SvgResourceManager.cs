@@ -134,14 +134,14 @@ namespace BPMNVisualizer.Utilities
             };
         }
 
-        public SvgViewbox? GetDataIcon(string elementType)
+        public SvgViewbox? GetDataIcon(BaseElement elementType)
         {
             var fileName = elementType switch
             {
-                "DataObject" => "data-object",
-                "DataStore" => "data-store",
-                "DataInput" => "data-input",
-                "DataOutput" => "data-output",
+                DataObject => "data-object",
+                DataStoreReference => "data-store",
+                DataInput => "data-input",
+                DataOutput => "data-output",
                 _ => throw new BPMNCheckerExceptions($"No icon found for data element type: {elementType}")
             };
 

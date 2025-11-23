@@ -18,20 +18,28 @@ public class ActivityRenderer : IShapeRenderer
     private readonly BrushManager _brushManager;
     private readonly ShapeManager _shapeManager;
     private readonly SvgResourceManager _svgResourceManager;
+    private readonly Dictionary<string, Rect> _objectBounds;
+    private readonly Dictionary<string, FrameworkElement> _activityNotes = new();
+    private readonly Dictionary<string, BPMNShape> _shapes;
 
     public ActivityRenderer(ILogger logger, Canvas canvas, BrushManager brushManager, ShapeManager shapeManager,
-        SvgResourceManager svgResourceManager)
+        SvgResourceManager svgResourceManager, Dictionary<string, Rect> objectBounds, Dictionary<string, BPMNShape> shapes)
+
     {
         _logger = logger;
         _canvas = canvas;
         _brushManager = brushManager;
         _shapeManager = shapeManager;
         _svgResourceManager = svgResourceManager;
+        _objectBounds = objectBounds;
+        _shapes = shapes;
     }
 
     public void RenderShape(BaseElement element, Rect bounds)
     {
         if (element is not Activity activity) return;
+        
+        _objectBounds[activity.Id] = bounds;
 
         var shape = DrawElement(activity, bounds);
         shape.MouseDown += (s, e) => ShowActivityDetails(activity);
@@ -65,6 +73,14 @@ public class ActivityRenderer : IShapeRenderer
             Canvas.SetLeft(label, bounds.Left + (bounds.Width - label.Width) / 2);
             Canvas.SetTop(label, bounds.Top + (bounds.Height - label.Height) / 2);
             _canvas.Children.Add(label);
+        }
+        
+        var note = DrawNote(activity, bounds);
+        if (note != null)
+        {
+            Canvas.SetLeft(note, bounds.Left + 5);
+            Canvas.SetTop(note, bounds.Top - note.Height - 5);
+            _canvas.Children.Add(note);
         }
     }
 
@@ -127,7 +143,14 @@ public class ActivityRenderer : IShapeRenderer
             }
         }
 
-        if (activity is SubProcess) AddMarker("SubProcess", markers, bounds);
+        _shapes.TryGetValue(activity.Id, out var bpmnShape);
+        if (activity is SubProcess)
+        {
+            if (bpmnShape?.IsExpanded == false)
+            {
+                AddMarker("SubProcess", markers, bounds);
+            }
+        }
         if (activity is AdHocSubProcess) AddMarker("AdHoc", markers, bounds);
 
         return markers.Children.Count > 0 ? _shapeManager.WrapInContainer(markers, bounds) : null;
@@ -176,6 +199,45 @@ public class ActivityRenderer : IShapeRenderer
 
         return _shapeManager.WrapInContainer(label, bounds);
     }
+    
+    private Border DrawNote(Activity activity, Rect bounds)
+    {
+        var noteText = ElementNotes.GetNote(activity.Id);
+        if (string.IsNullOrEmpty(noteText)) return null;
+
+        var border = new Border
+        {
+            Background = new SolidColorBrush(Color.FromArgb(100, 255, 255, 64)),
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(4, 2, 4, 2),
+            Margin = new Thickness(2),
+            MaxWidth = bounds.Width,
+            Child = new TextBlock
+            {
+                Text = noteText,
+                FontSize = 10,
+                FontStyle = FontStyles.Italic,
+                FontWeight = FontWeights.Normal,
+                Foreground = Brushes.DarkSlateGray,
+                TextWrapping = TextWrapping.Wrap,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            }
+        };
+
+        border.LayoutUpdated += (s, e) => 
+        {
+            var actualHeight = border.ActualHeight;
+            Canvas.SetTop(border, bounds.Top - actualHeight - 5);
+        };
+
+        Canvas.SetLeft(border, bounds.Left + 5);
+        Canvas.SetTop(border, bounds.Top);
+
+        border.Measure(new Size(bounds.Width, double.PositiveInfinity));
+        border.Arrange(new Rect(border.DesiredSize));
+
+        return border;
+    }
 
     private void ShowActivityDetails(Activity activity)
     {
@@ -185,13 +247,110 @@ public class ActivityRenderer : IShapeRenderer
             Width = 600,
             Height = 400,
             Content = CreateDetailContent(activity),
-            WindowStartupLocation = WindowStartupLocation.CenterScreen
+            Owner = Application.Current.MainWindow,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
         };
         detailWindow.Show();
+        detailWindow.Activate();
     }
-
+    
     private UIElement CreateDetailContent(Activity activity)
     {
+        var mainGrid = new Grid();
+        mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+        // ========== Note Section ==========
+        var notePanel = new StackPanel { Margin = new Thickness(10) };
+    
+        var noteTextBox = new TextBox
+        {
+            Text = ElementNotes.GetNote(activity.Id) ?? "",
+            AcceptsReturn = true,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            Height = 30,
+            Margin = new Thickness(0, 0, 0, 5)
+        };
+    
+        var saveButton = new Button
+        {
+            Content = "Save Note",
+            Margin = new Thickness(0, 5, 0, 10),
+            Padding = new Thickness(5)
+        };
+    
+        saveButton.Click += (s, e) => 
+        {
+            ElementNotes.SetNote(activity.Id, noteTextBox.Text);
+            RefreshActivityVisual(activity);
+        };
+    
+        notePanel.Children.Add(new TextBlock { 
+            Text = "Activity Note:", 
+            FontWeight = FontWeights.Bold,
+            Margin = new Thickness(0, 0, 0, 5)
+        });
+        notePanel.Children.Add(noteTextBox);
+        notePanel.Children.Add(saveButton);
+
+        Grid.SetRow(notePanel, 0);
+        mainGrid.Children.Add(notePanel);
+
+        // ========== Details Section ==========
+        var detailsScroll = new ScrollViewer
+        {
+            Content = CreateDetailsGrid(activity),
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+        };
+        Grid.SetRow(detailsScroll, 1);
+        mainGrid.Children.Add(detailsScroll);
+
+        return new Border
+        {
+            Padding = new Thickness(10),
+            Child = mainGrid
+        };
+    }
+
+    private Grid CreateDetailsGrid(Activity activity)
+    {
+        var noteGrid = new Grid();
+        noteGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        noteGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+    
+        // ========== Note Section ==========
+        var notePanel = new StackPanel { Margin = new Thickness(0, 0, 0, 10) };
+    
+        var noteTextBox = new TextBox
+        {
+            Text = ElementNotes.GetNote(activity.Id) ?? "",
+            AcceptsReturn = true,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            Height = 60,
+            Margin = new Thickness(5)
+        };
+    
+        var saveButton = new Button
+        {
+            Content = "Save Note",
+            Margin = new Thickness(5),
+            Padding = new Thickness(5, 2, 5, 2)
+        };
+    
+        saveButton.Click += (s, e) => 
+        {
+            ElementNotes.SetNote(activity.Id, noteTextBox.Text);
+            RefreshActivityVisual(activity);
+        };
+    
+        notePanel.Children.Add(new TextBlock { Text = "Note:", Margin = new Thickness(5, 0, 5, 2) });
+        notePanel.Children.Add(noteTextBox);
+        notePanel.Children.Add(saveButton);
+    
+        Grid.SetRow(notePanel, 0);
+        noteGrid.Children.Add(notePanel);
+        
+        // ========== Details Section ==========
         var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -421,13 +580,7 @@ public class ActivityRenderer : IShapeRenderer
             AddDetailRow(grid, "Extensions:", extensionInfo.ToString(), ref rowIndex);
         }
 
-        return new ScrollViewer
-        {
-            Content = grid,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            Padding = new Thickness(10),
-            MaxHeight = 600
-        };
+        return grid;
     }
 
     // ========== Helper Methods ==========
@@ -583,5 +736,34 @@ public class ActivityRenderer : IShapeRenderer
         grid.Children.Add(valueBlock);
 
         row++;
+    }
+    
+    private void RefreshActivityVisual(Activity activity)
+    {
+        RefreshActivityNote(activity);
+        
+        if (_activityNotes.TryGetValue(activity.Id, out var note))
+        {
+            Panel.SetZIndex(note, int.MaxValue);
+        }
+    }
+    
+    private void RefreshActivityNote(Activity activity)
+    {
+        if (_activityNotes.TryGetValue(activity.Id, out var existingNote))
+        {
+            _canvas.Children.Remove(existingNote);
+        }
+
+        var note = DrawNote(activity, _objectBounds[activity.Id]);
+        if (note != null)
+        {
+            note.Tag = $"{activity.Id}_note";
+            _activityNotes[activity.Id] = note;
+            
+            Canvas.SetLeft(note, _objectBounds[activity.Id].Left + 5);
+            Canvas.SetTop(note, _objectBounds[activity.Id].Top - 20);
+            _canvas.Children.Add(note);
+        }
     }
 }

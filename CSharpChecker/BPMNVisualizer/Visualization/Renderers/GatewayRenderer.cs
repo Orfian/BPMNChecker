@@ -7,7 +7,6 @@ using BPMNModel.Model;
 using BPMNVisualizer.Utilities;
 using BPMNVisualizer.Utility;
 using Serilog;
-using Task = BPMNModel.Model.Task;
 
 namespace BPMNVisualizer.Visualization.Renderers
 {
@@ -18,20 +17,25 @@ namespace BPMNVisualizer.Visualization.Renderers
         private readonly BrushManager _brushManager;
         private readonly ShapeManager _shapeManager;
         private readonly SvgResourceManager _svgResourceManager;
+        private readonly Dictionary<string, Rect> _objectBounds = new();
+        private readonly Dictionary<string, FrameworkElement> _gatewayNotes = new();
 
         public GatewayRenderer(ILogger logger, Canvas canvas, BrushManager brushManager, ShapeManager shapeManager,
-            SvgResourceManager svgResourceManager)
+            SvgResourceManager svgResourceManager, Dictionary<string, Rect> objectBounds)
         {
             _logger = logger;
             _canvas = canvas;
             _brushManager = brushManager;
             _shapeManager = shapeManager;
             _svgResourceManager = svgResourceManager;
+            _objectBounds = objectBounds;
         }
 
         public void RenderShape(BaseElement element, Rect bounds)
         {
             if (element is not Gateway gateway) return;
+            
+            _objectBounds[gateway.Id] = bounds;
 
             var shape = DrawElement(gateway, bounds);
             shape.MouseDown += (s, e) => ShowEventDetails(gateway);
@@ -54,6 +58,14 @@ namespace BPMNVisualizer.Visualization.Renderers
                 Canvas.SetLeft(label, bounds.Left + (bounds.Width - label.Width) / 2);
                 Canvas.SetTop(label, bounds.Top + bounds.Height * 1.1);
                 _canvas.Children.Add(label);
+            }
+            
+            var note = DrawNote(gateway, bounds);
+            if (note != null)
+            {
+                Canvas.SetLeft(note, bounds.Left + 5);
+                Canvas.SetTop(note, bounds.Top - note.Height - 5);
+                _canvas.Children.Add(note);
             }
         }
 
@@ -89,7 +101,45 @@ namespace BPMNVisualizer.Visualization.Renderers
 
             return _shapeManager.WrapInContainer(label, bounds);
         }
+    
+        private Border DrawNote(Gateway gateway, Rect bounds)
+        {
+            var noteText = ElementNotes.GetNote(gateway.Id);
+            if (string.IsNullOrEmpty(noteText)) return null;
 
+            var border = new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(100, 255, 255, 64)),
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(4, 2, 4, 2),
+                Margin = new Thickness(2),
+                MaxWidth = bounds.Width * 2,
+                Child = new TextBlock
+                {
+                    Text = noteText,
+                    FontSize = 10,
+                    FontStyle = FontStyles.Italic,
+                    FontWeight = FontWeights.Normal,
+                    Foreground = Brushes.DarkSlateGray,
+                    TextWrapping = TextWrapping.Wrap,
+                    TextTrimming = TextTrimming.CharacterEllipsis
+                }
+            };
+
+            border.LayoutUpdated += (s, e) => 
+            {
+                var actualHeight = border.ActualHeight;
+                Canvas.SetTop(border, bounds.Top - actualHeight - 5);
+            };
+
+            Canvas.SetLeft(border, bounds.Left + 5);
+            Canvas.SetTop(border, bounds.Top);
+
+            border.Measure(new Size(bounds.Width, double.PositiveInfinity));
+            border.Arrange(new Rect(border.DesiredSize));
+
+            return border;
+        }
         private void ShowEventDetails(Gateway gateway)
         {
             var detailWindow = new Window
@@ -98,12 +148,72 @@ namespace BPMNVisualizer.Visualization.Renderers
                 Width = 600,
                 Height = 400,
                 Content = CreateDetailContent(gateway),
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
+                Owner = Application.Current.MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
             };
             detailWindow.Show();
+            detailWindow.Activate();
+        }
+        
+        private UIElement CreateDetailContent(Gateway gateway)
+        {
+            var mainGrid = new Grid();
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+            // ========== Note Section ==========
+            var notePanel = new StackPanel { Margin = new Thickness(10) };
+    
+            var noteTextBox = new TextBox
+            {
+                Text = ElementNotes.GetNote(gateway.Id) ?? "",
+                AcceptsReturn = true,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Height = 30,
+                Margin = new Thickness(0, 0, 0, 5)
+            };
+    
+            var saveButton = new Button
+            {
+                Content = "Save Note",
+                Margin = new Thickness(0, 5, 0, 10),
+                Padding = new Thickness(5)
+            };
+    
+            saveButton.Click += (s, e) => 
+            {
+                ElementNotes.SetNote(gateway.Id, noteTextBox.Text);
+                RefreshGatewayVisual(gateway);
+            };
+    
+            notePanel.Children.Add(new TextBlock { 
+                Text = "Gateway Note:", 
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(0, 0, 0, 5)
+            });
+            notePanel.Children.Add(noteTextBox);
+            notePanel.Children.Add(saveButton);
+
+            Grid.SetRow(notePanel, 0);
+            mainGrid.Children.Add(notePanel);
+
+            // ========== Details Section ==========
+            var detailsScroll = new ScrollViewer
+            {
+                Content = CreateDetailsGrid(gateway),
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            };
+            Grid.SetRow(detailsScroll, 1);
+            mainGrid.Children.Add(detailsScroll);
+
+            return new Border
+            {
+                Padding = new Thickness(10),
+                Child = mainGrid
+            };
         }
 
-        private UIElement CreateDetailContent(Gateway gateway)
+        private Grid CreateDetailsGrid(Gateway gateway)
         {
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
@@ -161,13 +271,7 @@ namespace BPMNVisualizer.Visualization.Renderers
             flowAnalysis.AppendLine($"Split/Join Type: {GetSplitJoinType(gateway)}");
 
             // Show conditions for outgoing flows
-            foreach (var flow in gateway.Outgoing)
-            {
-                if (flow.ConditionExpression is FormalExpression expr)
-                {
-                    flowAnalysis.AppendLine($"• Flow {flow.Id}: {expr.Body}");
-                }
-            }
+            flowAnalysis.Append(GetFlowConditions(gateway));
 
             AddDetailRow(grid, "Flow Analysis:", flowAnalysis.ToString(), ref rowIndex);
 
@@ -284,13 +388,7 @@ namespace BPMNVisualizer.Visualization.Renderers
                 AddDetailRow(grid, "Docs:", FormatDocumentation(gateway.Documentation), ref rowIndex);
             }
 
-            return new ScrollViewer
-            {
-                Content = grid,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                Padding = new Thickness(10),
-                MaxHeight = 600
-            };
+            return grid;
         }
 
         // ========== Helper Methods ==========
@@ -317,7 +415,7 @@ namespace BPMNVisualizer.Visualization.Renderers
                     sb.Append("[DEFAULT] ");
 
                 if (flow.ConditionExpression is FormalExpression expr)
-                    sb.AppendLine(expr.Body == null ? "" : expr.Body.ToString());
+                    sb.AppendLine(expr.Body.Value);
                 else if (gateway is InclusiveGateway)
                     sb.AppendLine("Inclusive Condition");
                 else
@@ -388,6 +486,35 @@ namespace BPMNVisualizer.Visualization.Renderers
             grid.Children.Add(valueBlock);
 
             row++;
+        }
+        
+        private void RefreshGatewayVisual(Gateway gateway)
+        {
+            RefreshGatewayNote(gateway);
+        
+            if (_gatewayNotes.TryGetValue(gateway.Id, out var note))
+            {
+                Panel.SetZIndex(note, int.MaxValue);
+            }
+        }
+    
+        private void RefreshGatewayNote(Gateway gateway)
+        {
+            if (_gatewayNotes.TryGetValue(gateway.Id, out var existingNote))
+            {
+                _canvas.Children.Remove(existingNote);
+            }
+
+            var note = DrawNote(gateway, _objectBounds[gateway.Id]);
+            if (note != null)
+            {
+                note.Tag = $"{gateway.Id}_note";
+                _gatewayNotes[gateway.Id] = note;
+            
+                Canvas.SetLeft(note, _objectBounds[gateway.Id].Left + 5);
+                Canvas.SetTop(note, _objectBounds[gateway.Id].Top - 20);
+                _canvas.Children.Add(note);
+            }
         }
     }
 }

@@ -23,6 +23,11 @@
             <Button Style="{StaticResource ExportButtonStyle}"
                     Click="ExportButton_Click"
                     ToolTip="Save diagram as PNG image"/>
+            <Button x:Name="SimButt"
+                    Style="{StaticResource ExportButtonStyle}"
+                    Click="Simulate_Click"
+                    ToolTip="Start simulation"
+                    Content="Simulate"/>
         </ToolBar>
 
         <ScrollViewer x:Name="MainScrollViewer"

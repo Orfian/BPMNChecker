@@ -2,12 +2,16 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using BPMNModel;
+using BPMNModel.Model;
 using BPMNVisualizer.Services;
+using BPMNVisualizer.Simulation;
 using BPMNVisualizer.Visualization;
 using Microsoft.Win32;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Json;
+using Point = System.Windows.Point;
 
 namespace BPMNVisualizer
 {
@@ -15,25 +19,53 @@ namespace BPMNVisualizer
     {
         private readonly ModelLoader _modelLoader;
         private readonly Visualizer _visualizer;
+        private readonly TokenManager _tokenManager;
+        private readonly ModelRoot? _model;
         private readonly ILogger _logger;
+        private readonly Dictionary<string, Rect> _objectBounds = new();
+        private readonly Dictionary<string, IEnumerable<Point>> _paths = new();
 
         public MainWindow()
         {
+            //var filePath = @"diagrams/CamundaModeler_almost_all_set.bpmn";
+            //var filePath = @"diagrams/BookHolidaySagaPatternV2.bpmn";
+            //var filePath = @"diagrams/all_icons.bpmn";
+            var filePath = @"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn";
+            //var filePath = @"diagrams/test.bpmn";
+            
             InitializeComponent();
             _logger = LoggerFactory.Create();
 
             _modelLoader = new ModelLoader(_logger);
-            _visualizer = new Visualizer(_logger, BPMNCanvas);
-
-            LoadAndVisualizeBPMN(@"diagrams/CamundaModeler_almost_all_set.bpmn");
+            _model = _modelLoader.LoadModel(filePath);
+            
+            if (_model == null)
+                MessageBox.Show("Failed to load BPMN model. Check logs for details.");
+            
+            _tokenManager = new TokenManager(BPMNCanvas);
+            
+            _visualizer = new Visualizer(_logger, BPMNCanvas, _objectBounds, _paths, _model);
+            _visualizer.Visualize(_model);
         }
-
-        private void LoadAndVisualizeBPMN(string filePath)
+        
+        private void Simulate_Click(object sender, RoutedEventArgs e)
         {
-            var model = _modelLoader.LoadModel(filePath);
-            if (model != null)
-                _visualizer.Visualize(model);
-            else MessageBox.Show("Failed to load BPMN model. Check logs for details.");
+            var simulator = new Simulator(_logger, _tokenManager, _model, BPMNCanvas, _objectBounds, _paths);
+            
+            var startEvents = _model.AllObjectsWithIds.Values
+                .OfType<StartEvent>();
+
+            foreach (var startEvent in startEvents)
+            {
+                if (!_objectBounds.ContainsKey(startEvent.Id)) continue;
+                _tokenManager.AddToken(startEvent, _objectBounds[startEvent.Id]);
+                break;
+            }
+            
+            SimButt.Content = "Next Step";
+            SimButt.ToolTip = "Make the next simulation step";
+            SimButt.Click -= Simulate_Click;
+            SimButt.Click += simulator.NextStep_Click;
         }
 
         private void ExportButton_Click(object sender, RoutedEventArgs e)
