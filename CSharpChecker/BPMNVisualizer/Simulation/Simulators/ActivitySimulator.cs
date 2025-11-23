@@ -101,7 +101,19 @@ public class ActivitySimulator : DefaultSimulator
     
     private void HandleSubProcess(BPMNToken token, SubProcess subProcess)
     {
-        base.OnTokenArrived(token);
+        if (token.IsWaiting) return;
+        
+        var startEvent = subProcess.FlowElements.OfType<StartEvent>().FirstOrDefault();
+        if (startEvent != null)
+        {
+            _tokenManager.SetTokenWaiting(token, true);
+            var t = _tokenManager.AddToken(startEvent, _objectBounds[startEvent.Id]);
+            t.Parent = token;
+        }
+        else
+        {
+            base.OnTokenArrived(token);
+        }
     }
     
     private void HandleCallActivity(BPMNToken token, CallActivity callActivity)

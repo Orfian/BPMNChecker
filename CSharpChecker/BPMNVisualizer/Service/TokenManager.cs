@@ -71,7 +71,7 @@ public class TokenManager
         _tokens.Remove(token);
     }
     
-    public void ClearTokens()
+    public void ClearAllTokens()
     {
         foreach (var token in _tokens)
         {

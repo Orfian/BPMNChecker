@@ -15,24 +15,57 @@ public class Simulator
     private readonly Dictionary<string, Rect> _objectBounds;
     private readonly Dictionary<string, IEnumerable<Point>> _paths;
     private readonly ModelRoot _model;
-    private readonly Canvas _canvas;
     
     private readonly ActivitySimulator _activitySimulator;
     private readonly EventSimulator _eventSimulator;
     private readonly GatewaySimulator _gatewaySimulator;
     
-    public Simulator(ILogger logger, TokenManager tokenManager, ModelRoot model, Canvas canvas, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
+    public Simulator(ILogger logger, TokenManager tokenManager, ModelRoot model, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
     {
         _logger = logger;
         _tokenManager = tokenManager;
         _model = model;
-        _canvas = canvas;
         _objectBounds = objectBounds;
         _paths = paths;
         
         _activitySimulator = new ActivitySimulator(_logger, _tokenManager, _model, _objectBounds, _paths);
         _eventSimulator = new EventSimulator(_logger, _tokenManager, _model, _objectBounds, _paths);
         _gatewaySimulator = new GatewaySimulator(_logger, _tokenManager, _model, _objectBounds, _paths);
+    }
+
+    public void FirstStep()
+    {
+        var allStartEvents = _model.AllObjectsWithIds.Values.OfType<StartEvent>().ToList();
+        var subProcessStartEventIds = _model.AllObjectsWithIds.Values
+            .OfType<SubProcess>()
+            .SelectMany(subProcess => subProcess.FlowElements.OfType<StartEvent>())
+            .Select(startEvent => startEvent.Id)
+            .ToHashSet();
+        
+        var startEvents = allStartEvents.Where(startEvent => !subProcessStartEventIds.Contains(startEvent.Id))
+            .Where(startEvent => !IsMessageOrSignalStart(startEvent))
+            .ToList();
+        
+        if (!startEvents.Any())
+        {
+            startEvents = allStartEvents.Where(startEvent => !subProcessStartEventIds.Contains(startEvent.Id)).ToList();
+            
+            if (!startEvents.Any())
+            {
+                startEvents = allStartEvents.ToList();
+                
+                if (!startEvents.Any())
+                {
+                    _logger.Warning("No start events found in the BPMN model.");
+                    return;
+                }
+            }
+        }
+        
+        foreach (var startEvent in startEvents)
+        {
+            _tokenManager.AddToken(startEvent, _objectBounds[startEvent.Id]);
+        }
     }
     
     public void NextStep_Click(object sender, RoutedEventArgs e)
@@ -43,11 +76,6 @@ public class Simulator
             var simulator = GetElementSimulator(token.CurrentElement);
             simulator.OnTokenArrived(token);
         }
-    }
-
-    public void RegisterStartEvents()
-    {
-        
     }
     
     private IElementSimulator GetElementSimulator(BaseElement element)
@@ -63,5 +91,12 @@ public class Simulator
             default:
                 throw new NotSupportedException($"No simulator available for element type: {element.GetType().Name}");
         }
+    }
+    
+    private bool IsMessageOrSignalStart(StartEvent startEvent)
+    {
+        if (startEvent?.EventDefinitions == null || !startEvent.EventDefinitions.Any()) return false;
+        var def = startEvent.EventDefinitions.First();
+        return def is MessageEventDefinition || def is SignalEventDefinition;
     }
 }

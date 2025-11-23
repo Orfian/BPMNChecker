@@ -7,8 +7,7 @@
         Title="BPMN Visualizer" Height="540" Width="960">
     
     <Window.Resources>
-        <Style x:Key="ExportButtonStyle" TargetType="Button">
-            <Setter Property="Content" Value="Export to PNG"/>
+        <Style x:Key="ButtonStyle" TargetType="Button">
             <Setter Property="Margin" Value="5"/>
             <Setter Property="Padding" Value="10 4"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -20,14 +19,22 @@
     <DockPanel LastChildFill="True">
         <ToolBar DockPanel.Dock="Top" 
                  Background="#FFF0F0F0">
-            <Button Style="{StaticResource ExportButtonStyle}"
+            <Button x:Name="ExportButt"
+                    Style="{StaticResource ButtonStyle}"
                     Click="ExportButton_Click"
-                    ToolTip="Save diagram as PNG image"/>
+                    ToolTip="Save diagram as PNG image"
+                    Content="Export to PNG"/>
             <Button x:Name="SimButt"
-                    Style="{StaticResource ExportButtonStyle}"
+                    Style="{StaticResource ButtonStyle}"
                     Click="Simulate_Click"
                     ToolTip="Start simulation"
                     Content="Simulate"/>
+            <Button x:Name="ResetSimButt"
+                    Style="{StaticResource ButtonStyle}"
+                    Click="Reset_Click"
+                    ToolTip="Reset simulation"
+                    Content="Reset"
+                    Visibility="Collapsed"/>
         </ToolBar>
 
         <ScrollViewer x:Name="MainScrollViewer"

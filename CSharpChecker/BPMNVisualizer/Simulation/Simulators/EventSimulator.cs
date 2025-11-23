@@ -54,7 +54,25 @@ public class EventSimulator : DefaultSimulator
     
     private void HandleEndEvent(BPMNToken token)
     {
+        var parent = token.Parent;
         _tokenManager.RemoveToken(token);
+        
+        if (parent != null)
+        {
+            var otherTokensInSubProcess = _tokenManager.GetAllTokens()
+                .Where(t => t.Parent == parent)
+                .ToList();
+            if (!otherTokensInSubProcess.Any())
+            {
+                _tokenManager.SetTokenWaiting(parent, false);
+                base.OnTokenArrived(parent);
+            }
+        }
+        
+        if (_tokenManager.GetAllTokens().Count == 0)
+        {
+            MessageBox.Show("Simulation completed. No more tokens in the process.", "Simulation Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 
     private void HandleIntermediateCatchEvent(BPMNToken token, IntermediateCatchEvent catchEvent)

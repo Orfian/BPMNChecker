@@ -68,6 +68,7 @@ public class DefaultSimulator : IElementSimulator
             else
             {
                 var newToken = _tokenManager.AddToken(originalElement, bounds);
+                newToken.Parent = token.Parent;
                 _tokenManager.MoveToken(newToken, target, flow, path, bounds);
             }
         }

@@ -194,6 +194,7 @@ public class GatewaySimulator : DefaultSimulator
                 else
                 {
                     var newToken = _tokenManager.AddToken(originalElement, bounds);
+                    newToken.Parent = token.Parent;
                     _tokenManager.MoveToken(newToken, next, flow, path, bounds);
                 }
             }
@@ -233,6 +234,7 @@ public class GatewaySimulator : DefaultSimulator
                 else
                 {
                     var newToken = _tokenManager.AddToken(originalElement, bounds);
+                    newToken.Parent = token.Parent;
                     _tokenManager.MoveToken(newToken, next, flow, path, bounds);
                 }
             }

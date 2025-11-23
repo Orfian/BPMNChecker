@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BPMNModel;
-using BPMNModel.Model;
 using BPMNVisualizer.Services;
 using BPMNVisualizer.Simulation;
 using BPMNVisualizer.Visualization;
@@ -19,19 +18,21 @@ namespace BPMNVisualizer
     {
         private readonly ModelLoader _modelLoader;
         private readonly Visualizer _visualizer;
-        private readonly TokenManager _tokenManager;
         private readonly ModelRoot? _model;
         private readonly ILogger _logger;
         private readonly Dictionary<string, Rect> _objectBounds = new();
         private readonly Dictionary<string, IEnumerable<Point>> _paths = new();
+        
+        private TokenManager tokenManager;
+        private Simulator simulator;
 
         public MainWindow()
         {
             //var filePath = @"diagrams/CamundaModeler_almost_all_set.bpmn";
             //var filePath = @"diagrams/BookHolidaySagaPatternV2.bpmn";
             //var filePath = @"diagrams/all_icons.bpmn";
-            var filePath = @"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn";
-            //var filePath = @"diagrams/test.bpmn";
+            //var filePath = @"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn";
+            var filePath = @"diagrams/test.bpmn";
             
             InitializeComponent();
             _logger = LoggerFactory.Create();
@@ -42,30 +43,35 @@ namespace BPMNVisualizer
             if (_model == null)
                 MessageBox.Show("Failed to load BPMN model. Check logs for details.");
             
-            _tokenManager = new TokenManager(BPMNCanvas);
-            
             _visualizer = new Visualizer(_logger, BPMNCanvas, _objectBounds, _paths, _model);
             _visualizer.Visualize(_model);
         }
         
         private void Simulate_Click(object sender, RoutedEventArgs e)
         {
-            var simulator = new Simulator(_logger, _tokenManager, _model, BPMNCanvas, _objectBounds, _paths);
-            
-            var startEvents = _model.AllObjectsWithIds.Values
-                .OfType<StartEvent>();
-
-            foreach (var startEvent in startEvents)
-            {
-                if (!_objectBounds.ContainsKey(startEvent.Id)) continue;
-                _tokenManager.AddToken(startEvent, _objectBounds[startEvent.Id]);
-                break;
-            }
+            tokenManager = new TokenManager(BPMNCanvas);
+            simulator = new Simulator(_logger, tokenManager, _model, _objectBounds, _paths);
             
             SimButt.Content = "Next Step";
             SimButt.ToolTip = "Make the next simulation step";
             SimButt.Click -= Simulate_Click;
             SimButt.Click += simulator.NextStep_Click;
+            
+            ResetSimButt.Visibility = Visibility.Visible;
+            
+            simulator.FirstStep();
+        }
+        
+        private void Reset_Click(object sender, RoutedEventArgs e)
+        {
+            tokenManager.ClearAllTokens();
+            
+            SimButt.Content = "Simulate";
+            SimButt.ToolTip = "Start simulation";
+            SimButt.Click -= simulator.NextStep_Click;
+            SimButt.Click += Simulate_Click;
+
+            ResetSimButt.Visibility = Visibility.Collapsed;
         }
 
         private void ExportButton_Click(object sender, RoutedEventArgs e)
