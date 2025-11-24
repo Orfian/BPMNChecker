@@ -21,8 +21,13 @@
                     Message = message;
                     SelectionMode = multiSelect ? SelectionMode.Multiple : SelectionMode.Single;
                     DataContext = this;
+                    
+                    if (!string.IsNullOrEmpty(defaultOption))
+                    {
+                        _defaultOption = defaultOption + " (default)";
+                        options.Insert(0, _defaultOption);
+                    }
                     OptionsList.ItemsSource = options;
-                    _defaultOption = defaultOption;
                 }
                 
                 private void OptionsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -54,7 +59,10 @@
                 
                 private void Ok_Click(object sender, RoutedEventArgs e)
                 {
-                    SelectedOptions = OptionsList.SelectedItems.Cast<string>().ToList();
+                    SelectedOptions =
+                        OptionsList.SelectedItems.Cast<string>()
+                            .Select(option => option == _defaultOption ? option.Replace(" (default)", "") : option)
+                            .ToList();
                     DialogResult = true;
                 }
         

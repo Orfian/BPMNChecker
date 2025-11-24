@@ -157,6 +157,11 @@ public class GatewaySimulator : DefaultSimulator
 
         var defaultFlow = outgoingFlows.FirstOrDefault(f => IsDefaultFlow(f));
         var defaultOption = defaultFlow != null ? (defaultFlow.Name ?? defaultFlow.Id) : "";
+        
+        if (!string.IsNullOrEmpty(defaultOption))
+        {
+            choices.Remove(defaultOption);
+        }
 
         var selectedChoices = ShowMultiChoiceDialog("Inclusive Gateway", "Select one or more outgoing flows:", choices, defaultOption);
         if (selectedChoices.Count == 0) return;
