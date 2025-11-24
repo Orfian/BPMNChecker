@@ -68,14 +68,19 @@ public class Simulator
         }
     }
     
-    public void NextStep_Click(object sender, RoutedEventArgs e)
+    public void NextStep()
     {
         var tokens = _tokenManager.GetAllTokens();
         foreach (var token in tokens)
         {
-            var simulator = GetElementSimulator(token.CurrentElement);
-            simulator.OnTokenArrived(token);
+            StepToken(token);
         }
+    }
+    
+    public void StepToken(BPMNToken token)
+    {
+        var simulator = GetElementSimulator(token.CurrentElement);
+        simulator.OnTokenArrived(token);
     }
     
     private IElementSimulator GetElementSimulator(BaseElement element)

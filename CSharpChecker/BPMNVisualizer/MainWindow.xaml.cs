@@ -55,11 +55,16 @@ namespace BPMNVisualizer
             SimButt.Content = "Next Step";
             SimButt.ToolTip = "Make the next simulation step";
             SimButt.Click -= Simulate_Click;
-            SimButt.Click += simulator.NextStep_Click;
+            SimButt.Click += NextStep_Click;
             
             ResetSimButt.Visibility = Visibility.Visible;
             
             simulator.FirstStep();
+        }
+
+        public void NextStep_Click(object sender, RoutedEventArgs e)
+        {
+            simulator.NextStep();
         }
         
         private void Reset_Click(object sender, RoutedEventArgs e)
@@ -68,7 +73,7 @@ namespace BPMNVisualizer
             
             SimButt.Content = "Simulate";
             SimButt.ToolTip = "Start simulation";
-            SimButt.Click -= simulator.NextStep_Click;
+            SimButt.Click -= NextStep_Click;
             SimButt.Click += Simulate_Click;
 
             ResetSimButt.Visibility = Visibility.Collapsed;
