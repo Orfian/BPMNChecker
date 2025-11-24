@@ -16,7 +16,7 @@ MUST:
 - Improve Simulation UI (add autoplay, step, restart and cancel)
 - Learn about multiple start events and implement accordingly
 - [Done] Animation that goes on the flow lines
-- Look up all Objects that can have a Default Flow and change Inclusive Gateway simulation accordingly
+- [Done] Look up all Objects that can have a Default Flow and change Inclusive Gateway simulation accordingly
 
 WORKINGS:
 - [Done] Parallel Gateways join incoming tokens and wait for all the routes

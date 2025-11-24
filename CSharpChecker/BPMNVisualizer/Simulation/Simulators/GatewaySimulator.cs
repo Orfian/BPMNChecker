@@ -155,18 +155,7 @@ public class GatewaySimulator : DefaultSimulator
 
         if (choices.Count == 0) return;
 
-        var defaultFlow = outgoingFlows
-            .FirstOrDefault(f =>
-            {
-                var sourceElement = f.SourceRef;
-                return sourceElement switch
-                {
-                    ComplexGateway cg => cg.Default?.Id == f.Id,
-                    ExclusiveGateway eg => eg.Default?.Id == f.Id,
-                    InclusiveGateway ig => ig.Default?.Id == f.Id,
-                    _ => false
-                };
-            });
+        var defaultFlow = outgoingFlows.FirstOrDefault(f => IsDefaultFlow(f));
         var defaultOption = defaultFlow != null ? (defaultFlow.Name ?? defaultFlow.Id) : "";
 
         var selectedChoices = ShowMultiChoiceDialog("Inclusive Gateway", "Select one or more outgoing flows:", choices, defaultOption);
