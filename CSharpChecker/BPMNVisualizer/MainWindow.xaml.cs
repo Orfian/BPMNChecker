@@ -41,7 +41,10 @@ namespace BPMNVisualizer
             _model = _modelLoader.LoadModel(filePath);
             
             if (_model == null)
+            {
                 MessageBox.Show("Failed to load BPMN model. Check logs for details.");
+                return;
+            }
             
             _visualizer = new Visualizer(_logger, BPMNCanvas, _objectBounds, _paths, _model);
             _visualizer.Visualize(_model);
@@ -49,7 +52,7 @@ namespace BPMNVisualizer
         
         private void Simulate_Click(object sender, RoutedEventArgs e)
         {
-            tokenManager = new TokenManager(BPMNCanvas);
+            tokenManager = new TokenManager(_model, BPMNCanvas);
             simulator = new Simulator(_logger, tokenManager, _model, _objectBounds, _paths);
             
             SimButt.Content = "Next Step";
@@ -62,7 +65,7 @@ namespace BPMNVisualizer
             simulator.FirstStep();
         }
 
-        public void NextStep_Click(object sender, RoutedEventArgs e)
+        private void NextStep_Click(object sender, RoutedEventArgs e)
         {
             simulator.NextStep();
         }
