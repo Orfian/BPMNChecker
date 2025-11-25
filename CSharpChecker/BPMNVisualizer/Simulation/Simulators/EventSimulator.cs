@@ -8,8 +8,8 @@ namespace BPMNVisualizer.Simulation.Simulators;
 
 public class EventSimulator : DefaultSimulator
 {
-    public EventSimulator(ILogger logger, TokenManager tokenManager, ModelRoot model, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
-        : base(logger, tokenManager, model, objectBounds, paths)
+    public EventSimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
+        : base(logger, tokenManager, objectBounds, paths)
     {
     }
 

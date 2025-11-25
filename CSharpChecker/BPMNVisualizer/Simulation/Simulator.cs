@@ -28,9 +28,9 @@ public class Simulator
         _objectBounds = objectBounds;
         _paths = paths;
         
-        _activitySimulator = new ActivitySimulator(_logger, _tokenManager, _model, _objectBounds, _paths);
-        _eventSimulator = new EventSimulator(_logger, _tokenManager, _model, _objectBounds, _paths);
-        _gatewaySimulator = new GatewaySimulator(_logger, _tokenManager, _model, _objectBounds, _paths);
+        _activitySimulator = new ActivitySimulator(_logger, _tokenManager, _objectBounds, _paths);
+        _eventSimulator = new EventSimulator(_logger, _tokenManager, _objectBounds, _paths);
+        _gatewaySimulator = new GatewaySimulator(_logger, _tokenManager, _objectBounds, _paths);
     }
 
     public void FirstStep()

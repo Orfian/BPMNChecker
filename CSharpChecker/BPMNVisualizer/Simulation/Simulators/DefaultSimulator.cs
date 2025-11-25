@@ -11,13 +11,11 @@ public class DefaultSimulator : IElementSimulator
     protected readonly TokenManager _tokenManager;
     protected readonly Dictionary<string, Rect> _objectBounds;
     protected readonly Dictionary<string, IEnumerable<Point>> _paths;
-    protected readonly ModelRoot _model;
     
-    public DefaultSimulator(ILogger logger, TokenManager tokenManager, ModelRoot model, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
+    public DefaultSimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
     {
         _logger = logger;
         _tokenManager = tokenManager;
-        _model = model;
         _objectBounds = objectBounds;
         _paths = paths;
     }
@@ -30,13 +28,13 @@ public class DefaultSimulator : IElementSimulator
             return;
         }
         
-        var outgoingFlows = _tokenManager.GetOutgoingFlows(_model, token.CurrentElement);
+        var outgoingFlows = _tokenManager.GetOutgoingFlows(token.CurrentElement);
         
         bool splitting = outgoingFlows.Count() > 1;
         if (!splitting)
         {
             var flow = outgoingFlows.First();
-            var target = _tokenManager.GetTargetElement(_model, flow);
+            var target = _tokenManager.GetTargetElement(flow);
             if (target == null) return;
             
             var bounds = _objectBounds[target.Id];
@@ -53,7 +51,7 @@ public class DefaultSimulator : IElementSimulator
         bool first = true;
         foreach (var flow in outgoingFlows)
         {
-            var target = _tokenManager.GetTargetElement(_model, flow);
+            var target = _tokenManager.GetTargetElement(flow);
             if (target == null) continue;
 
             var bounds = _objectBounds[target.Id];

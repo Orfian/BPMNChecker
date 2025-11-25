@@ -11,11 +11,13 @@ namespace BPMNVisualizer.Simulation;
 
 public class TokenManager
 {
+    private readonly ModelRoot _model;
     private readonly Canvas _canvas;
     private readonly List<BPMNToken> _tokens = new();
 
-    public TokenManager(Canvas canvas)
+    public TokenManager(ModelRoot model, Canvas canvas)
     {
+        _model = model;
         _canvas = canvas;
     }
 
@@ -86,30 +88,71 @@ public class TokenManager
         token.Visual.Fill = waiting ? Brushes.Orange : Brushes.Green;
     }
     
-    public IEnumerable<SequenceFlow> GetOutgoingFlows(ModelRoot model, BaseElement element)
+    public IEnumerable<SequenceFlow> GetOutgoingFlows(BaseElement element)
     {
-        return model.AllObjectsWithIds.Values
+        return _model.AllObjectsWithIds.Values
             .OfType<SequenceFlow>()
             .Where(flow => flow.SourceRef?.Id == element.Id);
     }
 
-    public IEnumerable<SequenceFlow> GetIncomingFlows(ModelRoot model, BaseElement element)
+    public IEnumerable<SequenceFlow> GetIncomingFlows(BaseElement element)
     {
-        return  model.AllObjectsWithIds.Values
+        return  _model.AllObjectsWithIds.Values
             .OfType<SequenceFlow>()
             .Where(flow => flow.TargetRef?.Id == element.Id);
     }
     
-    public BaseElement? GetTargetElement(ModelRoot model, SequenceFlow flow)
+    public BaseElement? GetTargetElement(SequenceFlow flow)
     {
         var targetRef = flow.TargetRef;
         if (targetRef == null)
             return null;
         
-        if (model.AllObjectsWithIds.TryGetValue(targetRef.Id, out var target))
+        if (_model.AllObjectsWithIds.TryGetValue(targetRef.Id, out var target))
             return target as BaseElement;
         
         return null;
+    }
+    
+    public bool IsReachable(BaseElement start, BaseElement target)
+    {
+        if (start == null || target == null)
+            return false;
+
+        if (start.Id == target.Id)
+            return true;
+
+        var visited = new HashSet<string>();
+        var queue = new Queue<BaseElement>();
+        queue.Enqueue(start);
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+
+            if (visited.Contains(current.Id))
+                continue;
+
+            visited.Add(current.Id);
+
+            var outgoingFlows = GetOutgoingFlows(current);
+            if (outgoingFlows == null || !outgoingFlows.Any())
+                continue;
+
+            foreach (var flow in outgoingFlows)
+            {
+                var next = GetTargetElement(flow);
+                if (next == null) continue;
+
+                if (next.Id == target.Id)
+                    return true;
+
+                if (!visited.Contains(next.Id))
+                    queue.Enqueue(next);
+            }
+        }
+
+        return false;
     }
 
     public IEnumerable<BPMNToken> Tokens => _tokens;

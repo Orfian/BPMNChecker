@@ -9,10 +9,10 @@ namespace BPMNVisualizer.Simulation.Simulators;
 
 public class GatewaySimulator : DefaultSimulator
 {
-    private readonly Dictionary<string, Dictionary<string, Queue<BPMNToken>>> _parallelJoinBuffers = new();
+    private readonly Dictionary<string, Dictionary<string, Queue<BPMNToken>>> _joinBuffers = new();
 
-    public GatewaySimulator(ILogger logger, TokenManager tokenManager, ModelRoot model, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
-        : base(logger, tokenManager, model, objectBounds, paths)
+    public GatewaySimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
+        : base(logger, tokenManager, objectBounds, paths)
     {}
     
     public override void OnTokenArrived(BPMNToken token)
@@ -29,7 +29,7 @@ public class GatewaySimulator : DefaultSimulator
             return;
         }
         
-        var outgoingFlows = _tokenManager.GetOutgoingFlows(_model, token.CurrentElement);
+        var outgoingFlows = _tokenManager.GetOutgoingFlows(token.CurrentElement);
         if (!outgoingFlows.Any())
         {
             _logger.Information($"Gateway {gateway.Id} has no outgoing flows.");
@@ -62,7 +62,7 @@ public class GatewaySimulator : DefaultSimulator
 
     private void HandleParallelGateway(BPMNToken token, ParallelGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
-        var incomingFlows = _tokenManager.GetIncomingFlows(_model, gateway);
+        var incomingFlows = _tokenManager.GetIncomingFlows(gateway);
         bool joining = incomingFlows.Count() > 1;
         
         if (!joining)
@@ -71,10 +71,10 @@ public class GatewaySimulator : DefaultSimulator
             return;
         }
 
-        if (!_parallelJoinBuffers.TryGetValue(gateway.Id, out var buffer))
+        if (!_joinBuffers.TryGetValue(gateway.Id, out var buffer))
         {
             buffer = new Dictionary<string, Queue<BPMNToken>>();
-            _parallelJoinBuffers[gateway.Id] = buffer;
+            _joinBuffers[gateway.Id] = buffer;
         }
         
         foreach (var flow in incomingFlows)
@@ -91,12 +91,11 @@ public class GatewaySimulator : DefaultSimulator
             buffer[incomingFlowId].Enqueue(token);
             _tokenManager.SetTokenWaiting(token, true);
         }
+        
+        bool allTokensArrived = incomingFlows.All(flow => buffer.ContainsKey(flow.Id) && buffer[flow.Id].Count > 0);
 
-        while (true)
+        if (allTokensArrived)
         {
-            bool allTokensArrived = incomingFlows.All(flow => buffer.ContainsKey(flow.Id) && buffer[flow.Id].Count > 0);
-            if (!allTokensArrived) break;
-
             var tokensToJoin = new List<BPMNToken>();
             foreach (var flow in incomingFlows)
             {
@@ -119,12 +118,18 @@ public class GatewaySimulator : DefaultSimulator
             
             var emptyKeys = buffer.Where(kv => kv.Value.Count == 0).Select(kv => kv.Key).ToList();
             foreach (var key in emptyKeys) buffer.Remove(key);
-            if (buffer.Count == 0) _parallelJoinBuffers.Remove(gateway.Id);
+            if (buffer.Count == 0) _joinBuffers.Remove(gateway.Id);
         }
     }
 
     private void HandleExclusiveGateway(BPMNToken token, ExclusiveGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
+        if (outgoingFlows.Count() == 1)
+        {
+            base.OnTokenArrived(token);
+            return;
+        }
+        
         var choices = outgoingFlows
             .Select(f => f.Name ?? f.Id)
             .ToList();
@@ -137,7 +142,7 @@ public class GatewaySimulator : DefaultSimulator
         var chosenFlow = outgoingFlows.FirstOrDefault(f => (f.Name ?? f.Id) == choice);
         if (chosenFlow == null) return;
 
-        var next = _tokenManager.GetTargetElement(_model, chosenFlow);
+        var next = _tokenManager.GetTargetElement(chosenFlow);
         if (next == null) return;
 
         if (_objectBounds.TryGetValue(next.Id, out var bounds))
@@ -149,6 +154,105 @@ public class GatewaySimulator : DefaultSimulator
     
     private void HandleInclusiveGateway(BPMNToken token, InclusiveGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
+        var incomingFlows = _tokenManager.GetIncomingFlows(gateway);
+        bool joining = incomingFlows.Count() > 1;
+        
+        if (!joining)
+        {
+            SplitInclusiveGateway(token, gateway, outgoingFlows);
+            return;
+        }
+        
+        if (!_joinBuffers.TryGetValue(gateway.Id, out var buffer))
+        {
+            buffer = new Dictionary<string, Queue<BPMNToken>>();
+            _joinBuffers[gateway.Id] = buffer;
+        }
+        
+        foreach (var flow in incomingFlows)
+        {
+            if (!buffer.ContainsKey(flow.Id))
+            {
+                buffer[flow.Id] = new Queue<BPMNToken>();
+            }
+        }
+        
+        var incomingFlowId = token.CurrentSequenceFlow?.Id;
+        if (!string.IsNullOrEmpty(incomingFlowId) && buffer.ContainsKey(incomingFlowId))
+        {
+            buffer[incomingFlowId].Enqueue(token);
+            _tokenManager.SetTokenWaiting(token, true);
+        }
+        
+        bool allTokensArrived = incomingFlows.All(flow => buffer.ContainsKey(flow.Id) && buffer[flow.Id].Count > 0);
+        if (!allTokensArrived)
+        {
+            // check if any tokens are able to traverse here
+            // check all tokens in the system (skipping those at this gateway)
+            // if any token is at an element that can reach this gateway, we wait
+            var allTokens = _tokenManager.GetAllTokens();
+            if (allTokens.Count == 1)
+            {
+                allTokensArrived = true;
+            }
+            else
+            {
+                allTokensArrived = true;
+                
+                foreach (var tok in allTokens)
+                {
+                    if (tok.CurrentElement.Id == gateway.Id && tok.IsWaiting) continue;
+
+                    if(_tokenManager.IsReachable(tok.CurrentElement, gateway))
+                    {
+                        allTokensArrived = false;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (allTokensArrived)
+        {
+            var tokensToJoin = new List<BPMNToken>();
+            foreach (var flow in incomingFlows)
+            {
+                if (buffer.TryGetValue(flow.Id, out var q) && q.Count > 0)
+                {
+                    tokensToJoin.Add(q.Dequeue());
+                }
+            }
+            
+            if (tokensToJoin.Count == 0) return;
+            
+            bool first = true;
+            
+            foreach (var tok in tokensToJoin)
+            {
+                if (first)
+                {
+                    SplitInclusiveGateway(tok, gateway, outgoingFlows);
+                    first = false;
+                    continue;
+                }
+                
+                _tokenManager.RemoveToken(tok);
+            }
+            
+            var emptyKeys = buffer.Where(kv => kv.Value.Count == 0).Select(kv => kv.Key).ToList();
+            foreach (var key in emptyKeys) buffer.Remove(key);
+            if (buffer.Count == 0) _joinBuffers.Remove(gateway.Id);
+        }
+    }
+    
+    private void SplitInclusiveGateway(BPMNToken token, InclusiveGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
+    {
+        if (outgoingFlows.Count() == 1)
+        {
+            base.OnTokenArrived(token);
+            return;
+        }
+        
         var choices = outgoingFlows
             .Select(f => f.Name ?? f.Id)
             .ToList();
@@ -173,7 +277,7 @@ public class GatewaySimulator : DefaultSimulator
             var flow = outgoingFlows.FirstOrDefault(f => (f.Name ?? f.Id) == choice);
             if (flow == null) continue;
 
-            var next = _tokenManager.GetTargetElement(_model, flow);
+            var next = _tokenManager.GetTargetElement(flow);
             if (next == null) continue;
 
             if (_objectBounds.TryGetValue(next.Id, out var bounds))
@@ -182,6 +286,7 @@ public class GatewaySimulator : DefaultSimulator
 
                 if (first)
                 {
+                    _tokenManager.SetTokenWaiting(token, false);
                     _tokenManager.MoveToken(token, next, flow, path, bounds);
                     first = false;
                 }
@@ -213,7 +318,7 @@ public class GatewaySimulator : DefaultSimulator
             var flow = outgoingFlows.FirstOrDefault(f => (f.Name ?? f.Id) == choice);
             if (flow == null) continue;
 
-            var next = _tokenManager.GetTargetElement(_model, flow);
+            var next = _tokenManager.GetTargetElement(flow);
             if (next == null) continue;
 
             if (_objectBounds.TryGetValue(next.Id, out var bounds))
@@ -249,7 +354,7 @@ public class GatewaySimulator : DefaultSimulator
         var chosenFlow = outgoingFlows.FirstOrDefault(f => (f.Name ?? f.Id) == chosenEvent);
         if (chosenFlow == null) return;
 
-        var next = _tokenManager.GetTargetElement(_model, chosenFlow);
+        var next = _tokenManager.GetTargetElement(chosenFlow);
         if (next == null) return;
 
         if (_objectBounds.TryGetValue(next.Id, out var bounds))

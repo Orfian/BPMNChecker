@@ -8,10 +8,8 @@ namespace BPMNVisualizer.Simulation.Simulators;
 
 public class ActivitySimulator : DefaultSimulator
 {
-    private readonly Dictionary<string, List<BPMNToken>> _waitUserTask = new(StringComparer.OrdinalIgnoreCase);
-    
-    public ActivitySimulator(ILogger logger, TokenManager tokenManager, ModelRoot model, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
-        : base(logger, tokenManager, model, objectBounds, paths)
+    public ActivitySimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
+        : base(logger, tokenManager, objectBounds, paths)
     {
     }
     
