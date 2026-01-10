@@ -1,12 +1,77 @@
 ﻿using System.Windows;
-using BPMNModel;
+using BPMNModel.Model;
+using Serilog;
+
+namespace BPMNVisualizer.Simulation.Simulators;
+
+public class ActivitySimulator : BaseSimulator
+{
+    public ActivitySimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<System.Windows.Point>> paths) : base(logger, tokenManager, objectBounds, paths)
+    {
+    }
+
+    public override void Evaluate(BPMNToken token, IList<SimulationAction> actions)
+    {
+        if (token?.CurrentElement is not Activity activity)
+        {
+            base.Evaluate(token, actions);
+            return;
+        }
+
+        switch (activity)
+        {
+            case SubProcess subProcess:
+                HandleSubProcess(token, subProcess, actions);
+                break;
+
+            case CallActivity callActivity:
+                HandleCallActivity(token, callActivity, actions);
+                break;
+
+            default:
+                base.Evaluate(token, actions);
+                break;
+        }
+    }
+
+    private void HandleSubProcess(BPMNToken token, SubProcess subProcess, IList<SimulationAction> actions)
+    {
+        if (token.IsWaiting)
+            return;
+
+        var startEvents = subProcess.FlowElements
+            .OfType<StartEvent>()
+            .ToList();
+
+        if (!startEvents.Any())
+        {
+            base.Evaluate(token, actions);
+            return;
+        }
+
+        actions.Add(new SetTokenWaitingAction(token, true));
+
+        foreach (var startEvent in startEvents)
+        {
+            actions.Add(new SpawnTokenAction(startEvent, token));
+        }
+    }
+    
+    private void HandleCallActivity(BPMNToken token, CallActivity callActivity, IList<SimulationAction> actions)
+    {
+        base.Evaluate(token, actions);
+    }
+}
+
+/*
+using System.Windows;
 using BPMNModel.Model;
 using Serilog;
 using Point = System.Windows.Point;
 
 namespace BPMNVisualizer.Simulation.Simulators;
 
-public class ActivitySimulator : DefaultSimulator
+public class ActivitySimulator : BaseSimulator
 {
     public ActivitySimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
         : base(logger, tokenManager, objectBounds, paths)
@@ -124,3 +189,4 @@ public class ActivitySimulator : DefaultSimulator
         base.OnTokenArrived(token);
     }
 }
+*/

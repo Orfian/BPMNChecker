@@ -2,5 +2,6 @@
 
 public interface IElementSimulator
 {
-    void OnTokenArrived(BPMNToken token);
+    //void OnTokenArrived(BPMNToken token);
+    void Evaluate(BPMNToken token, IList<SimulationAction> actions);
 }

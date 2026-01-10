@@ -38,6 +38,7 @@ namespace BPMNVisualizer.Utility
             // Gateway brushes
             _semanticCache.TryAdd("Gateway.Default", Brushes.LightGray);
             _semanticCache.TryAdd("Gateway.Exclusive", Brushes.LightCoral);
+            _semanticCache.TryAdd("Gateway.Inclusive", Brushes.Orange);
             _semanticCache.TryAdd("Gateway.Parallel", Brushes.LightGreen);
             _semanticCache.TryAdd("Gateway.EventBased", Brushes.LightGoldenrodYellow);
             _semanticCache.TryAdd("Gateway.Complex", Brushes.LightBlue);
@@ -81,7 +82,7 @@ namespace BPMNVisualizer.Utility
             return gateway switch
             {
                 ExclusiveGateway => _semanticCache["Gateway.Exclusive"],
-                InclusiveGateway => _semanticCache["Gateway.Exclusive"],
+                InclusiveGateway => _semanticCache["Gateway.Inclusive"],
                 ParallelGateway => _semanticCache["Gateway.Parallel"],
                 EventBasedGateway => _semanticCache["Gateway.EventBased"],
                 ComplexGateway => _semanticCache["Gateway.Complex"],
