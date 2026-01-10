@@ -223,4 +223,61 @@ public class TokenManager
         token.CurrentElement = target;
         token.CurrentSequenceFlow = currentFlow;
     }
+    
+    public Polygon AddChoiceIndicator(Point position, Point direction)
+    {
+        var triangle = new Polygon
+        {
+            Points = new PointCollection
+            {
+                new Point(position.X, position.Y - 20),
+                new Point(position.X - 10, position.Y),
+                new Point(position.X + 10, position.Y)
+            },
+            Stroke = Brushes.Black,
+            StrokeThickness = 1,
+            Fill = Brushes.Yellow,
+        };
+
+        double dx = direction.X - position.X;
+        double dy = direction.Y - position.Y;
+        double angle = System.Math.Atan2(dy, dx) * 180.0 / System.Math.PI + 90.0;
+
+        triangle.RenderTransform = new RotateTransform(angle, position.X, position.Y);
+
+        _canvas.Children.Add(triangle);
+        
+        return triangle;
+    }
+    
+    public Polygon SetIndicatorColor(Polygon indicator, bool selected)
+    {
+        var newColor = selected ? Brushes.LawnGreen : Brushes.Yellow;
+        indicator.Fill = newColor;
+        
+        _canvas.Children.Remove(indicator);
+        _canvas.Children.Add(indicator);
+        
+        return indicator;
+    }
+    
+    public Polygon SetHoverIndicatorColor(Polygon indicator, bool selected, bool hover)
+    {
+        var newColor = selected ? Brushes.LawnGreen : Brushes.Yellow;
+        if (hover)
+        {
+            newColor = selected ? Brushes.LimeGreen : Brushes.Gold;
+        }
+        indicator.Fill = newColor;
+        
+        _canvas.Children.Remove(indicator);
+        _canvas.Children.Add(indicator);
+        
+        return indicator;
+    }
+    
+    public void RemoveChoiceIndicator(Polygon indicator)
+    {
+        _canvas.Children.Remove(indicator);
+    }
 }

@@ -31,3 +31,14 @@ public record SetTokenWaitingAction(
     bool IsWaiting
 ) : SimulationAction;
 
+public record RequestGatewayChoiceAction(
+    BPMNToken Token,
+    Gateway Gateway,
+    IEnumerable<SequenceFlow> OutgoingFlows,
+    bool MultiSelect,
+    SequenceFlow? DefaultFlow
+) : SimulationAction;
+
+public record ResolveGatewayChoiceAction(
+    GatewayChoice GatewayChoice
+) : SimulationAction;

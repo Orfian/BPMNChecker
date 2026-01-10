@@ -73,6 +73,8 @@ namespace BPMNVisualizer
         private void Reset_Click(object sender, RoutedEventArgs e)
         {
             tokenManager.ClearAllTokens();
+            simulator.ClearAllActions();
+            simulator.ClearPendingChoices();
             
             SimButt.Content = "Simulate";
             SimButt.ToolTip = "Start simulation";

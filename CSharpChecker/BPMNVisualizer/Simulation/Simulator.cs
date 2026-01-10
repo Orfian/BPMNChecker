@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Shapes;
 using BPMNModel;
 using BPMNModel.Model;
 using BPMNVisualizer.Simulation.Simulators;
@@ -20,6 +21,8 @@ public class Simulator
     private readonly GatewaySimulator _gatewaySimulator;
 
     private readonly List<SimulationAction> _actions = new();
+    private readonly List<SimulationAction> _priorityActions = new();
+    private List<GatewayChoice> _pendingChoices = new();
 
     public Simulator(ILogger logger, TokenManager tokenManager, ModelRoot model, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
     {
@@ -98,12 +101,15 @@ public class Simulator
             token.IsEvaluated = true;
         }
 
-        CommitActions();
+        CommitActions(_priorityActions);
+        _priorityActions.Clear();
+        
+        CommitActions(_actions);
     }
     
-    private void CommitActions()
+    private void CommitActions(IList<SimulationAction> actions)
     {
-        foreach (var action in _actions)
+        foreach (var action in actions)
         {
             switch (action)
             {
@@ -161,6 +167,114 @@ public class Simulator
                     _tokenManager.SetTokenWaiting(wait.Token, wait.IsWaiting);
                     break;
                 
+                case RequestGatewayChoiceAction request:
+                    var gatewayChoice = new GatewayChoice
+                    {
+                        Token = request.Token,
+                        Gateway = request.Gateway,
+                        OutgoingFlows = request.OutgoingFlows,
+                        MultiSelect = request.MultiSelect,
+                        DefaultFlow = request.DefaultFlow
+                    };
+                    
+                    foreach (var flow in request.OutgoingFlows)
+                    {
+                        var points = _paths.TryGetValue(flow.Id, out var path) ? path : null;
+                        if (points != null && points.Any())
+                        {
+                            var firstPoint = points.First();
+                            var secondPoint = points.Skip(1).FirstOrDefault();
+                            
+                            var triangle = _tokenManager.AddChoiceIndicator(firstPoint, secondPoint);
+                            
+                            var indicator = new Indicator
+                            {
+                                Visual = triangle,
+                                Flow = flow,
+                                Selected = false
+                            };
+                            
+                            gatewayChoice.Indicators.Add(indicator);
+                            
+                            triangle.MouseDown += (s, e) =>
+                            {
+                                _gatewaySimulator.UpdatePendingChoices(indicator, gatewayChoice);
+                            };
+                            
+                            triangle.MouseEnter += (s, e) =>
+                            {
+                                _tokenManager.SetHoverIndicatorColor(triangle, indicator.Selected, true);
+                            };
+                            
+                            triangle.MouseLeave += (s, e) =>
+                            {
+                                _tokenManager.SetHoverIndicatorColor(triangle, indicator.Selected, false);
+                            };
+                        }
+                    }
+                    
+                    if (gatewayChoice.DefaultFlow != null)
+                    {
+                        var defaultIndicator = gatewayChoice.Indicators
+                            .FirstOrDefault(ind => ind.Flow == gatewayChoice.DefaultFlow);
+                        if (defaultIndicator != null)
+                        {
+                            defaultIndicator.Selected = true;
+                            _tokenManager.SetIndicatorColor(defaultIndicator.Visual, true);
+                        }
+                    }
+                    else
+                    {
+                        if (gatewayChoice.Gateway is not ComplexGateway && gatewayChoice.Gateway is not EventBasedGateway)
+                        {
+                            var ind = gatewayChoice.Indicators.First();
+                            ind.Selected = true;
+                            _tokenManager.SetIndicatorColor(ind.Visual, true);
+                        }
+                    }
+                    
+                    _pendingChoices.Add(gatewayChoice);
+
+                    _priorityActions.Add(new ResolveGatewayChoiceAction(gatewayChoice));
+                    break;
+                
+                case ResolveGatewayChoiceAction resolve:
+                    var choice = resolve.GatewayChoice;
+                    
+                    var selectedFlows = choice.Indicators
+                        .Where(ind => ind.Selected)
+                        .Select(ind => ind.Flow)
+                        .ToList();
+                    
+                    switch (choice.Gateway)
+                    {
+                        case ParallelGateway pg:
+                            _logger.Warning("Unexpected gateway action: {ActionType}", choice.Gateway.GetType().Name);
+                            break;
+                        case ExclusiveGateway eg:
+                            _gatewaySimulator.ResolveExclusiveGateway(choice.Token, eg, selectedFlows, _actions);
+                            break;
+                        case InclusiveGateway ig:
+                            _gatewaySimulator.ResolveInclusiveGateway(choice.Token, ig, selectedFlows, _actions);
+                            break;
+                        case ComplexGateway cg:
+                            _gatewaySimulator.ResolveComplexGateway(choice.Token, cg, selectedFlows, _actions);
+                            break;
+                        case EventBasedGateway ebg:
+                            _gatewaySimulator.ResolveEventBasedGateway(choice.Token, ebg, selectedFlows, _actions);
+                            break;
+                        default:
+                            _logger.Warning("Unknown gateway action: {ActionType}", choice.Gateway.GetType().Name);
+                            break;
+                    }
+
+                    foreach (var indicator in resolve.GatewayChoice.Indicators)
+                    {
+                        _tokenManager.RemoveChoiceIndicator(indicator.Visual);
+                    }
+                    _pendingChoices.Remove(resolve.GatewayChoice);
+                    break;
+                
                 default:
                     _logger.Warning("Unknown simulation action: {ActionType}", action.GetType().Name);
                     break;
@@ -187,5 +301,23 @@ public class Simulator
 
         var def = startEvent.EventDefinitions.First();
         return def is MessageEventDefinition || def is SignalEventDefinition;
+    }
+    
+    public void ClearAllActions()
+    {
+        _priorityActions.Clear();
+        _actions.Clear();
+    }
+    
+    public void ClearPendingChoices()
+    {
+        foreach (var choice in _pendingChoices)
+        {
+            foreach (var indicator in choice.Indicators)
+            {
+                _tokenManager.RemoveChoiceIndicator(indicator.Visual);
+            }
+        }
+        _pendingChoices.Clear();
     }
 }
