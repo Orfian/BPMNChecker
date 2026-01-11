@@ -252,9 +252,6 @@ public class TokenManager
         var newColor = selected ? Brushes.LawnGreen : Brushes.Yellow;
         indicator.Fill = newColor;
         
-        _canvas.Children.Remove(indicator);
-        _canvas.Children.Add(indicator);
-        
         return indicator;
     }
     
@@ -266,9 +263,6 @@ public class TokenManager
             newColor = selected ? Brushes.LimeGreen : Brushes.Gold;
         }
         indicator.Fill = newColor;
-        
-        _canvas.Children.Remove(indicator);
-        _canvas.Children.Add(indicator);
         
         return indicator;
     }
