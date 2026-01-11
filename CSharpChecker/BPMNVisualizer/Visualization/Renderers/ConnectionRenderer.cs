@@ -44,13 +44,13 @@ namespace BPMNVisualizer.Visualization.Renderers
         {
             var visual = CreateBaseConnection(points, []);
         
-            if (IsDefaultFlow(flow))
+            if (Helpers.IsDefaultFlow(flow))
                 AddDefaultFlowMarker(points.First(), points.ElementAt(1));
         
-            if (IsConditionalFlow(flow))
+            if (Helpers.IsConditionalFlow(flow))
                 AddConditionalFlowMarker(points.First(), points.ElementAt(1));
 
-            AddArrowhead(points.Last(), GetDirection(points));
+            AddArrowhead(points.Last(), Helpers.GetDirection(points.ElementAt(points.Count() - 2), points.Last()));
             AddFlowLabel(flow, points);
         }
 
@@ -58,7 +58,7 @@ namespace BPMNVisualizer.Visualization.Renderers
         {
             var visual = CreateBaseConnection(points, [4.0, 2.0]);
             
-            AddOpenArrowhead(points.Last(), GetDirection(points));
+            AddOpenArrowhead(points.Last(), Helpers.GetDirection(points.ElementAt(points.Count() - 2), points.Last()));
             AddMessageLabel(messageFlow, points);
         }
 
@@ -71,37 +71,8 @@ namespace BPMNVisualizer.Visualization.Renderers
             if (association.AssociationDirection == AssociationDirection.One ||
                 association.AssociationDirection == AssociationDirection.Both)
             {
-                AddArrowhead(points.Last(), GetDirection(points));
+                AddArrowhead(points.Last(), Helpers.GetDirection(points.ElementAt(points.Count() - 2), points.Last()));
             }
-        }
-        
-        private bool IsDefaultFlow(SequenceFlow flow)
-        {
-            var sourceElement = flow.SourceRef;
-
-            return sourceElement switch
-            {
-                Activity a => a.Default?.Id == flow.Id,
-                ComplexGateway cg => cg.Default?.Id == flow.Id,
-                ExclusiveGateway eg => eg.Default?.Id == flow.Id,
-                InclusiveGateway ig => ig.Default?.Id == flow.Id,
-                _ => false
-            };
-        }
-
-        private bool IsConditionalFlow(SequenceFlow flow)
-        {
-            if (flow.ConditionExpression != null)
-            {
-                if (flow.SourceRef is Gateway)
-                {
-                    return false;
-                }
-
-                return true;
-            }
-
-            return false;
         }
         
         private Polyline CreateBaseConnection(IEnumerable<Point> points, DoubleCollection dashArray)
@@ -251,15 +222,6 @@ namespace BPMNVisualizer.Visualization.Renderers
             _canvas.Children.Add(label);
         }
         
-        private Vector GetDirection(IEnumerable<Point> points)
-        {
-            var start = points.ElementAt(points.Count() - 2);
-            var end = points.Last();
-            var direction = end - start;
-            direction.Normalize();
-            return direction;
-        }
-        
         private Point CalculateLabelPosition(IEnumerable<Point> points, double ratio)
         {
             var segment = FindLongestSegment(points);
@@ -280,7 +242,7 @@ namespace BPMNVisualizer.Visualization.Renderers
 
             for (int i = 0; i < pointList.Count - 1; i++)
             {
-                double currentDistance = CalculateDistance(
+                double currentDistance = Helpers.CalculateDistance(
                     pointList[i], 
                     pointList[i + 1]
                 );
@@ -295,13 +257,6 @@ namespace BPMNVisualizer.Visualization.Renderers
             return maxDistance > 0 
                 ? (pointList[maxIndex], pointList[maxIndex + 1])
                 : (pointList.First(), pointList.Last());
-        }
-
-        private double CalculateDistance(Point a, Point b)
-        {
-            double dx = b.X - a.X;
-            double dy = b.Y - a.Y;
-            return Math.Sqrt(dx * dx + dy * dy);
         }
     }
 }

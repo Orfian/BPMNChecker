@@ -3,6 +3,7 @@ using System.Windows.Shapes;
 using BPMNModel;
 using BPMNModel.Model;
 using BPMNVisualizer.Simulation.Simulators;
+using BPMNVisualizer.Utility;
 using Serilog;
 using Point = System.Windows.Point;
 
@@ -51,7 +52,7 @@ public class Simulator
 
         var startEvents = allStartEvents
             .Where(se => !subProcessStartEventIds.Contains(se.Id))
-            .Where(se => !IsMessageOrSignalStart(se))
+            .Where(se => !Helpers.IsMessageOrSignalStart(se))
             .ToList();
 
         if (!startEvents.Any())
@@ -180,12 +181,12 @@ public class Simulator
                     foreach (var flow in request.OutgoingFlows)
                     {
                         var points = _paths.TryGetValue(flow.Id, out var path) ? path : null;
-                        if (points != null && points.Any())
+                        if (points != null && points.Count() >= 2)
                         {
-                            var firstPoint = points.First();
-                            var secondPoint = points.Skip(1).FirstOrDefault();
-                            
-                            var triangle = _tokenManager.AddChoiceIndicator(firstPoint, secondPoint);
+                            var first = points.First();
+                            var second = points.Skip(1).FirstOrDefault();
+                            var direction = Helpers.GetDirection(first, second);
+                            var triangle = _tokenManager.AddChoiceIndicator(first, direction);
                             
                             var indicator = new Indicator
                             {
@@ -292,15 +293,6 @@ public class Simulator
             _ => throw new NotSupportedException(
                 $"No simulator available for element type: {element.GetType().Name}")
         };
-    }
-
-    private bool IsMessageOrSignalStart(StartEvent startEvent)
-    {
-        if (startEvent?.EventDefinitions == null || !startEvent.EventDefinitions.Any())
-            return false;
-
-        var def = startEvent.EventDefinitions.First();
-        return def is MessageEventDefinition || def is SignalEventDefinition;
     }
     
     public void ClearAllActions()

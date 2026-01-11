@@ -14,6 +14,7 @@ public class TokenManager
     private readonly ModelRoot _model;
     private readonly Canvas _canvas;
     private readonly List<BPMNToken> _tokens = new();
+    private bool tmp_test = true;
 
     public TokenManager(ModelRoot model, Canvas canvas)
     {
@@ -223,30 +224,26 @@ public class TokenManager
         token.CurrentElement = target;
         token.CurrentSequenceFlow = currentFlow;
     }
-    
-    public Polygon AddChoiceIndicator(Point position, Point direction)
+
+    public Polygon AddChoiceIndicator(Point position, Vector direction)
     {
+        Vector orthogonal = new Vector(-direction.Y, direction.X);
+
         var triangle = new Polygon
         {
             Points = new PointCollection
             {
-                new Point(position.X, position.Y - 20),
-                new Point(position.X - 10, position.Y),
-                new Point(position.X + 10, position.Y)
+                position + (direction * 20),
+                position + (orthogonal * 10),
+                position - (orthogonal * 10)
             },
             Stroke = Brushes.Black,
             StrokeThickness = 1,
             Fill = Brushes.Yellow,
         };
 
-        double dx = direction.X - position.X;
-        double dy = direction.Y - position.Y;
-        double angle = System.Math.Atan2(dy, dx) * 180.0 / System.Math.PI + 90.0;
-
-        triangle.RenderTransform = new RotateTransform(angle, position.X, position.Y);
-
         _canvas.Children.Add(triangle);
-        
+    
         return triangle;
     }
     

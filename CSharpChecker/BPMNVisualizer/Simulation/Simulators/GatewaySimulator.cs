@@ -215,7 +215,15 @@ public class GatewaySimulator : BaseSimulator
             {
                 foreach (var t in allTokens)
                 {
-                    if (t.CurrentElement.Id == gateway.Id) continue;
+                    if (t.CurrentElement.Id == gateway.Id)
+                    {
+                        if (!t.IsEvaluated && t != token)
+                        {
+                            allTokensArrived = false;
+                            break;
+                        }
+                        continue;
+                    }
                     if (_tokenManager.IsReachable(t.CurrentElement, gateway))
                     {
                         allTokensArrived = false;
@@ -241,7 +249,7 @@ public class GatewaySimulator : BaseSimulator
         {
             if (first)
             {
-                SplitInclusiveGateway(token, gateway, outgoingFlows, actions);
+                SplitInclusiveGateway(t, gateway, outgoingFlows, actions);
                 first = false;
             }
             else
@@ -472,18 +480,6 @@ public class GatewaySimulator : BaseSimulator
                 _tokenManager.SetIndicatorColor(defaultIndicator.Visual, false);
             }
         }
-    }
-
-    private bool IsDefaultFlow(SequenceFlow flow)
-    {
-        return flow.SourceRef switch
-        {
-            Activity a => a.Default?.Id == flow.Id,
-            ComplexGateway cg => cg.Default?.Id == flow.Id,
-            ExclusiveGateway eg => eg.Default?.Id == flow.Id,
-            InclusiveGateway ig => ig.Default?.Id == flow.Id,
-            _ => false
-        };
     }
 }
 

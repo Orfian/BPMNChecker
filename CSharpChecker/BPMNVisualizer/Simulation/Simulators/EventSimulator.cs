@@ -78,11 +78,56 @@ public class EventSimulator : BaseSimulator
 
     private void HandleIntermediateCatchEvent(BPMNToken token, IntermediateCatchEvent catchEvent, IList<SimulationAction> actions)
     {
-        base.Evaluate(token, actions);
+        //base.Evaluate(token, actions);
+        
+        var eventDefinition = catchEvent.EventDefinitions.FirstOrDefault();
+        
+        switch (eventDefinition)
+        {
+            case MessageEventDefinition messageDef:
+                HandleMessageCatchEvent(token, messageDef, actions);
+                break;
+            case TimerEventDefinition timerDef:
+                HandleTimerCatchEvent(token, timerDef, actions);
+                break;
+            case ConditionalEventDefinition condDef:
+                HandleConditionalCatchEvent(token, condDef, actions);
+                break;
+            case SignalEventDefinition signalDef:
+                HandleSignalCatchEvent(token, signalDef, actions);
+                break;
+            default:
+                base.Evaluate(token, actions);
+                break;
+        }
     }
     
     private void HandleIntermediateThrowEvent(BPMNToken token, IntermediateThrowEvent throwEvent, IList<SimulationAction> actions)
     {
+        base.Evaluate(token, actions);
+    }
+    
+    private void HandleMessageCatchEvent(BPMNToken token, MessageEventDefinition messageDef, IList<SimulationAction> actions)
+    {
+        // Placeholder for message event handling logic
+        base.Evaluate(token, actions);
+    }
+    
+    private void HandleTimerCatchEvent(BPMNToken token, TimerEventDefinition timerDef, IList<SimulationAction> actions)
+    {
+        // Placeholder for timer event handling logic
+        base.Evaluate(token, actions);
+    }
+    
+    private void HandleConditionalCatchEvent(BPMNToken token, ConditionalEventDefinition condDef, IList<SimulationAction> actions)
+    {
+        // Placeholder for conditional event handling logic
+        base.Evaluate(token, actions);
+    }
+    
+    private void HandleSignalCatchEvent(BPMNToken token, SignalEventDefinition signalDef, IList<SimulationAction> actions)
+    {
+        // Placeholder for signal event handling logic
         base.Evaluate(token, actions);
     }
 }

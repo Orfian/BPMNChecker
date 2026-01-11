@@ -2,6 +2,7 @@
 using Serilog;
 using System.Collections.Concurrent;
 using BPMNModel.Model;
+using BPMNVisualizer.Utility;
 using Task = BPMNModel.Model.Task;
 using Utility;
 
@@ -84,7 +85,7 @@ namespace BPMNVisualizer.Utilities
 
         public SvgViewbox? GetEventIcon(Event evt)
         {
-            var (definition, isThrowing) = GetEventDefinition(evt);
+            var (definition, isThrowing) = Helpers.GetEventDefinition(evt);
             if (definition == null) return null;
 
             var fileName = definition switch
@@ -122,16 +123,6 @@ namespace BPMNVisualizer.Utilities
             };
 
             return fileName != null ? GetSvg("Activities", fileName) : null;
-        }
-
-        private (EventDefinition? Definition, bool IsThrowing) GetEventDefinition(Event e)
-        {
-            return e switch
-            {
-                CatchEvent catchEvent => (catchEvent.EventDefinitions.FirstOrDefault(), false),
-                ThrowEvent throwEvent => (throwEvent.EventDefinitions.FirstOrDefault(), true),
-                _ => (null, e is EndEvent)
-            };
         }
 
         public SvgViewbox? GetDataIcon(BaseElement elementType)

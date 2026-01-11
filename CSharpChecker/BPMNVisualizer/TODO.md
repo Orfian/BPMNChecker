@@ -12,10 +12,12 @@ MUST:
 - [Done] Cross Pool Connections
 - [Done] Export to PNG
 - [In Progress] Improve Simulation UI (add autoplay, step, restart and cancel)
-- [In Progress] Learn about multiple start events and implement accordingly
+- [Done] Learn about multiple start events and implement accordingly
 - [Done] Animation that goes on the flow lines
 - [Done] Look up all Objects that can have a Default Flow and change Inclusive Gateway simulation accordingly
-- [In Progress] Refactor to check tokens in phases (move, check, trigger) - Fix autotriggering of gateways after Inclusive and Parallel Gateways
+- [Done] Refactor to check tokens in phases (move, check, trigger) - Fix autotriggering of gateways after Inclusive and Parallel Gateways
+- [Done] Change pop up window UI in simulation mode into choice arrows
+- [In Progress] Handle timer, conditional, message, signal events in simulation mode
 
 WORKINGS:
 - [Done] Parallel Gateways join incoming tokens and wait for all the routes
@@ -26,6 +28,6 @@ NICE TO HAVE:
 - Zoom In/Out
 - Pan
 - Minimap(?)
-- [In Progress] Add text like "(Event)" or "(Gateway)" and "Default" next to choices in simulation mode
+- [Deprecated] Add text like "(Event)" or "(Gateway)" and "Default" next to choices in simulation mode
 - Dark mode
 - Find out where the location of connection annotations is saved and move them accordingly
