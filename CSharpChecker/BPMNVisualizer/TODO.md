@@ -17,7 +17,7 @@ MUST:
 - [Done] Look up all Objects that can have a Default Flow and change Inclusive Gateway simulation accordingly
 - [Done] Refactor to check tokens in phases (move, check, trigger) - Fix autotriggering of gateways after Inclusive and Parallel Gateways
 - [Done] Change pop up window UI in simulation mode into choice arrows
-- [In Progress] Handle timer, conditional, message, signal events in simulation mode
+- [Done] Handle timer, conditional, message, signal events in simulation mode
 
 WORKINGS:
 - [Done] Parallel Gateways join incoming tokens and wait for all the routes

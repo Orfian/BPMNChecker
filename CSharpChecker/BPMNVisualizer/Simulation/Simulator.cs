@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Shapes;
 using BPMNModel;
 using BPMNModel.Model;
 using BPMNVisualizer.Simulation.Simulators;
@@ -84,8 +83,6 @@ public class Simulator
     
     public void NextStep()
     {
-        _actions.Clear();
-
         var tokens = _tokenManager.GetAllTokens().ToList();
         foreach (var token in tokens)
         {
@@ -106,6 +103,7 @@ public class Simulator
         _priorityActions.Clear();
         
         CommitActions(_actions);
+        _actions.Clear();
     }
     
     private void CommitActions(IList<SimulationAction> actions)
@@ -276,6 +274,30 @@ public class Simulator
                     _pendingChoices.Remove(resolve.GatewayChoice);
                     break;
                 
+                case EventDelayAction requestDelay:
+                    var eventPosition = _objectBounds.TryGetValue(requestDelay.Event.Id, out var evtBounds)
+                        ? new Point(evtBounds.X + evtBounds.Width / 2, evtBounds.Y + evtBounds.Height / 2)
+                        : new Point(0, 0);
+                    
+                    var arrow= _tokenManager.AddChoiceIndicator(eventPosition, new Vector(1, 0));
+                    
+                    arrow.MouseDown += (s, e) =>
+                    {
+                        _eventSimulator.ResolveEventDelay(requestDelay.Token, arrow, _actions);
+                    };
+                    
+                    arrow.MouseEnter += (s, e) =>
+                    {
+                        _tokenManager.SetHoverIndicatorColor(arrow, false, true);
+                    };
+                            
+                    arrow.MouseLeave += (s, e) =>
+                    {
+                        _tokenManager.SetHoverIndicatorColor(arrow, false, false);
+                    };
+                    
+                    break;
+                    
                 default:
                     _logger.Warning("Unknown simulation action: {ActionType}", action.GetType().Name);
                     break;

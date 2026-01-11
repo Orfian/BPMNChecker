@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Shapes;
 using BPMNModel.Model;
 using Serilog;
 
@@ -78,8 +79,6 @@ public class EventSimulator : BaseSimulator
 
     private void HandleIntermediateCatchEvent(BPMNToken token, IntermediateCatchEvent catchEvent, IList<SimulationAction> actions)
     {
-        //base.Evaluate(token, actions);
-        
         var eventDefinition = catchEvent.EventDefinitions.FirstOrDefault();
         
         switch (eventDefinition)
@@ -109,25 +108,43 @@ public class EventSimulator : BaseSimulator
     
     private void HandleMessageCatchEvent(BPMNToken token, MessageEventDefinition messageDef, IList<SimulationAction> actions)
     {
-        // Placeholder for message event handling logic
-        base.Evaluate(token, actions);
+        if (token.IsWaiting)
+            return;
+        
+        actions.Add(new SetTokenWaitingAction(token, true));
+        actions.Add(new EventDelayAction(token, token.CurrentElement as Event));
     }
     
     private void HandleTimerCatchEvent(BPMNToken token, TimerEventDefinition timerDef, IList<SimulationAction> actions)
     {
-        // Placeholder for timer event handling logic
-        base.Evaluate(token, actions);
+        if (token.IsWaiting)
+            return;
+        
+        actions.Add(new SetTokenWaitingAction(token, true));
+        actions.Add(new EventDelayAction(token, token.CurrentElement as Event));
     }
     
     private void HandleConditionalCatchEvent(BPMNToken token, ConditionalEventDefinition condDef, IList<SimulationAction> actions)
     {
-        // Placeholder for conditional event handling logic
-        base.Evaluate(token, actions);
+        if (token.IsWaiting)
+            return;
+        
+        actions.Add(new SetTokenWaitingAction(token, true));
+        actions.Add(new EventDelayAction(token, token.CurrentElement as Event));
     }
     
     private void HandleSignalCatchEvent(BPMNToken token, SignalEventDefinition signalDef, IList<SimulationAction> actions)
     {
-        // Placeholder for signal event handling logic
+        if (token.IsWaiting)
+            return;
+        
+        actions.Add(new SetTokenWaitingAction(token, true));
+        actions.Add(new EventDelayAction(token, token.CurrentElement as Event));
+    }
+    
+    public void ResolveEventDelay(BPMNToken token, Polygon indicator, IList<SimulationAction> actions)
+    {
+        _tokenManager.RemoveChoiceIndicator(indicator);
         base.Evaluate(token, actions);
     }
 }

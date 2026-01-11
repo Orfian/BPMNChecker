@@ -42,3 +42,8 @@ public record RequestGatewayChoiceAction(
 public record ResolveGatewayChoiceAction(
     GatewayChoice GatewayChoice
 ) : SimulationAction;
+
+public record EventDelayAction(
+    BPMNToken Token,
+    Event Event
+) : SimulationAction;

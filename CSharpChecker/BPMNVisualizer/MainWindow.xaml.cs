@@ -29,10 +29,10 @@ namespace BPMNVisualizer
         public MainWindow()
         {
             //var filePath = @"diagrams/CamundaModeler_almost_all_set.bpmn";
-            var filePath = @"diagrams/BookHolidaySagaPatternV2.bpmn";
+            //var filePath = @"diagrams/BookHolidaySagaPatternV2.bpmn";
             //var filePath = @"diagrams/all_icons.bpmn";
             //var filePath = @"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn";
-            //var filePath = @"diagrams/test.bpmn";
+            var filePath = @"diagrams/test.bpmn";
             
             InitializeComponent();
             _logger = LoggerFactory.Create();
