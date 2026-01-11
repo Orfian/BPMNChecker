@@ -2,6 +2,7 @@
 using System.Windows.Shapes;
 using BPMNModel.Model;
 using Serilog;
+using Point = System.Windows.Point;
 
 namespace BPMNVisualizer.Simulation.Simulators;
 
@@ -106,6 +107,26 @@ public class EventSimulator : BaseSimulator
         base.Evaluate(token, actions);
     }
     
+    private void HandleMessageStartEvent(BPMNToken token, MessageEventDefinition messageDef, IList<SimulationAction> actions)
+    {
+        base.Evaluate(token, actions);
+    }
+    
+    private void HandleTimerStartEvent(BPMNToken token, TimerEventDefinition timerDef, IList<SimulationAction> actions)
+    {
+        base.Evaluate(token, actions);
+    }
+    
+    private void HandleConditionalStartEvent(BPMNToken token, ConditionalEventDefinition condDef, IList<SimulationAction> actions)
+    {
+        base.Evaluate(token, actions);
+    }
+    
+    private void HandleSignalStartEvent(BPMNToken token, SignalEventDefinition signalDef, IList<SimulationAction> actions)
+    {
+        base.Evaluate(token, actions);
+    }
+    
     private void HandleMessageCatchEvent(BPMNToken token, MessageEventDefinition messageDef, IList<SimulationAction> actions)
     {
         if (token.IsWaiting)
@@ -146,6 +167,33 @@ public class EventSimulator : BaseSimulator
     {
         _tokenManager.RemoveChoiceIndicator(indicator);
         base.Evaluate(token, actions);
+    }
+    
+    public void SpawnStartEventIndicator(StartEvent startEvent, BPMNToken? parentToken, IList<SimulationAction> actions)
+    {
+        if (_objectBounds.TryGetValue(startEvent.Id, out var bounds))
+        {
+            var arrow = _tokenManager.AddArrowIndicator(
+                new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2),
+                new Vector(1, 0));
+                    
+            arrow.MouseDown += (s, e) =>
+            {
+                var token = _tokenManager.AddToken(startEvent, bounds);
+                token.Parent = parentToken;
+                _tokenManager.RemoveChoiceIndicator(arrow);
+            };
+                            
+            arrow.MouseEnter += (s, e) =>
+            {
+                _tokenManager.SetHoverIndicatorColor(arrow, false, true);
+            };
+                            
+            arrow.MouseLeave += (s, e) =>
+            {
+                _tokenManager.SetHoverIndicatorColor(arrow, false, false);
+            };
+        }
     }
 }
 /*

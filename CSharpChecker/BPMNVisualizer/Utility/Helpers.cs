@@ -57,12 +57,12 @@ public static class Helpers
         return Math.Sqrt(dx * dx + dy * dy);
     }
     
-    public static bool IsMessageOrSignalStart(StartEvent startEvent)
+    public static bool IsUserStart(StartEvent startEvent)
     {
         if (startEvent?.EventDefinitions == null || !startEvent.EventDefinitions.Any())
             return false;
 
         var def = startEvent.EventDefinitions.First();
-        return def is MessageEventDefinition || def is SignalEventDefinition;
+        return def is MessageEventDefinition || def is SignalEventDefinition || def is ConditionalEventDefinition || def is TimerEventDefinition;
     }
 }

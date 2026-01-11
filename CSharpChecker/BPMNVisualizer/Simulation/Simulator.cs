@@ -48,23 +48,16 @@ public class Simulator
             .SelectMany(sp => sp.FlowElements.OfType<StartEvent>())
             .Select(se => se.Id)
             .ToHashSet();
+        
+        var userStartEvents = allStartEvents
+            .Where(Helpers.IsUserStart)
+            .Where(se => !subProcessStartEventIds.Contains(se.Id))
+            .ToList();
 
         var startEvents = allStartEvents
             .Where(se => !subProcessStartEventIds.Contains(se.Id))
-            .Where(se => !Helpers.IsMessageOrSignalStart(se))
+            .Where(se => !Helpers.IsUserStart(se))
             .ToList();
-
-        if (!startEvents.Any())
-        {
-            startEvents = allStartEvents
-                .Where(se => !subProcessStartEventIds.Contains(se.Id))
-                .ToList();
-        }
-
-        if (!startEvents.Any())
-        {
-            startEvents = allStartEvents;
-        }
 
         if (!startEvents.Any())
         {
@@ -77,6 +70,14 @@ public class Simulator
             if (_objectBounds.TryGetValue(startEvent.Id, out var bounds))
             {
                 _tokenManager.AddToken(startEvent, bounds);
+            }
+        }
+        
+        if (userStartEvents.Any())
+        {
+            foreach (var startEvent in userStartEvents)
+            {
+                _eventSimulator.SpawnStartEventIndicator(startEvent, null, _actions);
             }
         }
     }
@@ -184,7 +185,7 @@ public class Simulator
                             var first = points.First();
                             var second = points.Skip(1).FirstOrDefault();
                             var direction = Helpers.GetDirection(first, second);
-                            var triangle = _tokenManager.AddChoiceIndicator(first, direction);
+                            var triangle = _tokenManager.AddArrowIndicator(first, direction);
                             
                             var indicator = new Indicator
                             {
@@ -279,7 +280,7 @@ public class Simulator
                         ? new Point(evtBounds.X + evtBounds.Width / 2, evtBounds.Y + evtBounds.Height / 2)
                         : new Point(0, 0);
                     
-                    var arrow= _tokenManager.AddChoiceIndicator(eventPosition, new Vector(1, 0));
+                    var arrow= _tokenManager.AddArrowIndicator(eventPosition, new Vector(1, 0));
                     
                     arrow.MouseDown += (s, e) =>
                     {
@@ -297,7 +298,7 @@ public class Simulator
                     };
                     
                     break;
-                    
+                
                 default:
                     _logger.Warning("Unknown simulation action: {ActionType}", action.GetType().Name);
                     break;

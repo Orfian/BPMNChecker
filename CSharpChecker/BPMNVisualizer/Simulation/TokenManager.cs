@@ -225,7 +225,7 @@ public class TokenManager
         token.CurrentSequenceFlow = currentFlow;
     }
 
-    public Polygon AddChoiceIndicator(Point position, Vector direction)
+    public Polygon AddArrowIndicator(Point position, Vector direction)
     {
         Vector orthogonal = new Vector(-direction.Y, direction.X);
 
