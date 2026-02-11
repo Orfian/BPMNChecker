@@ -372,10 +372,20 @@ public class ActivityRenderer : IShapeRenderer
         AddDetailRow(grid, "Outgoing:", FormatConnections(activity.Outgoing), ref rowIndex);
         AddDetailRow(grid, "Lanes:", FormatLanes(activity.Lanes), ref rowIndex);
 
+        // ========== Call Activity Properties ==========
+        if (activity is CallActivity callActivity)
+        {
+            AddDetailRow(grid, "Called Element:", callActivity.CalledElementRef?.Id ?? "null", ref rowIndex);
+        }
+        
         // ========== Task-Specific Properties ==========
         if (activity is Task task)
         {
-            AddDetailRow(grid, "Type Specific:", GetTaskSpecificInfo(task), ref rowIndex);
+            AddDetailRow(grid, "Task Specific:", GetTaskSpecificInfo(task), ref rowIndex);
+        }
+        else if (activity is SubProcess subProcess)
+        {
+            AddDetailRow(grid, "SubProcess Type:", subProcess.TriggeredByEvent == true ? "Event-SubProcess" : "Standard SubProcess", ref rowIndex);
         }
 
         // ========== Loop Configuration ==========
@@ -438,116 +448,221 @@ public class ActivityRenderer : IShapeRenderer
         // ========== Camunda Extensions ==========
         var camundaInfo = new StringBuilder();
 
-        var camundaProps = activity.CamundaElements
-            .OfType<CamundaProperty>()
-            .ToList();
+        // 1. General Camunda Attributes
+        if (activity.Camunda_asyncBefore.HasValue) camundaInfo.AppendLine($"• Async Before: {activity.Camunda_asyncBefore}");
+        if (activity.Camunda_asyncAfter.HasValue) camundaInfo.AppendLine($"• Async After: {activity.Camunda_asyncAfter}");
+        if (!string.IsNullOrEmpty(activity.Camunda_jobPriority)) camundaInfo.AppendLine($"• Job Priority: {activity.Camunda_jobPriority}");
+        if (activity.Camunda_exclusive.HasValue) camundaInfo.AppendLine($"• Exclusive: {activity.Camunda_exclusive}");
 
+        // 2. Task Specific Camunda Attributes
+        switch (activity)
+        {
+            case UserTask ut:
+                if (!string.IsNullOrEmpty(ut.Camunda_assignee)) camundaInfo.AppendLine($"• Assignee: {ut.Camunda_assignee}");
+                if (!string.IsNullOrEmpty(ut.Camunda_candidateUsers)) camundaInfo.AppendLine($"• Candidate Users: {ut.Camunda_candidateUsers}");
+                if (!string.IsNullOrEmpty(ut.Camunda_candidateGroups)) camundaInfo.AppendLine($"• Candidate Groups: {ut.Camunda_candidateGroups}");
+                if (!string.IsNullOrEmpty(ut.Camunda_dueDate)) camundaInfo.AppendLine($"• Due Date: {ut.Camunda_dueDate}");
+                if (!string.IsNullOrEmpty(ut.Camunda_followUpDate)) camundaInfo.AppendLine($"• Follow Up Date: {ut.Camunda_followUpDate}");
+                if (!string.IsNullOrEmpty(ut.Camunda_priority)) camundaInfo.AppendLine($"• Priority: {ut.Camunda_priority}");
+                if (!string.IsNullOrEmpty(ut.Camunda_formKey)) camundaInfo.AppendLine($"• Form Key: {ut.Camunda_formKey}");
+                break;
+
+            case ServiceTask st:
+                if (!string.IsNullOrEmpty(st.Camunda_class)) camundaInfo.AppendLine($"• Class: {st.Camunda_class}");
+                if (!string.IsNullOrEmpty(st.Camunda_delegateExpression)) camundaInfo.AppendLine($"• Delegate Expr: {st.Camunda_delegateExpression}");
+                if (!string.IsNullOrEmpty(st.Camunda_expression)) camundaInfo.AppendLine($"• Expression: {st.Camunda_expression}");
+                if (!string.IsNullOrEmpty(st.Camunda_resultVariable)) camundaInfo.AppendLine($"• Result Variable: {st.Camunda_resultVariable}");
+                if (!string.IsNullOrEmpty(st.Camunda_type)) camundaInfo.AppendLine($"• Type: {st.Camunda_type}");
+                if (!string.IsNullOrEmpty(st.Camunda_topic)) camundaInfo.AppendLine($"• Topic: {st.Camunda_topic}");
+                break;
+            
+            case BusinessRuleTask brt:
+                if (!string.IsNullOrEmpty(brt.Camunda_class)) camundaInfo.AppendLine($"• Class: {brt.Camunda_class}");
+                if (!string.IsNullOrEmpty(brt.Camunda_delegateExpression)) camundaInfo.AppendLine($"• Delegate Expr: {brt.Camunda_delegateExpression}");
+                if (!string.IsNullOrEmpty(brt.Camunda_expression)) camundaInfo.AppendLine($"• Expression: {brt.Camunda_expression}");
+                if (!string.IsNullOrEmpty(brt.Camunda_resultVariable)) camundaInfo.AppendLine($"• Result Variable: {brt.Camunda_resultVariable}");
+                if (!string.IsNullOrEmpty(brt.Camunda_decisionRef)) camundaInfo.AppendLine($"• Decision Ref: {brt.Camunda_decisionRef}");
+                if (!string.IsNullOrEmpty(brt.Camunda_decisionRefBinding)) camundaInfo.AppendLine($"• Ref Binding: {brt.Camunda_decisionRefBinding}");
+                if (!string.IsNullOrEmpty(brt.Camunda_decisionRefVersion)) camundaInfo.AppendLine($"• Ref Version: {brt.Camunda_decisionRefVersion}");
+                if (!string.IsNullOrEmpty(brt.Camunda_mapDecisionResult)) camundaInfo.AppendLine($"• Map Result: {brt.Camunda_mapDecisionResult}");
+                break;
+                
+            case ScriptTask sct:
+                 if (!string.IsNullOrEmpty(sct.Camunda_resource)) camundaInfo.AppendLine($"• Resource: {sct.Camunda_resource}");
+                 if (!string.IsNullOrEmpty(sct.Camunda_resultVariable)) camundaInfo.AppendLine($"• Result Variable: {sct.Camunda_resultVariable}");
+                 break;
+
+            case CallActivity ca:
+                if (!string.IsNullOrEmpty(ca.Camunda_calledElementBinding)) camundaInfo.AppendLine($"• Binding: {ca.Camunda_calledElementBinding}");
+                if (!string.IsNullOrEmpty(ca.Camunda_calledElementVersion)) camundaInfo.AppendLine($"• Version: {ca.Camunda_calledElementVersion}");
+                if (!string.IsNullOrEmpty(ca.Camunda_calledElementVersionTag)) camundaInfo.AppendLine($"• Version Tag: {ca.Camunda_calledElementVersionTag}");
+                if (!string.IsNullOrEmpty(ca.Camunda_calledElementTenantId)) camundaInfo.AppendLine($"• Tenant ID: {ca.Camunda_calledElementTenantId}");
+                if (!string.IsNullOrEmpty(ca.Camunda_caseRef)) camundaInfo.AppendLine($"• Case Ref: {ca.Camunda_caseRef}");
+                if (!string.IsNullOrEmpty(ca.Camunda_variableMappingClass)) camundaInfo.AppendLine($"• Map Class: {ca.Camunda_variableMappingClass}");
+                if (!string.IsNullOrEmpty(ca.Camunda_variableMappingDelegateExpression)) camundaInfo.AppendLine($"• Map Delegate: {ca.Camunda_variableMappingDelegateExpression}");
+                break;
+        }
+
+        // 3. Camunda Properties (Generic Key/Value)
+        var camundaProps = activity.CamundaElements.OfType<CamundaProperty>().ToList();
         if (camundaProps.Any())
         {
-            camundaInfo.AppendLine("Properties:");
+            camundaInfo.AppendLine("\nExtension Properties:");
             foreach (var prop in camundaProps)
-            {
                 camundaInfo.AppendLine($"• {prop.Name}: {prop.Value}");
+        }
+
+        // 4. Form Data (Fixed: Use .Fields instead of .CamundaFormFields)
+        var formData = activity.CamundaElements.OfType<CamundaFormData>().FirstOrDefault();
+        if (formData != null && formData.Fields.Any())
+        {
+            camundaInfo.AppendLine("\nForm Data:");
+            foreach (var field in formData.Fields)
+            {
+                var label = !string.IsNullOrEmpty(field.Label) ? $"\"{field.Label}\"" : field.Id;
+                var type = !string.IsNullOrEmpty(field.Type) ? $" ({field.Type})" : "";
+                var def = !string.IsNullOrEmpty(field.DefaultValue) ? $" = {field.DefaultValue}" : "";
+                camundaInfo.AppendLine($"• {label}{type}{def}");
             }
         }
 
-        // Execution Listeners
-        var listeners = activity.CamundaElements
-            .OfType<CamundaExecutionListener>();
-        if (listeners.Any())
+        // 5. Input/Output Mappings (Activity Level) (Fixed: Removed .Text)
+        var inputOutput = activity.CamundaElements.OfType<CamundaInputOutput>().FirstOrDefault();
+        if (inputOutput != null)
+        {
+            if (inputOutput.InputParameters.Any())
+            {
+                camundaInfo.AppendLine("\nInput Parameters:");
+                foreach (var p in inputOutput.InputParameters)
+                    camundaInfo.AppendLine($"• {p.Name} = {p.Value}");
+            }
+            if (inputOutput.OutputParameters.Any())
+            {
+                camundaInfo.AppendLine("\nOutput Parameters:");
+                foreach (var p in inputOutput.OutputParameters)
+                    camundaInfo.AppendLine($"• {p.Name} = {p.Value}");
+            }
+        }
+        
+        var camundaIn = activity.CamundaElements.OfType<CamundaIn>();
+        if (camundaIn.Any())
+        {
+            camundaInfo.AppendLine("\n[Variables In]");
+            foreach(var variable in camundaIn)
+            {
+                var src = variable.Source ?? variable.SourceExpression ?? "null";
+                var target = variable.Target ?? "null";
+                if (variable.Variables == "all") camundaInfo.AppendLine("  Pass All Variables");
+                else if (variable.BusinessKey != null) camundaInfo.AppendLine($"  BusinessKey = {variable.BusinessKey}");
+                else camundaInfo.AppendLine($"  {target} = {src}");
+            }
+        }
+        
+        var camundaOut = activity.CamundaElements.OfType<CamundaOut>();
+        if (camundaOut.Any())
+        {
+            camundaInfo.AppendLine("\n[Variables Out]");
+            foreach(var variable in camundaOut)
+            {
+                var src = variable.Source ?? variable.SourceExpression ?? "null";
+                var target = variable.Target ?? "null";
+                if (variable.Variables == "all") camundaInfo.AppendLine("  Pass All Variables");
+                else camundaInfo.AppendLine($"  {target} = {src}");
+            }
+        }
+
+        // 6. Field Injections,
+        var fields = activity.CamundaElements.OfType<CamundaField>();
+        if (fields.Any())
+        {
+            camundaInfo.AppendLine("\nField Injections:");
+            foreach (var field in fields)
+            {
+                var val = field.StringValue ?? field.Expression ?? "null";
+                camundaInfo.AppendLine($"• {field.Name} = {val}");
+            }
+        }
+
+        // 7. Execution Listeners (Fixed: Access l.Script.Value and l.Script.ScriptFormat)
+        var execListeners = activity.CamundaElements.OfType<CamundaExecutionListener>();
+        if (execListeners.Any())
         {
             camundaInfo.AppendLine("\nExecution Listeners:");
-            foreach (var listener in listeners)
+            foreach (var l in execListeners)
             {
-                camundaInfo.AppendLine($"• {listener.Event}: {listener.Class ?? listener.Expression}");
+                string details;
+            
+                if (l.Class != null) details = l.Class;
+                else if (l.Expression != null) details = l.Expression;
+                else if (l.DelegateExpression != null) details = l.DelegateExpression;
+                else if (l.Script != null)
+                {
+                    var scriptContent = l.Script.Value ?? "";
+                    var preview = scriptContent.Trim().Replace("\n", " ");
+                    if (preview.Length > 40) preview = preview.Substring(0, 40) + "...";
+                
+                    details = $"[Script: {l.Script.ScriptFormat}] {preview}";
+                }
+                else details = "Unknown Implementation";
+
+                camundaInfo.AppendLine($"• {l.Event}: {details}");
             }
         }
 
-        // Connectors
-        var connectors = activity.CamundaElements
-            .OfType<CamundaConnector>()
-            .ToList();
+        // 8. Task Listeners (Fixed: Access l.Script.Value and l.Script.ScriptFormat)
+        var taskListeners = activity.CamundaElements.OfType<CamundaTaskListener>();
+        if (taskListeners.Any())
+        {
+            camundaInfo.AppendLine("\nTask Listeners:");
+            foreach (var l in taskListeners)
+            {
+                string details;
 
+                if (l.Class != null) details = l.Class;
+                else if (l.Expression != null) details = l.Expression;
+                else if (l.DelegateExpression != null) details = l.DelegateExpression;
+                else if (l.Script != null)
+                {
+                    var scriptContent = l.Script.Value ?? "";
+                    var preview = scriptContent.Trim().Replace("\n", " ");
+                    if (preview.Length > 40) preview = preview.Substring(0, 40) + "...";
+
+                    details = $"[Script: {l.Script.ScriptFormat}] {preview}";
+                }
+                else details = "Unknown Implementation";
+
+                camundaInfo.AppendLine($"• {l.Event}: {details}");
+            }
+        }
+
+        // 9. Connectors (Existing logic)
+        var connectors = activity.CamundaElements.OfType<CamundaConnector>();
         if (connectors.Any())
         {
             camundaInfo.AppendLine("\nConnectors:");
             foreach (var conn in connectors)
             {
-                camundaInfo.AppendLine($"• Connector ID: {conn.ConnectorId ?? "N/A"}");
-
+                camundaInfo.AppendLine($"• ID: {conn.ConnectorId}");
                 if (conn.InputOutput != null)
                 {
-                    // Input Parameters
-                    if (conn.InputOutput.InputParameters.Any())
-                    {
-                        camundaInfo.AppendLine("  Input Parameters:");
-                        foreach (var param in conn.InputOutput.InputParameters)
-                        {
-                            var value = param.Value ?? "null";
-                            camundaInfo.AppendLine($"  - {param.Name} = {value}");
-                        }
-                    }
-
-                    // Output Parameters
-                    if (conn.InputOutput.OutputParameters.Any())
-                    {
-                        camundaInfo.AppendLine("  Output Parameters:");
-                        foreach (var param in conn.InputOutput.OutputParameters)
-                        {
-                            var value = param.Value ?? "null";
-                            camundaInfo.AppendLine($"  - {param.Name} = {value}");
-                        }
-                    }
+                    foreach (var p in conn.InputOutput.InputParameters) camundaInfo.AppendLine($"  In: {p.Name} = {p.Value}");
+                    foreach (var p in conn.InputOutput.OutputParameters) camundaInfo.AppendLine($"  Out: {p.Name} = {p.Value}");
                 }
             }
         }
-
-        switch (activity)
+        
+        var retryCycle = activity.CamundaElements.OfType<CamundaFailedJobRetryTimeCycle>().FirstOrDefault();
+        if (retryCycle != null)
         {
-            case UserTask userTask:
-                if (!string.IsNullOrEmpty(userTask.Camunda_assignee))
-                    camundaInfo.AppendLine($"• Assignee: {userTask.Camunda_assignee}");
-                if (!string.IsNullOrEmpty(userTask.Camunda_candidateUsers))
-                    camundaInfo.AppendLine($"• Candidate Users: {userTask.Camunda_candidateUsers}");
-                if (!string.IsNullOrEmpty(userTask.Camunda_formKey))
-                    camundaInfo.AppendLine($"• Form Key: {userTask.Camunda_formKey}");
-                break;
-
-            case ServiceTask serviceTask:
-                if (!string.IsNullOrEmpty(serviceTask.Camunda_class))
-                    camundaInfo.AppendLine($"• Delegate Class: {serviceTask.Camunda_class}");
-                if (!string.IsNullOrEmpty(serviceTask.Camunda_expression))
-                    camundaInfo.AppendLine($"• Expression: {serviceTask.Camunda_expression}");
-                break;
-
-            case CallActivity callActivity:
-                if (!string.IsNullOrEmpty(callActivity.Camunda_calledElementBinding))
-                    camundaInfo.AppendLine($"• Binding: {callActivity.Camunda_calledElementBinding}");
-
-                if (!string.IsNullOrEmpty(callActivity.Camunda_calledElementVersion))
-                    camundaInfo.AppendLine($"• Version: {callActivity.Camunda_calledElementVersion}");
-
-                if (!string.IsNullOrEmpty(callActivity.Camunda_calledElementVersionTag))
-                    camundaInfo.AppendLine($"• Version Tag: {callActivity.Camunda_calledElementVersionTag}");
-
-                if (!string.IsNullOrEmpty(callActivity.Camunda_calledElementTenantId))
-                    camundaInfo.AppendLine($"• Tenant ID: {callActivity.Camunda_calledElementTenantId}");
-
-                if (!string.IsNullOrEmpty(callActivity.Camunda_caseRef))
-                    camundaInfo.AppendLine($"• Case Ref: {callActivity.Camunda_caseRef}");
-
-                if (!string.IsNullOrEmpty(callActivity.Camunda_variableMappingClass))
-                    camundaInfo.AppendLine($"• Mapping Class: {callActivity.Camunda_variableMappingClass}");
-
-                break;
+            camundaInfo.AppendLine($"\n[Retry Cycle] {retryCycle.Body}");
         }
 
         if (camundaInfo.Length > 0)
         {
-            AddDetailRow(grid, "Camunda Properties:", camundaInfo.ToString(), ref rowIndex);
+            AddDetailRow(grid, "Camunda Config:", camundaInfo.ToString(), ref rowIndex);
         }
 
-        // ========== Extensions ==========
+        // ========== Standard Extensions ==========
         if (activity.ExtensionDefinitions.Any() || activity.ExtensionValues.Any())
         {
             var extensionInfo = new StringBuilder();
@@ -600,15 +715,46 @@ public class ActivityRenderer : IShapeRenderer
 
     private string GetTaskSpecificInfo(Task task)
     {
-        return task switch
+        switch (task)
         {
-            UserTask ut =>
-                $"User Task\n• Assignee: {ut.Camunda_assignee ?? "null"}\n• Form Key: {ut.Camunda_formKey ?? "null"}",
-            ServiceTask st =>
-                $"Service Task\n• Type: {st.Camunda_type ?? "null"}\n• Topic: {st.Camunda_topic ?? "null"}",
-            ScriptTask st => $"Script Task\n• Format: {st.ScriptFormat ?? "null"}",
-            _ => task.GetType().Name
-        };
+            case UserTask ut:
+                return $"User Task\n" +
+                       $"• Assignee: {ut.Camunda_assignee ?? "Unassigned"}\n" +
+                       $"• Candidate Groups: {ut.Camunda_candidateGroups ?? "-"}\n" +
+                       $"• Candidate Users: {ut.Camunda_candidateUsers ?? "-"}\n" +
+                       $"• Due Date: {ut.Camunda_dueDate ?? "-"}\n" +
+                       $"• Follow Up: {ut.Camunda_followUpDate ?? "-"}\n" +
+                       $"• Priority: {ut.Camunda_priority ?? "-"}";
+            case ServiceTask st:
+                var stType = !string.IsNullOrEmpty(st.Camunda_type) ? st.Camunda_type : "Class/Delegate";
+                return $"Service Task\n" +
+                       $"• Type: {stType}\n" +
+                       $"• Topic: {st.Camunda_topic ?? "-"}\n" +
+                       $"• Result Var: {st.Camunda_resultVariable ?? "-"}";
+            
+            case BusinessRuleTask brt:
+                return $"Business Rule Task\n" +
+                       $"• Decision Ref: {brt.Camunda_decisionRef ?? "null"}\n" +
+                       $"• Binding: {brt.Camunda_decisionRefBinding ?? "latest"}\n" +
+                       $"• Result Var: {brt.Camunda_resultVariable ?? "null"}";
+            case ScriptTask sct:
+                string codeSource = "None";
+                if (sct.Script != null && !string.IsNullOrEmpty(sct.Script))
+                    codeSource = "Inline Script";
+                else if (!string.IsNullOrEmpty(sct.Camunda_resource))
+                    codeSource = sct.Camunda_resource;
+                return $"Script Task\n" +
+                       $"• Format: {sct.ScriptFormat ?? "null"}\n" +
+                       $"• Source: {codeSource}\n" +
+                       $"• Result Var: {sct.Camunda_resultVariable ?? "-"}";
+            case SendTask st:
+                return $"Send Task\n• Message: {st.MessageRef?.Name ?? "None"}";
+                
+            case ReceiveTask rt:
+                return $"Receive Task\n• Message: {rt.MessageRef?.Name ?? "None"}";
+            default:
+                return task.GetType().Name;
+        }
     }
 
     private string FormatLoopInfo(LoopCharacteristics loop)
