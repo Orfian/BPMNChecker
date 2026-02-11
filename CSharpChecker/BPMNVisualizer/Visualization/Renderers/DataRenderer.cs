@@ -36,24 +36,12 @@ public class DataRenderer : IShapeRenderer
             _logger.Warning("DataRenderer received unsupported element type: {ElementType}", element.GetType());
             return;
         }
-        
         _objectBounds[element.Id] = bounds;
-        
         var shape = DrawElement(element, bounds);
         shape.MouseDown += (s, e) => ShowDataDetails(element);
-        
         Canvas.SetLeft(shape, bounds.Left);
         Canvas.SetTop(shape, bounds.Top);
         _canvas.Children.Add(shape);
-        /*
-        var label = DrawLabel(element, bounds);
-        if (label != null)
-        {
-            Canvas.SetLeft(label, bounds.Left + (bounds.Width - label.Width) / 2);
-            Canvas.SetTop(label, bounds.Top + bounds.Height * 1.1);
-            _canvas.Children.Add(label);
-        }
-        */
         var note = DrawNote(element, bounds);
         if (note != null)
         {
@@ -62,7 +50,7 @@ public class DataRenderer : IShapeRenderer
             _canvas.Children.Add(note);
         }
     }
-    
+
     private Border? DrawElement(BaseElement dataElement, Rect bounds)
     {
         var icon = _svgResourceManager.GetDataIcon(dataElement);
@@ -73,27 +61,11 @@ public class DataRenderer : IShapeRenderer
         }
         return _shapeManager.WrapInContainer(icon, bounds);
     }
-    /*
-    private Border? DrawLabel(BaseElement dataLabel, Rect bounds)
-    {
-        var text = dataLabel.Id;
-        if (string.IsNullOrEmpty(text))
-        {
-            _logger.Warning("No label found for data element type: {DataElementType}", dataLabel);
-            return null;
-        }
-        
-        bounds.Width *= 1.5;
-        var label = _shapeManager.GetLabel(text, bounds);
-        
-        return _shapeManager.WrapInContainer(label, bounds);
-    }
-    */
+
     private Border DrawNote(BaseElement dataElement, Rect bounds)
     {
         var noteText = ElementNotes.GetNote(dataElement.Id);
         if (string.IsNullOrEmpty(noteText)) return null;
-
         var border = new Border
         {
             Background = new SolidColorBrush(Color.FromArgb(100, 255, 255, 64)),
@@ -103,28 +75,15 @@ public class DataRenderer : IShapeRenderer
             MaxWidth = bounds.Width,
             Child = new TextBlock
             {
-                Text = noteText,
-                FontSize = 10,
-                FontStyle = FontStyles.Italic,
-                FontWeight = FontWeights.Normal,
-                Foreground = Brushes.DarkSlateGray,
-                TextWrapping = TextWrapping.Wrap,
-                TextTrimming = TextTrimming.CharacterEllipsis
+                Text = noteText, FontSize = 10, FontStyle = FontStyles.Italic, FontWeight = FontWeights.Normal,
+                Foreground = Brushes.DarkSlateGray, TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.CharacterEllipsis
             }
         };
-
-        border.LayoutUpdated += (s, e) => 
-        {
-            var actualHeight = border.ActualHeight;
-            Canvas.SetTop(border, bounds.Top - actualHeight - 5);
-        };
-
+        border.LayoutUpdated += (s, e) => Canvas.SetTop(border, bounds.Top - border.ActualHeight - 5);
         Canvas.SetLeft(border, bounds.Left + 5);
         Canvas.SetTop(border, bounds.Top);
-
         border.Measure(new Size(bounds.Width, double.PositiveInfinity));
         border.Arrange(new Rect(border.DesiredSize));
-
         return border;
     }
     
@@ -133,8 +92,8 @@ public class DataRenderer : IShapeRenderer
         var detailWindow = new Window
         {
             Title = "Data Details",
-            Width = 500,
-            Height = 350,
+            Width = 700,
+            Height = 500,
             Content = CreateDetailContent(element),
             Owner = Application.Current.MainWindow,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -145,136 +104,81 @@ public class DataRenderer : IShapeRenderer
     
     private UIElement CreateDetailContent(BaseElement element)
     {
-        var mainGrid = new Grid();
-        mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        var rootGrid = new Grid();
+        rootGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Note
+        rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); // Columns
 
-        // ========== Note Section ==========
+        // ========== 1. Note ==========
         var notePanel = new StackPanel { Margin = new Thickness(10) };
-
         var noteTextBox = new TextBox
         {
             Text = ElementNotes.GetNote(element.Id) ?? "",
-            AcceptsReturn = true,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            Height = 30,
-            Margin = new Thickness(0, 0, 0, 5)
+            AcceptsReturn = true, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Height = 40, Margin = new Thickness(0, 0, 0, 5)
         };
-
-        var saveButton = new Button
-        {
-            Content = "Save Note",
-            Margin = new Thickness(0, 5, 0, 10),
-            Padding = new Thickness(5)
-        };
-
-        saveButton.Click += (s, e) =>
-        {
-            ElementNotes.SetNote(element.Id, noteTextBox.Text);
-            RefreshDataVisual(element);
-        };
-
-        notePanel.Children.Add(new TextBlock
-        {
-            Text = "Data Note:",
-            FontWeight = FontWeights.Bold,
-            Margin = new Thickness(0, 0, 0, 5)
-        });
+        var saveButton = new Button { Content = "Save Note", Margin = new Thickness(0, 5, 0, 5), Padding = new Thickness(5) };
+        saveButton.Click += (s, e) => { ElementNotes.SetNote(element.Id, noteTextBox.Text); RefreshDataVisual(element); };
+        notePanel.Children.Add(new TextBlock { Text = "Data Note:", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 2) });
         notePanel.Children.Add(noteTextBox);
         notePanel.Children.Add(saveButton);
-
         Grid.SetRow(notePanel, 0);
-        mainGrid.Children.Add(notePanel);
+        rootGrid.Children.Add(notePanel);
 
-        // ========== Details Section ==========
-        var detailsScroll = new ScrollViewer
-        {
-            Content = CreateDetailsGrid(element),
-            VerticalScrollBarVisibility = ScrollBarVisibility.Auto
-        };
+        // ========== 2. Columns ==========
+        var columnsGrid = new Grid();
+        columnsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        columnsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        
+        var stdPanel = new StackPanel { Margin = new Thickness(10, 0, 10, 0) };
+        var camPanel = new StackPanel { Margin = new Thickness(10, 0, 10, 0) };
+
+        AddProperty(stdPanel, "ID", element.Id);
+        AddProperty(stdPanel, "Type", element.GetType().Name);
+
+        if (element is DataObject dataObject) AddProperty(stdPanel, "Collection", dataObject.IsCollection.ToString());
+        if (element is DataInput input) AddProperty(stdPanel, "Collection", input.IsCollection.ToString());
+        if (element is DataOutput output) AddProperty(stdPanel, "Collection", output.IsCollection.ToString());
+        
+        // Camunda column usually empty for Data objects, but kept for consistency
+        AddProperty(camPanel, "Ext Definitions", element.ExtensionDefinitions.Count > 0 ? "Yes" : "");
+
+        Grid.SetColumn(stdPanel, 0);
+        Grid.SetColumn(camPanel, 1);
+        columnsGrid.Children.Add(stdPanel);
+        columnsGrid.Children.Add(camPanel);
+
+        var detailsScroll = new ScrollViewer { Content = columnsGrid, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         Grid.SetRow(detailsScroll, 1);
-        mainGrid.Children.Add(detailsScroll);
+        rootGrid.Children.Add(detailsScroll);
 
-        return new Border
-        {
-            Padding = new Thickness(10),
-            Child = mainGrid
-        };
+        return new Border { Padding = new Thickness(5), Child = rootGrid };
     }
 
-    private Grid CreateDetailsGrid(BaseElement element)
+    private void AddProperty(StackPanel panel, string label, string? value)
     {
-        var grid = new Grid();
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
+        if (string.IsNullOrWhiteSpace(value)) return;
+        var grid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-        int row = 0;
-        AddDetailRow(grid, "ID:", element.Id ?? "null", ref row);
-        AddDetailRow(grid, "Type:", element.GetType().Name, ref row);
-
-        if (element is DataObject dataObject)
-            AddDetailRow(grid, "Is Collection:", dataObject.IsCollection.ToString(), ref row);
-
-        if (element is DataInput input)
-            AddDetailRow(grid, "Is Collection:", input.IsCollection.ToString(), ref row);
-
-        if (element is DataOutput output)
-            AddDetailRow(grid, "Is Collection:", output.IsCollection.ToString(), ref row);
-
-        return grid;
-    }
-
-    private void AddDetailRow(Grid grid, string label, string value, ref int row)
-    {
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-        var lbl = new TextBlock
-        {
-            Text = label,
-            FontWeight = FontWeights.Bold,
-            Margin = new Thickness(5)
-        };
-        var val = new TextBlock
-        {
-            Text = value,
-            TextWrapping = TextWrapping.Wrap,
-            Margin = new Thickness(5)
-        };
-
-        Grid.SetRow(lbl, row);
-        Grid.SetColumn(lbl, 0);
-        Grid.SetRow(val, row);
-        Grid.SetColumn(val, 1);
-
-        grid.Children.Add(lbl);
-        grid.Children.Add(val);
-
-        row++;
+        var lbl = new TextBlock { Text = $"{label}:", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Top, TextWrapping = TextWrapping.Wrap };
+        var val = new TextBlock { Text = value, FontFamily = new FontFamily("Consolas"), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top };
+        Grid.SetColumn(lbl, 0); Grid.SetColumn(val, 1);
+        grid.Children.Add(lbl); grid.Children.Add(val);
+        panel.Children.Add(grid);
     }
 
     private void RefreshDataVisual(BaseElement dataElement)
     {
         RefreshDataNote(dataElement);
-        
-        if (_dataNotes.TryGetValue(dataElement.Id, out var note))
-        {
-            Panel.SetZIndex(note, int.MaxValue);
-        }
+        if (_dataNotes.TryGetValue(dataElement.Id, out var note)) Panel.SetZIndex(note, int.MaxValue);
     }
     
     private void RefreshDataNote(BaseElement dataElement)
     {
-        if (_dataNotes.TryGetValue(dataElement.Id, out var existingNote))
-        {
-            _canvas.Children.Remove(existingNote);
-        }
-
+        if (_dataNotes.TryGetValue(dataElement.Id, out var existingNote)) _canvas.Children.Remove(existingNote);
         var note = DrawNote(dataElement, _objectBounds[dataElement.Id]);
-        if (note != null)
-        {
+        if (note != null) {
             note.Tag = $"{dataElement.Id}_note";
             _dataNotes[dataElement.Id] = note;
-            
             Canvas.SetLeft(note, _objectBounds[dataElement.Id].Left + 5);
             Canvas.SetTop(note, _objectBounds[dataElement.Id].Top - 20);
             _canvas.Children.Add(note);

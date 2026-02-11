@@ -8,576 +8,512 @@ using BPMNVisualizer.Utilities;
 using BPMNVisualizer.Utility;
 using Serilog;
 
-namespace BPMNVisualizer.Visualization.Renderers
+namespace BPMNVisualizer.Visualization.Renderers;
+
+public class EventRenderer : IShapeRenderer
 {
-    public class EventRenderer : IShapeRenderer
+    private readonly ILogger _logger;
+    private readonly Canvas _canvas;
+    private readonly BrushManager _brushManager;
+    private readonly ShapeManager _shapeManager;
+    private readonly SvgResourceManager _svgResourceManager;
+    private readonly Dictionary<string, Rect> _objectBounds;
+    private readonly Dictionary<string, FrameworkElement> _eventNotes = new();
+
+    public EventRenderer(ILogger logger, Canvas canvas, BrushManager brushManager, ShapeManager shapeManager,
+        SvgResourceManager svgResourceManager, Dictionary<string, Rect> objectBounds)
     {
-        private readonly ILogger _logger;
-        private readonly Canvas _canvas;
-        private readonly BrushManager _brushManager;
-        private readonly ShapeManager _shapeManager;
-        private readonly SvgResourceManager _svgResourceManager;
-        private readonly Dictionary<string, Rect> _objectBounds;
-        private readonly Dictionary<string, FrameworkElement> _eventNotes = new();
+        _logger = logger;
+        _canvas = canvas;
+        _brushManager = brushManager;
+        _shapeManager = shapeManager;
+        _svgResourceManager = svgResourceManager;
+        _objectBounds = objectBounds;
+    }
 
-        public EventRenderer(ILogger logger, Canvas canvas, BrushManager brushManager, ShapeManager shapeManager,
-            SvgResourceManager svgResourceManager, Dictionary<string, Rect> objectBounds)
+    public void RenderShape(BaseElement element, Rect bounds)
+    {
+        if (element is not Event evt) return;
+        
+        _objectBounds[evt.Id] = bounds;
+
+        var shape = DrawElement(evt, bounds);
+        shape.MouseDown += (s, e) => ShowEventDetails(evt);
+
+        Canvas.SetLeft(shape, bounds.Left);
+        Canvas.SetTop(shape, bounds.Top);
+        _canvas.Children.Add(shape);
+
+        var icon = DrawIcon(evt, bounds);
+        if (icon != null)
         {
-            _logger = logger;
-            _canvas = canvas;
-            _brushManager = brushManager;
-            _shapeManager = shapeManager;
-            _svgResourceManager = svgResourceManager;
-            _objectBounds = objectBounds;
+            Canvas.SetLeft(icon, bounds.Left + (bounds.Width - icon.Width) / 2);
+            Canvas.SetTop(icon, bounds.Top + (bounds.Height - icon.Height) / 2);
+            _canvas.Children.Add(icon);
         }
 
-        public void RenderShape(BaseElement element, Rect bounds)
+        var label = DrawLabel(evt, bounds);
+        if (label != null)
         {
-            if (element is not Event evt) return;
-            
-            _objectBounds[evt.Id] = bounds;
-
-            var shape = DrawElement(evt, bounds);
-            shape.MouseDown += (s, e) => ShowEventDetails(evt);
-
-            Canvas.SetLeft(shape, bounds.Left);
-            Canvas.SetTop(shape, bounds.Top);
-            _canvas.Children.Add(shape);
-
-            var icon = DrawIcon(evt, bounds);
-            if (icon != null)
-            {
-                Canvas.SetLeft(icon, bounds.Left + (bounds.Width - icon.Width) / 2);
-                Canvas.SetTop(icon, bounds.Top + (bounds.Height - icon.Height) / 2);
-                _canvas.Children.Add(icon);
-            }
-
-            var label = DrawLabel(evt, bounds);
-            if (label != null)
-            {
-                Canvas.SetLeft(label, bounds.Left + (bounds.Width - label.Width) / 2);
-                Canvas.SetTop(label, bounds.Top + bounds.Height * 1.1);
-                _canvas.Children.Add(label);
-            }
-            
-            var note = DrawNote(evt, bounds);
-            if (note != null)
-            {
-                Canvas.SetLeft(note, bounds.Left + 5);
-                Canvas.SetTop(note, bounds.Top - note.Height - 5);
-                _canvas.Children.Add(note);
-            }
-        }
-
-        private UIElement DrawElement(Event evt, Rect bounds)
-        {
-            return evt switch
-            {
-                StartEvent start =>
-                    _shapeManager.GetCircle(bounds, _brushManager.GetEventBrush(evt), start.IsInterrupting == false),
-                IntermediateCatchEvent or IntermediateThrowEvent =>
-                    _shapeManager.GetDoubleCircle(bounds, _brushManager.GetEventBrush(evt)),
-                BoundaryEvent boundary =>
-                    _shapeManager.GetDoubleCircle(bounds, _brushManager.GetEventBrush(evt),
-                        boundary.CancelActivity == false),
-                EndEvent =>
-                    _shapeManager.GetThickCircle(bounds, _brushManager.GetEventBrush(evt)),
-                _ =>
-                    _shapeManager.GetCircle(bounds, _brushManager.GetEventBrush(evt))
-            };
-        }
-
-        private Border? DrawIcon(Event evt, Rect bounds)
-        {
-            var icon = _svgResourceManager.GetEventIcon(evt);
-            if (icon == null)
-            {
-                _logger.Warning("No icon found for event type: {EventType}", evt.GetType());
-                return null;
-            }
-
-            return _shapeManager.WrapInContainer(icon, bounds, 0.25);
-        }
-
-        private Border? DrawLabel(Event evt, Rect bounds)
-        {
-            var text = evt.Name;
-            if (string.IsNullOrEmpty(text))
-            {
-                // Some events don't have labels, suppressing warning to reduce noise
-                return null;
-            }
-
-            bounds.Width *= 2;
-            var label = _shapeManager.GetLabel(text, bounds);
-
-            return _shapeManager.WrapInContainer(label, bounds);
+            Canvas.SetLeft(label, bounds.Left + (bounds.Width - label.Width) / 2);
+            Canvas.SetTop(label, bounds.Top + bounds.Height * 1.1);
+            _canvas.Children.Add(label);
         }
         
-        private Border DrawNote(Event evt, Rect bounds)
+        var note = DrawNote(evt, bounds);
+        if (note != null)
         {
-            var noteText = ElementNotes.GetNote(evt.Id);
-            if (string.IsNullOrEmpty(noteText)) return null;
+            Canvas.SetLeft(note, bounds.Left + 5);
+            Canvas.SetTop(note, bounds.Top - note.Height - 5);
+            _canvas.Children.Add(note);
+        }
+    }
 
-            var border = new Border
-            {
-                Background = new SolidColorBrush(Color.FromArgb(100, 255, 255, 64)),
-                CornerRadius = new CornerRadius(4),
-                Padding = new Thickness(4, 2, 4, 2),
-                Margin = new Thickness(2),
-                MaxWidth = bounds.Width * 3,
-                Child = new TextBlock
-                {
-                    Text = noteText,
-                    FontSize = 10,
-                    FontStyle = FontStyles.Italic,
-                    FontWeight = FontWeights.Normal,
-                    Foreground = Brushes.DarkSlateGray,
-                    TextWrapping = TextWrapping.Wrap,
-                    TextTrimming = TextTrimming.CharacterEllipsis
-                }
-            };
+    private UIElement DrawElement(Event evt, Rect bounds)
+    {
+        return evt switch
+        {
+            StartEvent start =>
+                _shapeManager.GetCircle(bounds, _brushManager.GetEventBrush(evt), start.IsInterrupting == false),
+            IntermediateCatchEvent or IntermediateThrowEvent =>
+                _shapeManager.GetDoubleCircle(bounds, _brushManager.GetEventBrush(evt)),
+            BoundaryEvent boundary =>
+                _shapeManager.GetDoubleCircle(bounds, _brushManager.GetEventBrush(evt),
+                    boundary.CancelActivity == false),
+            EndEvent =>
+                _shapeManager.GetThickCircle(bounds, _brushManager.GetEventBrush(evt)),
+            _ =>
+                _shapeManager.GetCircle(bounds, _brushManager.GetEventBrush(evt))
+        };
+    }
 
-            border.LayoutUpdated += (s, e) => 
-            {
-                var actualHeight = border.ActualHeight;
-                Canvas.SetTop(border, bounds.Top - actualHeight - 5);
-            };
-
-            Canvas.SetLeft(border, bounds.Left + 5);
-            Canvas.SetTop(border, bounds.Top);
-
-            border.Measure(new Size(bounds.Width, double.PositiveInfinity));
-            border.Arrange(new Rect(border.DesiredSize));
-
-            return border;
+    private Border? DrawIcon(Event evt, Rect bounds)
+    {
+        var icon = _svgResourceManager.GetEventIcon(evt);
+        if (icon == null)
+        {
+            _logger.Warning("No icon found for event type: {EventType}", evt.GetType());
+            return null;
         }
 
-        private void ShowEventDetails(Event evt)
+        return _shapeManager.WrapInContainer(icon, bounds, 0.25);
+    }
+
+    private Border? DrawLabel(Event evt, Rect bounds)
+    {
+        var text = evt.Name;
+        if (string.IsNullOrEmpty(text))
         {
-            var detailWindow = new Window
-            {
-                Title = "Event Details",
-                Width = 600,
-                Height = 500,
-                Content = CreateDetailContent(evt),
-                Owner = Application.Current.MainWindow,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            };
-            detailWindow.Show();
-            detailWindow.Activate();
+            // Some events don't have labels, suppressing warning to reduce noise
+            return null;
         }
 
-        private UIElement CreateDetailContent(Event evt)
-        {
-            var mainGrid = new Grid();
-            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        bounds.Width *= 2;
+        var label = _shapeManager.GetLabel(text, bounds);
 
-            // ========== Note Section ==========
-            var notePanel = new StackPanel { Margin = new Thickness(10) };
+        return _shapeManager.WrapInContainer(label, bounds);
+    }
     
-            var noteTextBox = new TextBox
-            {
-                Text = ElementNotes.GetNote(evt.Id) ?? "",
-                AcceptsReturn = true,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                Height = 50,
-                Margin = new Thickness(0, 0, 0, 5)
-            };
-    
-            var saveButton = new Button
-            {
-                Content = "Save Note",
-                Margin = new Thickness(0, 5, 0, 10),
-                Padding = new Thickness(5)
-            };
-    
-            saveButton.Click += (s, e) => 
-            {
-                ElementNotes.SetNote(evt.Id, noteTextBox.Text);
-                RefreshEventVisual(evt);
-            };
-    
-            notePanel.Children.Add(new TextBlock { 
-                Text = "Event Note:", 
-                FontWeight = FontWeights.Bold,
-                Margin = new Thickness(0, 0, 0, 5)
-            });
-            notePanel.Children.Add(noteTextBox);
-            notePanel.Children.Add(saveButton);
+    private Border DrawNote(Event evt, Rect bounds)
+    {
+        var noteText = ElementNotes.GetNote(evt.Id);
+        if (string.IsNullOrEmpty(noteText)) return null;
 
-            Grid.SetRow(notePanel, 0);
-            mainGrid.Children.Add(notePanel);
-
-            // ========== Details Section ==========
-            var detailsScroll = new ScrollViewer
-            {
-                Content = CreateDetailsGrid(evt),
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
-            };
-            Grid.SetRow(detailsScroll, 1);
-            mainGrid.Children.Add(detailsScroll);
-
-            return new Border
-            {
-                Padding = new Thickness(10),
-                Child = mainGrid
-            };
-        }
-
-        private Grid CreateDetailsGrid(Event evt)
+        var border = new Border
         {
-            var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(160) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-            int rowIndex = 0;
-            
-            IEnumerable<EventDefinition> eventDefinitions = Enumerable.Empty<EventDefinition>();
-            if (evt is CatchEvent ce) eventDefinitions = ce.EventDefinitions;
-            else if (evt is ThrowEvent te) eventDefinitions = te.EventDefinitions;
-
-            // ========== Core Event Properties ==========
-            AddDetailRow(grid, "ID:", evt.Id ?? "null", ref rowIndex);
-            AddDetailRow(grid, "Name:", evt.Name ?? "null", ref rowIndex);
-            AddDetailRow(grid, "Type:", evt.GetType().Name, ref rowIndex);
-
-            // ========== Event-Specific Properties ==========
-            if (evt is StartEvent startEvent)
+            Background = new SolidColorBrush(Color.FromArgb(100, 255, 255, 64)),
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(4, 2, 4, 2),
+            Margin = new Thickness(2),
+            MaxWidth = bounds.Width * 3,
+            Child = new TextBlock
             {
-                AddDetailRow(grid, "Interrupting:", startEvent.IsInterrupting?.ToString() ?? "null", ref rowIndex);
-            }
-            else if (evt is BoundaryEvent boundaryEvent)
-            {
-                AddDetailRow(grid, "Cancel Activity:", boundaryEvent.CancelActivity?.ToString() ?? "null", ref rowIndex);
-                AddDetailRow(grid, "Attached To:", boundaryEvent.AttachedToRef?.Id ?? "null", ref rowIndex);
-            }
-
-            // ========== Event Definitions (Detailed) ==========
-            if (eventDefinitions.Any())
-            {
-                 var definitionsInfo = new StringBuilder();
-                 foreach(var def in eventDefinitions)
-                 {
-                     var type = def.GetType().Name.Replace("EventDefinition", "");
-                     definitionsInfo.Append($"• {type}");
-                     
-                     // Add specific names/IDs if available
-                     if (def is MessageEventDefinition msg && msg.MessageRef != null)
-                        definitionsInfo.Append($" (Ref: {msg.MessageRef.Name ?? msg.MessageRef.Id})");
-                     else if (def is SignalEventDefinition sig && sig.SignalRef != null)
-                        definitionsInfo.Append($" (Ref: {sig.SignalRef.Name ?? sig.SignalRef.Id})");
-                     else if (def is ErrorEventDefinition err && err.ErrorRef != null)
-                        definitionsInfo.Append($" (Ref: {err.ErrorRef.Name ?? err.ErrorRef.Id})");
-                     
-                     definitionsInfo.AppendLine();
-                 }
-                 AddDetailRow(grid, "Event Definitions:", definitionsInfo.ToString(), ref rowIndex);
-            }
-
-            // ========== Flow Relationships ==========
-            AddDetailRow(grid, "Incoming:", FormatConnections(evt.Incoming), ref rowIndex);
-            AddDetailRow(grid, "Outgoing:", FormatConnections(evt.Outgoing), ref rowIndex);
-            AddDetailRow(grid, "Lanes:", FormatLanes(evt.Lanes), ref rowIndex);
-
-            // ========== Data Associations ==========
-            var dataInfo = new StringBuilder();
-
-            if (evt is ThrowEvent throwEvent && throwEvent.DataInputAssociation.Any())
-            {
-                dataInfo.AppendLine("Input Mappings:");
-                foreach (var assoc in throwEvent.DataInputAssociation)
-                {
-                    dataInfo.AppendLine($"• {FormatDataAssociation(assoc)}");
-                }
-            }
-
-            if (evt is CatchEvent catchEvt && catchEvt.DataOutputAssociation.Any())
-            {
-                dataInfo.AppendLine("Output Mappings:");
-                foreach (var assoc in catchEvt.DataOutputAssociation)
-                {
-                    dataInfo.AppendLine($"• {FormatDataAssociation(assoc)}");
-                }
-            }
-
-            if (dataInfo.Length > 0)
-            {
-                AddDetailRow(grid, "Data Flow:", dataInfo.ToString(), ref rowIndex);
-            }
-
-            // ========== Documentation ==========
-            if (evt.Documentation.Any())
-            {
-                AddDetailRow(grid, "Docs:", FormatDocumentation(evt.Documentation), ref rowIndex);
-            }
-
-            // =========================================================
-            // ========== CAMUNDA EXTENSIONS & ATTRIBUTES ==============
-            // =========================================================
-            var camundaInfo = new StringBuilder();
-
-            // 1. General Camunda Attributes on Event
-            if (evt.Camunda_asyncBefore.HasValue) camundaInfo.AppendLine($"• Async Before: {evt.Camunda_asyncBefore}");
-            if (evt.Camunda_asyncAfter.HasValue) camundaInfo.AppendLine($"• Async After: {evt.Camunda_asyncAfter}");
-            if (!string.IsNullOrEmpty(evt.Camunda_jobPriority)) camundaInfo.AppendLine($"• Job Priority: {evt.Camunda_jobPriority}");
-            
-            // Event Specific Attributes
-            if (evt is StartEvent se)
-            {
-                 if (!string.IsNullOrEmpty(se.Camunda_formKey)) camundaInfo.AppendLine($"• Form Key: {se.Camunda_formKey}");
-                 if (!string.IsNullOrEmpty(se.Camunda_initiator)) camundaInfo.AppendLine($"• Initiator: {se.Camunda_initiator}");
-            }
-            
-            // Error Event Specifics
-             var errorDef = eventDefinitions.OfType<ErrorEventDefinition>().FirstOrDefault();
-             if (errorDef != null)
-             {
-                 if (!string.IsNullOrEmpty(errorDef.Camunda_errorCodeVariable)) 
-                    camundaInfo.AppendLine($"• Error Code Var: {errorDef.Camunda_errorCodeVariable}");
-                 if (!string.IsNullOrEmpty(errorDef.Camunda_errorMessageVariable)) 
-                    camundaInfo.AppendLine($"• Error Msg Var: {errorDef.Camunda_errorMessageVariable}");
-             }
-
-            // 2. Camunda Properties (Key/Value pairs)
-            var camundaProps = evt.CamundaElements.OfType<CamundaProperty>().ToList();
-            if (camundaProps.Any())
-            {
-                camundaInfo.AppendLine("\n[Extension Properties]");
-                foreach (var prop in camundaProps)
-                    camundaInfo.AppendLine($"  {prop.Name}: {prop.Value}");
-            }
-
-            // 3. Form Data (Start Events)
-            var formData = evt.CamundaElements.OfType<CamundaFormData>().FirstOrDefault();
-            if (formData != null && formData.Fields.Any())
-            {
-                camundaInfo.AppendLine("\n[Form Data]");
-                foreach (var field in formData.Fields)
-                {
-                    var label = !string.IsNullOrEmpty(field.Label) ? $"\"{field.Label}\"" : field.Id;
-                    var type = !string.IsNullOrEmpty(field.Type) ? $" ({field.Type})" : "";
-                    var def = !string.IsNullOrEmpty(field.DefaultValue) ? $" = {field.DefaultValue}" : "";
-                    camundaInfo.AppendLine($"  {label}{type}{def}");
-                }
-            }
-
-            // 4. Input/Output Mappings
-            var inputOutput = evt.CamundaElements.OfType<CamundaInputOutput>().FirstOrDefault();
-            if (inputOutput != null)
-            {
-                if (inputOutput.InputParameters.Any())
-                {
-                    camundaInfo.AppendLine("\n[Input Parameters]");
-                    foreach (var p in inputOutput.InputParameters)
-                        camundaInfo.AppendLine($"  {p.Name} = {p.Value}");
-                }
-                if (inputOutput.OutputParameters.Any())
-                {
-                    camundaInfo.AppendLine("\n[Output Parameters]");
-                    foreach (var p in inputOutput.OutputParameters)
-                        camundaInfo.AppendLine($"  {p.Name} = {p.Value}");
-                }
-            }
-
-            // 5. Execution Listeners
-            var listeners = evt.CamundaElements.OfType<CamundaExecutionListener>();
-            if (listeners.Any())
-            {
-                camundaInfo.AppendLine("\n[Execution Listeners]");
-                foreach (var l in listeners)
-                {
-                    string details = "Unknown Implementation";
-
-                    if (!string.IsNullOrEmpty(l.Class)) 
-                        details = $"Class: {l.Class}";
-                    else if (!string.IsNullOrEmpty(l.Expression)) 
-                        details = $"Expr: {l.Expression}";
-                    else if (!string.IsNullOrEmpty(l.DelegateExpression)) 
-                        details = $"Delegate: {l.DelegateExpression}";
-                    else if (l.Script != null)
-                    {
-                        var scriptContent = l.Script.Value ?? "";
-                        var preview = scriptContent.Trim().Replace("\n", " ");
-                        if (preview.Length > 40) preview = preview.Substring(0, 40) + "...";
-                        details = $"Script ({l.Script.ScriptFormat}): {preview}";
-                    }
-
-                    camundaInfo.AppendLine($"  {l.Event}: {details}");
-                }
-            }
-            
-            // 6. Field Injections
-            var fields = evt.CamundaElements.OfType<CamundaField>();
-            if (fields.Any())
-            {
-                camundaInfo.AppendLine("\n[Field Injections]");
-                foreach (var field in fields)
-                {
-                    var val = field.StringValue ?? field.Expression ?? "null";
-                    camundaInfo.AppendLine($"  {field.Name} = {val}");
-                }
-            }
-
-            // 7. Connectors
-            var connectors = evt.CamundaElements.OfType<CamundaConnector>();
-            if (connectors.Any())
-            {
-                camundaInfo.AppendLine("\n[Connectors]");
-                foreach (var conn in connectors)
-                {
-                    camundaInfo.AppendLine($"  ID: {conn.ConnectorId}");
-                    if (conn.InputOutput != null)
-                    {
-                        foreach (var p in conn.InputOutput.InputParameters) camundaInfo.AppendLine($"    In: {p.Name} = {p.Value}");
-                        foreach (var p in conn.InputOutput.OutputParameters) camundaInfo.AppendLine($"    Out: {p.Name} = {p.Value}");
-                    }
-                }
-            }
-            
-            // 8. Retry Cycle
-            var retryCycle = evt.CamundaElements.OfType<CamundaFailedJobRetryTimeCycle>().FirstOrDefault();
-            if (retryCycle != null)
-            {
-                 camundaInfo.AppendLine($"\n[Retry Cycle] {retryCycle.Body}");
-            }
-
-            if (camundaInfo.Length > 0)
-            {
-                AddDetailRow(grid, "Camunda Config:", camundaInfo.ToString(), ref rowIndex);
-            }
-
-            // ========== Standard Extensions ==========
-            if (evt.ExtensionDefinitions.Any() || evt.ExtensionValues.Any())
-            {
-                var extensionInfo = new StringBuilder();
-
-                if (evt.ExtensionDefinitions.Any())
-                {
-                    extensionInfo.AppendLine("Definitions:");
-                    foreach (var def in evt.ExtensionDefinitions)
-                        extensionInfo.AppendLine($"• {def.Name}");
-                }
-
-                if (evt.ExtensionValues.Any())
-                {
-                    extensionInfo.AppendLine("Values:");
-                    foreach (var val in evt.ExtensionValues)
-                    {
-                         var value = val.Value ?? val.ValueRef;
-                        extensionInfo.AppendLine($"• {val.ExtensionAttributeDefinition?.Name}: {(value is null ? "" : value.Value)}");
-                    }
-                }
-
-                AddDetailRow(grid, "Extensions:", extensionInfo.ToString(), ref rowIndex);
-            }
-
-            return grid;
-        }
-
-        // ========== Helper Methods ==========
-        private string FormatDataAssociation(DataAssociation association)
-        {
-            var sources = association.SourceRef.Any()
-                ? string.Join(", ", association.SourceRef.Select(GetElementId))
-                : "No sources";
-
-            var target = association.TargetRef != null
-                ? GetElementId(association.TargetRef)
-                : "No target";
-
-            var transform = association.Transformation != null
-                ? $" [Transform: {(association.Transformation as FormalExpression)?.Body}]"
-                : "";
-
-            return $"{sources} → {target}{transform}";
-        }
-
-        private string FormatConnections(IEnumerable<SequenceFlow> flows)
-        {
-            return flows.Any()
-                ? string.Join("\n", flows.Select(f => $"• {f.Id}"))
-                : "";
-        }
-
-        private string FormatLanes(IEnumerable<Lane> lanes)
-        {
-            return lanes.Any()
-                ? string.Join("\n", lanes.Select(l => $"• {l.Name ?? l.Id}"))
-                : "";
-        }
-
-        private string GetElementId(object element)
-        {
-            return (element as BaseElement)?.Id ?? "Anonymous";
-        }
-
-        private string FormatDocumentation(IEnumerable<Documentation> docs)
-        {
-            return string.Join("\n\n", docs.Select(d =>
-                $"• {d.Text} {(d.TextFormat != null ? $"[{d.TextFormat}]" : "")}"));
-        }
-
-        private void AddDetailRow(Grid grid, string label, object value, ref int row)
-        {
-            if (string.IsNullOrWhiteSpace(value?.ToString())) return;
-
-            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-            var labelBlock = new TextBlock
-            {
-                Text = label,
-                FontWeight = FontWeights.Bold,
-                Margin = new Thickness(5, 2, 5, 2),
-                VerticalAlignment = VerticalAlignment.Top
-            };
-            Grid.SetRow(labelBlock, row);
-            Grid.SetColumn(labelBlock, 0);
-
-            var valueBlock = new TextBlock
-            {
-                Text = value?.ToString() ?? "null",
-                Margin = new Thickness(5, 2, 5, 2),
+                Text = noteText,
+                FontSize = 10,
+                FontStyle = FontStyles.Italic,
+                FontWeight = FontWeights.Normal,
+                Foreground = Brushes.DarkSlateGray,
                 TextWrapping = TextWrapping.Wrap,
-                FontFamily = new FontFamily("Consolas")
-            };
-            Grid.SetRow(valueBlock, row);
-            Grid.SetColumn(valueBlock, 1);
-
-            grid.Children.Add(labelBlock);
-            grid.Children.Add(valueBlock);
-
-            row++;
-        }
-        
-        private void RefreshEventVisual(Event evt)
-        {
-            RefreshEventNote(evt);
-        
-            if (_eventNotes.TryGetValue(evt.Id, out var note))
-            {
-                Panel.SetZIndex(note, int.MaxValue);
+                TextTrimming = TextTrimming.CharacterEllipsis
             }
-        }
-    
-        private void RefreshEventNote(Event evt)
-        {
-            if (_eventNotes.TryGetValue(evt.Id, out var existingNote))
-            {
-                _canvas.Children.Remove(existingNote);
-            }
+        };
 
-            var note = DrawNote(evt, _objectBounds[evt.Id]);
-            if (note != null)
-            {
-                note.Tag = $"{evt.Id}_note";
-                _eventNotes[evt.Id] = note;
+        border.LayoutUpdated += (s, e) => 
+        {
+            var actualHeight = border.ActualHeight;
+            Canvas.SetTop(border, bounds.Top - actualHeight - 5);
+        };
+
+        Canvas.SetLeft(border, bounds.Left + 5);
+        Canvas.SetTop(border, bounds.Top);
+
+        border.Measure(new Size(bounds.Width, double.PositiveInfinity));
+        border.Arrange(new Rect(border.DesiredSize));
+
+        return border;
+    }
+
+    private void ShowEventDetails(Event evt)
+    {
+        var detailWindow = new Window
+        {
+            Title = "Event Details",
+            Width = 700,
+            Height = 500,
+            Content = CreateDetailContent(evt),
+            Owner = Application.Current.MainWindow,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+        };
+        detailWindow.Show();
+        detailWindow.Activate();
+    }
+
+    private UIElement CreateDetailContent(Event evt)
+    {
+        var rootGrid = new Grid();
+        rootGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Note
+        rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); // Columns
+        rootGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Script
+
+        // ========== 1. Note Section ==========
+        var notePanel = new StackPanel { Margin = new Thickness(10) };
+        var noteTextBox = new TextBox
+        {
+            Text = ElementNotes.GetNote(evt.Id) ?? "",
+            AcceptsReturn = true,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            Height = 40,
+            Margin = new Thickness(0, 0, 0, 5)
+        };
+        var saveButton = new Button
+        {
+            Content = "Save Note",
+            Margin = new Thickness(0, 5, 0, 5),
+            Padding = new Thickness(5)
+        };
+        saveButton.Click += (s, e) => 
+        {
+            ElementNotes.SetNote(evt.Id, noteTextBox.Text);
+            RefreshEventVisual(evt);
+        };
+        notePanel.Children.Add(new TextBlock { Text = "Event Note:", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 2) });
+        notePanel.Children.Add(noteTextBox);
+        notePanel.Children.Add(saveButton);
+        
+        Grid.SetRow(notePanel, 0);
+        rootGrid.Children.Add(notePanel);
+
+        // ========== 2. Columns Section (Standard & Camunda) ==========
+        var columnsGrid = new Grid();
+        columnsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        columnsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        
+        var stdPanel = new StackPanel { Margin = new Thickness(10, 0, 10, 0) };
+        var camPanel = new StackPanel { Margin = new Thickness(10, 0, 10, 0) };
+
+        // --- Standard Properties ---
+        AddProperty(stdPanel, "ID", evt.Id ?? "null");
+        AddProperty(stdPanel, "Name", evt.Name ?? "null");
+        AddProperty(stdPanel, "Type", evt.GetType().Name);
+        
+        // Flow
+        AddProperty(stdPanel, "Incoming", FormatConnections(evt.Incoming));
+        AddProperty(stdPanel, "Outgoing", FormatConnections(evt.Outgoing));
+        AddProperty(stdPanel, "Lanes", FormatLanes(evt.Lanes));
+
+        // Event Specifics (Start/Boundary)
+        if (evt is StartEvent start) 
+            AddProperty(stdPanel, "Interrupting", start.IsInterrupting?.ToString());
+        if (evt is BoundaryEvent boundary) {
+            AddProperty(stdPanel, "Cancel Act", boundary.CancelActivity?.ToString());
+            AddProperty(stdPanel, "Attached To", boundary.AttachedToRef?.Id);
+        }
+
+        // Definitions & Data Flow
+        AddProperty(stdPanel, "Definitions", FormatEventDefinitions(evt));
+        AddProperty(stdPanel, "Data Flow", FormatDataAssociations(evt));
+        AddProperty(stdPanel, "Docs", FormatDocumentation(evt.Documentation));
+        
+        // Extensions (Standard)
+        if (evt.ExtensionDefinitions.Any() || evt.ExtensionValues.Any())
+            AddProperty(stdPanel, "Extensions", FormatExtensions(evt));
+
+
+        // --- Camunda Properties ---
+        AddProperty(camPanel, "Async Before", evt.Camunda_asyncBefore?.ToString());
+        AddProperty(camPanel, "Async After", evt.Camunda_asyncAfter?.ToString());
+        AddProperty(camPanel, "Job Priority", evt.Camunda_jobPriority);
+        
+        if (evt is StartEvent se)
+        {
+            AddProperty(camPanel, "Form Key", se.Camunda_formKey);
+            AddProperty(camPanel, "Initiator", se.Camunda_initiator);
+        }
+
+        // Generic Camunda Elements
+        AddProperty(camPanel, "Properties", FormatCamundaProperties(evt));
+        AddProperty(camPanel, "Form Data", FormatCamundaFormData(evt));
+        AddProperty(camPanel, "Input/Output", FormatCamundaIO(evt));
+        AddProperty(camPanel, "Fields", FormatCamundaFields(evt));
+        AddProperty(camPanel, "Connectors", FormatConnectors(evt));
+        AddProperty(camPanel, "Listeners", FormatListenersSummary(evt)); // Non-script listener info
+
+        var retryCycle = evt.CamundaElements.OfType<CamundaFailedJobRetryTimeCycle>().FirstOrDefault();
+        if (retryCycle != null) AddProperty(camPanel, "Retry Cycle", retryCycle.Body);
+
+        Grid.SetColumn(stdPanel, 0);
+        Grid.SetColumn(camPanel, 1);
+        columnsGrid.Children.Add(stdPanel);
+        columnsGrid.Children.Add(camPanel);
+
+        var detailsScroll = new ScrollViewer { Content = columnsGrid, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        Grid.SetRow(detailsScroll, 1);
+        rootGrid.Children.Add(detailsScroll);
+
+        // ========== 3. Script/Code Section ==========
+        var scriptContent = ExtractScriptContent(evt);
+        if (!string.IsNullOrWhiteSpace(scriptContent))
+        {
+            var scriptPanel = new StackPanel { Margin = new Thickness(10) };
+            scriptPanel.Children.Add(new TextBlock { Text = "Script / Code / Expressions:", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 5, 0, 2) });
             
-                Canvas.SetLeft(note, _objectBounds[evt.Id].Left + 5);
-                Canvas.SetTop(note, _objectBounds[evt.Id].Top - 20);
-                _canvas.Children.Add(note);
+            var scriptBox = new TextBox
+            {
+                Text = scriptContent,
+                IsReadOnly = true,
+                FontFamily = new FontFamily("Consolas"),
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Height = 150,
+                AcceptsReturn = true
+            };
+            scriptPanel.Children.Add(scriptBox);
+            
+            Grid.SetRow(scriptPanel, 2);
+            rootGrid.Children.Add(scriptPanel);
+        }
+
+        return new Border { Padding = new Thickness(5), Child = rootGrid };
+    }
+
+    private void AddProperty(StackPanel panel, string label, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return;
+
+        var grid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        var lbl = new TextBlock 
+        { 
+            Text = $"{label}:", 
+            FontWeight = FontWeights.Bold, 
+            VerticalAlignment = VerticalAlignment.Top,
+            TextWrapping = TextWrapping.Wrap
+        };
+        var val = new TextBlock 
+        { 
+            Text = value, 
+            FontFamily = new FontFamily("Consolas"), 
+            TextWrapping = TextWrapping.Wrap, 
+            VerticalAlignment = VerticalAlignment.Top 
+        };
+
+        Grid.SetColumn(lbl, 0);
+        Grid.SetColumn(val, 1);
+        grid.Children.Add(lbl);
+        grid.Children.Add(val);
+        panel.Children.Add(grid);
+    }
+    
+    // --- Data Extraction Helpers ---
+
+    private string ExtractScriptContent(Event evt)
+    {
+        var sb = new StringBuilder();
+        var listeners = evt.CamundaElements.OfType<CamundaExecutionListener>();
+        foreach (var l in listeners)
+        {
+            if (l.Script != null && !string.IsNullOrEmpty(l.Script.Value))
+            {
+                sb.AppendLine($"--- Listener ({l.Event}): {l.Script.ScriptFormat} ---");
+                sb.AppendLine(l.Script.Value);
+                sb.AppendLine();
             }
+        }
+        return sb.ToString();
+    }
+    
+    private string FormatEventDefinitions(Event evt)
+    {
+        IEnumerable<EventDefinition> eventDefinitions = Enumerable.Empty<EventDefinition>();
+        if (evt is CatchEvent ce) eventDefinitions = ce.EventDefinitions;
+        else if (evt is ThrowEvent te) eventDefinitions = te.EventDefinitions;
+
+        if (!eventDefinitions.Any()) return "";
+
+        var sb = new StringBuilder();
+        foreach(var def in eventDefinitions)
+        {
+             var type = def.GetType().Name.Replace("EventDefinition", "");
+             sb.Append($"• {type}");
+             
+             if (def is MessageEventDefinition msg && msg.MessageRef != null)
+                sb.Append($" (Ref: {msg.MessageRef.Name ?? msg.MessageRef.Id})");
+             else if (def is SignalEventDefinition sig && sig.SignalRef != null)
+                sb.Append($" (Ref: {sig.SignalRef.Name ?? sig.SignalRef.Id})");
+             else if (def is ErrorEventDefinition err)
+             {
+                 if (err.ErrorRef != null) sb.Append($" (Ref: {err.ErrorRef.Name ?? err.ErrorRef.Id})");
+                 if (!string.IsNullOrEmpty(err.Camunda_errorCodeVariable)) sb.Append($"\n  [ErrCodeVar: {err.Camunda_errorCodeVariable}]");
+                 if (!string.IsNullOrEmpty(err.Camunda_errorMessageVariable)) sb.Append($"\n  [ErrMsgVar: {err.Camunda_errorMessageVariable}]");
+             }
+             sb.AppendLine();
+        }
+        return sb.ToString().Trim();
+    }
+    
+    private string FormatDataAssociations(Event evt)
+    {
+        var sb = new StringBuilder();
+
+        if (evt is ThrowEvent throwEvent && throwEvent.DataInputAssociation.Any())
+        {
+            sb.AppendLine("Input Mappings:");
+            foreach (var assoc in throwEvent.DataInputAssociation)
+            {
+                var src = assoc.SourceRef.Any() ? string.Join(", ", assoc.SourceRef.Select(s => (s as BaseElement)?.Id)) : "None";
+                var tgt = (assoc.TargetRef as BaseElement)?.Id ?? "None";
+                var transform = assoc.Transformation != null ? " [Has Transform]" : "";
+                sb.AppendLine($"• {src} → {tgt}{transform}");
+            }
+        }
+
+        if (evt is CatchEvent catchEvt && catchEvt.DataOutputAssociation.Any())
+        {
+            sb.AppendLine("Output Mappings:");
+            foreach (var assoc in catchEvt.DataOutputAssociation)
+            {
+                var src = assoc.SourceRef.Any() ? string.Join(", ", assoc.SourceRef.Select(s => (s as BaseElement)?.Id)) : "None";
+                var tgt = (assoc.TargetRef as BaseElement)?.Id ?? "None";
+                sb.AppendLine($"• {src} → {tgt}");
+            }
+        }
+        return sb.ToString().Trim();
+    }
+
+    private string FormatListenersSummary(Event evt)
+    {
+        var sb = new StringBuilder();
+        var listeners = evt.CamundaElements.OfType<CamundaExecutionListener>();
+        foreach(var l in listeners)
+        {
+            string type = "Unknown";
+            string val = "";
+
+            if (l.Class != null) { type = "Class"; val = l.Class; }
+            else if (l.DelegateExpression != null) { type = "Delegate"; val = l.DelegateExpression; }
+            else if (l.Expression != null) { type = "Expr"; val = l.Expression; }
+            else if (l.Script != null) { type = "Script"; val = l.Script.ScriptFormat ?? "Script"; }
+
+            sb.AppendLine($"{l.Event}: [{type}] {val}");
+        }
+        return sb.ToString();
+    }
+
+    private string FormatCamundaProperties(Event evt)
+    {
+        var props = evt.CamundaElements.OfType<CamundaProperty>();
+        return props.Any() ? string.Join("\n", props.Select(p => $"{p.Name}: {p.Value}")) : "";
+    }
+    
+    private string FormatCamundaFields(Event evt)
+    {
+         var fields = evt.CamundaElements.OfType<CamundaField>();
+         return fields.Any() ? string.Join("\n", fields.Select(f => $"{f.Name} = {f.StringValue ?? f.Expression}")) : "";
+    }
+    
+    private string FormatCamundaFormData(Event evt)
+    {
+        var formData = evt.CamundaElements.OfType<CamundaFormData>().FirstOrDefault();
+        if (formData == null || !formData.Fields.Any()) return "";
+        
+        var sb = new StringBuilder();
+        foreach (var f in formData.Fields)
+        {
+             var label = !string.IsNullOrEmpty(f.Label) ? $"\"{f.Label}\"" : f.Id;
+             var val = !string.IsNullOrEmpty(f.DefaultValue) ? $"={f.DefaultValue}" : "";
+             sb.AppendLine($"• {label} ({f.Type}){val}");
+        }
+        return sb.ToString();
+    }
+    
+    private string FormatCamundaIO(Event evt)
+    {
+        var io = evt.CamundaElements.OfType<CamundaInputOutput>().FirstOrDefault();
+        if (io == null) return "";
+        var sb = new StringBuilder();
+        foreach (var p in io.InputParameters) sb.AppendLine($"In: {p.Name} = {p.Value}");
+        foreach (var p in io.OutputParameters) sb.AppendLine($"Out: {p.Name} = {p.Value}");
+        return sb.ToString();
+    }
+    
+    private string FormatConnectors(Event evt)
+    {
+         var conns = evt.CamundaElements.OfType<CamundaConnector>();
+         if (!conns.Any()) return "";
+
+         var sb = new StringBuilder();
+         foreach (var conn in conns)
+         {
+             sb.AppendLine($"ID: {conn.ConnectorId}");
+             if (conn.InputOutput != null)
+             {
+                 foreach (var p in conn.InputOutput.InputParameters)
+                     sb.AppendLine($"  In: {p.Name} = {p.Value}");
+                 foreach (var p in conn.InputOutput.OutputParameters)
+                     sb.AppendLine($"  Out: {p.Name} = {p.Value}");
+             }
+         }
+         return sb.ToString();
+    }
+
+    private string FormatConnections(IEnumerable<SequenceFlow> flows) => 
+        string.Join(", ", flows.Select(f => f.Id));
+
+    private string FormatLanes(IEnumerable<Lane> lanes) => 
+        string.Join(", ", lanes.Select(l => l.Name ?? l.Id));
+        
+    private string FormatExtensions(Event evt)
+    {
+        var sb = new StringBuilder();
+        foreach(var def in evt.ExtensionDefinitions) sb.AppendLine($"Def: {def.Name}");
+        foreach(var val in evt.ExtensionValues) {
+            var ValueText = val.Value?.ToString() ?? val.ValueRef?.Value ?? "null";
+            sb.AppendLine($"Val: {val.ExtensionAttributeDefinition?.Name}: {ValueText}");
+        }
+        return sb.ToString();
+    }
+    
+    private string FormatDocumentation(IEnumerable<Documentation> docs) =>
+        string.Join("\n", docs.Select(d => d.Text));
+
+    private void RefreshEventVisual(Event evt)
+    {
+        RefreshEventNote(evt);
+        if (_eventNotes.TryGetValue(evt.Id, out var note)) Panel.SetZIndex(note, int.MaxValue);
+    }
+    
+    private void RefreshEventNote(Event evt)
+    {
+        if (_eventNotes.TryGetValue(evt.Id, out var existingNote)) _canvas.Children.Remove(existingNote);
+        var note = DrawNote(evt, _objectBounds[evt.Id]);
+        if (note != null) {
+            note.Tag = $"{evt.Id}_note";
+            _eventNotes[evt.Id] = note;
+            Canvas.SetLeft(note, _objectBounds[evt.Id].Left + 5);
+            Canvas.SetTop(note, _objectBounds[evt.Id].Top - 20);
+            _canvas.Children.Add(note);
         }
     }
 }

@@ -24,7 +24,6 @@ public class ActivityRenderer : IShapeRenderer
 
     public ActivityRenderer(ILogger logger, Canvas canvas, BrushManager brushManager, ShapeManager shapeManager,
         SvgResourceManager svgResourceManager, Dictionary<string, Rect> objectBounds, Dictionary<string, BPMNShape> shapes)
-
     {
         _logger = logger;
         _canvas = canvas;
@@ -110,7 +109,6 @@ public class ActivityRenderer : IShapeRenderer
             _logger.Warning("No icon found for task type: {TaskType}", task.GetType());
             return null;
         }
-
         return _shapeManager.WrapInContainer(icon, bounds, 0.40);
     }
 
@@ -124,9 +122,7 @@ public class ActivityRenderer : IShapeRenderer
         };
 
         if (activity.IsForCompensation == true || HasCompensationEvent(activity))
-        {
             AddMarker("Compensation", markers, bounds);
-        }
 
         if (activity.LoopCharacteristics != null)
         {
@@ -136,7 +132,6 @@ public class ActivityRenderer : IShapeRenderer
                     var markerType = mi.IsSequential == true ? "Sequential-MultiInstance" : "Parallel-MultiInstance";
                     AddMarker(markerType, markers, bounds);
                     break;
-
                 case StandardLoopCharacteristics:
                     AddMarker("Loop", markers, bounds);
                     break;
@@ -144,13 +139,8 @@ public class ActivityRenderer : IShapeRenderer
         }
 
         _shapes.TryGetValue(activity.Id, out var bpmnShape);
-        if (activity is SubProcess)
-        {
-            if (bpmnShape?.IsExpanded == false)
-            {
-                AddMarker("SubProcess", markers, bounds);
-            }
-        }
+        if (activity is SubProcess && bpmnShape?.IsExpanded == false)
+            AddMarker("SubProcess", markers, bounds);
         if (activity is AdHocSubProcess) AddMarker("AdHoc", markers, bounds);
 
         return markers.Children.Count > 0 ? _shapeManager.WrapInContainer(markers, bounds) : null;
@@ -158,8 +148,7 @@ public class ActivityRenderer : IShapeRenderer
 
     private bool HasCompensationEvent(Activity activity)
     {
-        return activity.BoundaryEventRefs.Any(e =>
-            e.EventDefinitions.Any(d => d is CompensateEventDefinition));
+        return activity.BoundaryEventRefs.Any(e => e.EventDefinitions.Any(d => d is CompensateEventDefinition));
     }
 
     private void AddMarker(string markerType, StackPanel container, Rect bounds)
@@ -172,13 +161,7 @@ public class ActivityRenderer : IShapeRenderer
         }
 
         double size = Math.Min(bounds.Width, bounds.Height) * 0.2;
-        var viewbox = new Viewbox
-        {
-            Child = marker,
-            Width = size,
-            Height = size
-        };
-
+        var viewbox = new Viewbox { Child = marker, Width = size, Height = size };
         container.Children.Add(viewbox);
     }
 
@@ -192,11 +175,8 @@ public class ActivityRenderer : IShapeRenderer
         }
 
         bounds.Width *= 0.9;
-
         var label = _shapeManager.GetLabel(text, bounds);
         label.VerticalAlignment = VerticalAlignment.Center;
-
-
         return _shapeManager.WrapInContainer(label, bounds);
     }
     
@@ -232,7 +212,6 @@ public class ActivityRenderer : IShapeRenderer
 
         Canvas.SetLeft(border, bounds.Left + 5);
         Canvas.SetTop(border, bounds.Top);
-
         border.Measure(new Size(bounds.Width, double.PositiveInfinity));
         border.Arrange(new Rect(border.DesiredSize));
 
@@ -244,8 +223,8 @@ public class ActivityRenderer : IShapeRenderer
         var detailWindow = new Window
         {
             Title = "Activity Details",
-            Width = 600,
-            Height = 400,
+            Width = 700, 
+            Height = 500,
             Content = CreateDetailContent(activity),
             Owner = Application.Current.MainWindow,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -256,657 +235,450 @@ public class ActivityRenderer : IShapeRenderer
     
     private UIElement CreateDetailContent(Activity activity)
     {
-        var mainGrid = new Grid();
-        mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        var rootGrid = new Grid();
+        rootGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Note
+        rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); // Columns
+        rootGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Script
 
-        // ========== Note Section ==========
+        // ========== 1. Note Section ==========
         var notePanel = new StackPanel { Margin = new Thickness(10) };
-    
         var noteTextBox = new TextBox
         {
             Text = ElementNotes.GetNote(activity.Id) ?? "",
             AcceptsReturn = true,
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            Height = 30,
+            Height = 40,
             Margin = new Thickness(0, 0, 0, 5)
         };
-    
         var saveButton = new Button
         {
             Content = "Save Note",
-            Margin = new Thickness(0, 5, 0, 10),
+            Margin = new Thickness(0, 5, 0, 5),
             Padding = new Thickness(5)
         };
-    
         saveButton.Click += (s, e) => 
         {
             ElementNotes.SetNote(activity.Id, noteTextBox.Text);
             RefreshActivityVisual(activity);
         };
-    
-        notePanel.Children.Add(new TextBlock { 
-            Text = "Activity Note:", 
-            FontWeight = FontWeights.Bold,
-            Margin = new Thickness(0, 0, 0, 5)
-        });
+        notePanel.Children.Add(new TextBlock { Text = "Activity Note:", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 2) });
         notePanel.Children.Add(noteTextBox);
         notePanel.Children.Add(saveButton);
-
-        Grid.SetRow(notePanel, 0);
-        mainGrid.Children.Add(notePanel);
-
-        // ========== Details Section ==========
-        var detailsScroll = new ScrollViewer
-        {
-            Content = CreateDetailsGrid(activity),
-            VerticalScrollBarVisibility = ScrollBarVisibility.Auto
-        };
-        Grid.SetRow(detailsScroll, 1);
-        mainGrid.Children.Add(detailsScroll);
-
-        return new Border
-        {
-            Padding = new Thickness(10),
-            Child = mainGrid
-        };
-    }
-
-    private Grid CreateDetailsGrid(Activity activity)
-    {
-        var noteGrid = new Grid();
-        noteGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        noteGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-    
-        // ========== Note Section ==========
-        var notePanel = new StackPanel { Margin = new Thickness(0, 0, 0, 10) };
-    
-        var noteTextBox = new TextBox
-        {
-            Text = ElementNotes.GetNote(activity.Id) ?? "",
-            AcceptsReturn = true,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            Height = 60,
-            Margin = new Thickness(5)
-        };
-    
-        var saveButton = new Button
-        {
-            Content = "Save Note",
-            Margin = new Thickness(5),
-            Padding = new Thickness(5, 2, 5, 2)
-        };
-    
-        saveButton.Click += (s, e) => 
-        {
-            ElementNotes.SetNote(activity.Id, noteTextBox.Text);
-            RefreshActivityVisual(activity);
-        };
-    
-        notePanel.Children.Add(new TextBlock { Text = "Note:", Margin = new Thickness(5, 0, 5, 2) });
-        notePanel.Children.Add(noteTextBox);
-        notePanel.Children.Add(saveButton);
-    
-        Grid.SetRow(notePanel, 0);
-        noteGrid.Children.Add(notePanel);
         
-        // ========== Details Section ==========
-        var grid = new Grid();
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        Grid.SetRow(notePanel, 0);
+        rootGrid.Children.Add(notePanel);
 
-        int rowIndex = 0;
-
-        // ========== Core Properties ==========
-        AddDetailRow(grid, "ID:", activity.Id ?? "null", ref rowIndex);
-        AddDetailRow(grid, "Name:", activity.Name ?? "null", ref rowIndex);
-        AddDetailRow(grid, "Type:", activity.GetType().Name, ref rowIndex);
-
-        // ========== Activity-Specific Properties ==========
-        AddDetailRow(grid, "Compensation:", activity.IsForCompensation?.ToString() ?? "null", ref rowIndex);
-        AddDetailRow(grid, "Start Qty:", activity.StartQuantity?.ToString() ?? "null", ref rowIndex);
-        AddDetailRow(grid, "Complete Qty:", activity.CompletionQuantity?.ToString() ?? "null", ref rowIndex);
-
-        // ========== Flow Relationships ==========
-        AddDetailRow(grid, "Incoming:", FormatConnections(activity.Incoming), ref rowIndex);
-        AddDetailRow(grid, "Outgoing:", FormatConnections(activity.Outgoing), ref rowIndex);
-        AddDetailRow(grid, "Lanes:", FormatLanes(activity.Lanes), ref rowIndex);
-
-        // ========== Call Activity Properties ==========
-        if (activity is CallActivity callActivity)
-        {
-            AddDetailRow(grid, "Called Element:", callActivity.CalledElementRef?.Id ?? "null", ref rowIndex);
-        }
+        // ========== 2. Columns Section (Standard & Camunda) ==========
+        var columnsGrid = new Grid();
+        columnsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        columnsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         
-        // ========== Task-Specific Properties ==========
-        if (activity is Task task)
-        {
-            AddDetailRow(grid, "Task Specific:", GetTaskSpecificInfo(task), ref rowIndex);
-        }
-        else if (activity is SubProcess subProcess)
-        {
-            AddDetailRow(grid, "SubProcess Type:", subProcess.TriggeredByEvent == true ? "Event-SubProcess" : "Standard SubProcess", ref rowIndex);
-        }
+        var stdPanel = new StackPanel { Margin = new Thickness(10, 0, 10, 0) };
+        var camPanel = new StackPanel { Margin = new Thickness(10, 0, 10, 0) };
 
-        // ========== Loop Configuration ==========
+        // --- Standard Properties ---
+        AddProperty(stdPanel, "ID", activity.Id ?? "null");
+        AddProperty(stdPanel, "Name", activity.Name ?? "null");
+        AddProperty(stdPanel, "Type", activity.GetType().Name);
+        AddProperty(stdPanel, "Start Qty", activity.StartQuantity?.ToString());
+        AddProperty(stdPanel, "Complete Qty", activity.CompletionQuantity?.ToString());
+        AddProperty(stdPanel, "Compensation", activity.IsForCompensation?.ToString());
+        
+        // Loop
         if (activity.LoopCharacteristics != null)
-        {
-            AddDetailRow(grid, "Loop:", FormatLoopInfo(activity.LoopCharacteristics), ref rowIndex);
-        }
-
-        // ========== Data Handling ==========
-        var ioInfo = new StringBuilder();
+            AddProperty(stdPanel, "Loop", FormatLoopInfo(activity.LoopCharacteristics));
+            
+        // Connections
+        AddProperty(stdPanel, "Incoming", FormatConnections(activity.Incoming));
+        AddProperty(stdPanel, "Outgoing", FormatConnections(activity.Outgoing));
+        AddProperty(stdPanel, "Lanes", FormatLanes(activity.Lanes));
+        
+        // Data Handling
         if (activity.IoSpecification != null)
-        {
-            ioInfo.AppendLine(FormatIoSpecification(activity.IoSpecification));
-        }
+             AddProperty(stdPanel, "IO Spec", FormatIoSpecification(activity.IoSpecification));
+        
+        if (activity.DataInputAssociations.Any() || activity.DataOutputAssociations.Any())
+            AddProperty(stdPanel, "Data Flow", FormatDataAssociations(activity));
 
-        ioInfo.Append(FormatDataAssociations(activity));
-        AddDetailRow(grid, "Data Flow:", ioInfo.ToString(), ref rowIndex);
-
-        // ========== Boundary Events ==========
+        // Boundary Events
         if (activity.BoundaryEventRefs.Any())
-        {
-            AddDetailRow(grid, "Boundary Events:", FormatBoundaryEvents(activity.BoundaryEventRefs), ref rowIndex);
-        }
+            AddProperty(stdPanel, "Boundary Events", FormatBoundaryEvents(activity.BoundaryEventRefs));
 
-        // ========== Conversation Links ==========
+        // Conversations
         if (activity is InteractionNode interactionNode)
-        {
-            var conversationInfo = new StringBuilder();
+             AddProperty(stdPanel, "Conversations", FormatConversations(interactionNode));
 
-            if (interactionNode.IncomingConversationLinks.Any())
-            {
-                conversationInfo.AppendLine("Incoming Conversations:");
-                foreach (var conv in interactionNode.IncomingConversationLinks)
-                {
-                    conversationInfo.AppendLine($"• From: {(conv.SourceRef != null ? GetElementDisplay(conv.SourceRef) : "null")}");
-                }
-            }
+        // Extensions (Standard)
+        if (activity.ExtensionDefinitions.Any() || activity.ExtensionValues.Any())
+            AddProperty(stdPanel, "Extensions", FormatExtensions(activity));
 
-            if (interactionNode.OutgoingConversationLinks.Any())
-            {
-                conversationInfo.AppendLine("Outgoing Conversations:");
-                foreach (var conv in interactionNode.OutgoingConversationLinks)
-                {
-                    conversationInfo.AppendLine($"• To: {(conv.TargetRef != null ? GetElementDisplay(conv.TargetRef) : "null")}");
-                }
-            }
+        AddProperty(stdPanel, "Documentation", FormatDocumentation(activity.Documentation));
 
-            if (conversationInfo.Length > 0)
-            {
-                AddDetailRow(grid, "Conversations:", conversationInfo.ToString(), ref rowIndex);
-            }
-        }
 
-        // ========== Documentation ==========
-        if (activity.Documentation.Any())
-        {
-            AddDetailRow(grid, "Docs:", FormatDocumentation(activity.Documentation), ref rowIndex);
-        }
-
-        // ========== Camunda Extensions ==========
-        var camundaInfo = new StringBuilder();
-
-        // 1. General Camunda Attributes
-        if (activity.Camunda_asyncBefore.HasValue) camundaInfo.AppendLine($"• Async Before: {activity.Camunda_asyncBefore}");
-        if (activity.Camunda_asyncAfter.HasValue) camundaInfo.AppendLine($"• Async After: {activity.Camunda_asyncAfter}");
-        if (!string.IsNullOrEmpty(activity.Camunda_jobPriority)) camundaInfo.AppendLine($"• Job Priority: {activity.Camunda_jobPriority}");
-        if (activity.Camunda_exclusive.HasValue) camundaInfo.AppendLine($"• Exclusive: {activity.Camunda_exclusive}");
-
-        // 2. Task Specific Camunda Attributes
-        switch (activity)
-        {
-            case UserTask ut:
-                if (!string.IsNullOrEmpty(ut.Camunda_assignee)) camundaInfo.AppendLine($"• Assignee: {ut.Camunda_assignee}");
-                if (!string.IsNullOrEmpty(ut.Camunda_candidateUsers)) camundaInfo.AppendLine($"• Candidate Users: {ut.Camunda_candidateUsers}");
-                if (!string.IsNullOrEmpty(ut.Camunda_candidateGroups)) camundaInfo.AppendLine($"• Candidate Groups: {ut.Camunda_candidateGroups}");
-                if (!string.IsNullOrEmpty(ut.Camunda_dueDate)) camundaInfo.AppendLine($"• Due Date: {ut.Camunda_dueDate}");
-                if (!string.IsNullOrEmpty(ut.Camunda_followUpDate)) camundaInfo.AppendLine($"• Follow Up Date: {ut.Camunda_followUpDate}");
-                if (!string.IsNullOrEmpty(ut.Camunda_priority)) camundaInfo.AppendLine($"• Priority: {ut.Camunda_priority}");
-                if (!string.IsNullOrEmpty(ut.Camunda_formKey)) camundaInfo.AppendLine($"• Form Key: {ut.Camunda_formKey}");
-                break;
-
-            case ServiceTask st:
-                if (!string.IsNullOrEmpty(st.Camunda_class)) camundaInfo.AppendLine($"• Class: {st.Camunda_class}");
-                if (!string.IsNullOrEmpty(st.Camunda_delegateExpression)) camundaInfo.AppendLine($"• Delegate Expr: {st.Camunda_delegateExpression}");
-                if (!string.IsNullOrEmpty(st.Camunda_expression)) camundaInfo.AppendLine($"• Expression: {st.Camunda_expression}");
-                if (!string.IsNullOrEmpty(st.Camunda_resultVariable)) camundaInfo.AppendLine($"• Result Variable: {st.Camunda_resultVariable}");
-                if (!string.IsNullOrEmpty(st.Camunda_type)) camundaInfo.AppendLine($"• Type: {st.Camunda_type}");
-                if (!string.IsNullOrEmpty(st.Camunda_topic)) camundaInfo.AppendLine($"• Topic: {st.Camunda_topic}");
-                break;
-            
-            case BusinessRuleTask brt:
-                if (!string.IsNullOrEmpty(brt.Camunda_class)) camundaInfo.AppendLine($"• Class: {brt.Camunda_class}");
-                if (!string.IsNullOrEmpty(brt.Camunda_delegateExpression)) camundaInfo.AppendLine($"• Delegate Expr: {brt.Camunda_delegateExpression}");
-                if (!string.IsNullOrEmpty(brt.Camunda_expression)) camundaInfo.AppendLine($"• Expression: {brt.Camunda_expression}");
-                if (!string.IsNullOrEmpty(brt.Camunda_resultVariable)) camundaInfo.AppendLine($"• Result Variable: {brt.Camunda_resultVariable}");
-                if (!string.IsNullOrEmpty(brt.Camunda_decisionRef)) camundaInfo.AppendLine($"• Decision Ref: {brt.Camunda_decisionRef}");
-                if (!string.IsNullOrEmpty(brt.Camunda_decisionRefBinding)) camundaInfo.AppendLine($"• Ref Binding: {brt.Camunda_decisionRefBinding}");
-                if (!string.IsNullOrEmpty(brt.Camunda_decisionRefVersion)) camundaInfo.AppendLine($"• Ref Version: {brt.Camunda_decisionRefVersion}");
-                if (!string.IsNullOrEmpty(brt.Camunda_mapDecisionResult)) camundaInfo.AppendLine($"• Map Result: {brt.Camunda_mapDecisionResult}");
-                break;
-                
-            case ScriptTask sct:
-                 if (!string.IsNullOrEmpty(sct.Camunda_resource)) camundaInfo.AppendLine($"• Resource: {sct.Camunda_resource}");
-                 if (!string.IsNullOrEmpty(sct.Camunda_resultVariable)) camundaInfo.AppendLine($"• Result Variable: {sct.Camunda_resultVariable}");
-                 break;
-
-            case CallActivity ca:
-                if (!string.IsNullOrEmpty(ca.Camunda_calledElementBinding)) camundaInfo.AppendLine($"• Binding: {ca.Camunda_calledElementBinding}");
-                if (!string.IsNullOrEmpty(ca.Camunda_calledElementVersion)) camundaInfo.AppendLine($"• Version: {ca.Camunda_calledElementVersion}");
-                if (!string.IsNullOrEmpty(ca.Camunda_calledElementVersionTag)) camundaInfo.AppendLine($"• Version Tag: {ca.Camunda_calledElementVersionTag}");
-                if (!string.IsNullOrEmpty(ca.Camunda_calledElementTenantId)) camundaInfo.AppendLine($"• Tenant ID: {ca.Camunda_calledElementTenantId}");
-                if (!string.IsNullOrEmpty(ca.Camunda_caseRef)) camundaInfo.AppendLine($"• Case Ref: {ca.Camunda_caseRef}");
-                if (!string.IsNullOrEmpty(ca.Camunda_variableMappingClass)) camundaInfo.AppendLine($"• Map Class: {ca.Camunda_variableMappingClass}");
-                if (!string.IsNullOrEmpty(ca.Camunda_variableMappingDelegateExpression)) camundaInfo.AppendLine($"• Map Delegate: {ca.Camunda_variableMappingDelegateExpression}");
-                break;
-        }
-
-        // 3. Camunda Properties (Generic Key/Value)
-        var camundaProps = activity.CamundaElements.OfType<CamundaProperty>().ToList();
-        if (camundaProps.Any())
-        {
-            camundaInfo.AppendLine("\nExtension Properties:");
-            foreach (var prop in camundaProps)
-                camundaInfo.AppendLine($"• {prop.Name}: {prop.Value}");
-        }
-
-        // 4. Form Data (Fixed: Use .Fields instead of .CamundaFormFields)
-        var formData = activity.CamundaElements.OfType<CamundaFormData>().FirstOrDefault();
-        if (formData != null && formData.Fields.Any())
-        {
-            camundaInfo.AppendLine("\nForm Data:");
-            foreach (var field in formData.Fields)
-            {
-                var label = !string.IsNullOrEmpty(field.Label) ? $"\"{field.Label}\"" : field.Id;
-                var type = !string.IsNullOrEmpty(field.Type) ? $" ({field.Type})" : "";
-                var def = !string.IsNullOrEmpty(field.DefaultValue) ? $" = {field.DefaultValue}" : "";
-                camundaInfo.AppendLine($"• {label}{type}{def}");
-            }
-        }
-
-        // 5. Input/Output Mappings (Activity Level) (Fixed: Removed .Text)
-        var inputOutput = activity.CamundaElements.OfType<CamundaInputOutput>().FirstOrDefault();
-        if (inputOutput != null)
-        {
-            if (inputOutput.InputParameters.Any())
-            {
-                camundaInfo.AppendLine("\nInput Parameters:");
-                foreach (var p in inputOutput.InputParameters)
-                    camundaInfo.AppendLine($"• {p.Name} = {p.Value}");
-            }
-            if (inputOutput.OutputParameters.Any())
-            {
-                camundaInfo.AppendLine("\nOutput Parameters:");
-                foreach (var p in inputOutput.OutputParameters)
-                    camundaInfo.AppendLine($"• {p.Name} = {p.Value}");
-            }
-        }
+        // --- Camunda Properties ---
+        AddProperty(camPanel, "Async Before", activity.Camunda_asyncBefore?.ToString());
+        AddProperty(camPanel, "Async After", activity.Camunda_asyncAfter?.ToString());
+        AddProperty(camPanel, "Exclusive", activity.Camunda_exclusive?.ToString());
+        AddProperty(camPanel, "Job Priority", activity.Camunda_jobPriority);
         
-        var camundaIn = activity.CamundaElements.OfType<CamundaIn>();
-        if (camundaIn.Any())
-        {
-            camundaInfo.AppendLine("\n[Variables In]");
-            foreach(var variable in camundaIn)
-            {
-                var src = variable.Source ?? variable.SourceExpression ?? "null";
-                var target = variable.Target ?? "null";
-                if (variable.Variables == "all") camundaInfo.AppendLine("  Pass All Variables");
-                else if (variable.BusinessKey != null) camundaInfo.AppendLine($"  BusinessKey = {variable.BusinessKey}");
-                else camundaInfo.AppendLine($"  {target} = {src}");
-            }
-        }
-        
-        var camundaOut = activity.CamundaElements.OfType<CamundaOut>();
-        if (camundaOut.Any())
-        {
-            camundaInfo.AppendLine("\n[Variables Out]");
-            foreach(var variable in camundaOut)
-            {
-                var src = variable.Source ?? variable.SourceExpression ?? "null";
-                var target = variable.Target ?? "null";
-                if (variable.Variables == "all") camundaInfo.AppendLine("  Pass All Variables");
-                else camundaInfo.AppendLine($"  {target} = {src}");
-            }
-        }
+        // Task Specifics
+        AddCamundaTaskSpecifics(camPanel, activity);
 
-        // 6. Field Injections,
-        var fields = activity.CamundaElements.OfType<CamundaField>();
-        if (fields.Any())
-        {
-            camundaInfo.AppendLine("\nField Injections:");
-            foreach (var field in fields)
-            {
-                var val = field.StringValue ?? field.Expression ?? "null";
-                camundaInfo.AppendLine($"• {field.Name} = {val}");
-            }
-        }
-
-        // 7. Execution Listeners (Fixed: Access l.Script.Value and l.Script.ScriptFormat)
-        var execListeners = activity.CamundaElements.OfType<CamundaExecutionListener>();
-        if (execListeners.Any())
-        {
-            camundaInfo.AppendLine("\nExecution Listeners:");
-            foreach (var l in execListeners)
-            {
-                string details;
-            
-                if (l.Class != null) details = l.Class;
-                else if (l.Expression != null) details = l.Expression;
-                else if (l.DelegateExpression != null) details = l.DelegateExpression;
-                else if (l.Script != null)
-                {
-                    var scriptContent = l.Script.Value ?? "";
-                    var preview = scriptContent.Trim().Replace("\n", " ");
-                    if (preview.Length > 40) preview = preview.Substring(0, 40) + "...";
-                
-                    details = $"[Script: {l.Script.ScriptFormat}] {preview}";
-                }
-                else details = "Unknown Implementation";
-
-                camundaInfo.AppendLine($"• {l.Event}: {details}");
-            }
-        }
-
-        // 8. Task Listeners (Fixed: Access l.Script.Value and l.Script.ScriptFormat)
-        var taskListeners = activity.CamundaElements.OfType<CamundaTaskListener>();
-        if (taskListeners.Any())
-        {
-            camundaInfo.AppendLine("\nTask Listeners:");
-            foreach (var l in taskListeners)
-            {
-                string details;
-
-                if (l.Class != null) details = l.Class;
-                else if (l.Expression != null) details = l.Expression;
-                else if (l.DelegateExpression != null) details = l.DelegateExpression;
-                else if (l.Script != null)
-                {
-                    var scriptContent = l.Script.Value ?? "";
-                    var preview = scriptContent.Trim().Replace("\n", " ");
-                    if (preview.Length > 40) preview = preview.Substring(0, 40) + "...";
-
-                    details = $"[Script: {l.Script.ScriptFormat}] {preview}";
-                }
-                else details = "Unknown Implementation";
-
-                camundaInfo.AppendLine($"• {l.Event}: {details}");
-            }
-        }
-
-        // 9. Connectors (Existing logic)
-        var connectors = activity.CamundaElements.OfType<CamundaConnector>();
-        if (connectors.Any())
-        {
-            camundaInfo.AppendLine("\nConnectors:");
-            foreach (var conn in connectors)
-            {
-                camundaInfo.AppendLine($"• ID: {conn.ConnectorId}");
-                if (conn.InputOutput != null)
-                {
-                    foreach (var p in conn.InputOutput.InputParameters) camundaInfo.AppendLine($"  In: {p.Name} = {p.Value}");
-                    foreach (var p in conn.InputOutput.OutputParameters) camundaInfo.AppendLine($"  Out: {p.Name} = {p.Value}");
-                }
-            }
-        }
+        // Generic Camunda Elements
+        AddProperty(camPanel, "Properties", FormatCamundaProperties(activity));
+        AddProperty(camPanel, "Form Data", FormatCamundaFormData(activity));
+        AddProperty(camPanel, "Input/Output", FormatCamundaIO(activity));
+        AddProperty(camPanel, "Call Variables", FormatCamundaCallVars(activity)); // CamundaIn/Out
+        AddProperty(camPanel, "Fields", FormatCamundaFields(activity));
+        AddProperty(camPanel, "Connectors", FormatConnectors(activity));
+        AddProperty(camPanel, "Listeners", FormatListenersSummary(activity)); // Classes/Delegates
         
         var retryCycle = activity.CamundaElements.OfType<CamundaFailedJobRetryTimeCycle>().FirstOrDefault();
-        if (retryCycle != null)
+        if (retryCycle != null) AddProperty(camPanel, "Retry Cycle", retryCycle.Body);
+
+        Grid.SetColumn(stdPanel, 0);
+        Grid.SetColumn(camPanel, 1);
+        columnsGrid.Children.Add(stdPanel);
+        columnsGrid.Children.Add(camPanel);
+
+        var detailsScroll = new ScrollViewer { Content = columnsGrid, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        Grid.SetRow(detailsScroll, 1);
+        rootGrid.Children.Add(detailsScroll);
+
+        // ========== 3. Script/Code Section ==========
+        var scriptContent = ExtractScriptContent(activity);
+        if (!string.IsNullOrWhiteSpace(scriptContent))
         {
-            camundaInfo.AppendLine($"\n[Retry Cycle] {retryCycle.Body}");
-        }
-
-        if (camundaInfo.Length > 0)
-        {
-            AddDetailRow(grid, "Camunda Config:", camundaInfo.ToString(), ref rowIndex);
-        }
-
-        // ========== Standard Extensions ==========
-        if (activity.ExtensionDefinitions.Any() || activity.ExtensionValues.Any())
-        {
-            var extensionInfo = new StringBuilder();
-
-            // Extension Definitions
-            if (activity.ExtensionDefinitions.Any())
-            {
-                extensionInfo.AppendLine("Defined Extensions:");
-                foreach (var def in activity.ExtensionDefinitions)
-                {
-                    extensionInfo.AppendLine($"• {def.Name}");
-                    foreach (var attr in def.ExtensionAttributeDefinitions)
-                    {
-                        extensionInfo.AppendLine($"  - {attr.Name} ({attr.Type})");
-                    }
-                }
-            }
-
-            // Extension Values
-            if (activity.ExtensionValues.Any())
-            {
-                extensionInfo.AppendLine("Applied Extensions:");
-                foreach (var val in activity.ExtensionValues)
-                {
-                    var value = val.Value ?? val.ValueRef;
-                    extensionInfo.AppendLine($"• {val.ExtensionAttributeDefinition?.Name}: {(value is null? "" :value.Value)}");
-                }
-            }
-
-            AddDetailRow(grid, "Extensions:", extensionInfo.ToString(), ref rowIndex);
-        }
-
-        return grid;
-    }
-
-    // ========== Helper Methods ==========
-    private string FormatConnections(IEnumerable<SequenceFlow> flows)
-    {
-        return flows.Any()
-            ? string.Join("\n", flows.Select(f => $"• {f.Id}"))
-            : "";
-    }
-
-    private string FormatLanes(IEnumerable<Lane> lanes)
-    {
-        return lanes.Any()
-            ? string.Join("\n", lanes.Select(l => $"• {l.Name ?? l.Id}"))
-            : "";
-    }
-
-    private string GetTaskSpecificInfo(Task task)
-    {
-        switch (task)
-        {
-            case UserTask ut:
-                return $"User Task\n" +
-                       $"• Assignee: {ut.Camunda_assignee ?? "Unassigned"}\n" +
-                       $"• Candidate Groups: {ut.Camunda_candidateGroups ?? "-"}\n" +
-                       $"• Candidate Users: {ut.Camunda_candidateUsers ?? "-"}\n" +
-                       $"• Due Date: {ut.Camunda_dueDate ?? "-"}\n" +
-                       $"• Follow Up: {ut.Camunda_followUpDate ?? "-"}\n" +
-                       $"• Priority: {ut.Camunda_priority ?? "-"}";
-            case ServiceTask st:
-                var stType = !string.IsNullOrEmpty(st.Camunda_type) ? st.Camunda_type : "Class/Delegate";
-                return $"Service Task\n" +
-                       $"• Type: {stType}\n" +
-                       $"• Topic: {st.Camunda_topic ?? "-"}\n" +
-                       $"• Result Var: {st.Camunda_resultVariable ?? "-"}";
+            var scriptPanel = new StackPanel { Margin = new Thickness(10) };
+            scriptPanel.Children.Add(new TextBlock { Text = "Script / Code / Expressions:", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 5, 0, 2) });
             
-            case BusinessRuleTask brt:
-                return $"Business Rule Task\n" +
-                       $"• Decision Ref: {brt.Camunda_decisionRef ?? "null"}\n" +
-                       $"• Binding: {brt.Camunda_decisionRefBinding ?? "latest"}\n" +
-                       $"• Result Var: {brt.Camunda_resultVariable ?? "null"}";
-            case ScriptTask sct:
-                string codeSource = "None";
-                if (sct.Script != null && !string.IsNullOrEmpty(sct.Script))
-                    codeSource = "Inline Script";
-                else if (!string.IsNullOrEmpty(sct.Camunda_resource))
-                    codeSource = sct.Camunda_resource;
-                return $"Script Task\n" +
-                       $"• Format: {sct.ScriptFormat ?? "null"}\n" +
-                       $"• Source: {codeSource}\n" +
-                       $"• Result Var: {sct.Camunda_resultVariable ?? "-"}";
-            case SendTask st:
-                return $"Send Task\n• Message: {st.MessageRef?.Name ?? "None"}";
-                
-            case ReceiveTask rt:
-                return $"Receive Task\n• Message: {rt.MessageRef?.Name ?? "None"}";
-            default:
-                return task.GetType().Name;
+            var scriptBox = new TextBox
+            {
+                Text = scriptContent,
+                IsReadOnly = true,
+                FontFamily = new FontFamily("Consolas"),
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Height = 150,
+                AcceptsReturn = true
+            };
+            scriptPanel.Children.Add(scriptBox);
+            
+            Grid.SetRow(scriptPanel, 2);
+            rootGrid.Children.Add(scriptPanel);
+        }
+
+        return new Border { Padding = new Thickness(5), Child = rootGrid };
+    }
+
+    private void AddProperty(StackPanel panel, string label, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return;
+
+        var grid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        var lbl = new TextBlock 
+        { 
+            Text = $"{label}:", 
+            FontWeight = FontWeights.Bold, 
+            VerticalAlignment = VerticalAlignment.Top,
+            TextWrapping = TextWrapping.Wrap
+        };
+        var val = new TextBlock 
+        { 
+            Text = value, 
+            FontFamily = new FontFamily("Consolas"), 
+            TextWrapping = TextWrapping.Wrap,
+            VerticalAlignment = VerticalAlignment.Top
+        };
+
+        Grid.SetColumn(lbl, 0);
+        Grid.SetColumn(val, 1);
+        grid.Children.Add(lbl);
+        grid.Children.Add(val);
+        panel.Children.Add(grid);
+    }
+    
+    private void AddCamundaTaskSpecifics(StackPanel panel, Activity activity)
+    {
+        if (activity is UserTask ut)
+        {
+            AddProperty(panel, "Assignee", ut.Camunda_assignee);
+            AddProperty(panel, "Cand. Users", ut.Camunda_candidateUsers);
+            AddProperty(panel, "Cand. Groups", ut.Camunda_candidateGroups);
+            AddProperty(panel, "Due Date", ut.Camunda_dueDate);
+            AddProperty(panel, "Priority", ut.Camunda_priority);
+            AddProperty(panel, "Form Key", ut.Camunda_formKey);
+        }
+        else if (activity is ServiceTask st)
+        {
+            AddProperty(panel, "Type", !string.IsNullOrEmpty(st.Camunda_type) ? st.Camunda_type : "Class/Delegate");
+            AddProperty(panel, "Topic", st.Camunda_topic);
+            AddProperty(panel, "Result Var", st.Camunda_resultVariable);
+            if (!string.IsNullOrEmpty(st.Camunda_class)) AddProperty(panel, "Class", st.Camunda_class);
+            if (!string.IsNullOrEmpty(st.Camunda_delegateExpression)) AddProperty(panel, "Delegate", st.Camunda_delegateExpression);
+        }
+        else if (activity is ScriptTask sct)
+        {
+            AddProperty(panel, "Format", sct.ScriptFormat);
+            AddProperty(panel, "Resource", sct.Camunda_resource);
+            AddProperty(panel, "Result Var", sct.Camunda_resultVariable);
+        }
+        else if (activity is CallActivity ca)
+        {
+            AddProperty(panel, "Called Elem", ca.CalledElementRef?.Id);
+            AddProperty(panel, "Binding", ca.Camunda_calledElementBinding);
+            AddProperty(panel, "Version", ca.Camunda_calledElementVersion);
+            AddProperty(panel, "Tenant", ca.Camunda_calledElementTenantId);
+            AddProperty(panel, "Case Ref", ca.Camunda_caseRef);
+        }
+        else if (activity is BusinessRuleTask brt)
+        {
+             AddProperty(panel, "Decision Ref", brt.Camunda_decisionRef);
+             AddProperty(panel, "Binding", brt.Camunda_decisionRefBinding);
+             AddProperty(panel, "Version", brt.Camunda_decisionRefVersion);
+             AddProperty(panel, "Result Var", brt.Camunda_resultVariable);
+             AddProperty(panel, "Map Result", brt.Camunda_mapDecisionResult);
+             if (!string.IsNullOrEmpty(brt.Camunda_class)) AddProperty(panel, "Class", brt.Camunda_class);
+             if (!string.IsNullOrEmpty(brt.Camunda_delegateExpression)) AddProperty(panel, "Delegate", brt.Camunda_delegateExpression);
+        }
+        else if (activity is SendTask send)
+        {
+             AddProperty(panel, "Message", send.MessageRef?.Name ?? "None");
+             if (!string.IsNullOrEmpty(send.Camunda_class)) AddProperty(panel, "Class", send.Camunda_class);
+             if (!string.IsNullOrEmpty(send.Camunda_delegateExpression)) AddProperty(panel, "Delegate", send.Camunda_delegateExpression);
+        }
+        else if (activity is ReceiveTask receive)
+        {
+             AddProperty(panel, "Message", receive.MessageRef?.Name ?? "None");
         }
     }
 
-    private string FormatLoopInfo(LoopCharacteristics loop)
-    {
-        return loop switch
-        {
-            MultiInstanceLoopCharacteristics mi =>
-                $"Multi-Instance ({(mi.IsSequential == true ? "Sequential" : "Parallel")})\n" +
-                $"• Collection: {mi.InputDataItem?.Name ?? "null"}\n" +
-                $"• Completion: {(mi.CompletionCondition as FormalExpression)?.Body}",
+    // --- Data Extraction Helpers ---
 
-            StandardLoopCharacteristics sl =>
-                $"Standard Loop\n" +
-                $"• Test Before: {sl.TestBefore}\n" +
-                $"• Condition: {(sl.LoopCondition as FormalExpression)?.Body}",
-
-            _ => "Custom Loop"
-        };
-    }
-
-    private string FormatIoSpecification(InputOutputSpecification io)
+    private string ExtractScriptContent(Activity activity)
     {
         var sb = new StringBuilder();
-        if (io.DataInputs.Any())
+
+        // 1. Main Script Tasks
+        if (activity is ScriptTask st && !string.IsNullOrEmpty(st.Script))
         {
-            sb.AppendLine("Inputs:");
-            foreach (var input in io.DataInputs)
+            sb.AppendLine($"--- Main Script ({st.ScriptFormat}) ---");
+            sb.AppendLine(st.Script);
+            sb.AppendLine();
+        }
+        // 2. Service Tasks with Expressions
+        else if (activity is ServiceTask srv && !string.IsNullOrEmpty(srv.Camunda_expression))
+        {
+            sb.AppendLine("--- Expression ---");
+            sb.AppendLine(srv.Camunda_expression);
+            sb.AppendLine();
+        }
+
+        // 3. Exec Listeners
+        var execListeners = activity.CamundaElements.OfType<CamundaExecutionListener>();
+        foreach (var l in execListeners)
+        {
+            if (l.Script != null && !string.IsNullOrEmpty(l.Script.Value))
             {
-                sb.AppendLine($"• {input.Name} {(input.IsCollection == true ? "(Collection)" : "")}");
+                sb.AppendLine($"--- Listener ({l.Event}): {l.Script.ScriptFormat} ---");
+                sb.AppendLine(l.Script.Value);
+                sb.AppendLine();
             }
         }
 
-        if (io.DataOutputs.Any())
+        // 4. Task Listeners
+        var taskListeners = activity.CamundaElements.OfType<CamundaTaskListener>();
+        foreach (var l in taskListeners)
         {
-            sb.AppendLine("Outputs:");
-            foreach (var output in io.DataOutputs)
+            if (l.Script != null && !string.IsNullOrEmpty(l.Script.Value))
             {
-                sb.AppendLine($"• {output.Name} {(output.IsCollection == true ? "(Collection)" : "")}");
+                sb.AppendLine($"--- Listener ({l.Event}): {l.Script.ScriptFormat} ---");
+                sb.AppendLine(l.Script.Value);
+                sb.AppendLine();
             }
         }
 
         return sb.ToString();
+    }
+    
+    // Formats non-script listeners for the column view
+    private string FormatListenersSummary(Activity activity)
+    {
+        var sb = new StringBuilder();
+        var execListeners = activity.CamundaElements.OfType<CamundaExecutionListener>();
+        foreach(var l in execListeners)
+        {
+            string impl = l.Class ?? l.DelegateExpression ?? l.Expression ?? (l.Script != null ? "Script" : "Unknown");
+            sb.AppendLine($"Exec({l.Event}): {impl}");
+        }
+        
+        var taskListeners = activity.CamundaElements.OfType<CamundaTaskListener>();
+        foreach(var l in taskListeners)
+        {
+            string impl = l.Class ?? l.DelegateExpression ?? l.Expression ?? (l.Script != null ? "Script" : "Unknown");
+            sb.AppendLine($"Task({l.Event}): {impl}");
+        }
+        return sb.ToString();
+    }
+
+    private string FormatCamundaProperties(Activity activity)
+    {
+        var props = activity.CamundaElements.OfType<CamundaProperty>();
+        return props.Any() ? string.Join("\n", props.Select(p => $"{p.Name}: {p.Value}")) : "";
+    }
+    
+    private string FormatCamundaFields(Activity activity)
+    {
+         var fields = activity.CamundaElements.OfType<CamundaField>();
+         return fields.Any() ? string.Join("\n", fields.Select(f => $"{f.Name} = {f.StringValue ?? f.Expression}")) : "";
+    }
+    
+    private string FormatCamundaFormData(Activity activity)
+    {
+        var formData = activity.CamundaElements.OfType<CamundaFormData>().FirstOrDefault();
+        if (formData == null || !formData.Fields.Any()) return "";
+        
+        var sb = new StringBuilder();
+        foreach (var f in formData.Fields)
+        {
+             var label = !string.IsNullOrEmpty(f.Label) ? $"\"{f.Label}\"" : f.Id;
+             var val = !string.IsNullOrEmpty(f.DefaultValue) ? $"={f.DefaultValue}" : "";
+             sb.AppendLine($"• {label} ({f.Type}){val}");
+        }
+        return sb.ToString();
+    }
+    
+    private string FormatCamundaIO(Activity activity)
+    {
+        var io = activity.CamundaElements.OfType<CamundaInputOutput>().FirstOrDefault();
+        if (io == null) return "";
+        var sb = new StringBuilder();
+        foreach (var p in io.InputParameters) sb.AppendLine($"In: {p.Name} = {p.Value}");
+        foreach (var p in io.OutputParameters) sb.AppendLine($"Out: {p.Name} = {p.Value}");
+        return sb.ToString();
+    }
+    
+    private string FormatCamundaCallVars(Activity activity)
+    {
+        var sb = new StringBuilder();
+        var camundaIn = activity.CamundaElements.OfType<CamundaIn>();
+        foreach(var v in camundaIn)
+        {
+            if (v.Variables == "all") sb.AppendLine("In: All");
+            else if (v.BusinessKey != null) sb.AppendLine($"In: BusinessKey={v.BusinessKey}");
+            else sb.AppendLine($"In: {v.Target} = {v.Source ?? v.SourceExpression}");
+        }
+        
+        var camundaOut = activity.CamundaElements.OfType<CamundaOut>();
+        foreach(var v in camundaOut)
+        {
+             if (v.Variables == "all") sb.AppendLine("Out: All");
+             else sb.AppendLine($"Out: {v.Target} = {v.Source ?? v.SourceExpression}");
+        }
+        return sb.ToString();
+    }
+    
+    private string FormatConnectors(Activity activity)
+    {
+         var conns = activity.CamundaElements.OfType<CamundaConnector>();
+         return conns.Any() ? string.Join("\n", conns.Select(c => c.ConnectorId)) : "";
+    }
+
+    private string FormatConnections(IEnumerable<SequenceFlow> flows) => 
+        string.Join(", ", flows.Select(f => f.Id));
+
+    private string FormatLanes(IEnumerable<Lane> lanes) => 
+        string.Join(", ", lanes.Select(l => l.Name ?? l.Id));
+
+    private string FormatIoSpecification(InputOutputSpecification io)
+    {
+        var sb = new StringBuilder();
+        if (io.DataInputs.Any()) sb.AppendLine("In: " + string.Join(", ", io.DataInputs.Select(i => i.Name)));
+        if (io.DataOutputs.Any()) sb.AppendLine("Out: " + string.Join(", ", io.DataOutputs.Select(o => o.Name)));
+        return sb.ToString().Trim();
     }
 
     private string FormatDataAssociations(Activity activity)
     {
         var sb = new StringBuilder();
-
-        if (activity.DataInputAssociations.Any())
+        foreach (var assoc in activity.DataInputAssociations)
         {
-            sb.AppendLine("Input Mappings:");
-            foreach (var assoc in activity.DataInputAssociations)
-            {
-                sb.AppendLine($"• Sources: {string.Join(", ", assoc.SourceRef.Select(GetElementId))}");
-                sb.AppendLine($"  → Target: {(assoc.TargetRef is null ? "null" : GetElementId(assoc.TargetRef))}");
-            }
+            var src = string.Join(",", assoc.SourceRef.Select(s => (s as BaseElement)?.Id));
+            var tgt = (assoc.TargetRef as BaseElement)?.Id ?? "null";
+            sb.AppendLine($"{src} -> {tgt}");
         }
-
-        if (activity.DataOutputAssociations.Any())
+        foreach (var assoc in activity.DataOutputAssociations)
         {
-            sb.AppendLine("Output Mappings:");
-            foreach (var assoc in activity.DataOutputAssociations)
-            {
-                sb.AppendLine($"• Sources: {string.Join(", ", assoc.SourceRef.Select(GetElementId))}");
-                sb.AppendLine($"  → Target: {(assoc.TargetRef is null ? "null" : GetElementId(assoc.TargetRef))}");
-            }
+            var src = string.Join(",", assoc.SourceRef.Select(s => (s as BaseElement)?.Id));
+            var tgt = (assoc.TargetRef as BaseElement)?.Id ?? "null";
+            sb.AppendLine($"{src} -> {tgt}");
         }
-
+        return sb.ToString().Trim();
+    }
+    
+    private string FormatBoundaryEvents(IEnumerable<BoundaryEvent> events)
+    {
+        return string.Join("\n", events.Select(e => 
+            $"{e.Id} ({e.EventDefinitions.FirstOrDefault()?.GetType().Name.Replace("EventDefinition","")})"));
+    }
+    
+    private string FormatConversations(InteractionNode node)
+    {
+        var sb = new StringBuilder();
+        foreach(var c in node.IncomingConversationLinks)
+            sb.AppendLine($"From: {(c.SourceRef as BaseElement)?.Id}");
+        foreach(var c in node.OutgoingConversationLinks)
+            sb.AppendLine($"To: {(c.TargetRef as BaseElement)?.Id}");
+        return sb.ToString();
+    }
+    
+    private string FormatExtensions(Activity activity)
+    {
+        var sb = new StringBuilder();
+        foreach(var def in activity.ExtensionDefinitions) sb.AppendLine($"Def: {def.Name}");
+        foreach(var val in activity.ExtensionValues) {
+            var ValueText = val.Value?.ToString() ?? val.ValueRef?.Value ?? "null";
+            sb.AppendLine($"Val: {val.ExtensionAttributeDefinition?.Name}: {ValueText}");
+        }
         return sb.ToString();
     }
 
-    private string GetElementId(object element)
-    {
-        return (element as BaseElement)?.Id ?? "Anonymous";
-    }
-
-    private string FormatBoundaryEvents(IEnumerable<BoundaryEvent> events)
-    {
-        return string.Join("\n\n", events.Select(e =>
-            $"• {e.Id}\n" +
-            $"  Type: {e.EventDefinitions.FirstOrDefault()?.GetType().Name.Replace("EventDefinition", "")}\n" +
-            $"  Cancel: {e.CancelActivity}"));
-    }
-
-    private string FormatDocumentation(IEnumerable<Documentation> docs)
-    {
-        return string.Join("\n\n", docs.Select(d =>
-            $"• {d.Text} {(d.TextFormat != null ? $"[{d.TextFormat}]" : "")}"));
-    }
-
-    private string GetElementDisplay(InteractionNode node)
-    {
-        if (node is BaseElement baseElement)
-            return $"{baseElement.Id} ({node.GetType().Name})";
-        return "Unknown";
-    }
-
-    private void AddDetailRow(Grid grid, string label, object value, ref int row)
-    {
-        if (string.IsNullOrWhiteSpace(value?.ToString())) return;
-
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-        var labelBlock = new TextBlock
-        {
-            Text = label,
-            FontWeight = FontWeights.Bold,
-            Margin = new Thickness(5, 2, 5, 2),
-            VerticalAlignment = VerticalAlignment.Top
-        };
-        Grid.SetRow(labelBlock, row);
-        Grid.SetColumn(labelBlock, 0);
-
-        var valueBlock = new TextBlock
-        {
-            Text = value?.ToString() ?? "null",
-            Margin = new Thickness(5, 2, 5, 2),
-            TextWrapping = TextWrapping.Wrap,
-            FontFamily = new FontFamily("Consolas")
-        };
-        Grid.SetRow(valueBlock, row);
-        Grid.SetColumn(valueBlock, 1);
-
-        grid.Children.Add(labelBlock);
-        grid.Children.Add(valueBlock);
-
-        row++;
-    }
+    private string FormatDocumentation(IEnumerable<Documentation> docs) =>
+        string.Join("\n", docs.Select(d => d.Text));
     
+    private string FormatLoopInfo(LoopCharacteristics? loop)
+    {
+        if (loop is MultiInstanceLoopCharacteristics mi)
+        {
+             var type = mi.IsSequential == true ? "Sequential" : "Parallel";
+             var coll = mi.InputDataItem?.Name ?? "null";
+             var cond = (mi.CompletionCondition as FormalExpression)?.Body;
+             return $"{type}\nColl: {coll}" + (cond != null ? $"\nEnd: {cond}" : "");
+        }
+        if (loop is StandardLoopCharacteristics sl)
+        {
+             return $"Standard Loop\nTest Before: {sl.TestBefore}";
+        }
+        return "";
+    }
+
     private void RefreshActivityVisual(Activity activity)
     {
         RefreshActivityNote(activity);
-        
-        if (_activityNotes.TryGetValue(activity.Id, out var note))
-        {
-            Panel.SetZIndex(note, int.MaxValue);
-        }
+        if (_activityNotes.TryGetValue(activity.Id, out var note)) Panel.SetZIndex(note, int.MaxValue);
     }
     
     private void RefreshActivityNote(Activity activity)
     {
-        if (_activityNotes.TryGetValue(activity.Id, out var existingNote))
-        {
-            _canvas.Children.Remove(existingNote);
-        }
-
+        if (_activityNotes.TryGetValue(activity.Id, out var existingNote)) _canvas.Children.Remove(existingNote);
         var note = DrawNote(activity, _objectBounds[activity.Id]);
         if (note != null)
         {
             note.Tag = $"{activity.Id}_note";
             _activityNotes[activity.Id] = note;
-            
             Canvas.SetLeft(note, _objectBounds[activity.Id].Left + 5);
             Canvas.SetTop(note, _objectBounds[activity.Id].Top - 20);
             _canvas.Children.Add(note);
