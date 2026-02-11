@@ -17,7 +17,7 @@ namespace BPMNVisualizer.Visualization.Renderers
         private readonly BrushManager _brushManager;
         private readonly ShapeManager _shapeManager;
         private readonly SvgResourceManager _svgResourceManager;
-        private readonly Dictionary<string, Rect> _objectBounds = new();
+        private readonly Dictionary<string, Rect> _objectBounds;
         private readonly Dictionary<string, FrameworkElement> _gatewayNotes = new();
 
         public GatewayRenderer(ILogger logger, Canvas canvas, BrushManager brushManager, ShapeManager shapeManager,
@@ -140,6 +140,7 @@ namespace BPMNVisualizer.Visualization.Renderers
 
             return border;
         }
+        
         private void ShowEventDetails(Gateway gateway)
         {
             var detailWindow = new Window
@@ -244,9 +245,16 @@ namespace BPMNVisualizer.Visualization.Renderers
                     break;
 
                 case ComplexGateway complex:
-                    AddDetailRow(grid, "Activation Condition:",
-                       complex.ActivationCondition != null ? (complex.ActivationCondition is FormalExpression expr?  (expr.Body == null? "null" : expr.Body) : complex.ActivationCondition) :  "Null" ,
-                       ref rowIndex);
+                     string activationCond = "Null";
+                     if (complex.ActivationCondition is FormalExpression expr)
+                     {
+                         activationCond = expr.Body?.ToString() ?? "Null";
+                     }
+                     else if (complex.ActivationCondition != null)
+                     {
+                         activationCond = complex.ActivationCondition.ToString();
+                     }
+                    AddDetailRow(grid, "Activation Condition:", activationCond, ref rowIndex);
                     AddDetailRow(grid, "Default Flow:", complex.Default?.Id ?? "None", ref rowIndex);
                     break;
 
@@ -255,7 +263,7 @@ namespace BPMNVisualizer.Visualization.Renderers
                     {
                         GatewayDirection.Converging => "Join (Synchronization)",
                         GatewayDirection.Diverging => "Split (Fork)",
-                        _ => "Unknown"
+                        _ => "Mixed/Unknown"
                     };
                     AddDetailRow(grid, "Sync Type:", syncType, ref rowIndex);
                     break;
@@ -268,117 +276,143 @@ namespace BPMNVisualizer.Visualization.Renderers
 
             // ========== Connection Analysis ==========
             var flowAnalysis = new StringBuilder();
-            flowAnalysis.AppendLine($"Split/Join Type: {GetSplitJoinType(gateway)}");
-
+            
             // Show conditions for outgoing flows
-            flowAnalysis.Append(GetFlowConditions(gateway));
+            var conditions = GetFlowConditions(gateway);
+            if (!string.IsNullOrEmpty(conditions))
+            {
+                 flowAnalysis.Append(conditions);
+                 AddDetailRow(grid, "Flow Analysis:", flowAnalysis.ToString(), ref rowIndex);
+            }
 
-            AddDetailRow(grid, "Flow Analysis:", flowAnalysis.ToString(), ref rowIndex);
-
-            // ========== Enhanced Camunda Extensions ==========
+            // =========================================================
+            // ========== CAMUNDA EXTENSIONS & ATTRIBUTES ==============
+            // =========================================================
             var camundaInfo = new StringBuilder();
 
-            // General Camunda properties
-            if (gateway.Camunda_asyncBefore.HasValue)
-                camundaInfo.AppendLine($"• Async Before: {gateway.Camunda_asyncBefore}");
-            if (gateway.Camunda_asyncAfter.HasValue)
-                camundaInfo.AppendLine($"• Async After: {gateway.Camunda_asyncAfter}");
-            if (gateway.Camunda_exclusive.HasValue)
-                camundaInfo.AppendLine($"• Exclusive: {gateway.Camunda_exclusive}");
-            if (!string.IsNullOrEmpty(gateway.Camunda_jobPriority))
-                camundaInfo.AppendLine($"• Job Priority: {gateway.Camunda_jobPriority}");
+            // 1. General Camunda Attributes
+            if (gateway.Camunda_asyncBefore.HasValue) camundaInfo.AppendLine($"• Async Before: {gateway.Camunda_asyncBefore}");
+            if (gateway.Camunda_asyncAfter.HasValue) camundaInfo.AppendLine($"• Async After: {gateway.Camunda_asyncAfter}");
+            if (gateway.Camunda_exclusive.HasValue) camundaInfo.AppendLine($"• Exclusive: {gateway.Camunda_exclusive}");
+            if (!string.IsNullOrEmpty(gateway.Camunda_jobPriority)) camundaInfo.AppendLine($"• Job Priority: {gateway.Camunda_jobPriority}");
 
-            // Camunda elements
-            var camundaElements = gateway.CamundaElements;
+            // 2. Camunda Properties (Key/Value pairs)
+            var camundaProps = gateway.CamundaElements.OfType<CamundaProperty>().ToList();
+            if (camundaProps.Any())
+            {
+                camundaInfo.AppendLine("\n[Extension Properties]");
+                foreach (var prop in camundaProps)
+                    camundaInfo.AppendLine($"  {prop.Name}: {prop.Value}");
+            }
 
-            // Input/Output Mappings
-            var ioMappings = camundaElements.OfType<CamundaInputOutput>();
+            // 3. Input/Output Mappings
+            var ioMappings = gateway.CamundaElements.OfType<CamundaInputOutput>();
             if (ioMappings.Any())
             {
-                camundaInfo.AppendLine("\nI/O Mappings:");
+                camundaInfo.AppendLine("\n[I/O Mappings]");
                 foreach (var io in ioMappings)
                 {
-                    foreach (var input in io.InputParameters)
+                    if (io.InputParameters.Any())
                     {
-                        camundaInfo.AppendLine($"• Input {input.Name}: {input.Value}");
+                         foreach (var input in io.InputParameters)
+                            camundaInfo.AppendLine($"  In: {input.Name} = {input.Value}");
                     }
-
-                    foreach (var output in io.OutputParameters)
+                    if (io.OutputParameters.Any())
                     {
-                        camundaInfo.AppendLine($"• Output {output.Name}: {output.Value}");
+                        foreach (var output in io.OutputParameters)
+                            camundaInfo.AppendLine($"  Out: {output.Name} = {output.Value}");
                     }
                 }
             }
+            
+            // 4. Field Injections
+            var fields = gateway.CamundaElements.OfType<CamundaField>();
+            if (fields.Any())
+            {
+                camundaInfo.AppendLine("\n[Field Injections]");
+                foreach (var field in fields)
+                {
+                    var val = field.StringValue ?? field.Expression ?? "null";
+                    camundaInfo.AppendLine($"  {field.Name} = {val}");
+                }
+            }
 
-            // Execution Listeners
-            var listeners = camundaElements.OfType<CamundaExecutionListener>();
+            // 5. Execution Listeners
+            var listeners = gateway.CamundaElements.OfType<CamundaExecutionListener>();
             if (listeners.Any())
             {
-                camundaInfo.AppendLine("\nExecution Listeners:");
-                foreach (var listener in listeners)
+                camundaInfo.AppendLine("\n[Execution Listeners]");
+                foreach (var l in listeners)
                 {
-                    camundaInfo.AppendLine($"• {listener.Event}: {listener.Class ?? listener.Expression}");
+                    string details = "Unknown Implementation";
+
+                    if (!string.IsNullOrEmpty(l.Class)) 
+                        details = $"Class: {l.Class}";
+                    else if (!string.IsNullOrEmpty(l.Expression)) 
+                        details = $"Expr: {l.Expression}";
+                    else if (!string.IsNullOrEmpty(l.DelegateExpression)) 
+                        details = $"Delegate: {l.DelegateExpression}";
+                    else if (l.Script != null)
+                    {
+                        var scriptContent = l.Script.Value ?? "";
+                        var preview = scriptContent.Trim().Replace("\n", " ");
+                        if (preview.Length > 40) preview = preview.Substring(0, 40) + "...";
+                        details = $"Script ({l.Script.ScriptFormat}): {preview}";
+                    }
+
+                    camundaInfo.AppendLine($"  {l.Event}: {details}");
                 }
             }
 
-            // Connectors
-            var connectors = camundaElements.OfType<CamundaConnector>();
+            // 6. Connectors
+            var connectors = gateway.CamundaElements.OfType<CamundaConnector>();
             if (connectors.Any())
             {
-                camundaInfo.AppendLine("\nConnectors:");
+                camundaInfo.AppendLine("\n[Connectors]");
                 foreach (var conn in connectors)
                 {
-                    camundaInfo.AppendLine($"• {conn.ConnectorId}:");
+                    camundaInfo.AppendLine($"  ID: {conn.ConnectorId}");
                     if (conn.InputOutput != null)
                     {
-                        foreach (var param in conn.InputOutput.InputParameters)
-                        {
-                            camundaInfo.AppendLine($"  - Input {param.Name}: {param.Value}");
-                        }
-
-                        foreach (var param in conn.InputOutput.OutputParameters)
-                        {
-                            camundaInfo.AppendLine($"  - Output {param.Name}: {param.Value}");
-                        }
+                        foreach (var p in conn.InputOutput.InputParameters) camundaInfo.AppendLine($"    In: {p.Name} = {p.Value}");
+                        foreach (var p in conn.InputOutput.OutputParameters) camundaInfo.AppendLine($"    Out: {p.Name} = {p.Value}");
                     }
                 }
             }
 
             if (camundaInfo.Length > 0)
             {
-                AddDetailRow(grid, "Camunda Properties:", camundaInfo.ToString(), ref rowIndex);
+                AddDetailRow(grid, "Camunda Config:", camundaInfo.ToString(), ref rowIndex);
             }
 
-            // ========== Enhanced Extensions ==========
-            var extensionInfo = new StringBuilder();
-
-            // Extension Definitions
-            if (gateway.ExtensionDefinitions.Any())
+            // ========== Standard Extensions ==========
+            if (gateway.ExtensionDefinitions.Any() || gateway.ExtensionValues.Any())
             {
-                extensionInfo.AppendLine("Defined Extensions:");
-                foreach (var def in gateway.ExtensionDefinitions)
+                var extensionInfo = new StringBuilder();
+
+                if (gateway.ExtensionDefinitions.Any())
                 {
-                    extensionInfo.AppendLine($"• {def.Name}");
-                    foreach (var attr in def.ExtensionAttributeDefinitions)
+                    extensionInfo.AppendLine("Definitions:");
+                    foreach (var def in gateway.ExtensionDefinitions)
                     {
-                        extensionInfo.AppendLine($"  - {attr.Name} ({attr.Type})");
+                        extensionInfo.AppendLine($"• {def.Name}");
+                        foreach (var attr in def.ExtensionAttributeDefinitions)
+                        {
+                            extensionInfo.AppendLine($"  - {attr.Name} ({attr.Type})");
+                        }
                     }
                 }
-            }
 
-            // Extension Values
-            if (gateway.ExtensionValues.Any())
-            {
-                extensionInfo.AppendLine("\nApplied Extensions:");
-                foreach (var val in gateway.ExtensionValues)
+                if (gateway.ExtensionValues.Any())
                 {
-                    var value = val.Value ?? val.ValueRef;
-                    extensionInfo.AppendLine($"• {val.ExtensionAttributeDefinition?.Name}: {value}");
+                    extensionInfo.AppendLine("Values:");
+                    foreach (var val in gateway.ExtensionValues)
+                    {
+                         var value = val.Value ?? val.ValueRef;
+                        extensionInfo.AppendLine($"• {val.ExtensionAttributeDefinition?.Name}: {(value is null ? "" : value.Value)}");
+                    }
                 }
-            }
 
-            if (extensionInfo.Length > 0)
-            {
                 AddDetailRow(grid, "Extensions:", extensionInfo.ToString(), ref rowIndex);
             }
 
@@ -392,16 +426,6 @@ namespace BPMNVisualizer.Visualization.Renderers
         }
 
         // ========== Helper Methods ==========
-        private string GetSplitJoinType(Gateway gateway)
-        {
-            return gateway.GatewayDirection switch
-            {
-                GatewayDirection.Diverging => "Split Gateway",
-                GatewayDirection.Converging => "Join Gateway",
-                GatewayDirection.Mixed => "Mixed Split/Join",
-                _ => "Unspecified Direction"
-            };
-        }
 
         private string GetFlowConditions(Gateway gateway)
         {
@@ -412,12 +436,20 @@ namespace BPMNVisualizer.Visualization.Renderers
                 sb.Append($"• {flow.Id}: ");
 
                 if (flow == GetDefaultFlow(gateway))
-                    sb.Append("[DEFAULT] ");
+                {
+                     sb.AppendLine("[DEFAULT]");
+                     continue;
+                }
 
                 if (flow.ConditionExpression is FormalExpression expr)
-                    sb.AppendLine(expr.Body.Value);
+                {
+                     var body = expr.Body?.ToString() ?? "Null";
+                     // Truncate long conditions
+                     if (body.Length > 50) body = body.Substring(0, 50) + "...";
+                     sb.AppendLine($"\"{body}\"");
+                }
                 else if (gateway is InclusiveGateway)
-                    sb.AppendLine("Inclusive Condition");
+                    sb.AppendLine("(Inclusive Condition)");
                 else
                     sb.AppendLine("No Condition");
             }

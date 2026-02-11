@@ -1,13 +1,12 @@
 ﻿using System.Text;
-using BPMNModel.Model;
-using BPMNVisualizer.Utility;
-using Serilog;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using BPMNModel.Camunda;
+using BPMNModel.Model;
 using BPMNVisualizer.Utilities;
-using Task = BPMNModel.Model.Task;
+using BPMNVisualizer.Utility;
+using Serilog;
 
 namespace BPMNVisualizer.Visualization.Renderers
 {
@@ -105,7 +104,7 @@ namespace BPMNVisualizer.Visualization.Renderers
             var text = evt.Name;
             if (string.IsNullOrEmpty(text))
             {
-                _logger.Warning("No label found for event type: {EventType}", evt.GetType());
+                // Some events don't have labels, suppressing warning to reduce noise
                 return null;
             }
 
@@ -160,7 +159,7 @@ namespace BPMNVisualizer.Visualization.Renderers
             {
                 Title = "Event Details",
                 Width = 600,
-                Height = 400,
+                Height = 500,
                 Content = CreateDetailContent(evt),
                 Owner = Application.Current.MainWindow,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -183,7 +182,7 @@ namespace BPMNVisualizer.Visualization.Renderers
                 Text = ElementNotes.GetNote(evt.Id) ?? "",
                 AcceptsReturn = true,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                Height = 30,
+                Height = 50,
                 Margin = new Thickness(0, 0, 0, 5)
             };
     
@@ -230,10 +229,14 @@ namespace BPMNVisualizer.Visualization.Renderers
         private Grid CreateDetailsGrid(Event evt)
         {
             var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(160) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
             int rowIndex = 0;
+            
+            IEnumerable<EventDefinition> eventDefinitions = Enumerable.Empty<EventDefinition>();
+            if (evt is CatchEvent ce) eventDefinitions = ce.EventDefinitions;
+            else if (evt is ThrowEvent te) eventDefinitions = te.EventDefinitions;
 
             // ========== Core Event Properties ==========
             AddDetailRow(grid, "ID:", evt.Id ?? "null", ref rowIndex);
@@ -251,12 +254,26 @@ namespace BPMNVisualizer.Visualization.Renderers
                 AddDetailRow(grid, "Attached To:", boundaryEvent.AttachedToRef?.Id ?? "null", ref rowIndex);
             }
 
-            // ========== Event Definitions ==========
-            if (evt is CatchEvent catchEvent && catchEvent.EventDefinitionRefs.Any())
+            // ========== Event Definitions (Detailed) ==========
+            if (eventDefinitions.Any())
             {
-                AddDetailRow(grid, "Event Type:",
-                    string.Join(", ", catchEvent.EventDefinitionRefs.Select(GetEventDefinitionType)),
-                    ref rowIndex);
+                 var definitionsInfo = new StringBuilder();
+                 foreach(var def in eventDefinitions)
+                 {
+                     var type = def.GetType().Name.Replace("EventDefinition", "");
+                     definitionsInfo.Append($"• {type}");
+                     
+                     // Add specific names/IDs if available
+                     if (def is MessageEventDefinition msg && msg.MessageRef != null)
+                        definitionsInfo.Append($" (Ref: {msg.MessageRef.Name ?? msg.MessageRef.Id})");
+                     else if (def is SignalEventDefinition sig && sig.SignalRef != null)
+                        definitionsInfo.Append($" (Ref: {sig.SignalRef.Name ?? sig.SignalRef.Id})");
+                     else if (def is ErrorEventDefinition err && err.ErrorRef != null)
+                        definitionsInfo.Append($" (Ref: {err.ErrorRef.Name ?? err.ErrorRef.Id})");
+                     
+                     definitionsInfo.AppendLine();
+                 }
+                 AddDetailRow(grid, "Event Definitions:", definitionsInfo.ToString(), ref rowIndex);
             }
 
             // ========== Flow Relationships ==========
@@ -296,150 +313,163 @@ namespace BPMNVisualizer.Visualization.Renderers
                 AddDetailRow(grid, "Docs:", FormatDocumentation(evt.Documentation), ref rowIndex);
             }
 
-            // ========== Camunda Extensions ==========
+            // =========================================================
+            // ========== CAMUNDA EXTENSIONS & ATTRIBUTES ==============
+            // =========================================================
             var camundaInfo = new StringBuilder();
 
-            // General Camunda properties
-            if (evt.Camunda_asyncBefore.HasValue)
-                camundaInfo.AppendLine($"• Async Before: {evt.Camunda_asyncBefore}");
-            if (evt.Camunda_asyncAfter.HasValue)
-                camundaInfo.AppendLine($"• Async After: {evt.Camunda_asyncAfter}");
-            if (!string.IsNullOrEmpty(evt.Camunda_jobPriority))
-                camundaInfo.AppendLine($"• Job Priority: {evt.Camunda_jobPriority}");
+            // 1. General Camunda Attributes on Event
+            if (evt.Camunda_asyncBefore.HasValue) camundaInfo.AppendLine($"• Async Before: {evt.Camunda_asyncBefore}");
+            if (evt.Camunda_asyncAfter.HasValue) camundaInfo.AppendLine($"• Async After: {evt.Camunda_asyncAfter}");
+            if (!string.IsNullOrEmpty(evt.Camunda_jobPriority)) camundaInfo.AppendLine($"• Job Priority: {evt.Camunda_jobPriority}");
+            
+            // Event Specific Attributes
+            if (evt is StartEvent se)
+            {
+                 if (!string.IsNullOrEmpty(se.Camunda_formKey)) camundaInfo.AppendLine($"• Form Key: {se.Camunda_formKey}");
+                 if (!string.IsNullOrEmpty(se.Camunda_initiator)) camundaInfo.AppendLine($"• Initiator: {se.Camunda_initiator}");
+            }
+            
+            // Error Event Specifics
+             var errorDef = eventDefinitions.OfType<ErrorEventDefinition>().FirstOrDefault();
+             if (errorDef != null)
+             {
+                 if (!string.IsNullOrEmpty(errorDef.Camunda_errorCodeVariable)) 
+                    camundaInfo.AppendLine($"• Error Code Var: {errorDef.Camunda_errorCodeVariable}");
+                 if (!string.IsNullOrEmpty(errorDef.Camunda_errorMessageVariable)) 
+                    camundaInfo.AppendLine($"• Error Msg Var: {errorDef.Camunda_errorMessageVariable}");
+             }
 
-            // Camunda elements
-            var camundaElements = evt.CamundaElements;
-
-            // Camunda Properties
-            var camundaProps = camundaElements
-                .OfType<CamundaProperties>()
-                .SelectMany(p => p.Values)
-                .ToList();
-
+            // 2. Camunda Properties (Key/Value pairs)
+            var camundaProps = evt.CamundaElements.OfType<CamundaProperty>().ToList();
             if (camundaProps.Any())
             {
-                camundaInfo.AppendLine("\nProperties:");
+                camundaInfo.AppendLine("\n[Extension Properties]");
                 foreach (var prop in camundaProps)
+                    camundaInfo.AppendLine($"  {prop.Name}: {prop.Value}");
+            }
+
+            // 3. Form Data (Start Events)
+            var formData = evt.CamundaElements.OfType<CamundaFormData>().FirstOrDefault();
+            if (formData != null && formData.Fields.Any())
+            {
+                camundaInfo.AppendLine("\n[Form Data]");
+                foreach (var field in formData.Fields)
                 {
-                    camundaInfo.AppendLine($"• {prop.Name}: {prop.Value}");
+                    var label = !string.IsNullOrEmpty(field.Label) ? $"\"{field.Label}\"" : field.Id;
+                    var type = !string.IsNullOrEmpty(field.Type) ? $" ({field.Type})" : "";
+                    var def = !string.IsNullOrEmpty(field.DefaultValue) ? $" = {field.DefaultValue}" : "";
+                    camundaInfo.AppendLine($"  {label}{type}{def}");
                 }
             }
 
-            // Execution Listeners
-            var listeners = camundaElements
-                .OfType<CamundaExecutionListener>()
-                .ToList();
+            // 4. Input/Output Mappings
+            var inputOutput = evt.CamundaElements.OfType<CamundaInputOutput>().FirstOrDefault();
+            if (inputOutput != null)
+            {
+                if (inputOutput.InputParameters.Any())
+                {
+                    camundaInfo.AppendLine("\n[Input Parameters]");
+                    foreach (var p in inputOutput.InputParameters)
+                        camundaInfo.AppendLine($"  {p.Name} = {p.Value}");
+                }
+                if (inputOutput.OutputParameters.Any())
+                {
+                    camundaInfo.AppendLine("\n[Output Parameters]");
+                    foreach (var p in inputOutput.OutputParameters)
+                        camundaInfo.AppendLine($"  {p.Name} = {p.Value}");
+                }
+            }
 
+            // 5. Execution Listeners
+            var listeners = evt.CamundaElements.OfType<CamundaExecutionListener>();
             if (listeners.Any())
             {
-                camundaInfo.AppendLine("\nExecution Listeners:");
-                foreach (var listener in listeners)
+                camundaInfo.AppendLine("\n[Execution Listeners]");
+                foreach (var l in listeners)
                 {
-                    var details = listener.Class != null
-                        ? $"Class: {listener.Class}"
-                        : $"Expression: {listener.Expression}";
-                    camundaInfo.AppendLine($"• {listener.Event}: {details}");
+                    string details = "Unknown Implementation";
+
+                    if (!string.IsNullOrEmpty(l.Class)) 
+                        details = $"Class: {l.Class}";
+                    else if (!string.IsNullOrEmpty(l.Expression)) 
+                        details = $"Expr: {l.Expression}";
+                    else if (!string.IsNullOrEmpty(l.DelegateExpression)) 
+                        details = $"Delegate: {l.DelegateExpression}";
+                    else if (l.Script != null)
+                    {
+                        var scriptContent = l.Script.Value ?? "";
+                        var preview = scriptContent.Trim().Replace("\n", " ");
+                        if (preview.Length > 40) preview = preview.Substring(0, 40) + "...";
+                        details = $"Script ({l.Script.ScriptFormat}): {preview}";
+                    }
+
+                    camundaInfo.AppendLine($"  {l.Event}: {details}");
+                }
+            }
+            
+            // 6. Field Injections
+            var fields = evt.CamundaElements.OfType<CamundaField>();
+            if (fields.Any())
+            {
+                camundaInfo.AppendLine("\n[Field Injections]");
+                foreach (var field in fields)
+                {
+                    var val = field.StringValue ?? field.Expression ?? "null";
+                    camundaInfo.AppendLine($"  {field.Name} = {val}");
                 }
             }
 
-            // Connectors
-            var connectors = camundaElements
-                .OfType<CamundaConnector>()
-                .ToList();
-
+            // 7. Connectors
+            var connectors = evt.CamundaElements.OfType<CamundaConnector>();
             if (connectors.Any())
             {
-                camundaInfo.AppendLine("\nConnectors:");
+                camundaInfo.AppendLine("\n[Connectors]");
                 foreach (var conn in connectors)
                 {
-                    camundaInfo.AppendLine($"• Connector ID: {conn.ConnectorId ?? "N/A"}");
-
+                    camundaInfo.AppendLine($"  ID: {conn.ConnectorId}");
                     if (conn.InputOutput != null)
                     {
-                        // Input Parameters
-                        if (conn.InputOutput.InputParameters.Any())
-                        {
-                            camundaInfo.AppendLine("  Input Parameters:");
-                            foreach (var param in conn.InputOutput.InputParameters)
-                            {
-                                var value = param.Value ?? "null";
-                                camundaInfo.AppendLine($"  - {param.Name} = {value}");
-                            }
-                        }
-
-                        // Output Parameters
-                        if (conn.InputOutput.OutputParameters.Any())
-                        {
-                            camundaInfo.AppendLine("  Output Parameters:");
-                            foreach (var param in conn.InputOutput.OutputParameters)
-                            {
-                                var value = param.Value ?? "null";
-                                camundaInfo.AppendLine($"  - {param.Name} = {value}");
-                            }
-                        }
+                        foreach (var p in conn.InputOutput.InputParameters) camundaInfo.AppendLine($"    In: {p.Name} = {p.Value}");
+                        foreach (var p in conn.InputOutput.OutputParameters) camundaInfo.AppendLine($"    Out: {p.Name} = {p.Value}");
                     }
                 }
             }
-
-            // Event-specific Camunda properties
-            switch (evt)
+            
+            // 8. Retry Cycle
+            var retryCycle = evt.CamundaElements.OfType<CamundaFailedJobRetryTimeCycle>().FirstOrDefault();
+            if (retryCycle != null)
             {
-                case StartEvent sEvent:
-                    if (!string.IsNullOrEmpty(sEvent.Camunda_formKey))
-                        camundaInfo.AppendLine($"• Form Key: {sEvent.Camunda_formKey}");
-                    if (!string.IsNullOrEmpty(sEvent.Camunda_initiator))
-                        camundaInfo.AppendLine($"• Initiator: {sEvent.Camunda_initiator}");
-                    break;
-
-                case BoundaryEvent boundaryEvent:
-                    var errorEvent = boundaryEvent.EventDefinitions
-                        .OfType<ErrorEventDefinition>()
-                        .FirstOrDefault();
-                    if (errorEvent?.Camunda_errorCodeVariable != null)
-                    {
-                        camundaInfo.AppendLine($"• Error Code Variable: {errorEvent.Camunda_errorCodeVariable}");
-                    }
-
-                    break;
+                 camundaInfo.AppendLine($"\n[Retry Cycle] {retryCycle.Body}");
             }
 
             if (camundaInfo.Length > 0)
             {
-                AddDetailRow(grid, "Camunda Properties:", camundaInfo.ToString(), ref rowIndex);
+                AddDetailRow(grid, "Camunda Config:", camundaInfo.ToString(), ref rowIndex);
             }
 
-            // ========== General Extensions ==========
-            var extensionInfo = new StringBuilder();
-
-            // Extension Definitions
-            if (evt.ExtensionDefinitions.Any())
+            // ========== Standard Extensions ==========
+            if (evt.ExtensionDefinitions.Any() || evt.ExtensionValues.Any())
             {
-                extensionInfo.AppendLine("Defined Extensions:");
-                foreach (var def in evt.ExtensionDefinitions)
+                var extensionInfo = new StringBuilder();
+
+                if (evt.ExtensionDefinitions.Any())
                 {
-                    extensionInfo.AppendLine($"• {def.Name}");
-                    foreach (var attr in def.ExtensionAttributeDefinitions)
+                    extensionInfo.AppendLine("Definitions:");
+                    foreach (var def in evt.ExtensionDefinitions)
+                        extensionInfo.AppendLine($"• {def.Name}");
+                }
+
+                if (evt.ExtensionValues.Any())
+                {
+                    extensionInfo.AppendLine("Values:");
+                    foreach (var val in evt.ExtensionValues)
                     {
-                        var typeInfo = attr.IsReference != null && attr.IsReference.Value ? attr.Type : "Reference";
-                        extensionInfo.AppendLine($"  - {attr.Name} ({typeInfo})");
+                         var value = val.Value ?? val.ValueRef;
+                        extensionInfo.AppendLine($"• {val.ExtensionAttributeDefinition?.Name}: {(value is null ? "" : value.Value)}");
                     }
                 }
-            }
 
-            // Extension Values
-            if (evt.ExtensionValues.Any())
-            {
-                extensionInfo.AppendLine("\nApplied Extensions:");
-                foreach (var val in evt.ExtensionValues)
-                {
-                    var value = val.Value ?? val.ValueRef;
-                    var source = val.Value != null ? "literal" : "reference";
-                    extensionInfo.AppendLine($"• {val.ExtensionAttributeDefinition?.Name}: [{source}] {value}");
-                }
-            }
-
-            if (extensionInfo.Length > 0)
-            {
                 AddDetailRow(grid, "Extensions:", extensionInfo.ToString(), ref rowIndex);
             }
 
@@ -464,20 +494,6 @@ namespace BPMNVisualizer.Visualization.Renderers
             return $"{sources} → {target}{transform}";
         }
 
-        private string GetEventDefinitionType(EventDefinition definition)
-        {
-            return definition switch
-            {
-                MessageEventDefinition => "Message",
-                TimerEventDefinition => "Timer",
-                ErrorEventDefinition => "Error",
-                EscalationEventDefinition => "Escalation",
-                ConditionalEventDefinition => "Condition",
-                SignalEventDefinition => "Signal",
-                _ => definition.GetType().Name.Replace("EventDefinition", "")
-            };
-        }
-
         private string FormatConnections(IEnumerable<SequenceFlow> flows)
         {
             return flows.Any()
@@ -495,14 +511,6 @@ namespace BPMNVisualizer.Visualization.Renderers
         private string GetElementId(object element)
         {
             return (element as BaseElement)?.Id ?? "Anonymous";
-        }
-
-        private string FormatBoundaryEvents(IEnumerable<BoundaryEvent> events)
-        {
-            return string.Join("\n\n", events.Select(e =>
-                $"• {e.Id}\n" +
-                $"  Type: {e.EventDefinitions.FirstOrDefault()?.GetType().Name.Replace("EventDefinition", "")}\n" +
-                $"  Cancel: {e.CancelActivity}"));
         }
 
         private string FormatDocumentation(IEnumerable<Documentation> docs)
