@@ -47,3 +47,8 @@ public record EventDelayAction(
     BPMNToken Token,
     Event Event
 ) : SimulationAction;
+
+public record SendMessageAction(
+    BPMNToken Token,
+    string MessageName
+) : SimulationAction;

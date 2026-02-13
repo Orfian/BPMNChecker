@@ -53,6 +53,13 @@ public class EventSimulator : BaseSimulator
 
     private void HandleEndEvent(BPMNToken token, EndEvent end, IList<SimulationAction> actions)
     {
+        var messageDef = end.EventDefinitions.OfType<MessageEventDefinition>().FirstOrDefault();
+        if (messageDef != null)
+        {
+            var messageName = messageDef.MessageRef?.Name ?? end.Name ?? end.Id;
+            actions.Add(new SendMessageAction(token, messageName));
+        }
+
         var parent = token.Parent;
 
         actions.Add(new RemoveTokenAction(token));
@@ -104,6 +111,12 @@ public class EventSimulator : BaseSimulator
     
     private void HandleIntermediateThrowEvent(BPMNToken token, IntermediateThrowEvent throwEvent, IList<SimulationAction> actions)
     {
+        var messageDef = throwEvent.EventDefinitions.OfType<MessageEventDefinition>().FirstOrDefault();
+        if (messageDef != null)
+        {
+            var messageName = messageDef.MessageRef?.Name ?? throwEvent.Name ?? throwEvent.Id ?? "UnknownMessage";
+            actions.Add(new SendMessageAction(token, messageName));
+        }
         base.Evaluate(token, actions);
     }
     

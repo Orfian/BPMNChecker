@@ -1,0 +1,28 @@
+﻿<Window x:Class="BPMNVisualizer.MessageQueueDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Message Queue" Height="300" Width="400" WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Row="0" Text="Select a message to process:" Margin="0,0,0,10" FontWeight="Bold"/>
+
+        <DataGrid Grid.Row="1" x:Name="MessageGrid" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Message Name" Binding="{Binding MessageName}" Width="*"/>
+                <DataGridTextColumn Header="Source Element" Binding="{Binding SourceElementId}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="Trigger Without Message" Width="150" Margin="0,0,10,0" Click="TriggerWithoutMessage_Click"/>
+            <Button Content="Process Selected" Width="100" Click="ProcessSelected_Click"/>
+            <Button Content="Cancel" Width="70" Margin="10,0,0,0" Click="Cancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
+

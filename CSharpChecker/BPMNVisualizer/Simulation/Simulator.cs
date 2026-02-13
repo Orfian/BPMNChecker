@@ -23,6 +23,7 @@ public class Simulator
     private readonly List<SimulationAction> _actions = new();
     private readonly List<SimulationAction> _priorityActions = new();
     private List<GatewayChoice> _pendingChoices = new();
+    private readonly Queue<SimulationMessage> _messageQueue = new();
 
     public Simulator(ILogger logger, TokenManager tokenManager, ModelRoot model, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
     {
@@ -284,7 +285,56 @@ public class Simulator
                     
                     arrow.MouseDown += (s, e) =>
                     {
-                        _eventSimulator.ResolveEventDelay(requestDelay.Token, arrow, _actions);
+                        if (requestDelay.Event is BPMNModel.Model.StartEvent or BPMNModel.Model.EndEvent)
+                        {
+                             _eventSimulator.ResolveEventDelay(requestDelay.Token, arrow, _actions);
+                             return;
+                        }
+
+                        var isMessageEvent = false;
+                        if (requestDelay.Event is CatchEvent catchEvent)
+                        {
+                            isMessageEvent = catchEvent.EventDefinitions.Any(def => def is MessageEventDefinition);
+                        }
+                        else if (requestDelay.Event is ThrowEvent throwEvent)
+                        {
+                            isMessageEvent = throwEvent.EventDefinitions.Any(def => def is MessageEventDefinition);
+                        }
+                        
+                        if (isMessageEvent)
+                        {
+                            var dialog = new MessageQueueDialog(_messageQueue);
+                            if (dialog.ShowDialog() == true)
+                            {
+                                if (dialog.SelectedMessage != null)
+                                {
+                                    // Consume message
+                                    var messageList = _messageQueue.ToList();
+                                    
+                                    // Find the specific instance to remove
+                                    var index = messageList.FindIndex(m => ReferenceEquals(m, dialog.SelectedMessage));
+                                    if (index != -1)
+                                    {
+                                        messageList.RemoveAt(index);
+                                    }
+                                    
+                                    _messageQueue.Clear();
+                                    foreach(var m in messageList) _messageQueue.Enqueue(m);
+                                    
+                                    _logger.Information("Message {MessageName} consumed by {EventId}", dialog.SelectedMessage.MessageName, requestDelay.Event.Id);
+                                    _eventSimulator.ResolveEventDelay(requestDelay.Token, arrow, _actions);
+                                }
+                                else if (dialog.TriggerWithoutMessage)
+                                {
+                                    _logger.Information("Event {EventId} triggered manually without message", requestDelay.Event.Id);
+                                    _eventSimulator.ResolveEventDelay(requestDelay.Token, arrow, _actions);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            _eventSimulator.ResolveEventDelay(requestDelay.Token, arrow, _actions);
+                        }
                     };
                     
                     arrow.MouseEnter += (s, e) =>
@@ -297,6 +347,16 @@ public class Simulator
                         _tokenManager.SetHoverIndicatorColor(arrow, false, false);
                     };
                     
+                    break;
+
+                case SendMessageAction sendMessage:
+                    var message = new SimulationMessage(
+                        sendMessage.MessageName,
+                        sendMessage.Token.CurrentElement?.Id ?? "Unknown"
+                    );
+                    _messageQueue.Enqueue(message);
+                    _logger.Information("Message {MessageName} sent from {SourceId}", message.MessageName, message.SourceElementId);
+
                     break;
                 
                 default:

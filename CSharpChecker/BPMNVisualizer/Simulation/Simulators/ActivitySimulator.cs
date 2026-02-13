@@ -28,6 +28,10 @@ public class ActivitySimulator : BaseSimulator
                 HandleCallActivity(token, callActivity, actions);
                 break;
 
+            case SendTask sendTask:
+                HandleSendTask(token, sendTask, actions);
+                break;
+
             default:
                 base.Evaluate(token, actions);
                 break;
@@ -59,6 +63,13 @@ public class ActivitySimulator : BaseSimulator
     
     private void HandleCallActivity(BPMNToken token, CallActivity callActivity, IList<SimulationAction> actions)
     {
+        base.Evaluate(token, actions);
+    }
+
+    private void HandleSendTask(BPMNToken token, SendTask sendTask, IList<SimulationAction> actions)
+    {
+        string messageName = sendTask.MessageRef?.Name ?? sendTask.Name ?? sendTask.Id ?? "UnknownMessage";
+        actions.Add(new SendMessageAction(token, messageName));
         base.Evaluate(token, actions);
     }
 }
