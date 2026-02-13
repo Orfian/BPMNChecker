@@ -24,6 +24,7 @@ public class Simulator
     private readonly List<SimulationAction> _priorityActions = new();
     private List<GatewayChoice> _pendingChoices = new();
     private readonly Queue<SimulationMessage> _messageQueue = new();
+    private readonly Queue<SimulationSignal> _signalQueue = new();
 
     public Simulator(ILogger logger, TokenManager tokenManager, ModelRoot model, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
     {
@@ -292,27 +293,30 @@ public class Simulator
                         }
 
                         var isMessageEvent = false;
+                        var isSignalEvent = false;
                         if (requestDelay.Event is CatchEvent catchEvent)
                         {
                             isMessageEvent = catchEvent.EventDefinitions.Any(def => def is MessageEventDefinition);
+                            isSignalEvent = catchEvent.EventDefinitions.Any(def => def is SignalEventDefinition);
                         }
                         else if (requestDelay.Event is ThrowEvent throwEvent)
                         {
                             isMessageEvent = throwEvent.EventDefinitions.Any(def => def is MessageEventDefinition);
+                            isSignalEvent = throwEvent.EventDefinitions.Any(def => def is SignalEventDefinition);
                         }
                         
                         if (isMessageEvent)
                         {
-                            var dialog = new MessageQueueDialog(_messageQueue);
+                            var dialog = new QueueDialog("Message Queue", "Trigger Without Message", _messageQueue);
                             if (dialog.ShowDialog() == true)
                             {
-                                if (dialog.SelectedMessage != null)
+                                if (dialog.SelectedItem is SimulationMessage selectedMessage)
                                 {
                                     // Consume message
                                     var messageList = _messageQueue.ToList();
                                     
                                     // Find the specific instance to remove
-                                    var index = messageList.FindIndex(m => ReferenceEquals(m, dialog.SelectedMessage));
+                                    var index = messageList.FindIndex(m => ReferenceEquals(m, selectedMessage));
                                     if (index != -1)
                                     {
                                         messageList.RemoveAt(index);
@@ -321,12 +325,39 @@ public class Simulator
                                     _messageQueue.Clear();
                                     foreach(var m in messageList) _messageQueue.Enqueue(m);
                                     
-                                    _logger.Information("Message {MessageName} consumed by {EventId}", dialog.SelectedMessage.MessageName, requestDelay.Event.Id);
+                                    _logger.Information("Message {MessageName} consumed by {EventId}", selectedMessage.MessageName, requestDelay.Event.Id);
                                     _eventSimulator.ResolveEventDelay(requestDelay.Token, arrow, _actions);
                                 }
-                                else if (dialog.TriggerWithoutMessage)
+                                else if (dialog.TriggerWithoutSelection)
                                 {
                                     _logger.Information("Event {EventId} triggered manually without message", requestDelay.Event.Id);
+                                    _eventSimulator.ResolveEventDelay(requestDelay.Token, arrow, _actions);
+                                }
+                            }
+                        }
+                        else if (isSignalEvent)
+                        {
+                            var dialog = new QueueDialog("Signal Queue", "Trigger Without Signal", _signalQueue);
+                            if (dialog.ShowDialog() == true)
+                            {
+                                if (dialog.SelectedItem is SimulationSignal selectedSignal)
+                                {
+                                    var signalList = _signalQueue.ToList();
+                                    var index = signalList.FindIndex(sig => ReferenceEquals(sig, selectedSignal));
+                                    if (index != -1)
+                                    {
+                                        signalList.RemoveAt(index);
+                                    }
+                                    
+                                    _signalQueue.Clear();
+                                    foreach(var sig in signalList) _signalQueue.Enqueue(sig);
+                                    
+                                    _logger.Information("Signal {SignalName} consumed by {EventId}", selectedSignal.SignalName, requestDelay.Event.Id);
+                                    _eventSimulator.ResolveEventDelay(requestDelay.Token, arrow, _actions);
+                                }
+                                else if (dialog.TriggerWithoutSelection)
+                                {
+                                    _logger.Information("Event {EventId} triggered manually without signal", requestDelay.Event.Id);
                                     _eventSimulator.ResolveEventDelay(requestDelay.Token, arrow, _actions);
                                 }
                             }
@@ -356,6 +387,16 @@ public class Simulator
                     );
                     _messageQueue.Enqueue(message);
                     _logger.Information("Message {MessageName} sent from {SourceId}", message.MessageName, message.SourceElementId);
+
+                    break;
+
+                case SendSignalAction sendSignal:
+                    var signal = new SimulationSignal(
+                        sendSignal.SignalName,
+                        sendSignal.Token.CurrentElement?.Id ?? "Unknown"
+                    );
+                    _signalQueue.Enqueue(signal);
+                    _logger.Information("Signal {SignalName} sent from {SourceId}", signal.SignalName, signal.SourceElementId);
 
                     break;
                 

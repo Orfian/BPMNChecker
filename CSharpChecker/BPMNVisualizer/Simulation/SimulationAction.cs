@@ -52,3 +52,8 @@ public record SendMessageAction(
     BPMNToken Token,
     string MessageName
 ) : SimulationAction;
+
+public record SendSignalAction(
+    BPMNToken Token,
+    string SignalName
+) : SimulationAction;

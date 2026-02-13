@@ -56,8 +56,15 @@ public class EventSimulator : BaseSimulator
         var messageDef = end.EventDefinitions.OfType<MessageEventDefinition>().FirstOrDefault();
         if (messageDef != null)
         {
-            var messageName = messageDef.MessageRef?.Name ?? end.Name ?? end.Id;
+            var messageName = messageDef.MessageRef?.Name ?? end.Name ?? end.Id ?? "UnknownMessage";
             actions.Add(new SendMessageAction(token, messageName));
+        }
+
+        var signalDef = end.EventDefinitions.OfType<SignalEventDefinition>().FirstOrDefault();
+        if (signalDef != null)
+        {
+            var signalName = signalDef.SignalRef?.Name ?? end.Name ?? end.Id ?? "UnknownSignal";
+            actions.Add(new SendSignalAction(token, signalName));
         }
 
         var parent = token.Parent;
@@ -117,6 +124,14 @@ public class EventSimulator : BaseSimulator
             var messageName = messageDef.MessageRef?.Name ?? throwEvent.Name ?? throwEvent.Id ?? "UnknownMessage";
             actions.Add(new SendMessageAction(token, messageName));
         }
+
+        var signalDef = throwEvent.EventDefinitions.OfType<SignalEventDefinition>().FirstOrDefault();
+        if (signalDef != null)
+        {
+            var signalName = signalDef.SignalRef?.Name ?? throwEvent.Name ?? throwEvent.Id ?? "UnknownSignal";
+            actions.Add(new SendSignalAction(token, signalName));
+        }
+
         base.Evaluate(token, actions);
     }
     
