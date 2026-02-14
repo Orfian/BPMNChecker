@@ -38,7 +38,7 @@ public class GatewayRenderer : IShapeRenderer
         _objectBounds[gateway.Id] = bounds;
 
         var shape = DrawElement(gateway, bounds);
-        shape.MouseDown += (s, e) => ShowEventDetails(gateway);
+        shape.MouseDown += (s, e) => ShowGatewayDetails(gateway);
 
         Canvas.SetLeft(shape, bounds.Left);
         Canvas.SetTop(shape, bounds.Top);
@@ -137,17 +137,88 @@ public class GatewayRenderer : IShapeRenderer
         return border;
     }
     
-    private void ShowEventDetails(Gateway gateway)
+    private void ShowGatewayDetails(Gateway gateway)
     {
-        var detailWindow = new Window
+        var detailWindow = new DetailWindow
         {
-            Title = "Gateway Details",
-            Width = 700,
-            Height = 500,
-            Content = CreateDetailContent(gateway),
             Owner = Application.Current.MainWindow,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Title = "Gateway Details"
         };
+        
+        detailWindow.SetNote("Gateway Note:", ElementNotes.GetNote(gateway.Id) ?? "", (text) => 
+        {
+            ElementNotes.SetNote(gateway.Id, text);
+            RefreshGatewayVisual(gateway);
+        });
+
+        // --- Standard Properties ---
+        detailWindow.AddStandardProperty("ID", gateway.Id ?? "null");
+        detailWindow.AddStandardProperty("Name", gateway.Name ?? "null");
+        detailWindow.AddStandardProperty("Type", gateway.GetType().Name);
+        detailWindow.AddStandardProperty("Direction", gateway.GatewayDirection?.ToString());
+
+        // Gateway Specific Logic
+        switch (gateway)
+        {
+            case ExclusiveGateway exclusive:
+                detailWindow.AddStandardProperty("Default Flow", exclusive.Default?.Id ?? "None");
+                break;
+            case InclusiveGateway inclusive:
+                detailWindow.AddStandardProperty("Default Flow", inclusive.Default?.Id ?? "None");
+                break;
+            case EventBasedGateway eventGateway:
+                detailWindow.AddStandardProperty("Instantiate", eventGateway.Instantiate?.ToString());
+                detailWindow.AddStandardProperty("Event Type", eventGateway.EventGatewayType?.ToString());
+                break;
+            case ComplexGateway complex:
+                string actCond = "Null";
+                if (complex.ActivationCondition is FormalExpression fe) actCond = fe.Body.Value;
+                else if (complex.ActivationCondition != null) actCond = complex.ActivationCondition.ToString();
+                
+                detailWindow.AddStandardProperty("Activation", actCond);
+                detailWindow.AddStandardProperty("Default Flow", complex.Default?.Id ?? "None");
+                break;
+            case ParallelGateway parallel:
+                var syncType = parallel.GatewayDirection switch
+                {
+                    GatewayDirection.Converging => "Join (Synchronization)",
+                    GatewayDirection.Diverging => "Split (Fork)",
+                    _ => "Mixed/Unknown"
+                };
+                detailWindow.AddStandardProperty("Sync Type", syncType);
+                break;
+        }
+
+        detailWindow.AddStandardProperty("Incoming", FormatConnections(gateway.Incoming));
+        detailWindow.AddStandardProperty("Outgoing", FormatConnections(gateway.Outgoing));
+        detailWindow.AddStandardProperty("Lanes", FormatLanes(gateway.Lanes));
+        
+        // Flow Analysis
+        detailWindow.AddStandardProperty("Flow Analysis", FormatFlowAnalysis(gateway));
+
+        // Extensions (Standard)
+        if (gateway.ExtensionDefinitions.Any() || gateway.ExtensionValues.Any())
+            detailWindow.AddStandardProperty("Extensions", FormatExtensions(gateway));
+
+        detailWindow.AddStandardProperty("Docs", FormatDocumentation(gateway.Documentation));
+
+        // --- Camunda Properties ---
+        detailWindow.AddCamundaProperty("Async Before", gateway.Camunda_asyncBefore?.ToString());
+        detailWindow.AddCamundaProperty("Async After", gateway.Camunda_asyncAfter?.ToString());
+        detailWindow.AddCamundaProperty("Exclusive", gateway.Camunda_exclusive?.ToString());
+        detailWindow.AddCamundaProperty("Job Priority", gateway.Camunda_jobPriority);
+        
+        // Generic Camunda Elements
+        detailWindow.AddCamundaProperty("Properties", FormatCamundaProperties(gateway));
+        detailWindow.AddCamundaProperty("Input/Output", FormatCamundaIO(gateway));
+        detailWindow.AddCamundaProperty("Fields", FormatCamundaFields(gateway));
+        detailWindow.AddCamundaProperty("Connectors", FormatConnectors(gateway));
+        detailWindow.AddCamundaProperty("Listeners", FormatListenersSummary(gateway)); 
+
+        // ========== 3. Script/Code Section ==========
+        var scriptContent = ExtractScriptContent(gateway);
+        detailWindow.SetScript(scriptContent);
+        
         detailWindow.Show();
         detailWindow.Activate();
     }

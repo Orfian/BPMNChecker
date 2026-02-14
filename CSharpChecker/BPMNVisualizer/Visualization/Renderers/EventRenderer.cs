@@ -155,178 +155,75 @@ public class EventRenderer : IShapeRenderer
 
     private void ShowEventDetails(Event evt)
     {
-        var detailWindow = new Window
+        var detailWindow = new DetailWindow
         {
-            Title = "Event Details",
-            Width = 700,
-            Height = 500,
-            Content = CreateDetailContent(evt),
             Owner = Application.Current.MainWindow,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Title = "Event Details"
         };
-        detailWindow.Show();
-        detailWindow.Activate();
-    }
 
-    private UIElement CreateDetailContent(Event evt)
-    {
-        var rootGrid = new Grid();
-        rootGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Note
-        rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); // Columns
-        rootGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Script
-
-        // ========== 1. Note Section ==========
-        var notePanel = new StackPanel { Margin = new Thickness(10) };
-        var noteTextBox = new TextBox
+        detailWindow.SetNote("Event Note:", ElementNotes.GetNote(evt.Id) ?? "", (text) => 
         {
-            Text = ElementNotes.GetNote(evt.Id) ?? "",
-            AcceptsReturn = true,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            Height = 40,
-            Margin = new Thickness(0, 0, 0, 5)
-        };
-        var saveButton = new Button
-        {
-            Content = "Save Note",
-            Margin = new Thickness(0, 5, 0, 5),
-            Padding = new Thickness(5)
-        };
-        saveButton.Click += (s, e) => 
-        {
-            ElementNotes.SetNote(evt.Id, noteTextBox.Text);
+            ElementNotes.SetNote(evt.Id, text);
             RefreshEventVisual(evt);
-        };
-        notePanel.Children.Add(new TextBlock { Text = "Event Note:", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 2) });
-        notePanel.Children.Add(noteTextBox);
-        notePanel.Children.Add(saveButton);
-        
-        Grid.SetRow(notePanel, 0);
-        rootGrid.Children.Add(notePanel);
-
-        // ========== 2. Columns Section (Standard & Camunda) ==========
-        var columnsGrid = new Grid();
-        columnsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        columnsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        
-        var stdPanel = new StackPanel { Margin = new Thickness(10, 0, 10, 0) };
-        var camPanel = new StackPanel { Margin = new Thickness(10, 0, 10, 0) };
+        });
 
         // --- Standard Properties ---
-        AddProperty(stdPanel, "ID", evt.Id ?? "null");
-        AddProperty(stdPanel, "Name", evt.Name ?? "null");
-        AddProperty(stdPanel, "Type", evt.GetType().Name);
+        detailWindow.AddStandardProperty("ID", evt.Id ?? "null");
+        detailWindow.AddStandardProperty("Name", evt.Name ?? "null");
+        detailWindow.AddStandardProperty("Type", evt.GetType().Name);
         
         // Flow
-        AddProperty(stdPanel, "Incoming", FormatConnections(evt.Incoming));
-        AddProperty(stdPanel, "Outgoing", FormatConnections(evt.Outgoing));
-        AddProperty(stdPanel, "Lanes", FormatLanes(evt.Lanes));
+        detailWindow.AddStandardProperty("Incoming", FormatConnections(evt.Incoming));
+        detailWindow.AddStandardProperty("Outgoing", FormatConnections(evt.Outgoing));
+        detailWindow.AddStandardProperty("Lanes", FormatLanes(evt.Lanes));
 
         // Event Specifics (Start/Boundary)
         if (evt is StartEvent start) 
-            AddProperty(stdPanel, "Interrupting", start.IsInterrupting?.ToString());
+            detailWindow.AddStandardProperty("Interrupting", start.IsInterrupting?.ToString());
         if (evt is BoundaryEvent boundary) {
-            AddProperty(stdPanel, "Cancel Act", boundary.CancelActivity?.ToString());
-            AddProperty(stdPanel, "Attached To", boundary.AttachedToRef?.Id);
+            detailWindow.AddStandardProperty("Cancel Act", boundary.CancelActivity?.ToString());
+            detailWindow.AddStandardProperty("Attached To", boundary.AttachedToRef?.Id);
         }
 
         // Definitions & Data Flow
-        AddProperty(stdPanel, "Definitions", FormatEventDefinitions(evt));
-        AddProperty(stdPanel, "Data Flow", FormatDataAssociations(evt));
-        AddProperty(stdPanel, "Docs", FormatDocumentation(evt.Documentation));
+        detailWindow.AddStandardProperty("Definitions", FormatEventDefinitions(evt));
+        detailWindow.AddStandardProperty("Data Flow", FormatDataAssociations(evt));
+        detailWindow.AddStandardProperty("Docs", FormatDocumentation(evt.Documentation));
         
         // Extensions (Standard)
         if (evt.ExtensionDefinitions.Any() || evt.ExtensionValues.Any())
-            AddProperty(stdPanel, "Extensions", FormatExtensions(evt));
+            detailWindow.AddStandardProperty("Extensions", FormatExtensions(evt));
 
 
         // --- Camunda Properties ---
-        AddProperty(camPanel, "Async Before", evt.Camunda_asyncBefore?.ToString());
-        AddProperty(camPanel, "Async After", evt.Camunda_asyncAfter?.ToString());
-        AddProperty(camPanel, "Job Priority", evt.Camunda_jobPriority);
+        detailWindow.AddCamundaProperty("Async Before", evt.Camunda_asyncBefore?.ToString());
+        detailWindow.AddCamundaProperty("Async After", evt.Camunda_asyncAfter?.ToString());
+        detailWindow.AddCamundaProperty("Job Priority", evt.Camunda_jobPriority);
         
         if (evt is StartEvent se)
         {
-            AddProperty(camPanel, "Form Key", se.Camunda_formKey);
-            AddProperty(camPanel, "Initiator", se.Camunda_initiator);
+            detailWindow.AddCamundaProperty("Form Key", se.Camunda_formKey);
+            detailWindow.AddCamundaProperty("Initiator", se.Camunda_initiator);
         }
 
         // Generic Camunda Elements
-        AddProperty(camPanel, "Properties", FormatCamundaProperties(evt));
-        AddProperty(camPanel, "Form Data", FormatCamundaFormData(evt));
-        AddProperty(camPanel, "Input/Output", FormatCamundaIO(evt));
-        AddProperty(camPanel, "Fields", FormatCamundaFields(evt));
-        AddProperty(camPanel, "Connectors", FormatConnectors(evt));
-        AddProperty(camPanel, "Listeners", FormatListenersSummary(evt)); // Non-script listener info
+        detailWindow.AddCamundaProperty("Properties", FormatCamundaProperties(evt));
+        detailWindow.AddCamundaProperty("Form Data", FormatCamundaFormData(evt));
+        detailWindow.AddCamundaProperty("Input/Output", FormatCamundaIO(evt));
+        detailWindow.AddCamundaProperty("Fields", FormatCamundaFields(evt));
+        detailWindow.AddCamundaProperty("Connectors", FormatConnectors(evt));
+        detailWindow.AddCamundaProperty("Listeners", FormatListenersSummary(evt)); // Non-script listener info
 
         var retryCycle = evt.CamundaElements.OfType<CamundaFailedJobRetryTimeCycle>().FirstOrDefault();
-        if (retryCycle != null) AddProperty(camPanel, "Retry Cycle", retryCycle.Body);
-
-        Grid.SetColumn(stdPanel, 0);
-        Grid.SetColumn(camPanel, 1);
-        columnsGrid.Children.Add(stdPanel);
-        columnsGrid.Children.Add(camPanel);
-
-        var detailsScroll = new ScrollViewer { Content = columnsGrid, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
-        Grid.SetRow(detailsScroll, 1);
-        rootGrid.Children.Add(detailsScroll);
+        if (retryCycle != null) detailWindow.AddCamundaProperty("Retry Cycle", retryCycle.Body);
 
         // ========== 3. Script/Code Section ==========
         var scriptContent = ExtractScriptContent(evt);
-        if (!string.IsNullOrWhiteSpace(scriptContent))
-        {
-            var scriptPanel = new StackPanel { Margin = new Thickness(10) };
-            scriptPanel.Children.Add(new TextBlock { Text = "Script / Code / Expressions:", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 5, 0, 2) });
-            
-            var scriptBox = new TextBox
-            {
-                Text = scriptContent,
-                IsReadOnly = true,
-                FontFamily = new FontFamily("Consolas"),
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-                Height = 150,
-                AcceptsReturn = true
-            };
-            scriptPanel.Children.Add(scriptBox);
-            
-            Grid.SetRow(scriptPanel, 2);
-            rootGrid.Children.Add(scriptPanel);
-        }
-
-        return new Border { Padding = new Thickness(5), Child = rootGrid };
+        detailWindow.SetScript(scriptContent);
+        
+        detailWindow.Show();
+        detailWindow.Activate();
     }
-
-    private void AddProperty(StackPanel panel, string label, string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value)) return;
-
-        var grid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-        var lbl = new TextBlock 
-        { 
-            Text = $"{label}:", 
-            FontWeight = FontWeights.Bold, 
-            VerticalAlignment = VerticalAlignment.Top,
-            TextWrapping = TextWrapping.Wrap
-        };
-        var val = new TextBlock 
-        { 
-            Text = value, 
-            FontFamily = new FontFamily("Consolas"), 
-            TextWrapping = TextWrapping.Wrap, 
-            VerticalAlignment = VerticalAlignment.Top 
-        };
-
-        Grid.SetColumn(lbl, 0);
-        Grid.SetColumn(val, 1);
-        grid.Children.Add(lbl);
-        grid.Children.Add(val);
-        panel.Children.Add(grid);
-    }
-    
-    // --- Data Extraction Helpers ---
 
     private string ExtractScriptContent(Event evt)
     {

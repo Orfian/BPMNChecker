@@ -89,82 +89,35 @@ public class DataRenderer : IShapeRenderer
     
     private void ShowDataDetails(BaseElement element)
     {
-        var detailWindow = new Window
+        var detailWindow = new DetailWindow
         {
-            Title = "Data Details",
-            Width = 700,
-            Height = 500,
-            Content = CreateDetailContent(element),
             Owner = Application.Current.MainWindow,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Title = "Data Details"
         };
+        
+        detailWindow.SetNote("Data Note:", ElementNotes.GetNote(element.Id) ?? "", (text) => 
+        {
+            ElementNotes.SetNote(element.Id, text);
+            RefreshDataVisual(element);
+        });
+
+        // --- Standard Properties ---
+        detailWindow.AddStandardProperty("ID", element.Id ?? "null");
+        detailWindow.AddStandardProperty("Type", element.GetType().Name);
+        
+        if (element is DataObject dataObject) 
+            detailWindow.AddStandardProperty("Collection", dataObject.IsCollection.ToString());
+        if (element is DataInput input) 
+             detailWindow.AddStandardProperty("Collection", input.IsCollection.ToString());
+        if (element is DataOutput output) 
+             detailWindow.AddStandardProperty("Collection", output.IsCollection.ToString());
+        
+        detailWindow.AddCamundaProperty("Ext Definitions", element.ExtensionDefinitions.Count > 0 ? "Yes" : "");
+
         detailWindow.Show();
         detailWindow.Activate();
     }
-    
-    private UIElement CreateDetailContent(BaseElement element)
-    {
-        var rootGrid = new Grid();
-        rootGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Note
-        rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); // Columns
 
-        // ========== 1. Note ==========
-        var notePanel = new StackPanel { Margin = new Thickness(10) };
-        var noteTextBox = new TextBox
-        {
-            Text = ElementNotes.GetNote(element.Id) ?? "",
-            AcceptsReturn = true, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Height = 40, Margin = new Thickness(0, 0, 0, 5)
-        };
-        var saveButton = new Button { Content = "Save Note", Margin = new Thickness(0, 5, 0, 5), Padding = new Thickness(5) };
-        saveButton.Click += (s, e) => { ElementNotes.SetNote(element.Id, noteTextBox.Text); RefreshDataVisual(element); };
-        notePanel.Children.Add(new TextBlock { Text = "Data Note:", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 2) });
-        notePanel.Children.Add(noteTextBox);
-        notePanel.Children.Add(saveButton);
-        Grid.SetRow(notePanel, 0);
-        rootGrid.Children.Add(notePanel);
-
-        // ========== 2. Columns ==========
-        var columnsGrid = new Grid();
-        columnsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        columnsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        
-        var stdPanel = new StackPanel { Margin = new Thickness(10, 0, 10, 0) };
-        var camPanel = new StackPanel { Margin = new Thickness(10, 0, 10, 0) };
-
-        AddProperty(stdPanel, "ID", element.Id);
-        AddProperty(stdPanel, "Type", element.GetType().Name);
-
-        if (element is DataObject dataObject) AddProperty(stdPanel, "Collection", dataObject.IsCollection.ToString());
-        if (element is DataInput input) AddProperty(stdPanel, "Collection", input.IsCollection.ToString());
-        if (element is DataOutput output) AddProperty(stdPanel, "Collection", output.IsCollection.ToString());
-        
-        // Camunda column usually empty for Data objects, but kept for consistency
-        AddProperty(camPanel, "Ext Definitions", element.ExtensionDefinitions.Count > 0 ? "Yes" : "");
-
-        Grid.SetColumn(stdPanel, 0);
-        Grid.SetColumn(camPanel, 1);
-        columnsGrid.Children.Add(stdPanel);
-        columnsGrid.Children.Add(camPanel);
-
-        var detailsScroll = new ScrollViewer { Content = columnsGrid, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
-        Grid.SetRow(detailsScroll, 1);
-        rootGrid.Children.Add(detailsScroll);
-
-        return new Border { Padding = new Thickness(5), Child = rootGrid };
-    }
-
-    private void AddProperty(StackPanel panel, string label, string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value)) return;
-        var grid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        var lbl = new TextBlock { Text = $"{label}:", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Top, TextWrapping = TextWrapping.Wrap };
-        var val = new TextBlock { Text = value, FontFamily = new FontFamily("Consolas"), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top };
-        Grid.SetColumn(lbl, 0); Grid.SetColumn(val, 1);
-        grid.Children.Add(lbl); grid.Children.Add(val);
-        panel.Children.Add(grid);
-    }
 
     private void RefreshDataVisual(BaseElement dataElement)
     {
