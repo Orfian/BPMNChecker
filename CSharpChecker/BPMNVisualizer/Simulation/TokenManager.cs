@@ -14,7 +14,6 @@ public class TokenManager
     private readonly ModelRoot _model;
     private readonly Canvas _canvas;
     private readonly List<BPMNToken> _tokens = new();
-    private bool tmp_test = true;
 
     public TokenManager(ModelRoot model, Canvas canvas)
     {
