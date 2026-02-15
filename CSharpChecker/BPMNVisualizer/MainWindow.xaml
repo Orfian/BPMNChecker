@@ -29,6 +29,12 @@
                     Click="Simulate_Click"
                     ToolTip="Start simulation"
                     Content="Simulate"/>
+            <Button x:Name="HistoryButt"
+                    Style="{StaticResource ButtonStyle}"
+                    Click="ShowHistory_Click"
+                    ToolTip="Show Simulation History"
+                    Content="History"
+                    Visibility="Collapsed"/>
             <Button x:Name="ResetSimButt"
                     Style="{StaticResource ButtonStyle}"
                     Click="Reset_Click"

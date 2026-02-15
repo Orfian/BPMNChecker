@@ -2,34 +2,52 @@
 
 namespace BPMNVisualizer.Simulation;
 
-public abstract record SimulationAction;
+public abstract record SimulationAction
+{
+    public abstract SimulationAction DeepClone();
+}
 
 public record MoveTokenAction(
     BPMNToken Token,
     BaseElement TargetElement,
     SequenceFlow Flow
-) : SimulationAction;
+) : SimulationAction
+{
+    public override SimulationAction DeepClone() => this with { Token = Token.DeepClone() };
+}
 
 public record SplitTokenAction( //for parallel gateways, multiple flows, etc.
     BaseElement SourceElement,
     BaseElement TargetElement,
     SequenceFlow Flow,
     BPMNToken? ParentToken = null
-) : SimulationAction;
+) : SimulationAction
+{
+    public override SimulationAction DeepClone() => this with { ParentToken = ParentToken?.DeepClone() };
+}
 
 public record SpawnTokenAction( //for subprocesses, call activities, etc.
     BaseElement TargetElement,
     BPMNToken ParentToken
-) : SimulationAction;
+) : SimulationAction
+{
+    public override SimulationAction DeepClone() => this with { ParentToken = ParentToken.DeepClone() };
+}
 
 public record RemoveTokenAction(
     BPMNToken Token
-) : SimulationAction;
+) : SimulationAction
+{
+    public override SimulationAction DeepClone() => this with { Token = Token.DeepClone() };
+}
 
 public record SetTokenWaitingAction(
     BPMNToken Token,
     bool IsWaiting
-) : SimulationAction;
+) : SimulationAction
+{
+    public override SimulationAction DeepClone() => this with { Token = Token.DeepClone() };
+}
 
 public record RequestGatewayChoiceAction(
     BPMNToken Token,
@@ -37,23 +55,38 @@ public record RequestGatewayChoiceAction(
     IEnumerable<SequenceFlow> OutgoingFlows,
     bool MultiSelect,
     SequenceFlow? DefaultFlow
-) : SimulationAction;
+) : SimulationAction
+{
+    public override SimulationAction DeepClone() => this with { Token = Token.DeepClone() };
+}
 
 public record ResolveGatewayChoiceAction(
     GatewayChoice GatewayChoice
-) : SimulationAction;
+) : SimulationAction
+{
+    public override SimulationAction DeepClone() => this with { GatewayChoice = GatewayChoice.DeepClone() };
+}
 
 public record EventDelayAction(
     BPMNToken Token,
     Event Event
-) : SimulationAction;
+) : SimulationAction
+{
+    public override SimulationAction DeepClone() => this with { Token = Token.DeepClone() };
+}
 
 public record SendMessageAction(
     BPMNToken Token,
     string MessageName
-) : SimulationAction;
+) : SimulationAction
+{
+    public override SimulationAction DeepClone() => this with { Token = Token.DeepClone() };
+}
 
 public record SendSignalAction(
     BPMNToken Token,
     string SignalName
-) : SimulationAction;
+) : SimulationAction
+{
+    public override SimulationAction DeepClone() => this with { Token = Token.DeepClone() };
+}

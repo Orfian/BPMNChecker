@@ -29,10 +29,10 @@ namespace BPMNVisualizer
         public MainWindow()
         {
             //var filePath = @"diagrams/CamundaModeler_almost_all_set.bpmn";
-            //var filePath = @"diagrams/BookHolidaySagaPatternV2.bpmn";
+            var filePath = @"diagrams/BookHolidaySagaPatternV2.bpmn";
             //var filePath = @"diagrams/all_icons.bpmn";
             //var filePath = @"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn";
-            var filePath = @"diagrams/test.bpmn";
+            //var filePath = @"diagrams/test.bpmn";
             
             InitializeComponent();
             _logger = LoggerFactory.Create();
@@ -61,6 +61,7 @@ namespace BPMNVisualizer
             SimButt.Click += NextStep_Click;
             
             ResetSimButt.Visibility = Visibility.Visible;
+            HistoryButt.Visibility = Visibility.Visible;
             
             simulator.FirstStep();
         }
@@ -82,6 +83,20 @@ namespace BPMNVisualizer
             SimButt.Click += Simulate_Click;
 
             ResetSimButt.Visibility = Visibility.Collapsed;
+            HistoryButt.Visibility = Visibility.Collapsed;
+        }
+        
+        private void ShowHistory_Click(object sender, RoutedEventArgs e)
+        {
+            if (simulator == null)
+            {
+                MessageBox.Show("Start simulation first.");
+                return;
+            }
+            
+            var historyWindow = new HistoryWindow(simulator);
+            historyWindow.Owner = this;
+            historyWindow.Show();
         }
 
         private void ExportButton_Click(object sender, RoutedEventArgs e)

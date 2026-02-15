@@ -1,6 +1,9 @@
 ﻿using System.Windows;
+using System.Collections.ObjectModel;
 using BPMNModel;
 using BPMNModel.Model;
+using BPMNModel.Camunda;
+using BPMNVisualizer.Simulation.History;
 using BPMNVisualizer.Simulation.Simulators;
 using BPMNVisualizer.Utility;
 using Serilog;
@@ -25,6 +28,9 @@ public class Simulator
     private List<GatewayChoice> _pendingChoices = new();
     private readonly Queue<SimulationMessage> _messageQueue = new();
     private readonly Queue<SimulationSignal> _signalQueue = new();
+    
+    public readonly ObservableCollection<SimulationState> History = new();
+    private int _currentStepIndex = -1;
 
     public Simulator(ILogger logger, TokenManager tokenManager, ModelRoot model, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
     {
@@ -69,7 +75,7 @@ public class Simulator
 
         foreach (var startEvent in startEvents)
         {
-            if (_objectBounds.TryGetValue(startEvent.Id, out var bounds))
+            if (_objectBounds.TryGetValue(startEvent.Id!, out var bounds))
             {
                 _tokenManager.AddToken(startEvent, bounds);
             }
@@ -82,11 +88,25 @@ public class Simulator
                 _eventSimulator.SpawnStartEventIndicator(startEvent, null, _actions);
             }
         }
+        
+        SaveState(_tokenManager.GetAllTokens());
     }
     
     public void NextStep()
     {
         var tokens = _tokenManager.GetAllTokens().ToList();
+        if (!tokens.Any())
+        {
+            MessageBox.Show("No more tokens.", "Next Step not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        if (_currentStepIndex >= 0 && _currentStepIndex < History.Count)
+        {
+            var oldState = History[_currentStepIndex];
+            oldState.PendingGatewayChoices = _pendingChoices.Select(c => c.DeepClone()).ToList();
+        }
+        
         foreach (var token in tokens)
         {
             token.IsEvaluated = false;
@@ -94,7 +114,7 @@ public class Simulator
 
         foreach (var token in tokens)
         {
-            if (token.IsEvaluated)
+            if (token.IsEvaluated || token.CurrentElement == null)
                 continue;
             
             var simulator = GetElementSimulator(token.CurrentElement);
@@ -107,6 +127,8 @@ public class Simulator
         
         CommitActions(_actions);
         _actions.Clear();
+        
+        SaveState(_tokenManager.GetAllTokens());
     }
     
     private void CommitActions(IList<SimulationAction> actions)
@@ -117,13 +139,13 @@ public class Simulator
             {
                 case MoveTokenAction move:
                 {
-                    if (_objectBounds.TryGetValue(move.TargetElement.Id, out var bounds))
+                    if (_objectBounds.TryGetValue(move.TargetElement.Id!, out var bounds))
                     {
                         _tokenManager.MoveToken(
                             move.Token,
                             move.TargetElement,
                             move.Flow,
-                            _paths.TryGetValue(move.Flow.Id, out var path) ? path : null,
+                            _paths.TryGetValue(move.Flow.Id!, out var path) ? path : null,
                             bounds
                         );
                     }
@@ -132,18 +154,18 @@ public class Simulator
 
                 case SplitTokenAction split:
                 {
-                    if (_objectBounds.TryGetValue(split.SourceElement.Id, out var sourceBounds))
+                    if (_objectBounds.TryGetValue(split.SourceElement.Id!, out var sourceBounds))
                     {
                         var newToken = _tokenManager.AddToken(split.SourceElement, sourceBounds);
                         newToken.Parent = split.ParentToken;
                         
-                        if (_objectBounds.TryGetValue(split.TargetElement.Id, out var targetBounds))
+                        if (_objectBounds.TryGetValue(split.TargetElement.Id!, out var targetBounds))
                         {
                             _tokenManager.MoveToken(
                                 newToken,
                                 split.TargetElement,
                                 split.Flow,
-                                _paths.TryGetValue(split.Flow.Id, out var path) ? path : null,
+                                _paths.TryGetValue(split.Flow.Id!, out var path) ? path : null,
                                 targetBounds
                             );
                         }
@@ -153,7 +175,7 @@ public class Simulator
 
                 case SpawnTokenAction spawn:
                 {
-                    if (_objectBounds.TryGetValue(spawn.TargetElement.Id, out var bounds))
+                    if (_objectBounds.TryGetValue(spawn.TargetElement.Id!, out var bounds))
                     {
                         var newToken = _tokenManager.AddToken(spawn.TargetElement, bounds);
                         newToken.Parent = spawn.ParentToken;
@@ -179,47 +201,13 @@ public class Simulator
                         DefaultFlow = request.DefaultFlow
                     };
                     
-                    foreach (var flow in request.OutgoingFlows)
-                    {
-                        var points = _paths.TryGetValue(flow.Id, out var path) ? path : null;
-                        if (points != null && points.Count() >= 2)
-                        {
-                            var first = points.First();
-                            var second = points.Skip(1).FirstOrDefault();
-                            var direction = Helpers.GetDirection(first, second);
-                            var triangle = _tokenManager.AddArrowIndicator(first, direction);
-                            
-                            var indicator = new Indicator
-                            {
-                                Visual = triangle,
-                                Flow = flow,
-                                Selected = false
-                            };
-                            
-                            gatewayChoice.Indicators.Add(indicator);
-                            
-                            triangle.MouseDown += (s, e) =>
-                            {
-                                _gatewaySimulator.UpdatePendingChoices(indicator, gatewayChoice);
-                            };
-                            
-                            triangle.MouseEnter += (s, e) =>
-                            {
-                                _tokenManager.SetHoverIndicatorColor(triangle, indicator.Selected, true);
-                            };
-                            
-                            triangle.MouseLeave += (s, e) =>
-                            {
-                                _tokenManager.SetHoverIndicatorColor(triangle, indicator.Selected, false);
-                            };
-                        }
-                    }
+                    ShowGatewayChoiceIndicators(gatewayChoice);
                     
                     if (gatewayChoice.DefaultFlow != null)
                     {
                         var defaultIndicator = gatewayChoice.Indicators
                             .FirstOrDefault(ind => ind.Flow == gatewayChoice.DefaultFlow);
-                        if (defaultIndicator != null)
+                        if (defaultIndicator != null && defaultIndicator.Visual != null)
                         {
                             defaultIndicator.Selected = true;
                             _tokenManager.SetIndicatorColor(defaultIndicator.Visual, true);
@@ -229,9 +217,12 @@ public class Simulator
                     {
                         if (gatewayChoice.Gateway is not ComplexGateway && gatewayChoice.Gateway is not EventBasedGateway)
                         {
-                            var ind = gatewayChoice.Indicators.First();
-                            ind.Selected = true;
-                            _tokenManager.SetIndicatorColor(ind.Visual, true);
+                            var ind = gatewayChoice.Indicators.FirstOrDefault();
+                            if (ind != null && ind.Visual != null)
+                            {
+                                ind.Selected = true;
+                                _tokenManager.SetIndicatorColor(ind.Visual, true);
+                            }
                         }
                     }
                     
@@ -244,8 +235,8 @@ public class Simulator
                     var choice = resolve.GatewayChoice;
                     
                     var selectedFlows = choice.Indicators
-                        .Where(ind => ind.Selected)
-                        .Select(ind => ind.Flow)
+                        .Where(ind => ind.Selected && ind.Flow != null)
+                        .Select(ind => ind.Flow!)
                         .ToList();
                     
                     switch (choice.Gateway)
@@ -272,13 +263,16 @@ public class Simulator
 
                     foreach (var indicator in resolve.GatewayChoice.Indicators)
                     {
-                        _tokenManager.RemoveChoiceIndicator(indicator.Visual);
+                        if (indicator.Visual != null)
+                        {
+                            _tokenManager.RemoveChoiceIndicator(indicator.Visual);
+                        }
                     }
                     _pendingChoices.Remove(resolve.GatewayChoice);
                     break;
                 
                 case EventDelayAction requestDelay:
-                    var eventPosition = _objectBounds.TryGetValue(requestDelay.Event.Id, out var evtBounds)
+                    var eventPosition = _objectBounds.TryGetValue(requestDelay.Event.Id!, out var evtBounds)
                         ? new Point(evtBounds.X + evtBounds.Width / 2, evtBounds.Y + evtBounds.Height / 2)
                         : new Point(0, 0);
                     
@@ -431,9 +425,242 @@ public class Simulator
         {
             foreach (var indicator in choice.Indicators)
             {
-                _tokenManager.RemoveChoiceIndicator(indicator.Visual);
+                if (indicator.Visual != null)
+                {
+                    _tokenManager.RemoveChoiceIndicator(indicator.Visual);
+                }
             }
         }
         _pendingChoices.Clear();
+    }
+
+    public void SaveState(IEnumerable<BPMNToken> tokens)
+    {
+        // If we are saving state from a point in history (not the end), truncate future history
+        if (_currentStepIndex != -1 && _currentStepIndex < History.Count - 1)
+        {
+            while (History.Count > _currentStepIndex + 1)
+            {
+                History.RemoveAt(History.Count - 1);
+            }
+        }
+
+        var state = new SimulationState
+        {
+            StepIndex = History.Count,
+            Tokens = tokens.Select(t => t.DeepClone()).ToList(),
+            PendingGatewayChoices = _pendingChoices.Select(c => c.DeepClone()).ToList(),
+            MessageQueue = new Queue<SimulationMessage>(_messageQueue.Select(m => m.DeepClone())),
+            SignalQueue = new Queue<SimulationSignal>(_signalQueue.Select(s => s.DeepClone())),
+            TriggeredCodeElements = GetTriggeredCodeElements(tokens)
+        };
+        
+        History.Add(state);
+        _currentStepIndex = History.Count - 1;
+    }
+    
+    private List<string> GetTriggeredCodeElements(IEnumerable<BPMNToken> tokens)
+    {
+        var elements = new HashSet<string>();
+
+        // 1. Check Sequence Flows (Edges) that were traversed in this step
+        // We look at MoveTokenAction and SplitTokenAction in _actions
+        foreach (var action in _actions)
+        {
+            SequenceFlow? flow = null;
+            if (action is MoveTokenAction move) flow = move.Flow;
+            else if (action is SplitTokenAction split) flow = split.Flow;
+
+            if (flow != null && flow.ConditionExpression is FormalExpression expr && !string.IsNullOrWhiteSpace(expr.Body?.Value))
+            {
+                elements.Add($"Flow: {flow.Id} (Condition)");
+            }
+        }
+
+        // 2. Check Elements (Nodes) where tokens are currently located IF they were evaluated/active this step
+        // Note: tokens passed to SaveState are the current state tokens.
+        foreach (var token in tokens)
+        {
+            // If token is at an element, check if that element has code
+            if (token.CurrentElement is BaseElement el)
+            {
+                // Basic check for Script Tasks
+                if (el is ScriptTask st && !string.IsNullOrEmpty(st.Script))
+                {
+                    elements.Add($"Script Task: {st.Name ?? st.Id}");
+                }
+                // Service Tasks with Camunda Expression
+                else if (el is ServiceTask srv && !string.IsNullOrEmpty(srv.Camunda_expression))
+                {
+                    elements.Add($"Service Task: {srv.Name ?? srv.Id} (Expression)");
+                }
+                
+                // Camunda Execution Listeners
+                if (el.CamundaElements?.OfType<CamundaExecutionListener>() is IEnumerable<CamundaExecutionListener> listeners && 
+                    listeners.Any(l => l.Script != null || !string.IsNullOrEmpty(l.Expression) || !string.IsNullOrEmpty(l.DelegateExpression)))
+                {
+                     elements.Add($"Element: {el.Id} (Listeners)");
+                }
+            }
+        }
+
+        return elements.OrderBy(x => x).ToList();
+    }
+    
+    public void ClearHistory()
+    {
+        History.Clear();
+        _currentStepIndex = -1;
+    }
+
+    public void LoadState(int stepIndex)
+    {
+        if (stepIndex < 0 || stepIndex >= History.Count)
+            return;
+            
+        var state = History[stepIndex];
+        _currentStepIndex = stepIndex;
+
+        // 1. Clear current state
+        _tokenManager.ClearAllTokens();
+        ClearPendingChoices();
+        _actions.Clear();
+        _priorityActions.Clear();
+        _messageQueue.Clear();
+        _signalQueue.Clear();
+        
+        // 2. Restore Queues
+        foreach(var m in state.MessageQueue) _messageQueue.Enqueue(m.DeepClone());
+        foreach(var s in state.SignalQueue) _signalQueue.Enqueue(s.DeepClone());
+        
+        // 3. Restore Tokens
+        var oldToNew = new Dictionary<string, BPMNToken>();
+        
+        foreach (var historyToken in state.Tokens)
+        {
+             if (historyToken.CurrentElement != null && historyToken.Id != null && _objectBounds.TryGetValue(historyToken.CurrentElement.Id!, out var bounds))
+             {
+                 var newToken = _tokenManager.AddToken(historyToken.CurrentElement, bounds);
+                 newToken.Id = historyToken.Id; // Restore ID
+                 newToken.IsWaiting = historyToken.IsWaiting;
+                 newToken.IsEvaluated = historyToken.IsEvaluated;
+                 newToken.CurrentSequenceFlow = historyToken.CurrentSequenceFlow;
+                 
+                  if (historyToken.CurrentSequenceFlow?.Id != null && _paths.TryGetValue(historyToken.CurrentSequenceFlow.Id, out var path) && path != null) {
+                     var points = path.ToList();
+                     if (points.Any()) {
+                         var lastPoint = points.Last();
+                         _tokenManager.SetTokenPosition(newToken, lastPoint);
+                     }
+                 }
+
+                 _tokenManager.SetTokenWaiting(newToken, newToken.IsWaiting);
+                 
+                 oldToNew[historyToken.Id] = newToken;
+             }
+        }
+        
+        // Fix parents
+        foreach (var historyToken in state.Tokens)
+        {
+            if (historyToken.Parent != null && historyToken.Parent.Id != null && oldToNew.TryGetValue(historyToken.Parent.Id, out var newParent))
+            {
+                // We need to look up the NEW token corresponding to historyToken
+                if (historyToken.Id != null && oldToNew.TryGetValue(historyToken.Id, out var newToken))
+                {
+                    newToken.Parent = newParent;
+                }
+            }
+        }
+
+        // 4. Restore Pending Gateway Choices
+        var newPendingChoices = state.PendingGatewayChoices.Select(c => c.DeepClone()).ToList();
+        
+        foreach (var choice in newPendingChoices)
+        {
+             // Fix token reference
+             if (choice.Token?.Id != null && oldToNew.TryGetValue(choice.Token.Id, out var newToken))
+             {
+                 choice.Token = newToken;
+             }
+             
+             // The DeepClone of choice has indicators with null visuals.
+             // We need to preserve selection info, then recreate indicators.
+             var preservedSelections = choice.Indicators.Where(i => i.Selected && i.Flow?.Id != null).Select(i => i.Flow!.Id).ToHashSet();
+             choice.Indicators.Clear();
+             
+             // Recreate indicators (visuals + objects)
+             ShowGatewayChoiceIndicators(choice);
+             
+             // Restore selection
+             foreach (var ind in choice.Indicators)
+             {
+                 if (ind.Flow?.Id != null && preservedSelections.Contains(ind.Flow.Id) && ind.Visual != null)
+                 {
+                     ind.Selected = true;
+                     _tokenManager.SetIndicatorColor(ind.Visual, true);
+                 }
+             }
+             
+             _pendingChoices.Add(choice);
+             
+             // We also need to add ResolveGatewayChoiceAction for these choices if not present?
+             // The state has PriorityActions. If we saved state while waiting for user, 
+             // there should be a ResolveGatewayChoiceAction in PriorityActions.
+             // Check if we need to update the action reference to the NEW choice object.
+             
+             for (int i = 0; i < _priorityActions.Count; i++)
+             {
+                 if (_priorityActions[i] is ResolveGatewayChoiceAction action)
+                 {
+                     if (action.GatewayChoice.Token?.Id != null && action.GatewayChoice.Gateway?.Id != null && choice.Token?.Id != null && choice.Gateway?.Id != null &&
+                         action.GatewayChoice.Token.Id == choice.Token.Id && action.GatewayChoice.Gateway.Id == choice.Gateway.Id)
+                     {
+                         _priorityActions[i] = action with { GatewayChoice = choice };
+                     }
+                 }
+             }
+        }
+    }
+
+    private void ShowGatewayChoiceIndicators(GatewayChoice gatewayChoice)
+    {
+        if (gatewayChoice.OutgoingFlows == null) return;
+
+        foreach (var flow in gatewayChoice.OutgoingFlows)
+        {
+            var points = flow.Id != null && _paths.TryGetValue(flow.Id, out var path) ? path : null;
+            if (points != null && points.Count() >= 2)
+            {
+                var first = points.First();
+                var second = points.Skip(1).FirstOrDefault();
+                var direction = Helpers.GetDirection(first, second);
+                var triangle = _tokenManager.AddArrowIndicator(first, direction);
+                
+                var indicator = new Indicator
+                {
+                    Visual = triangle,
+                    Flow = flow,
+                    Selected = false
+                };
+                
+                gatewayChoice.Indicators.Add(indicator);
+                
+                triangle.MouseDown += (s, e) =>
+                {
+                    _gatewaySimulator.UpdatePendingChoices(indicator, gatewayChoice);
+                };
+                
+                triangle.MouseEnter += (s, e) =>
+                {
+                    _tokenManager.SetHoverIndicatorColor(triangle, indicator.Selected, true);
+                };
+                
+                triangle.MouseLeave += (s, e) =>
+                {
+                    _tokenManager.SetHoverIndicatorColor(triangle, indicator.Selected, false);
+                };
+            }
+        }
     }
 }

@@ -8,4 +8,6 @@ public record SimulationMessage(
 {
     public string DisplayName => MessageName;
     public string SourceId => SourceElementId;
+
+    public SimulationMessage DeepClone() => this with { };
 }

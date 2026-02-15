@@ -7,4 +7,6 @@ public record SimulationSignal(
 {
     public string DisplayName => SignalName;
     public string SourceId => SourceElementId;
+
+    public SimulationSignal DeepClone() => this with { };
 }

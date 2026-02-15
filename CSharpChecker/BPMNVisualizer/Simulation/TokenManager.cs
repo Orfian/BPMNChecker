@@ -84,8 +84,16 @@ public class TokenManager
     
     public void SetTokenWaiting(BPMNToken token, bool waiting)
     {
+        if (token.Visual == null) return;
         token.IsWaiting = waiting;
         token.Visual.Fill = waiting ? Brushes.Orange : Brushes.Green;
+    }
+
+    public void SetTokenPosition(BPMNToken token, Point position)
+    {
+        if (token.Visual == null) return;
+        Canvas.SetLeft(token.Visual, position.X - token.Visual.Width / 2);
+        Canvas.SetTop(token.Visual, position.Y - token.Visual.Height / 2);
     }
     
     public IEnumerable<SequenceFlow> GetOutgoingFlows(BaseElement element)
@@ -154,9 +162,7 @@ public class TokenManager
 
         return false;
     }
-
-    public IEnumerable<BPMNToken> Tokens => _tokens;
-
+    
     public void AnimateToken(BPMNToken token, BaseElement target, SequenceFlow currentFlow, List<Point> points)
     {
         var first = points[0];
