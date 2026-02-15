@@ -280,7 +280,7 @@ public class Simulator
                     
                     arrow.MouseDown += (s, e) =>
                     {
-                        if (requestDelay.Event is BPMNModel.Model.StartEvent or BPMNModel.Model.EndEvent)
+                        if (requestDelay.Event is StartEvent or EndEvent)
                         {
                              _eventSimulator.ResolveEventDelay(requestDelay.Token, arrow, _actions);
                              return;
@@ -583,9 +583,7 @@ public class Simulator
              {
                  choice.Token = newToken;
              }
-             
-             // The DeepClone of choice has indicators with null visuals.
-             // We need to preserve selection info, then recreate indicators.
+
              var preservedSelections = choice.Indicators.Where(i => i.Selected && i.Flow?.Id != null).Select(i => i.Flow!.Id).ToHashSet();
              choice.Indicators.Clear();
              
@@ -604,11 +602,7 @@ public class Simulator
              
              _pendingChoices.Add(choice);
              
-             // We also need to add ResolveGatewayChoiceAction for these choices if not present?
-             // The state has PriorityActions. If we saved state while waiting for user, 
-             // there should be a ResolveGatewayChoiceAction in PriorityActions.
-             // Check if we need to update the action reference to the NEW choice object.
-             
+             bool actionFound = false;
              for (int i = 0; i < _priorityActions.Count; i++)
              {
                  if (_priorityActions[i] is ResolveGatewayChoiceAction action)
@@ -617,8 +611,14 @@ public class Simulator
                          action.GatewayChoice.Token.Id == choice.Token.Id && action.GatewayChoice.Gateway.Id == choice.Gateway.Id)
                      {
                          _priorityActions[i] = action with { GatewayChoice = choice };
+                         actionFound = true;
                      }
                  }
+             }
+             
+             if (!actionFound)
+             {
+                 _priorityActions.Add(new ResolveGatewayChoiceAction(choice));
              }
         }
     }
