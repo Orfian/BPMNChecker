@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using BPMNModel.Camunda;
 using BPMNModel.Model;
 using Point = System.Windows.Point;
 
@@ -64,5 +65,20 @@ public static class Helpers
 
         var def = startEvent.EventDefinitions.First();
         return def is MessageEventDefinition || def is SignalEventDefinition || def is ConditionalEventDefinition || def is TimerEventDefinition;
+    }
+    
+    public static bool HasScript(BaseElement element)
+    {
+        if (element is ScriptTask st && !string.IsNullOrEmpty(st.Script))
+            return true;
+
+        if (element is ServiceTask srv && !string.IsNullOrEmpty(srv.Camunda_expression))
+            return true;
+        
+        if (element.CamundaElements?.OfType<CamundaExecutionListener>() is IEnumerable<CamundaExecutionListener> listeners && 
+            listeners.Any(l => l.Script != null || !string.IsNullOrEmpty(l.Expression) || !string.IsNullOrEmpty(l.DelegateExpression)))
+            return true;
+
+        return false;
     }
 }

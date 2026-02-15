@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using BPMNModel.Camunda;
 using BPMNModel.Model;
 using BPMNVisualizer.Utilities;
@@ -41,6 +42,19 @@ public class ActivityRenderer : IShapeRenderer
         _objectBounds[activity.Id] = bounds;
 
         var shape = DrawElement(activity, bounds);
+        
+        if (Helpers.HasScript(activity))
+        {
+            shape.Effect = new DropShadowEffect
+            {
+                Color = Colors.Gold,
+                Direction = 0,
+                ShadowDepth = 0,
+                BlurRadius = 25,
+                Opacity = 1
+            };
+        }
+        
         shape.MouseDown += (s, e) => ShowActivityDetails(activity);
 
         Canvas.SetLeft(shape, bounds.Left);
