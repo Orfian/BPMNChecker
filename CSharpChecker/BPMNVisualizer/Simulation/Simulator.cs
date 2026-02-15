@@ -482,25 +482,14 @@ public class Simulator
         foreach (var token in tokens)
         {
             // If token is at an element, check if that element has code
-            if (token.CurrentElement is BaseElement el)
+            if (token.CurrentElement is BaseElement el && Helpers.HasScript(el))
             {
-                // Basic check for Script Tasks
-                if (el is ScriptTask st && !string.IsNullOrEmpty(st.Script))
-                {
+                if (el is ScriptTask st)
                     elements.Add($"Script Task: {st.Name ?? st.Id}");
-                }
-                // Service Tasks with Camunda Expression
-                else if (el is ServiceTask srv && !string.IsNullOrEmpty(srv.Camunda_expression))
-                {
+                else if (el is ServiceTask srv)
                     elements.Add($"Service Task: {srv.Name ?? srv.Id} (Expression)");
-                }
-                
-                // Camunda Execution Listeners
-                if (el.CamundaElements?.OfType<CamundaExecutionListener>() is IEnumerable<CamundaExecutionListener> listeners && 
-                    listeners.Any(l => l.Script != null || !string.IsNullOrEmpty(l.Expression) || !string.IsNullOrEmpty(l.DelegateExpression)))
-                {
-                     elements.Add($"Element: {el.Id} (Listeners)");
-                }
+                else
+                    elements.Add($"Element: {el.Id} (Listeners)");
             }
         }
 
