@@ -49,6 +49,7 @@ public class EventRenderer : IShapeRenderer
         {
             Canvas.SetLeft(icon, bounds.Left + (bounds.Width - icon.Width) / 2);
             Canvas.SetTop(icon, bounds.Top + (bounds.Height - icon.Height) / 2);
+            icon.MouseDown += (s, e) => ShowEventDetails(evt);
             _canvas.Children.Add(icon);
         }
 
@@ -57,6 +58,7 @@ public class EventRenderer : IShapeRenderer
         {
             Canvas.SetLeft(label, bounds.Left + (bounds.Width - label.Width) / 2);
             Canvas.SetTop(label, bounds.Top + bounds.Height * 1.1);
+            label.MouseDown += (s, e) => ShowEventDetails(evt);
             _canvas.Children.Add(label);
         }
         
@@ -65,6 +67,7 @@ public class EventRenderer : IShapeRenderer
         {
             Canvas.SetLeft(note, bounds.Left + 5);
             Canvas.SetTop(note, bounds.Top - note.Height - 5);
+            note.MouseDown += (s, e) => ShowEventDetails(evt);
             _canvas.Children.Add(note);
         }
     }

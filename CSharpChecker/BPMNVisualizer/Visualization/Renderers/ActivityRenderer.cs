@@ -54,6 +54,7 @@ public class ActivityRenderer : IShapeRenderer
             {
                 Canvas.SetLeft(icon, bounds.Left + bounds.Width * 0.05);
                 Canvas.SetTop(icon, bounds.Top + bounds.Height * 0.05);
+                icon.MouseDown += (s, e) => ShowActivityDetails(activity);
                 _canvas.Children.Add(icon);
             }
         }
@@ -63,6 +64,7 @@ public class ActivityRenderer : IShapeRenderer
         {
             Canvas.SetLeft(markers, bounds.Left + (bounds.Width - markers.Width) / 2);
             Canvas.SetTop(markers, bounds.Top + bounds.Height * 0.9 - markers.Height);
+            markers.MouseDown += (s, e) => ShowActivityDetails(activity);
             _canvas.Children.Add(markers);
         }
 
@@ -71,6 +73,7 @@ public class ActivityRenderer : IShapeRenderer
         {
             Canvas.SetLeft(label, bounds.Left + (bounds.Width - label.Width) / 2);
             Canvas.SetTop(label, bounds.Top + (bounds.Height - label.Height) / 2);
+            label.MouseDown += (s, e) => ShowActivityDetails(activity);
             _canvas.Children.Add(label);
         }
         
@@ -79,6 +82,7 @@ public class ActivityRenderer : IShapeRenderer
         {
             Canvas.SetLeft(note, bounds.Left + 5);
             Canvas.SetTop(note, bounds.Top - note.Height - 5);
+            note.MouseDown += (s, e) => ShowActivityDetails(activity);
             _canvas.Children.Add(note);
         }
     }

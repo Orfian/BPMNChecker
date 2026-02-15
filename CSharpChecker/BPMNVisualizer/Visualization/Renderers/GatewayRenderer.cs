@@ -49,6 +49,7 @@ public class GatewayRenderer : IShapeRenderer
         {
             Canvas.SetLeft(icon, bounds.Left + (bounds.Width - icon.Width) / 2);
             Canvas.SetTop(icon, bounds.Top + (bounds.Height - icon.Height) / 2);
+            icon.MouseDown += (s, e) => ShowGatewayDetails(gateway);
             _canvas.Children.Add(icon);
         }
 
@@ -57,6 +58,7 @@ public class GatewayRenderer : IShapeRenderer
         {
             Canvas.SetLeft(label, bounds.Left + (bounds.Width - label.Width) / 2);
             Canvas.SetTop(label, bounds.Top + bounds.Height * 1.1);
+            label.MouseDown += (s, e) => ShowGatewayDetails(gateway);
             _canvas.Children.Add(label);
         }
         
@@ -65,6 +67,7 @@ public class GatewayRenderer : IShapeRenderer
         {
             Canvas.SetLeft(note, bounds.Left + 5);
             Canvas.SetTop(note, bounds.Top - note.Height - 5);
+            note.MouseDown += (s, e) => ShowGatewayDetails(gateway);
             _canvas.Children.Add(note);
         }
     }
@@ -221,178 +224,6 @@ public class GatewayRenderer : IShapeRenderer
         
         detailWindow.Show();
         detailWindow.Activate();
-    }
-    
-    private UIElement CreateDetailContent(Gateway gateway)
-    {
-        var rootGrid = new Grid();
-        rootGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Note
-        rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); // Columns
-        rootGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Script
-
-        // ========== 1. Note Section ==========
-        var notePanel = new StackPanel { Margin = new Thickness(10) };
-        var noteTextBox = new TextBox
-        {
-            Text = ElementNotes.GetNote(gateway.Id) ?? "",
-            AcceptsReturn = true,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            Height = 40,
-            Margin = new Thickness(0, 0, 0, 5)
-        };
-        var saveButton = new Button
-        {
-            Content = "Save Note",
-            Margin = new Thickness(0, 5, 0, 5),
-            Padding = new Thickness(5)
-        };
-        saveButton.Click += (s, e) => 
-        {
-            ElementNotes.SetNote(gateway.Id, noteTextBox.Text);
-            RefreshGatewayVisual(gateway);
-        };
-        notePanel.Children.Add(new TextBlock { Text = "Gateway Note:", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 2) });
-        notePanel.Children.Add(noteTextBox);
-        notePanel.Children.Add(saveButton);
-        
-        Grid.SetRow(notePanel, 0);
-        rootGrid.Children.Add(notePanel);
-
-        // ========== 2. Columns Section (Standard & Camunda) ==========
-        var columnsGrid = new Grid();
-        columnsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        columnsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        
-        var stdPanel = new StackPanel { Margin = new Thickness(10, 0, 10, 0) };
-        var camPanel = new StackPanel { Margin = new Thickness(10, 0, 10, 0) };
-
-        // --- Standard Properties ---
-        AddProperty(stdPanel, "ID", gateway.Id ?? "null");
-        AddProperty(stdPanel, "Name", gateway.Name ?? "null");
-        AddProperty(stdPanel, "Type", gateway.GetType().Name);
-        AddProperty(stdPanel, "Direction", gateway.GatewayDirection?.ToString());
-
-        // Gateway Specific Logic
-        switch (gateway)
-        {
-            case ExclusiveGateway exclusive:
-                AddProperty(stdPanel, "Default Flow", exclusive.Default?.Id ?? "None");
-                break;
-            case InclusiveGateway inclusive:
-                AddProperty(stdPanel, "Default Flow", inclusive.Default?.Id ?? "None");
-                break;
-            case EventBasedGateway eventGateway:
-                AddProperty(stdPanel, "Instantiate", eventGateway.Instantiate?.ToString());
-                AddProperty(stdPanel, "Event Type", eventGateway.EventGatewayType?.ToString());
-                break;
-            case ComplexGateway complex:
-                string actCond = "Null";
-                if (complex.ActivationCondition is FormalExpression fe) actCond = fe.Body.Value;
-                else if (complex.ActivationCondition != null) actCond = complex.ActivationCondition.ToString();
-                
-                AddProperty(stdPanel, "Activation", actCond);
-                AddProperty(stdPanel, "Default Flow", complex.Default?.Id ?? "None");
-                break;
-            case ParallelGateway parallel:
-                var syncType = parallel.GatewayDirection switch
-                {
-                    GatewayDirection.Converging => "Join (Synchronization)",
-                    GatewayDirection.Diverging => "Split (Fork)",
-                    _ => "Mixed/Unknown"
-                };
-                AddProperty(stdPanel, "Sync Type", syncType);
-                break;
-        }
-
-        AddProperty(stdPanel, "Incoming", FormatConnections(gateway.Incoming));
-        AddProperty(stdPanel, "Outgoing", FormatConnections(gateway.Outgoing));
-        AddProperty(stdPanel, "Lanes", FormatLanes(gateway.Lanes));
-        
-        // Flow Analysis
-        AddProperty(stdPanel, "Flow Analysis", FormatFlowAnalysis(gateway));
-
-        // Extensions (Standard)
-        if (gateway.ExtensionDefinitions.Any() || gateway.ExtensionValues.Any())
-            AddProperty(stdPanel, "Extensions", FormatExtensions(gateway));
-
-        AddProperty(stdPanel, "Docs", FormatDocumentation(gateway.Documentation));
-
-        // --- Camunda Properties ---
-        AddProperty(camPanel, "Async Before", gateway.Camunda_asyncBefore?.ToString());
-        AddProperty(camPanel, "Async After", gateway.Camunda_asyncAfter?.ToString());
-        AddProperty(camPanel, "Exclusive", gateway.Camunda_exclusive?.ToString());
-        AddProperty(camPanel, "Job Priority", gateway.Camunda_jobPriority);
-        
-        // Generic Camunda Elements
-        AddProperty(camPanel, "Properties", FormatCamundaProperties(gateway));
-        AddProperty(camPanel, "Input/Output", FormatCamundaIO(gateway));
-        AddProperty(camPanel, "Fields", FormatCamundaFields(gateway));
-        AddProperty(camPanel, "Connectors", FormatConnectors(gateway));
-        AddProperty(camPanel, "Listeners", FormatListenersSummary(gateway)); 
-
-        Grid.SetColumn(stdPanel, 0);
-        Grid.SetColumn(camPanel, 1);
-        columnsGrid.Children.Add(stdPanel);
-        columnsGrid.Children.Add(camPanel);
-
-        var detailsScroll = new ScrollViewer { Content = columnsGrid, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
-        Grid.SetRow(detailsScroll, 1);
-        rootGrid.Children.Add(detailsScroll);
-
-        // ========== 3. Script/Code Section ==========
-        var scriptContent = ExtractScriptContent(gateway);
-        if (!string.IsNullOrWhiteSpace(scriptContent))
-        {
-            var scriptPanel = new StackPanel { Margin = new Thickness(10) };
-            scriptPanel.Children.Add(new TextBlock { Text = "Conditions / Scripts / Expressions:", FontWeight = FontWeights.Bold, Margin = new Thickness(0, 5, 0, 2) });
-            
-            var scriptBox = new TextBox
-            {
-                Text = scriptContent,
-                IsReadOnly = true,
-                FontFamily = new FontFamily("Consolas"),
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-                Height = 150,
-                AcceptsReturn = true
-            };
-            scriptPanel.Children.Add(scriptBox);
-            
-            Grid.SetRow(scriptPanel, 2);
-            rootGrid.Children.Add(scriptPanel);
-        }
-
-        return new Border { Padding = new Thickness(5), Child = rootGrid };
-    }
-
-    private void AddProperty(StackPanel panel, string label, string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value)) return;
-
-        var grid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-        var lbl = new TextBlock 
-        { 
-            Text = $"{label}:", 
-            FontWeight = FontWeights.Bold, 
-            VerticalAlignment = VerticalAlignment.Top,
-            TextWrapping = TextWrapping.Wrap
-        };
-        var val = new TextBlock 
-        { 
-            Text = value, 
-            FontFamily = new FontFamily("Consolas"), 
-            TextWrapping = TextWrapping.Wrap, 
-            VerticalAlignment = VerticalAlignment.Top 
-        };
-
-        Grid.SetColumn(lbl, 0);
-        Grid.SetColumn(val, 1);
-        grid.Children.Add(lbl);
-        grid.Children.Add(val);
-        panel.Children.Add(grid);
     }
     
     // --- Data Extraction Helpers ---
