@@ -10,16 +10,18 @@ public class BaseSimulator : IElementSimulator
     protected readonly TokenManager _tokenManager;
     protected readonly Dictionary<string, Rect> _objectBounds;
     protected readonly Dictionary<string, IEnumerable<Point>> _paths;
+    protected readonly SimulationActionList _actions;
     
-    public BaseSimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
+    public BaseSimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths, SimulationActionList actions)
     {
         _logger = logger;
         _tokenManager = tokenManager;
         _objectBounds = objectBounds;
         _paths = paths;
+        _actions = actions;
     }
 
-    public virtual void Evaluate(BPMNToken token, IList<SimulationAction> actions)
+    public virtual void Evaluate(BPMNToken token)
     {
         if (token?.CurrentElement == null)
         {
@@ -41,8 +43,8 @@ public class BaseSimulator : IElementSimulator
             if (target == null)
                 return;
 
-            actions.Add(new SetTokenWaitingAction(token, false));
-            actions.Add(new MoveTokenAction(token, target, flow));
+            _actions.AddAction(new SetTokenWaitingAction(token, false));
+            _actions.AddAction(new MoveTokenAction(token, target, flow));
             return;
         }
 
@@ -56,13 +58,13 @@ public class BaseSimulator : IElementSimulator
 
             if (first)
             {
-                actions.Add(new SetTokenWaitingAction(token, false));
-                actions.Add(new MoveTokenAction(token, target, flow));
+                _actions.AddAction(new SetTokenWaitingAction(token, false));
+                _actions.AddAction(new MoveTokenAction(token, target, flow));
                 first = false;
             }
             else
             {
-                actions.Add(new SplitTokenAction(token.CurrentElement, target, flow, token.Parent));
+                _actions.AddAction(new SplitTokenAction(token.CurrentElement, target, flow, token.Parent));
             }
         }
     }

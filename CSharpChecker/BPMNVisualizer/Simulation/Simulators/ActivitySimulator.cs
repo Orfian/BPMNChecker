@@ -6,39 +6,40 @@ namespace BPMNVisualizer.Simulation.Simulators;
 
 public class ActivitySimulator : BaseSimulator
 {
-    public ActivitySimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<System.Windows.Point>> paths) : base(logger, tokenManager, objectBounds, paths)
+    public ActivitySimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<System.Windows.Point>> paths, SimulationActionList actions)
+        : base(logger, tokenManager, objectBounds, paths, actions)
     {
     }
 
-    public override void Evaluate(BPMNToken token, IList<SimulationAction> actions)
+    public override void Evaluate(BPMNToken token)
     {
         if (token?.CurrentElement is not Activity activity)
         {
-            base.Evaluate(token, actions);
+            base.Evaluate(token);
             return;
         }
 
         switch (activity)
         {
             case SubProcess subProcess:
-                HandleSubProcess(token, subProcess, actions);
+                HandleSubProcess(token, subProcess);
                 break;
 
             case CallActivity callActivity:
-                HandleCallActivity(token, callActivity, actions);
+                HandleCallActivity(token, callActivity);
                 break;
 
             case SendTask sendTask:
-                HandleSendTask(token, sendTask, actions);
+                HandleSendTask(token, sendTask);
                 break;
 
             default:
-                base.Evaluate(token, actions);
+                base.Evaluate(token);
                 break;
         }
     }
 
-    private void HandleSubProcess(BPMNToken token, SubProcess subProcess, IList<SimulationAction> actions)
+    private void HandleSubProcess(BPMNToken token, SubProcess subProcess)
     {
         if (token.IsWaiting)
             return;
@@ -49,28 +50,28 @@ public class ActivitySimulator : BaseSimulator
 
         if (!startEvents.Any())
         {
-            base.Evaluate(token, actions);
+            base.Evaluate(token);
             return;
         }
 
-        actions.Add(new SetTokenWaitingAction(token, true));
+        _actions.AddAction(new SetTokenWaitingAction(token, true));
 
         foreach (var startEvent in startEvents)
         {
-            actions.Add(new SpawnTokenAction(startEvent, token));
+            _actions.AddAction(new SpawnTokenAction(startEvent, token));
         }
     }
     
-    private void HandleCallActivity(BPMNToken token, CallActivity callActivity, IList<SimulationAction> actions)
+    private void HandleCallActivity(BPMNToken token, CallActivity callActivity)
     {
-        base.Evaluate(token, actions);
+        base.Evaluate(token);
     }
 
-    private void HandleSendTask(BPMNToken token, SendTask sendTask, IList<SimulationAction> actions)
+    private void HandleSendTask(BPMNToken token, SendTask sendTask)
     {
         string messageName = sendTask.MessageRef?.Name ?? sendTask.Name ?? sendTask.Id ?? "UnknownMessage";
-        actions.Add(new SendMessageAction(token, messageName));
-        base.Evaluate(token, actions);
+        _actions.AddAction(new SendMessageAction(token, messageName));
+        base.Evaluate(token);
     }
 }
 

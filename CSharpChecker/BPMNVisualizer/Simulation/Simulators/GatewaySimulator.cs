@@ -9,15 +9,16 @@ public class GatewaySimulator : BaseSimulator
 {
     private readonly Dictionary<string, Dictionary<string, Queue<BPMNToken>>> _joinBuffers = new();
 
-    public GatewaySimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths) : base(logger, tokenManager, objectBounds, paths)
+    public GatewaySimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths, SimulationActionList actions)
+        : base(logger, tokenManager, objectBounds, paths, actions)
     {
     }
 
-    public override void Evaluate(BPMNToken token, IList<SimulationAction> actions)
+    public override void Evaluate(BPMNToken token)
     {
         if (token?.CurrentElement is not Gateway gateway)
         {
-            base.Evaluate(token, actions);
+            base.Evaluate(token);
             return;
         }
 
@@ -31,39 +32,39 @@ public class GatewaySimulator : BaseSimulator
         switch (gateway)
         {
             case ParallelGateway parallelGateway:
-                HandleParallelGateway(token, parallelGateway, outgoingFlows, actions);
+                HandleParallelGateway(token, parallelGateway, outgoingFlows);
                 break;
 
             case ExclusiveGateway exclusiveGateway:
-                HandleExclusiveGateway(token, exclusiveGateway, outgoingFlows, actions);
+                HandleExclusiveGateway(token, exclusiveGateway, outgoingFlows);
                 break;
 
             case InclusiveGateway inclusiveGateway:
-                HandleInclusiveGateway(token, inclusiveGateway, outgoingFlows, actions);
+                HandleInclusiveGateway(token, inclusiveGateway, outgoingFlows);
                 break;
 
             case ComplexGateway complexGateway:
-                HandleComplexGateway(token, complexGateway, outgoingFlows, actions);
+                HandleComplexGateway(token, complexGateway, outgoingFlows);
                 break;
 
             case EventBasedGateway eventBasedGateway:
-                HandleEventBasedGateway(token, eventBasedGateway, outgoingFlows, actions);
+                HandleEventBasedGateway(token, eventBasedGateway, outgoingFlows);
                 break;
 
             default:
-                base.Evaluate(token, actions);
+                base.Evaluate(token);
                 break;
         }
     }
 
-    private void HandleParallelGateway(BPMNToken token, ParallelGateway gateway, IEnumerable<SequenceFlow> outgoingFlows, IList<SimulationAction> actions)
+    private void HandleParallelGateway(BPMNToken token, ParallelGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
         var incomingFlows = _tokenManager.GetIncomingFlows(gateway);
         bool joining = incomingFlows.Count() > 1;
 
         if (!joining)
         {
-            base.Evaluate(token, actions);
+            base.Evaluate(token);
             return;
         }
 
@@ -83,7 +84,7 @@ public class GatewaySimulator : BaseSimulator
         if (!string.IsNullOrEmpty(incomingFlowId) && buffer.ContainsKey(incomingFlowId))
         {
             buffer[incomingFlowId].Enqueue(token);
-            actions.Add(new SetTokenWaitingAction(token, true));
+            _actions.AddAction(new SetTokenWaitingAction(token, true));
         }
 
         bool allTokensArrived = incomingFlows.All(flow => buffer.ContainsKey(flow.Id) && buffer[flow.Id].Count > 0);
@@ -97,12 +98,12 @@ public class GatewaySimulator : BaseSimulator
         {
             if (first)
             {
-                base.Evaluate(t, actions);
+                base.Evaluate(t);
                 first = false;
             }
             else
             {
-                actions.Add(new RemoveTokenAction(t));
+                _actions.AddAction(new RemoveTokenAction(t));
             }
         }
 
@@ -111,12 +112,12 @@ public class GatewaySimulator : BaseSimulator
         if (buffer.Count == 0) _joinBuffers.Remove(gateway.Id);
     }
 
-    private void HandleExclusiveGateway(BPMNToken token, ExclusiveGateway gateway, IEnumerable<SequenceFlow> outgoingFlows, IList<SimulationAction> actions)
+    private void HandleExclusiveGateway(BPMNToken token, ExclusiveGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
         /*
         if (outgoingFlows.Count() == 1)
         {
-            base.Evaluate(token, actions);
+            base.Evaluate(token);
             return;
         }
 
@@ -132,21 +133,21 @@ public class GatewaySimulator : BaseSimulator
         var targetElement = _tokenManager.GetTargetElement(selectedFlow);
         if (targetElement == null) return;
         
-        actions.Add(new MoveTokenAction(token, targetElement, selectedFlow));
+        _actions.AddAction(new MoveTokenAction(token, targetElement, selectedFlow));
         */
         
         if (outgoingFlows.Count() == 1)
         {
-            base.Evaluate(token, actions);
+            base.Evaluate(token);
             return;
         }
         
         if (token.IsWaiting)
             return;
 
-        actions.Add(new SetTokenWaitingAction(token, true));
+        _actions.AddAction(new SetTokenWaitingAction(token, true));
 
-        actions.Add(new RequestGatewayChoiceAction(
+        _actions.AddAction(new RequestGatewayChoiceAction(
             Token: token,
             Gateway: gateway,
             OutgoingFlows: outgoingFlows.ToList(),
@@ -154,40 +155,18 @@ public class GatewaySimulator : BaseSimulator
             DefaultFlow: gateway.Default
         ));
     }
-    
-    public void ResolveExclusiveGateway(BPMNToken token, ExclusiveGateway gateway, IEnumerable<SequenceFlow> selectedFlows, IList<SimulationAction> actions)
-    {
-        var selectedFlow = selectedFlows.FirstOrDefault();
-        if (selectedFlow == null)
-        {
-            actions.Add(new RequestGatewayChoiceAction(
-                Token: token,
-                Gateway: gateway,
-                OutgoingFlows: gateway.Outgoing,
-                MultiSelect: false,
-                DefaultFlow: gateway.Default
-            ));
-            return;
-        }
 
-        var targetElement = _tokenManager.GetTargetElement(selectedFlow);
-        if (targetElement == null) return;
-
-        actions.Add(new SetTokenWaitingAction(token, false));
-        actions.Add(new MoveTokenAction(token, targetElement, selectedFlow));
-    }
-
-    private void HandleInclusiveGateway(BPMNToken token, InclusiveGateway gateway, IEnumerable<SequenceFlow> outgoingFlows, IList<SimulationAction> actions)
+    private void HandleInclusiveGateway(BPMNToken token, InclusiveGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
         var incomingFlows = _tokenManager.GetIncomingFlows(gateway);
         bool joining = incomingFlows.Count() > 1;
 
         if (!joining)
         {
-            SplitInclusiveGateway(token, gateway, outgoingFlows, actions);
+            SplitInclusiveGateway(token, gateway, outgoingFlows);
             return;
         }
-
+        
         if (!_joinBuffers.TryGetValue(gateway.Id, out var buffer))
             _joinBuffers[gateway.Id] = buffer = new Dictionary<string, Queue<BPMNToken>>();
 
@@ -201,11 +180,14 @@ public class GatewaySimulator : BaseSimulator
         if (!string.IsNullOrEmpty(incomingFlowId) && buffer.ContainsKey(incomingFlowId))
         {
             buffer[incomingFlowId].Enqueue(token);
-            actions.Add(new SetTokenWaitingAction(token, true));
+            _actions.AddAction(new SetTokenWaitingAction(token, true));
         }
 
         bool allTokensArrived = incomingFlows.All(flow => buffer.ContainsKey(flow.Id) && buffer[flow.Id].Count > 0);
-
+        /*
+        if (token.IsWaiting)
+            return;
+        */
         if (!allTokensArrived)
         {
             allTokensArrived = true;
@@ -247,14 +229,15 @@ public class GatewaySimulator : BaseSimulator
         bool first = true;
         foreach (var t in tokensToJoin)
         {
+            t.IsEvaluated = true;
             if (first)
             {
-                SplitInclusiveGateway(t, gateway, outgoingFlows, actions);
+                SplitInclusiveGateway(t, gateway, outgoingFlows);
                 first = false;
             }
             else
             {
-                actions.Add(new RemoveTokenAction(t));
+                _actions.AddAction(new RemoveTokenAction(t));
             }
         }
 
@@ -263,7 +246,7 @@ public class GatewaySimulator : BaseSimulator
         if (buffer.Count == 0) _joinBuffers.Remove(gateway.Id);
     }
 
-    private void HandleComplexGateway(BPMNToken token, ComplexGateway gateway, IEnumerable<SequenceFlow> outgoingFlows, IList<SimulationAction> actions)
+    private void HandleComplexGateway(BPMNToken token, ComplexGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
         /*
         var choices = outgoingFlows.Select(f => f.Name ?? f.Id).ToList();
@@ -272,13 +255,13 @@ public class GatewaySimulator : BaseSimulator
         var selected = ShowMultiChoiceDialog("Complex Gateway", "Select outgoing flows:", choices);
         if (!selected.Any()) return;
 
-        SplitChoices(token, outgoingFlows, selected, actions);
+        SplitChoices(token, outgoingFlows, selected);
         */
         if (token.IsWaiting)
             return;
         
-        actions.Add(new SetTokenWaitingAction(token, true));
-        actions.Add(new RequestGatewayChoiceAction(
+        _actions.AddAction(new SetTokenWaitingAction(token, true));
+        _actions.AddAction(new RequestGatewayChoiceAction(
             Token: token,
             Gateway: gateway,
             OutgoingFlows: outgoingFlows.ToList(),
@@ -287,25 +270,7 @@ public class GatewaySimulator : BaseSimulator
         ));
     }
     
-    public void ResolveComplexGateway(BPMNToken token, ComplexGateway gateway, IEnumerable<SequenceFlow> selectedFlows, IList<SimulationAction> actions)
-    {
-        if (!selectedFlows.Any())
-        {
-            actions.Add(new RequestGatewayChoiceAction(
-                Token: token,
-                Gateway: gateway,
-                OutgoingFlows: gateway.Outgoing,
-                MultiSelect: true,
-                DefaultFlow: gateway.Default
-            ));
-            return;
-        }
-        
-        actions.Add(new SetTokenWaitingAction(token, false));
-        SplitChoices(token, selectedFlows, selectedFlows.Select(f => f.Name ?? f.Id), actions);
-    }
-    
-    private void HandleEventBasedGateway(BPMNToken token, EventBasedGateway gateway, IEnumerable<SequenceFlow> outgoingFlows, IList<SimulationAction> actions)
+    private void HandleEventBasedGateway(BPMNToken token, EventBasedGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
         /*
         var choices = outgoingFlows.Select(f => f.Name ?? f.Id).ToList();
@@ -314,13 +279,13 @@ public class GatewaySimulator : BaseSimulator
         var selected = ShowChoiceDialog("Event-Based Gateway", "Which event occurred?", choices);
         if (selected == null) return;
 
-        SplitChoices(token, outgoingFlows, new List<string> { selected }, actions);
+        SplitChoices(token, outgoingFlows, new List<string> { selected });
         */
         if (token.IsWaiting)
             return;
         
-        actions.Add(new SetTokenWaitingAction(token, true));
-        actions.Add(new RequestGatewayChoiceAction(
+        _actions.AddAction(new SetTokenWaitingAction(token, true));
+        _actions.AddAction(new RequestGatewayChoiceAction(
             Token: token,
             Gateway: gateway,
             OutgoingFlows: outgoingFlows.ToList(),
@@ -328,31 +293,13 @@ public class GatewaySimulator : BaseSimulator
             DefaultFlow: null
         ));
     }
-    
-    public void ResolveEventBasedGateway(BPMNToken token, EventBasedGateway gateway, IEnumerable<SequenceFlow> selectedFlows, IList<SimulationAction> actions)
-    {
-        if (!selectedFlows.Any())
-        {
-            actions.Add(new RequestGatewayChoiceAction(
-                Token: token,
-                Gateway: gateway,
-                OutgoingFlows: gateway.Outgoing,
-                MultiSelect: true,
-                DefaultFlow: null
-            ));
-            return;
-        }
 
-        actions.Add(new SetTokenWaitingAction(token, false));
-        SplitChoices(token, selectedFlows, selectedFlows.Select(f => f.Name ?? f.Id), actions);
-    }
-
-    private void SplitInclusiveGateway(BPMNToken token, InclusiveGateway gateway, IEnumerable<SequenceFlow> outgoingFlows, IList<SimulationAction> actions)
+    private void SplitInclusiveGateway(BPMNToken token, InclusiveGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
         /*
         if (outgoingFlows.Count() == 1)
         {
-            base.Evaluate(token, actions);
+            base.Evaluate(token);
             return;
         }
 
@@ -368,20 +315,17 @@ public class GatewaySimulator : BaseSimulator
         var selectedChoices = ShowMultiChoiceDialog("Inclusive Gateway", "Select one or more outgoing flows:", choices, defaultOption);
         if (!selectedChoices.Any()) return;
 
-        SplitChoices(token, outgoingFlows, selectedChoices, actions);
+        SplitChoices(token, outgoingFlows, selectedChoices);
         */
         
         if (outgoingFlows.Count() == 1)
         {
-            base.Evaluate(token, actions);
+            base.Evaluate(token);
             return;
         }
         
-        if (token.IsWaiting)
-            return;
-        
-        actions.Add(new SetTokenWaitingAction(token, true));
-        actions.Add(new RequestGatewayChoiceAction(
+        _actions.AddAction(new SetTokenWaitingAction(token, true));
+        _actions.AddAction(new RequestGatewayChoiceAction(
             Token: token,
             Gateway: token.CurrentElement as Gateway,
             OutgoingFlows: outgoingFlows.ToList(),
@@ -390,15 +334,73 @@ public class GatewaySimulator : BaseSimulator
         ));
     }
     
-    public void ResolveInclusiveGateway(BPMNToken token, InclusiveGateway gateway, IEnumerable<SequenceFlow> selectedFlows, IList<SimulationAction> actions)
+    public void ResolveExclusiveGateway(BPMNToken token, ExclusiveGateway gateway, IEnumerable<SequenceFlow> selectedFlows)
+    {
+        var selectedFlow = selectedFlows.FirstOrDefault();
+        if (selectedFlow == null)
+        {
+            _actions.AddAction(new RequestGatewayChoiceAction(
+                Token: token,
+                Gateway: gateway,
+                OutgoingFlows: gateway.Outgoing,
+                MultiSelect: false,
+                DefaultFlow: gateway.Default
+            ));
+            return;
+        }
+
+        var targetElement = _tokenManager.GetTargetElement(selectedFlow);
+        if (targetElement == null) return;
+
+        _actions.AddAction(new SetTokenWaitingAction(token, false));
+        _actions.AddAction(new MoveTokenAction(token, targetElement, selectedFlow));
+    }
+
+    public void ResolveInclusiveGateway(BPMNToken token, InclusiveGateway gateway, IEnumerable<SequenceFlow> selectedFlows)
     {
         if (!selectedFlows.Any()) return;
 
-        actions.Add(new SetTokenWaitingAction(token, false));
-        SplitChoices(token, selectedFlows, selectedFlows.Select(f => f.Name ?? f.Id), actions);
+        _actions.AddAction(new SetTokenWaitingAction(token, false));
+        SplitChoices(token, selectedFlows, selectedFlows.Select(f => f.Name ?? f.Id));
     }
+
+    public void ResolveComplexGateway(BPMNToken token, ComplexGateway gateway, IEnumerable<SequenceFlow> selectedFlows)
+    {
+        if (!selectedFlows.Any())
+        {
+            _actions.AddAction(new RequestGatewayChoiceAction(
+                Token: token,
+                Gateway: gateway,
+                OutgoingFlows: gateway.Outgoing,
+                MultiSelect: true,
+                DefaultFlow: gateway.Default
+            ));
+            return;
+        }
     
-    private void SplitChoices(BPMNToken token, IEnumerable<SequenceFlow> outgoingFlows, IEnumerable<string> selectedChoices, IList<SimulationAction> actions)
+        _actions.AddAction(new SetTokenWaitingAction(token, false));
+        SplitChoices(token, selectedFlows, selectedFlows.Select(f => f.Name ?? f.Id));
+    }
+
+    public void ResolveEventBasedGateway(BPMNToken token, EventBasedGateway gateway, IEnumerable<SequenceFlow> selectedFlows)
+    {
+        if (!selectedFlows.Any())
+        {
+            _actions.AddAction(new RequestGatewayChoiceAction(
+                Token: token,
+                Gateway: gateway,
+                OutgoingFlows: gateway.Outgoing,
+                MultiSelect: true,
+                DefaultFlow: null
+            ));
+            return;
+        }
+
+        _actions.AddAction(new SetTokenWaitingAction(token, false));
+        SplitChoices(token, selectedFlows, selectedFlows.Select(f => f.Name ?? f.Id));
+    }
+
+    private void SplitChoices(BPMNToken token, IEnumerable<SequenceFlow> outgoingFlows, IEnumerable<string> selectedChoices)
     {
         var originalElement = token.CurrentElement;
         bool first = true;
@@ -413,71 +415,12 @@ public class GatewaySimulator : BaseSimulator
 
             if (first)
             {
-                actions.Add(new MoveTokenAction(token, target, flow));
+                _actions.AddAction(new MoveTokenAction(token, target, flow));
                 first = false;
             }
             else
             {
-                actions.Add(new SplitTokenAction(originalElement, target, flow, token.Parent));
-            }
-        }
-    }
-    
-    public void UpdatePendingChoices(Indicator triggerIndicator, GatewayChoice gatewayChoice)
-    {
-        if (triggerIndicator.Selected && gatewayChoice.Gateway is not ComplexGateway && gatewayChoice.Gateway is not EventBasedGateway)
-        {
-            bool selected = false;
-            foreach (var indicator in gatewayChoice.Indicators)
-            {
-                if (indicator.Selected && indicator != triggerIndicator)
-                {
-                    selected = true;
-                    break;
-                }
-            }
-
-            if (!selected)
-                return;
-        }
-        
-        triggerIndicator.Selected = !triggerIndicator.Selected;
-        _tokenManager.SetIndicatorColor(triggerIndicator.Visual, triggerIndicator.Selected);
-        
-        if (!gatewayChoice.MultiSelect)
-        {
-            foreach (var indicator in gatewayChoice.Indicators)
-            {
-                if (indicator != triggerIndicator && indicator.Selected)
-                {
-                    indicator.Selected = false;
-                    _tokenManager.SetIndicatorColor(indicator.Visual, false);
-                }
-            }
-        }
-        else if (gatewayChoice.DefaultFlow != null)
-        {
-            var defaultIndicator = gatewayChoice.Indicators
-                .FirstOrDefault(ind => ind.Flow == gatewayChoice.DefaultFlow);
-            
-            if (defaultIndicator == null)
-                return;
-            
-            if (triggerIndicator.Flow == defaultIndicator.Flow)
-            {
-                foreach (var indicator in gatewayChoice.Indicators)
-                {
-                    if (indicator != triggerIndicator && indicator.Selected)
-                    {
-                        indicator.Selected = false;
-                        _tokenManager.SetIndicatorColor(indicator.Visual, false);
-                    }
-                }
-            }
-            else
-            {
-                defaultIndicator.Selected = false;
-                _tokenManager.SetIndicatorColor(defaultIndicator.Visual, false);
+                _actions.AddAction(new SplitTokenAction(originalElement, target, flow, token.Parent));
             }
         }
     }

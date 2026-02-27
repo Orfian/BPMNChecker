@@ -8,34 +8,35 @@ namespace BPMNVisualizer.Simulation.Simulators;
 
 public class EventSimulator : BaseSimulator
 {
-    public EventSimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<System.Windows.Point>> paths) : base(logger, tokenManager, objectBounds, paths)
+    public EventSimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<System.Windows.Point>> paths, SimulationActionList actions)
+        : base(logger, tokenManager, objectBounds, paths, actions)
     {
     }
 
-    public override void Evaluate(BPMNToken token, IList<SimulationAction> actions)
+    public override void Evaluate(BPMNToken token)
     {
         if (token?.CurrentElement is not Event evt)
         {
-            base.Evaluate(token, actions);
+            base.Evaluate(token);
             return;
         }
 
         switch (evt)
         {
             case StartEvent start:
-                HandleStartEvent(token, start, actions);
+                HandleStartEvent(token, start);
                 break;
 
             case EndEvent end:
-                HandleEndEvent(token, end, actions);
+                HandleEndEvent(token, end);
                 break;
 
             case IntermediateCatchEvent catchEvent:
-                HandleIntermediateCatchEvent(token, catchEvent, actions);
+                HandleIntermediateCatchEvent(token, catchEvent);
                 break;
 
             case IntermediateThrowEvent throwEvent:
-                HandleIntermediateThrowEvent(token, throwEvent, actions);
+                HandleIntermediateThrowEvent(token, throwEvent);
                 break;
 
             default:
@@ -46,30 +47,30 @@ public class EventSimulator : BaseSimulator
         }
     }
 
-    private void HandleStartEvent(BPMNToken token, StartEvent start, IList<SimulationAction> actions)
+    private void HandleStartEvent(BPMNToken token, StartEvent start)
     {
-        base.Evaluate(token, actions);
+        base.Evaluate(token);
     }
 
-    private void HandleEndEvent(BPMNToken token, EndEvent end, IList<SimulationAction> actions)
+    private void HandleEndEvent(BPMNToken token, EndEvent end)
     {
         var messageDef = end.EventDefinitions.OfType<MessageEventDefinition>().FirstOrDefault();
         if (messageDef != null)
         {
             var messageName = messageDef.MessageRef?.Name ?? end.Name ?? end.Id ?? "UnknownMessage";
-            actions.Add(new SendMessageAction(token, messageName));
+            _actions.AddAction(new SendMessageAction(token, messageName));
         }
 
         var signalDef = end.EventDefinitions.OfType<SignalEventDefinition>().FirstOrDefault();
         if (signalDef != null)
         {
             var signalName = signalDef.SignalRef?.Name ?? end.Name ?? end.Id ?? "UnknownSignal";
-            actions.Add(new SendSignalAction(token, signalName));
+            _actions.AddAction(new SendSignalAction(token, signalName));
         }
 
         var parent = token.Parent;
 
-        actions.Add(new RemoveTokenAction(token));
+        _actions.AddAction(new RemoveTokenAction(token));
         
         var allTokens = _tokenManager.GetAllTokens();
 
@@ -81,8 +82,8 @@ public class EventSimulator : BaseSimulator
 
             if (!siblings.Any())
             {
-                actions.Add(new SetTokenWaitingAction(parent, false));
-                base.Evaluate(parent, actions);
+                _actions.AddAction(new SetTokenWaitingAction(parent, false));
+                base.Evaluate(parent);
             }
         }
         
@@ -92,112 +93,112 @@ public class EventSimulator : BaseSimulator
         }
     }
 
-    private void HandleIntermediateCatchEvent(BPMNToken token, IntermediateCatchEvent catchEvent, IList<SimulationAction> actions)
+    private void HandleIntermediateCatchEvent(BPMNToken token, IntermediateCatchEvent catchEvent)
     {
         var eventDefinition = catchEvent.EventDefinitions.FirstOrDefault();
         
         switch (eventDefinition)
         {
             case MessageEventDefinition messageDef:
-                HandleMessageCatchEvent(token, messageDef, actions);
+                HandleMessageCatchEvent(token, messageDef);
                 break;
             case TimerEventDefinition timerDef:
-                HandleTimerCatchEvent(token, timerDef, actions);
+                HandleTimerCatchEvent(token, timerDef);
                 break;
             case ConditionalEventDefinition condDef:
-                HandleConditionalCatchEvent(token, condDef, actions);
+                HandleConditionalCatchEvent(token, condDef);
                 break;
             case SignalEventDefinition signalDef:
-                HandleSignalCatchEvent(token, signalDef, actions);
+                HandleSignalCatchEvent(token, signalDef);
                 break;
             default:
-                base.Evaluate(token, actions);
+                base.Evaluate(token);
                 break;
         }
     }
     
-    private void HandleIntermediateThrowEvent(BPMNToken token, IntermediateThrowEvent throwEvent, IList<SimulationAction> actions)
+    private void HandleIntermediateThrowEvent(BPMNToken token, IntermediateThrowEvent throwEvent)
     {
         var messageDef = throwEvent.EventDefinitions.OfType<MessageEventDefinition>().FirstOrDefault();
         if (messageDef != null)
         {
             var messageName = messageDef.MessageRef?.Name ?? throwEvent.Name ?? throwEvent.Id ?? "UnknownMessage";
-            actions.Add(new SendMessageAction(token, messageName));
+            _actions.AddAction(new SendMessageAction(token, messageName));
         }
 
         var signalDef = throwEvent.EventDefinitions.OfType<SignalEventDefinition>().FirstOrDefault();
         if (signalDef != null)
         {
             var signalName = signalDef.SignalRef?.Name ?? throwEvent.Name ?? throwEvent.Id ?? "UnknownSignal";
-            actions.Add(new SendSignalAction(token, signalName));
+            _actions.AddAction(new SendSignalAction(token, signalName));
         }
 
-        base.Evaluate(token, actions);
+        base.Evaluate(token);
     }
     
-    private void HandleMessageStartEvent(BPMNToken token, MessageEventDefinition messageDef, IList<SimulationAction> actions)
+    private void HandleMessageStartEvent(BPMNToken token, MessageEventDefinition messageDef)
     {
-        base.Evaluate(token, actions);
+        base.Evaluate(token);
     }
     
-    private void HandleTimerStartEvent(BPMNToken token, TimerEventDefinition timerDef, IList<SimulationAction> actions)
+    private void HandleTimerStartEvent(BPMNToken token, TimerEventDefinition timerDef)
     {
-        base.Evaluate(token, actions);
+        base.Evaluate(token);
     }
     
-    private void HandleConditionalStartEvent(BPMNToken token, ConditionalEventDefinition condDef, IList<SimulationAction> actions)
+    private void HandleConditionalStartEvent(BPMNToken token, ConditionalEventDefinition condDef)
     {
-        base.Evaluate(token, actions);
+        base.Evaluate(token);
     }
     
-    private void HandleSignalStartEvent(BPMNToken token, SignalEventDefinition signalDef, IList<SimulationAction> actions)
+    private void HandleSignalStartEvent(BPMNToken token, SignalEventDefinition signalDef)
     {
-        base.Evaluate(token, actions);
+        base.Evaluate(token);
     }
     
-    private void HandleMessageCatchEvent(BPMNToken token, MessageEventDefinition messageDef, IList<SimulationAction> actions)
-    {
-        if (token.IsWaiting)
-            return;
-        
-        actions.Add(new SetTokenWaitingAction(token, true));
-        actions.Add(new EventDelayAction(token, token.CurrentElement as Event));
-    }
-    
-    private void HandleTimerCatchEvent(BPMNToken token, TimerEventDefinition timerDef, IList<SimulationAction> actions)
+    private void HandleMessageCatchEvent(BPMNToken token, MessageEventDefinition messageDef)
     {
         if (token.IsWaiting)
             return;
         
-        actions.Add(new SetTokenWaitingAction(token, true));
-        actions.Add(new EventDelayAction(token, token.CurrentElement as Event));
+        _actions.AddAction(new SetTokenWaitingAction(token, true));
+        _actions.AddAction(new EventDelayAction(token, token.CurrentElement as Event));
     }
     
-    private void HandleConditionalCatchEvent(BPMNToken token, ConditionalEventDefinition condDef, IList<SimulationAction> actions)
+    private void HandleTimerCatchEvent(BPMNToken token, TimerEventDefinition timerDef)
     {
         if (token.IsWaiting)
             return;
         
-        actions.Add(new SetTokenWaitingAction(token, true));
-        actions.Add(new EventDelayAction(token, token.CurrentElement as Event));
+        _actions.AddAction(new SetTokenWaitingAction(token, true));
+        _actions.AddAction(new EventDelayAction(token, token.CurrentElement as Event));
     }
     
-    private void HandleSignalCatchEvent(BPMNToken token, SignalEventDefinition signalDef, IList<SimulationAction> actions)
+    private void HandleConditionalCatchEvent(BPMNToken token, ConditionalEventDefinition condDef)
     {
         if (token.IsWaiting)
             return;
         
-        actions.Add(new SetTokenWaitingAction(token, true));
-        actions.Add(new EventDelayAction(token, token.CurrentElement as Event));
+        _actions.AddAction(new SetTokenWaitingAction(token, true));
+        _actions.AddAction(new EventDelayAction(token, token.CurrentElement as Event));
     }
     
-    public void ResolveEventDelay(BPMNToken token, Polygon indicator, IList<SimulationAction> actions)
+    private void HandleSignalCatchEvent(BPMNToken token, SignalEventDefinition signalDef)
+    {
+        if (token.IsWaiting)
+            return;
+        
+        _actions.AddAction(new SetTokenWaitingAction(token, true));
+        _actions.AddAction(new EventDelayAction(token, token.CurrentElement as Event));
+    }
+    
+    public void ResolveEventDelay(BPMNToken token, Polygon indicator)
     {
         _tokenManager.RemoveChoiceIndicator(indicator);
-        base.Evaluate(token, actions);
+        base.Evaluate(token);
     }
     
-    public void SpawnStartEventIndicator(StartEvent startEvent, BPMNToken? parentToken, IList<SimulationAction> actions)
+    public void SpawnStartEventIndicator(StartEvent startEvent, BPMNToken? parentToken)
     {
         if (_objectBounds.TryGetValue(startEvent.Id, out var bounds))
         {

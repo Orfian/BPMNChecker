@@ -5,6 +5,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using BPMNModel;
 using BPMNModel.Model;
+using BPMNVisualizer.Utility;
 using Point = System.Windows.Point;
 
 namespace BPMNVisualizer.Simulation;
@@ -252,6 +253,49 @@ public class TokenManager
         return triangle;
     }
     
+    public void ShowGatewayChoiceIndicators(GatewayChoice gatewayChoice, Dictionary<string, IEnumerable<Point>> paths)
+    {
+        if (gatewayChoice.OutgoingFlows == null) return;
+
+        foreach (var flow in gatewayChoice.OutgoingFlows)
+        {
+            if (flow.Id == null || !paths.TryGetValue(flow.Id, out var path))
+                continue;
+            
+            var points = path?.ToList();
+            if (points == null || points.Count < 2) continue;
+
+            var first = points.First();
+            var second = points.Skip(1).FirstOrDefault();
+            var direction = Helpers.GetDirection(first, second);
+            var triangle = AddArrowIndicator(first, direction);
+            
+            var indicator = new Indicator
+            {
+                Visual = triangle,
+                Flow = flow,
+                Selected = false
+            };
+            
+            gatewayChoice.Indicators.Add(indicator);
+            
+            triangle.MouseDown += (s, e) =>
+            {
+                UpdatePendingChoices(indicator, gatewayChoice);
+            };
+            
+            triangle.MouseEnter += (s, e) =>
+            {
+                SetHoverIndicatorColor(triangle, indicator.Selected, true);
+            };
+            
+            triangle.MouseLeave += (s, e) =>
+            {
+                SetHoverIndicatorColor(triangle, indicator.Selected, false);
+            };
+        }
+    }
+    
     public Polygon SetIndicatorColor(Polygon indicator, bool selected)
     {
         var newColor = selected ? Brushes.LawnGreen : Brushes.Yellow;
@@ -275,5 +319,65 @@ public class TokenManager
     public void RemoveChoiceIndicator(Polygon indicator)
     {
         _canvas.Children.Remove(indicator);
+    }
+    
+        
+    public void UpdatePendingChoices(Indicator triggerIndicator, GatewayChoice gatewayChoice)
+    {
+        if (triggerIndicator.Selected && gatewayChoice.Gateway is not ComplexGateway && gatewayChoice.Gateway is not EventBasedGateway)
+        {
+            bool selected = false;
+            foreach (var indicator in gatewayChoice.Indicators)
+            {
+                if (indicator.Selected && indicator != triggerIndicator)
+                {
+                    selected = true;
+                    break;
+                }
+            }
+
+            if (!selected)
+                return;
+        }
+        
+        triggerIndicator.Selected = !triggerIndicator.Selected;
+        SetIndicatorColor(triggerIndicator.Visual, triggerIndicator.Selected);
+        
+        if (!gatewayChoice.MultiSelect)
+        {
+            foreach (var indicator in gatewayChoice.Indicators)
+            {
+                if (indicator != triggerIndicator && indicator.Selected)
+                {
+                    indicator.Selected = false;
+                    SetIndicatorColor(indicator.Visual, false);
+                }
+            }
+        }
+        else if (gatewayChoice.DefaultFlow != null)
+        {
+            var defaultIndicator = gatewayChoice.Indicators
+                .FirstOrDefault(ind => ind.Flow == gatewayChoice.DefaultFlow);
+            
+            if (defaultIndicator == null)
+                return;
+            
+            if (triggerIndicator.Flow == defaultIndicator.Flow)
+            {
+                foreach (var indicator in gatewayChoice.Indicators)
+                {
+                    if (indicator != triggerIndicator && indicator.Selected)
+                    {
+                        indicator.Selected = false;
+                        SetIndicatorColor(indicator.Visual, false);
+                    }
+                }
+            }
+            else
+            {
+                defaultIndicator.Selected = false;
+                SetIndicatorColor(defaultIndicator.Visual, false);
+            }
+        }
     }
 }
