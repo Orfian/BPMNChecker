@@ -11,32 +11,34 @@ namespace BPMNVisualizer.Visualization.Renderers;
 
 public class DataRenderer : IShapeRenderer
 {
-    private readonly ILogger _logger;
+    private readonly SharedVariables _vars;
+    /*
+    private readonly ILogger _vars.Logger;
+    private readonly Dictionary<string, Rect> _vars.ObjectBounds;
+*/
     private readonly Canvas _canvas;
     private readonly BrushManager _brushManager;
     private readonly ShapeManager _shapeManager;
     private readonly SvgResourceManager _svgResourceManager;
-    private readonly Dictionary<string, Rect> _objectBounds;
     private readonly Dictionary<string, FrameworkElement> _dataNotes = new();
 
-    public DataRenderer(ILogger logger, Canvas canvas, BrushManager brushManager, ShapeManager shapeManager, SvgResourceManager svgResourceManager, Dictionary<string, Rect> objectBounds)
+    public DataRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager, SvgResourceManager svgResourceManager)
     {
-        _logger = logger;
+        _vars = SharedVariables.Instance;
         _canvas = canvas;
         _brushManager = brushManager;
         _shapeManager = shapeManager;
         _svgResourceManager = svgResourceManager;
-        _objectBounds = objectBounds;
     }
 
     public void RenderShape(BaseElement element, Rect bounds)
     {
         if (element is not DataInput and not DataOutput and not DataStoreReference and not DataObject)
         {
-            _logger.Warning("DataRenderer received unsupported element type: {ElementType}", element.GetType());
+            _vars.Logger.Warning("DataRenderer received unsupported element type: {ElementType}", element.GetType());
             return;
         }
-        _objectBounds[element.Id] = bounds;
+        _vars.ObjectBounds[element.Id] = bounds;
         var shape = DrawElement(element, bounds);
         shape.MouseDown += (s, e) => ShowDataDetails(element);
         Canvas.SetLeft(shape, bounds.Left);
@@ -56,7 +58,7 @@ public class DataRenderer : IShapeRenderer
         var icon = _svgResourceManager.GetDataIcon(dataElement);
         if (icon == null)
         {
-            _logger.Warning("No icon found for data element type: {DataElementType}", dataElement);
+            _vars.Logger.Warning("No icon found for data element type: {DataElementType}", dataElement);
             return null;
         }
         return _shapeManager.WrapInContainer(icon, bounds);
@@ -128,12 +130,12 @@ public class DataRenderer : IShapeRenderer
     private void RefreshDataNote(BaseElement dataElement)
     {
         if (_dataNotes.TryGetValue(dataElement.Id, out var existingNote)) _canvas.Children.Remove(existingNote);
-        var note = DrawNote(dataElement, _objectBounds[dataElement.Id]);
+        var note = DrawNote(dataElement, _vars.ObjectBounds[dataElement.Id]);
         if (note != null) {
             note.Tag = $"{dataElement.Id}_note";
             _dataNotes[dataElement.Id] = note;
-            Canvas.SetLeft(note, _objectBounds[dataElement.Id].Left + 5);
-            Canvas.SetTop(note, _objectBounds[dataElement.Id].Top - 20);
+            Canvas.SetLeft(note, _vars.ObjectBounds[dataElement.Id].Left + 5);
+            Canvas.SetTop(note, _vars.ObjectBounds[dataElement.Id].Top - 20);
             _canvas.Children.Add(note);
         }
     }

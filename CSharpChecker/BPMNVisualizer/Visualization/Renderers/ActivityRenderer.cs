@@ -1,45 +1,42 @@
 ﻿using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using BPMNModel.Camunda;
 using BPMNModel.Model;
 using BPMNVisualizer.Utilities;
 using BPMNVisualizer.Utility;
-using Serilog;
 using Task = BPMNModel.Model.Task;
 
 namespace BPMNVisualizer.Visualization.Renderers;
 
 public class ActivityRenderer : IShapeRenderer
 {
-    private readonly ILogger _logger;
+    private readonly SharedVariables _vars;
+    
     private readonly Canvas _canvas;
     private readonly BrushManager _brushManager;
     private readonly ShapeManager _shapeManager;
     private readonly SvgResourceManager _svgResourceManager;
-    private readonly Dictionary<string, Rect> _objectBounds;
+    
     private readonly Dictionary<string, FrameworkElement> _activityNotes = new();
-    private readonly Dictionary<string, BPMNShape> _shapes;
 
-    public ActivityRenderer(ILogger logger, Canvas canvas, BrushManager brushManager, ShapeManager shapeManager,
-        SvgResourceManager svgResourceManager, Dictionary<string, Rect> objectBounds, Dictionary<string, BPMNShape> shapes)
+    public ActivityRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager, SvgResourceManager svgResourceManager)
     {
-        _logger = logger;
+        _vars = SharedVariables.Instance;
         _canvas = canvas;
         _brushManager = brushManager;
         _shapeManager = shapeManager;
         _svgResourceManager = svgResourceManager;
-        _objectBounds = objectBounds;
-        _shapes = shapes;
     }
-
+    
     public void RenderShape(BaseElement element, Rect bounds)
     {
         if (element is not Activity activity) return;
         
-        _objectBounds[activity.Id] = bounds;
+        _vars.ObjectBounds[activity.Id] = bounds;
 
         var shape = DrawElement(activity, bounds);
         
@@ -55,7 +52,18 @@ public class ActivityRenderer : IShapeRenderer
             };
         }
         
-        shape.MouseDown += (s, e) => ShowActivityDetails(activity);
+        shape.MouseDown += (s, e) =>
+        {
+            if (e.RightButton == MouseButtonState.Pressed && IsCollapsedSubProcess(activity))
+            {
+                OpenCollapsedSubProcess(activity);
+                e.Handled = true;
+            }
+            else
+            {
+                ShowActivityDetails(activity);
+            }
+        };
 
         Canvas.SetLeft(shape, bounds.Left);
         Canvas.SetTop(shape, bounds.Top);
@@ -124,7 +132,7 @@ public class ActivityRenderer : IShapeRenderer
         var icon = _svgResourceManager.GetTaskIcon(task);
         if (icon == null)
         {
-            _logger.Warning("No icon found for task type: {TaskType}", task.GetType());
+            _vars.Logger.Warning("No icon found for task type: {TaskType}", task.GetType());
             return null;
         }
         return _shapeManager.WrapInContainer(icon, bounds, 0.40);
@@ -156,7 +164,7 @@ public class ActivityRenderer : IShapeRenderer
             }
         }
 
-        _shapes.TryGetValue(activity.Id, out var bpmnShape);
+        _vars.Shapes.TryGetValue(activity.Id, out var bpmnShape);
         if (activity is SubProcess && bpmnShape?.IsExpanded == false)
             AddMarker("SubProcess", markers, bounds);
         if (activity is AdHocSubProcess) AddMarker("AdHoc", markers, bounds);
@@ -174,7 +182,7 @@ public class ActivityRenderer : IShapeRenderer
         var marker = _svgResourceManager.GetMarker(markerType);
         if (marker == null)
         {
-            _logger.Warning("Marker icon not found: {MarkerType}", markerType);
+            _vars.Logger.Warning("Marker icon not found: {MarkerType}", markerType);
             return;
         }
 
@@ -188,7 +196,7 @@ public class ActivityRenderer : IShapeRenderer
         var text = activity.Name;
         if (string.IsNullOrEmpty(text))
         {
-            _logger.Warning("No label found for activity type: {ActivityType}", activity.GetType());
+            _vars.Logger.Warning("No label found for activity type: {ActivityType}", activity.GetType());
             return null;
         }
 
@@ -582,6 +590,51 @@ public class ActivityRenderer : IShapeRenderer
         return "";
     }
 
+    private bool IsCollapsedSubProcess(Activity activity)
+    {
+        if (activity is not SubProcess) return false;
+        _vars.Shapes.TryGetValue(activity.Id, out var bpmnShape);
+        return bpmnShape?.IsExpanded == false;
+    }
+
+    private void OpenCollapsedSubProcess(Activity activity)
+    {
+        if (activity is not SubProcess subProcess) return;
+
+        // Look for a separate BPMNDiagram whose plane references this sub-process
+        var subDiagram = _vars.Model.Definition?.Diagrams
+            .FirstOrDefault(d => d.Plane?.BpmnElement?.Id == subProcess.Id);
+
+        if (subDiagram?.Plane != null)
+        {
+            var window = new SubProcessWindow()
+            {
+                Owner = Application.Current.MainWindow,
+                Title = $"Sub-Process: {subProcess.Name ?? subProcess.Id}",
+            };
+            window.RenderSubProcess(subDiagram);
+            window.Show();
+        }
+        else if (subProcess.FlowElements.Any())
+        {
+            // No separate diagram exists but the sub-process has flow elements.
+            // Show a message that diagram info is not available.
+            MessageBox.Show(
+                $"The sub-process \"{subProcess.Name ?? subProcess.Id}\" contains {subProcess.FlowElements.Count} flow element(s) but has no separate diagram defined for visualization.",
+                "Sub-Process Contents",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        else
+        {
+            MessageBox.Show(
+                $"The sub-process \"{subProcess.Name ?? subProcess.Id}\" is empty.",
+                "Sub-Process Contents",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+    }
+
     private void RefreshActivityVisual(Activity activity)
     {
         RefreshActivityNote(activity);
@@ -591,13 +644,13 @@ public class ActivityRenderer : IShapeRenderer
     private void RefreshActivityNote(Activity activity)
     {
         if (_activityNotes.TryGetValue(activity.Id, out var existingNote)) _canvas.Children.Remove(existingNote);
-        var note = DrawNote(activity, _objectBounds[activity.Id]);
+        var note = DrawNote(activity, _vars.ObjectBounds[activity.Id]);
         if (note != null)
         {
             note.Tag = $"{activity.Id}_note";
             _activityNotes[activity.Id] = note;
-            Canvas.SetLeft(note, _objectBounds[activity.Id].Left + 5);
-            Canvas.SetTop(note, _objectBounds[activity.Id].Top - 20);
+            Canvas.SetLeft(note, _vars.ObjectBounds[activity.Id].Left + 5);
+            Canvas.SetTop(note, _vars.ObjectBounds[activity.Id].Top - 20);
             _canvas.Children.Add(note);
         }
     }

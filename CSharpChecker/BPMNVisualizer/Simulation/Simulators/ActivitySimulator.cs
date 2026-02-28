@@ -1,13 +1,12 @@
-﻿using System.Windows;
-using BPMNModel.Model;
-using Serilog;
+﻿using BPMNModel.Model;
+using BPMNVisualizer.Utility;
 
 namespace BPMNVisualizer.Simulation.Simulators;
 
 public class ActivitySimulator : BaseSimulator
 {
-    public ActivitySimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<System.Windows.Point>> paths, SimulationActionList actions)
-        : base(logger, tokenManager, objectBounds, paths, actions)
+    public ActivitySimulator(TokenManager tokenManager, SimulationActionList actions)
+        : base(tokenManager, actions)
     {
     }
 
@@ -55,6 +54,12 @@ public class ActivitySimulator : BaseSimulator
         }
 
         _actions.AddAction(new SetTokenWaitingAction(token, true));
+        
+        if (SharedVariables.Instance.Shapes.TryGetValue(subProcess.Id, out var shape) && shape.IsExpanded == false)
+        {
+            _actions.AddAction(new SpawnCollapsedSubProcessAction(subProcess, token));
+            return;
+        }
 
         foreach (var startEvent in startEvents)
         {

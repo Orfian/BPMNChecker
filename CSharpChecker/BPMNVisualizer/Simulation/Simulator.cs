@@ -12,11 +12,9 @@ namespace BPMNVisualizer.Simulation;
 
 public class Simulator
 {
+    private readonly SharedVariables _vars;
+    
     private readonly TokenManager _tokenManager;
-    private readonly ILogger _logger;
-    private readonly Dictionary<string, Rect> _objectBounds;
-    private readonly Dictionary<string, IEnumerable<Point>> _paths;
-    private readonly ModelRoot _model;
 
     private readonly ActivitySimulator _activitySimulator;
     private readonly EventSimulator _eventSimulator;
@@ -27,30 +25,26 @@ public class Simulator
     public readonly ObservableCollection<SimulationState> History = new();
     private int _currentStepIndex = -1;
 
-    public Simulator(ILogger logger, TokenManager tokenManager, ModelRoot model, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths)
+    public Simulator(TokenManager tokenManager)
     {
-        _logger = logger;
+        _vars = SharedVariables.Instance;
         _tokenManager = tokenManager;
-        _model = model;
-        _objectBounds = objectBounds;
-        _paths = paths;
-
-        _actions = new SimulationActionList(_tokenManager, _logger, _objectBounds, _paths, null, null, null);
+        _actions = new SimulationActionList(_tokenManager,null, null, null);
         
-        _activitySimulator = new ActivitySimulator(_logger, _tokenManager, _objectBounds, _paths, _actions);
-        _eventSimulator = new EventSimulator(_logger, _tokenManager, _objectBounds, _paths, _actions);
-        _gatewaySimulator = new GatewaySimulator(_logger, _tokenManager, _objectBounds, _paths, _actions);
+        _activitySimulator = new ActivitySimulator(_tokenManager, _actions);
+        _eventSimulator = new EventSimulator(_tokenManager, _actions);
+        _gatewaySimulator = new GatewaySimulator(_tokenManager, _actions);
         
         _actions.SetSimulators(_activitySimulator, _eventSimulator, _gatewaySimulator);
     }
     
     public void FirstStep()
     {
-        var allStartEvents = _model.AllObjectsWithIds.Values
+        var allStartEvents = _vars.Model.AllObjectsWithIds.Values
             .OfType<StartEvent>()
             .ToList();
 
-        var subProcessStartEventIds = _model.AllObjectsWithIds.Values
+        var subProcessStartEventIds = _vars.Model.AllObjectsWithIds.Values
             .OfType<SubProcess>()
             .SelectMany(sp => sp.FlowElements.OfType<StartEvent>())
             .Select(se => se.Id)
@@ -68,13 +62,13 @@ public class Simulator
 
         if (!startEvents.Any())
         {
-            _logger.Warning("No start events found in BPMN model.");
+            _vars.Logger.Warning("No start events found in BPMN model.");
             return;
         }
 
         foreach (var startEvent in startEvents)
         {
-            if (_objectBounds.TryGetValue(startEvent.Id!, out var bounds))
+            if (_vars.ObjectBounds.TryGetValue(startEvent.Id!, out var bounds))
             {
                 _tokenManager.AddToken(startEvent, bounds);
             }
@@ -246,7 +240,7 @@ public class Simulator
         
         foreach (var historyToken in state.Tokens)
         {
-             if (historyToken.CurrentElement != null && historyToken.Id != null && _objectBounds.TryGetValue(historyToken.CurrentElement.Id!, out var bounds))
+             if (historyToken.CurrentElement != null && historyToken.Id != null && _vars.ObjectBounds.TryGetValue(historyToken.CurrentElement.Id!, out var bounds))
              {
                  var newToken = _tokenManager.AddToken(historyToken.CurrentElement, bounds);
                  newToken.Id = historyToken.Id; // Restore ID
@@ -254,7 +248,7 @@ public class Simulator
                  newToken.IsEvaluated = historyToken.IsEvaluated;
                  newToken.CurrentSequenceFlow = historyToken.CurrentSequenceFlow;
                  
-                  if (historyToken.CurrentSequenceFlow?.Id != null && _paths.TryGetValue(historyToken.CurrentSequenceFlow.Id, out var path) && path != null) {
+                  if (historyToken.CurrentSequenceFlow?.Id != null && _vars.Paths.TryGetValue(historyToken.CurrentSequenceFlow.Id, out var path) && path != null) {
                      var points = path.ToList();
                      if (points.Any()) {
                          var lastPoint = points.Last();
@@ -296,7 +290,7 @@ public class Simulator
              choice.Indicators.Clear();
              
              // Recreate indicators (visuals + objects)
-             _tokenManager.ShowGatewayChoiceIndicators(choice, _paths);
+             _tokenManager.ShowGatewayChoiceIndicators(choice);
              
              // Restore selection
              foreach (var ind in choice.Indicators)

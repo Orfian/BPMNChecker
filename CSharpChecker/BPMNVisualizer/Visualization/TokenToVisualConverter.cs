@@ -10,6 +10,7 @@ using BPMNVisualizer.Utilities;
 using BPMNVisualizer.Utility;
 using BPMNVisualizer.Visualization.Renderers;
 using Serilog;
+using Point = System.Windows.Point;
 
 namespace BPMNVisualizer.Visualization
 {
@@ -21,20 +22,9 @@ namespace BPMNVisualizer.Visualization
 
         public TokenToVisualConverter()
         {
-            try
-            {
-                var logger = Log.Logger;
-                _svgResourceManager = new SvgResourceManager(logger);
-                _brushManager = new BrushManager();
-                _shapeManager = new ShapeManager();
-            }
-            catch
-            {
-                var logger = new LoggerConfiguration().CreateLogger();
-                _svgResourceManager = new SvgResourceManager(logger);
-                _brushManager = new BrushManager();
-                _shapeManager = new ShapeManager();
-            }
+            _svgResourceManager = new SvgResourceManager();
+            _brushManager = new BrushManager();
+            _shapeManager = new ShapeManager();
         }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -112,6 +102,7 @@ namespace BPMNVisualizer.Visualization
             var canvas = new Canvas();
             var logger = Log.Logger; // Or dummy logger
             var objectBounds = new Dictionary<string, Rect>();
+            var paths = new Dictionary<string, IEnumerable<Point>>();
             var shapes = new Dictionary<string, BPMNShape>(); // Empty shapes map
             
             IShapeRenderer? renderer = null;
@@ -120,17 +111,17 @@ namespace BPMNVisualizer.Visualization
             switch (element)
             {
                 case Activity activity:
-                    renderer = new ActivityRenderer(logger, canvas, _brushManager, _shapeManager, _svgResourceManager, objectBounds, shapes);
+                    renderer = new ActivityRenderer(canvas, _brushManager, _shapeManager, _svgResourceManager);
                     // Standard bounds for tasks/activities
                     bounds = new Rect(0, 0, 100, 80);
                     break;
                 case Event evt:
-                    renderer = new EventRenderer(logger, canvas, _brushManager, _shapeManager, _svgResourceManager, objectBounds);
+                    renderer = new EventRenderer(canvas, _brushManager, _shapeManager, _svgResourceManager);
                     // Standard bounds for events
                     bounds = new Rect(0, 0, 36, 36);
                     break;
                 case Gateway gateway:
-                    renderer = new GatewayRenderer(logger, canvas, _brushManager, _shapeManager, _svgResourceManager, objectBounds);
+                    renderer = new GatewayRenderer(canvas, _brushManager, _shapeManager, _svgResourceManager);
                     // Standard bounds for gateways
                     bounds = new Rect(0, 0, 50, 50);
                     break;

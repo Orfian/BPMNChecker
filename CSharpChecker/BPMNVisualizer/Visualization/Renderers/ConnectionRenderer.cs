@@ -4,22 +4,17 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using BPMNModel.Model;
 using BPMNVisualizer.Utility;
-using Serilog;
 using Point = System.Windows.Point;
 
 namespace BPMNVisualizer.Visualization.Renderers
 {
     public class ConnectionRenderer
     {
-        private readonly ILogger _logger;
         private readonly Canvas _canvas;
-        private readonly Dictionary<string, IEnumerable<Point>> _paths;
 
-        public ConnectionRenderer(ILogger logger, Canvas canvas, Dictionary<string, IEnumerable<Point>> paths)
+        public ConnectionRenderer(Canvas canvas)
         {
-            _logger = logger;
             _canvas = canvas;
-            _paths = paths;
         }
 
         public void RenderConnection(BaseElement element, IEnumerable<Point> points)
@@ -37,7 +32,7 @@ namespace BPMNVisualizer.Visualization.Renderers
                     break;
             }
             
-            _paths[element.Id] = points;
+            SharedVariables.Instance.Paths[element.Id] = points;
         }
         
         private void RenderSequenceFlow(SequenceFlow flow, IEnumerable<Point> points)

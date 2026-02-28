@@ -34,6 +34,14 @@ public record SpawnTokenAction( //for subprocesses, call activities, etc.
     public override SimulationAction DeepClone() => this with { ParentToken = ParentToken.DeepClone() };
 }
 
+public record SpawnCollapsedSubProcessAction( //for subprocesses, call activities, etc.
+    SubProcess SubProcess,
+    BPMNToken ParentToken
+) : SimulationAction
+{
+    public override SimulationAction DeepClone() => this with { ParentToken = ParentToken.DeepClone() };
+}
+
 public record RemoveTokenAction(
     BPMNToken Token
 ) : SimulationAction

@@ -14,9 +14,9 @@ namespace BPMNVisualizer.Utilities
         private readonly string _basePath;
         private readonly ConcurrentDictionary<string, Uri> _uriCache = new();
 
-        public SvgResourceManager(ILogger logger, string basePath = "Assets")
+        public SvgResourceManager(string basePath = "Assets")
         {
-            _logger = logger;
+            _logger = SharedVariables.Instance.Logger;
             _basePath = basePath;
         }
 

@@ -11,7 +11,6 @@ public class BPMNToken
     public SequenceFlow CurrentSequenceFlow { get; set; }
     public Ellipse? Visual { get; set; }
     public bool IsWaiting { get; set; } = false;
-    
     public bool IsEvaluated { get; set; } = false;
     
     public BPMNToken? Parent { get; set; }

@@ -3,6 +3,7 @@ using Serilog;
 using System.Windows;
 using System.Windows.Controls;
 using BPMNModel;
+using BPMNVisualizer.Utility;
 
 namespace BPMNVisualizer.Visualization
 {
@@ -13,9 +14,9 @@ namespace BPMNVisualizer.Visualization
         private readonly RendererFactory _rendererFactory;
         private const double ScaleFactor = 1.0;
 
-        public VisualizationPipeline(ILogger logger, Canvas canvas, RendererFactory rendererFactory)
+        public VisualizationPipeline(Canvas canvas, RendererFactory rendererFactory)
         {
-            _logger = logger;
+            _logger = SharedVariables.Instance.Logger;
             _canvas = canvas;
             _rendererFactory = rendererFactory;
         }
@@ -33,6 +34,23 @@ namespace BPMNVisualizer.Visualization
             
             if (diagramElements == null) return;
             
+            RenderPlane(diagramElements, model);
+        }
+
+        public void ExecuteDiagram(BPMNDiagram diagram)
+        {
+            if (diagram?.Plane == null)
+            {
+                _logger.Warning("No valid plane found in diagram");
+                return;
+            }
+
+            _logger.Information("Starting visualization pipeline for sub-process diagram");
+            RenderPlane(diagram.Plane, null);
+        }
+
+        private void RenderPlane(BPMNPlane diagramElements, ModelRoot? model)
+        {
             CalculateViewport(diagramElements);
             
             // Phase 1: Render pool and lane structures first
@@ -83,7 +101,7 @@ namespace BPMNVisualizer.Visualization
             }
         }
 
-        private void RenderConnections(BPMNPlane plane, ModelRoot model)
+        private void RenderConnections(BPMNPlane plane, ModelRoot? model)
         {
             _logger.Debug("Rendering connections");
             foreach (var edge in plane.PlaneElement.OfType<BPMNEdge>())

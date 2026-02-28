@@ -13,30 +13,32 @@ namespace BPMNVisualizer.Visualization.Renderers;
 
 public class EventRenderer : IShapeRenderer
 {
+    private readonly SharedVariables _vars;
+
+    /*
     private readonly ILogger _logger;
+    private readonly Dictionary<string, Rect> _vars.ObjectBounds;
+*/
     private readonly Canvas _canvas;
     private readonly BrushManager _brushManager;
     private readonly ShapeManager _shapeManager;
     private readonly SvgResourceManager _svgResourceManager;
-    private readonly Dictionary<string, Rect> _objectBounds;
     private readonly Dictionary<string, FrameworkElement> _eventNotes = new();
 
-    public EventRenderer(ILogger logger, Canvas canvas, BrushManager brushManager, ShapeManager shapeManager,
-        SvgResourceManager svgResourceManager, Dictionary<string, Rect> objectBounds)
+    public EventRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager, SvgResourceManager svgResourceManager)
     {
-        _logger = logger;
+        _vars = SharedVariables.Instance;
         _canvas = canvas;
         _brushManager = brushManager;
         _shapeManager = shapeManager;
         _svgResourceManager = svgResourceManager;
-        _objectBounds = objectBounds;
     }
 
     public void RenderShape(BaseElement element, Rect bounds)
     {
         if (element is not Event evt) return;
         
-        _objectBounds[evt.Id] = bounds;
+        _vars.ObjectBounds[evt.Id] = bounds;
 
         var shape = DrawElement(evt, bounds);
         
@@ -109,7 +111,7 @@ public class EventRenderer : IShapeRenderer
         var icon = _svgResourceManager.GetEventIcon(evt);
         if (icon == null)
         {
-            _logger.Warning("No icon found for event type: {EventType}", evt.GetType());
+            _vars.Logger.Warning("No icon found for event type: {EventType}", evt.GetType());
             return null;
         }
 
@@ -421,12 +423,12 @@ public class EventRenderer : IShapeRenderer
     private void RefreshEventNote(Event evt)
     {
         if (_eventNotes.TryGetValue(evt.Id, out var existingNote)) _canvas.Children.Remove(existingNote);
-        var note = DrawNote(evt, _objectBounds[evt.Id]);
+        var note = DrawNote(evt, _vars.ObjectBounds[evt.Id]);
         if (note != null) {
             note.Tag = $"{evt.Id}_note";
             _eventNotes[evt.Id] = note;
-            Canvas.SetLeft(note, _objectBounds[evt.Id].Left + 5);
-            Canvas.SetTop(note, _objectBounds[evt.Id].Top - 20);
+            Canvas.SetLeft(note, _vars.ObjectBounds[evt.Id].Left + 5);
+            Canvas.SetTop(note, _vars.ObjectBounds[evt.Id].Top - 20);
             _canvas.Children.Add(note);
         }
     }

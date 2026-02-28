@@ -1,7 +1,5 @@
-﻿using System.Windows;
-using BPMNModel.Model;
-using Serilog;
-using Point = System.Windows.Point;
+﻿using BPMNModel.Model;
+using BPMNVisualizer.Utility;
 
 namespace BPMNVisualizer.Simulation.Simulators;
 
@@ -9,8 +7,8 @@ public class GatewaySimulator : BaseSimulator
 {
     private readonly Dictionary<string, Dictionary<string, Queue<BPMNToken>>> _joinBuffers = new();
 
-    public GatewaySimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths, SimulationActionList actions)
-        : base(logger, tokenManager, objectBounds, paths, actions)
+    public GatewaySimulator(TokenManager tokenManager, SimulationActionList actions)
+        : base(tokenManager, actions)
     {
     }
 
@@ -25,7 +23,7 @@ public class GatewaySimulator : BaseSimulator
         var outgoingFlows = _tokenManager.GetOutgoingFlows(gateway);
         if (!outgoingFlows.Any())
         {
-            _logger.Information($"Gateway {gateway.Id} has no outgoing flows.");
+            SharedVariables.Instance.Logger.Information($"Gateway {gateway.Id} has no outgoing flows.");
             return;
         }
 

@@ -2,26 +2,19 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using BPMNModel;
-using BPMNVisualizer.Services;
 using BPMNVisualizer.Simulation;
+using BPMNVisualizer.Utility;
 using BPMNVisualizer.Visualization;
 using Microsoft.Win32;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Json;
-using Point = System.Windows.Point;
 
 namespace BPMNVisualizer
 {
     public partial class MainWindow : Window
     {
-        private readonly ModelLoader _modelLoader;
-        private readonly Visualizer _visualizer;
-        private readonly ModelRoot? _model;
         private readonly ILogger _logger;
-        private readonly Dictionary<string, Rect> _objectBounds = new();
-        private readonly Dictionary<string, IEnumerable<Point>> _paths = new();
         
         private TokenManager tokenManager;
         private Simulator simulator;
@@ -29,31 +22,24 @@ namespace BPMNVisualizer
         public MainWindow()
         {
             //var filePath = @"diagrams/CamundaModeler_almost_all_set.bpmn";
-            var filePath = @"diagrams/BookHolidaySagaPatternV2.bpmn";
+            //var filePath = @"diagrams/BookHolidaySagaPatternV2.bpmn";
             //var filePath = @"diagrams/all_icons.bpmn";
             //var filePath = @"diagrams/Multi-instanceMessagingBetweenProcesses-Doctor.bpmn";
-            //var filePath = @"diagrams/test.bpmn";
+            var filePath = @"diagrams/test.bpmn";
             
             InitializeComponent();
-            _logger = LoggerFactory.Create();
-
-            _modelLoader = new ModelLoader(_logger);
-            _model = _modelLoader.LoadModel(filePath);
+            SharedVariables.Initialize(filePath);
             
-            if (_model == null)
-            {
-                MessageBox.Show("Failed to load BPMN model. Check logs for details.");
-                return;
-            }
+            _logger = SharedVariables.Instance.Logger;
             
-            _visualizer = new Visualizer(_logger, BPMNCanvas, _objectBounds, _paths, _model);
-            _visualizer.Visualize(_model);
+            var visualizer = new Visualizer(BPMNCanvas);
+            visualizer.Visualize(SharedVariables.Instance.Model);
         }
         
         private void Simulate_Click(object sender, RoutedEventArgs e)
         {
-            tokenManager = new TokenManager(_model, BPMNCanvas);
-            simulator = new Simulator(_logger, tokenManager, _model, _objectBounds, _paths);
+            tokenManager = new TokenManager(BPMNCanvas);
+            simulator = new Simulator(tokenManager);
             
             SimButt.Content = "Next Step";
             SimButt.ToolTip = "Make the next simulation step";

@@ -1,15 +1,15 @@
 ﻿using System.Windows;
 using System.Windows.Shapes;
 using BPMNModel.Model;
-using Serilog;
+using BPMNVisualizer.Utility;
 using Point = System.Windows.Point;
 
 namespace BPMNVisualizer.Simulation.Simulators;
 
 public class EventSimulator : BaseSimulator
 {
-    public EventSimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<System.Windows.Point>> paths, SimulationActionList actions)
-        : base(logger, tokenManager, objectBounds, paths, actions)
+    public EventSimulator(TokenManager tokenManager, SimulationActionList actions)
+        : base(tokenManager, actions)
     {
     }
 
@@ -40,7 +40,7 @@ public class EventSimulator : BaseSimulator
                 break;
 
             default:
-                _logger.Warning(
+                SharedVariables.Instance.Logger.Warning(
                     "Unhandled event type: {EventType}",
                     evt.GetType().Name);
                 break;
@@ -200,7 +200,7 @@ public class EventSimulator : BaseSimulator
     
     public void SpawnStartEventIndicator(StartEvent startEvent, BPMNToken? parentToken)
     {
-        if (_objectBounds.TryGetValue(startEvent.Id, out var bounds))
+        if (SharedVariables.Instance.ObjectBounds.TryGetValue(startEvent.Id, out var bounds))
         {
             var arrow = _tokenManager.AddArrowIndicator(
                 new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2),

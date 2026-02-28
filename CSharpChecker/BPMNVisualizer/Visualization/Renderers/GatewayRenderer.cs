@@ -12,30 +12,31 @@ namespace BPMNVisualizer.Visualization.Renderers;
 
 public class GatewayRenderer : IShapeRenderer
 {
+    private readonly SharedVariables _vars;
+    /*
     private readonly ILogger _logger;
+    private readonly Dictionary<string, Rect> _vars.ObjectBounds;
+*/
     private readonly Canvas _canvas;
     private readonly BrushManager _brushManager;
     private readonly ShapeManager _shapeManager;
     private readonly SvgResourceManager _svgResourceManager;
-    private readonly Dictionary<string, Rect> _objectBounds;
     private readonly Dictionary<string, FrameworkElement> _gatewayNotes = new();
 
-    public GatewayRenderer(ILogger logger, Canvas canvas, BrushManager brushManager, ShapeManager shapeManager,
-        SvgResourceManager svgResourceManager, Dictionary<string, Rect> objectBounds)
+    public GatewayRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager, SvgResourceManager svgResourceManager)
     {
-        _logger = logger;
+        _vars = SharedVariables.Instance;
         _canvas = canvas;
         _brushManager = brushManager;
         _shapeManager = shapeManager;
         _svgResourceManager = svgResourceManager;
-        _objectBounds = objectBounds;
     }
 
     public void RenderShape(BaseElement element, Rect bounds)
     {
         if (element is not Gateway gateway) return;
         
-        _objectBounds[gateway.Id] = bounds;
+        _vars.ObjectBounds[gateway.Id] = bounds;
 
         var shape = DrawElement(gateway, bounds);
         shape.MouseDown += (s, e) => ShowGatewayDetails(gateway);
@@ -79,7 +80,7 @@ public class GatewayRenderer : IShapeRenderer
         var icon = _svgResourceManager.GetGatewayIcon(gateway);
         if (icon == null)
         {
-            _logger.Warning("No icon found for gateway type: {GatewayType}", gateway.GetType());
+            _vars.Logger.Warning("No icon found for gateway type: {GatewayType}", gateway.GetType());
             return null;
         }
 
@@ -91,7 +92,7 @@ public class GatewayRenderer : IShapeRenderer
         var text = gateway.Name;
         if (string.IsNullOrEmpty(text))
         {
-            _logger.Warning("No label found for gateway type: {GatewayType}", gateway.GetType());
+            _vars.Logger.Warning("No label found for gateway type: {GatewayType}", gateway.GetType());
             return null;
         }
 
@@ -391,12 +392,12 @@ public class GatewayRenderer : IShapeRenderer
     private void RefreshGatewayNote(Gateway gateway)
     {
         if (_gatewayNotes.TryGetValue(gateway.Id, out var existingNote)) _canvas.Children.Remove(existingNote);
-        var note = DrawNote(gateway, _objectBounds[gateway.Id]);
+        var note = DrawNote(gateway, _vars.ObjectBounds[gateway.Id]);
         if (note != null) {
             note.Tag = $"{gateway.Id}_note";
             _gatewayNotes[gateway.Id] = note;
-            Canvas.SetLeft(note, _objectBounds[gateway.Id].Left + 5);
-            Canvas.SetTop(note, _objectBounds[gateway.Id].Top - 20);
+            Canvas.SetLeft(note, _vars.ObjectBounds[gateway.Id].Left + 5);
+            Canvas.SetTop(note, _vars.ObjectBounds[gateway.Id].Top - 20);
             _canvas.Children.Add(note);
         }
     }

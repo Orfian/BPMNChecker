@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using BPMNVisualizer.Utility;
 using Serilog;
 using Point = System.Windows.Point;
 
@@ -6,18 +7,12 @@ namespace BPMNVisualizer.Simulation.Simulators;
 
 public class BaseSimulator : IElementSimulator
 {
-    protected readonly ILogger _logger;
     protected readonly TokenManager _tokenManager;
-    protected readonly Dictionary<string, Rect> _objectBounds;
-    protected readonly Dictionary<string, IEnumerable<Point>> _paths;
     protected readonly SimulationActionList _actions;
     
-    public BaseSimulator(ILogger logger, TokenManager tokenManager, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths, SimulationActionList actions)
+    public BaseSimulator(TokenManager tokenManager, SimulationActionList actions)
     {
-        _logger = logger;
         _tokenManager = tokenManager;
-        _objectBounds = objectBounds;
-        _paths = paths;
         _actions = actions;
     }
 
@@ -25,7 +20,7 @@ public class BaseSimulator : IElementSimulator
     {
         if (token?.CurrentElement == null)
         {
-            _logger.Warning("Token or its current element is null.");
+            SharedVariables.Instance.Logger.Warning("Token or its current element is null.");
             return;
         }
 

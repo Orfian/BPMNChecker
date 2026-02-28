@@ -13,13 +13,15 @@ namespace BPMNVisualizer.Simulation;
 public class TokenManager
 {
     private readonly ModelRoot _model;
+    private readonly List<BPMNToken> _tokens;
+    
     private readonly Canvas _canvas;
-    private readonly List<BPMNToken> _tokens = new();
 
-    public TokenManager(ModelRoot model, Canvas canvas)
+    public TokenManager(Canvas canvas)
     {
-        _model = model;
         _canvas = canvas;
+        _model = SharedVariables.Instance.Model;
+        _tokens = SharedVariables.Instance.Tokens;
     }
 
     public BPMNToken AddToken(BaseElement startElement, Rect position)
@@ -253,13 +255,13 @@ public class TokenManager
         return triangle;
     }
     
-    public void ShowGatewayChoiceIndicators(GatewayChoice gatewayChoice, Dictionary<string, IEnumerable<Point>> paths)
+    public void ShowGatewayChoiceIndicators(GatewayChoice gatewayChoice)
     {
         if (gatewayChoice.OutgoingFlows == null) return;
 
         foreach (var flow in gatewayChoice.OutgoingFlows)
         {
-            if (flow.Id == null || !paths.TryGetValue(flow.Id, out var path))
+            if (flow.Id == null || !SharedVariables.Instance.Paths.TryGetValue(flow.Id, out var path))
                 continue;
             
             var points = path?.ToList();
@@ -321,7 +323,6 @@ public class TokenManager
         _canvas.Children.Remove(indicator);
     }
     
-        
     public void UpdatePendingChoices(Indicator triggerIndicator, GatewayChoice gatewayChoice)
     {
         if (triggerIndicator.Selected && gatewayChoice.Gateway is not ComplexGateway && gatewayChoice.Gateway is not EventBasedGateway)

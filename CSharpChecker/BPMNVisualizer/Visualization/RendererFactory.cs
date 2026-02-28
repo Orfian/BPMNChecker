@@ -15,45 +15,43 @@ namespace BPMNVisualizer.Visualization
 {
     public class RendererFactory
     {
-        private readonly ILogger _logger;
         private readonly Canvas _canvas;
         private readonly BrushManager _brushManager;
         private readonly ShapeManager _shapeManager;
         private readonly SvgResourceManager _svgResourceManager;
+        /*
+        private readonly ILogger _logger;
         private readonly Dictionary<string, Rect> _objectBounds;
         private readonly Dictionary<string, IEnumerable<Point>> _paths;
         private readonly Dictionary<string, BPMNShape> _shapes;
-        
+        */
         private readonly ActivityRenderer _activityRenderer;
         private readonly EventRenderer _eventRenderer;
         private readonly GatewayRenderer _gatewayRenderer;
         private readonly DataRenderer _dataRenderer;
         private readonly ConnectionRenderer _connectionRenderer;
+        private readonly ParticipantRenderer _participantRenderer;
 
-        public RendererFactory(ILogger logger, Canvas canvas, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths, Dictionary<string, BPMNShape> shapes)
+        public RendererFactory(Canvas canvas)
         {
-            _logger = logger;
             _canvas = canvas;
             _brushManager = new BrushManager();
             _shapeManager = new ShapeManager();
-            _svgResourceManager = new SvgResourceManager(_logger);
-            _objectBounds = objectBounds;
-            _paths = paths;
-            _shapes = shapes;
+            _svgResourceManager = new SvgResourceManager();
 
-            _activityRenderer = new ActivityRenderer(_logger, _canvas, _brushManager, _shapeManager, _svgResourceManager, _objectBounds, _shapes);
-            _eventRenderer = new EventRenderer(_logger, _canvas, _brushManager, _shapeManager, _svgResourceManager, _objectBounds);
-            _gatewayRenderer = new GatewayRenderer(_logger, _canvas, _brushManager, _shapeManager, _svgResourceManager, _objectBounds);
-            _dataRenderer = new DataRenderer(_logger, _canvas, _brushManager, _shapeManager, _svgResourceManager, _objectBounds);
-            _connectionRenderer = new ConnectionRenderer(_logger, _canvas, _paths);
-        }
-
-        public IShapeRenderer GetStructureRenderer(BaseElement element)
-        {
-            return new ParticipantRenderer(_logger, _canvas, _brushManager, _shapeManager);
+            _activityRenderer = new ActivityRenderer(_canvas, _brushManager, _shapeManager, _svgResourceManager);
+            _eventRenderer = new EventRenderer(_canvas, _brushManager, _shapeManager, _svgResourceManager);
+            _gatewayRenderer = new GatewayRenderer(_canvas, _brushManager, _shapeManager, _svgResourceManager);
+            _dataRenderer = new DataRenderer(_canvas, _brushManager, _shapeManager, _svgResourceManager);
+            _connectionRenderer = new ConnectionRenderer(_canvas);
+            _participantRenderer = new ParticipantRenderer(_canvas, _brushManager, _shapeManager);
         }
         
-
+        public IShapeRenderer GetStructureRenderer(BaseElement element)
+        {
+            return _participantRenderer;
+        }
+        
         public IShapeRenderer? GetShapeRenderer(BaseElement element)
         {
             switch (element)
@@ -86,7 +84,7 @@ namespace BPMNVisualizer.Visualization
                 case DataOutput:
                     return _dataRenderer;
                 default:
-                    _logger.Warning("No renderer found for element type: {ElementType}", element.GetType());
+                    SharedVariables.Instance.Logger.Warning("No renderer found for element type: {ElementType}", element.GetType());
                     return null;
                     //throw new BPMNCheckerExceptions($"No renderer found for element type: {element.GetType()}");
             }

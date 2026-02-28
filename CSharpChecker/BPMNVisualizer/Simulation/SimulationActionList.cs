@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using BPMNModel.Model;
 using BPMNVisualizer.Simulation.Simulators;
+using BPMNVisualizer.Utility;
 using Serilog;
 using Point = System.Windows.Point;
 
@@ -8,10 +9,9 @@ namespace BPMNVisualizer.Simulation;
 
 public class SimulationActionList
 {
-    private readonly TokenManager _tokenManager;
-    private readonly ILogger _logger;
-    private readonly Dictionary<string, Rect> _objectBounds;
-    private readonly Dictionary<string, IEnumerable<Point>> _paths;
+    private readonly SharedVariables _vars;
+    
+    private TokenManager _tokenManager;
     
     private ActivitySimulator _activitySimulator;
     private EventSimulator _eventSimulator;
@@ -28,17 +28,17 @@ public class SimulationActionList
     public List<SplitTokenAction> SplitTokenActions { get; } = new();
     public List<MoveTokenAction> MoveTokenActions { get; } = new();
     public List<SpawnTokenAction> SpawnTokenActions { get; } = new();
+    public List<SpawnCollapsedSubProcessAction> SpawnCollapsedSubProcessActions { get; } = new();
     public List<RemoveTokenAction> RemoveTokenActions { get; } = new();
     public List<EventDelayAction> EventDelayActions { get; } = new();
     public List<SendMessageAction> SendMessageActions { get; } = new();
     public List<SendSignalAction> SendSignalActions { get; } = new();
     
-    public SimulationActionList(TokenManager tokenManager, ILogger logger, Dictionary<string, Rect> objectBounds, Dictionary<string, IEnumerable<Point>> paths, ActivitySimulator activitySimulator, EventSimulator eventSimulator, GatewaySimulator gatewaySimulator)
+    public SimulationActionList(TokenManager tokenManager, ActivitySimulator activitySimulator, EventSimulator eventSimulator, GatewaySimulator gatewaySimulator)
     {
+        _vars = SharedVariables.Instance;
+        
         _tokenManager = tokenManager;
-        _logger = logger;
-        _objectBounds = objectBounds;
-        _paths = paths;
         _activitySimulator = activitySimulator;
         _eventSimulator = eventSimulator;
         _gatewaySimulator = gatewaySimulator;
@@ -73,6 +73,9 @@ public class SimulationActionList
             case SpawnTokenAction a:
                 SpawnTokenActions.Add(a);
                 break;
+            case SpawnCollapsedSubProcessAction a:
+                SpawnCollapsedSubProcessActions.Add(a);
+                break;
             case RemoveTokenAction a:
                 RemoveTokenActions.Add(a);
                 break;
@@ -96,6 +99,7 @@ public class SimulationActionList
         CommitSplitTokenActions();
         CommitMoveTokenActions();
         CommitSpawnTokenActions();
+        CommitSpawnCollapsedSubProcessActions();
         CommitRemoveTokenActions();
         CommitEventDelayActions();
         CommitSendMessageActions();
@@ -162,7 +166,7 @@ public class SimulationActionList
             switch (choice.Gateway)
             {
                 case ParallelGateway pg:
-                    _logger.Warning("Unexpected gateway action: {ActionType}", choice.Gateway.GetType().Name);
+                    _vars.Logger.Warning("Unexpected gateway action: {ActionType}", choice.Gateway.GetType().Name);
                     break;
                 case ExclusiveGateway eg:
                     _gatewaySimulator.ResolveExclusiveGateway(choice.Token, eg, selectedFlows);
@@ -177,7 +181,7 @@ public class SimulationActionList
                     _gatewaySimulator.ResolveEventBasedGateway(choice.Token, ebg, selectedFlows);
                     break;
                 default:
-                    _logger.Warning("Unknown gateway action: {ActionType}", choice.Gateway.GetType().Name);
+                    _vars.Logger.Warning("Unknown gateway action: {ActionType}", choice.Gateway.GetType().Name);
                     break;
             }
 
@@ -206,7 +210,7 @@ public class SimulationActionList
                 DefaultFlow = a.DefaultFlow
             };
 
-            _tokenManager.ShowGatewayChoiceIndicators(gatewayChoice, _paths);
+            _tokenManager.ShowGatewayChoiceIndicators(gatewayChoice);
                     
             if (gatewayChoice.DefaultFlow != null)
             {
@@ -242,18 +246,18 @@ public class SimulationActionList
     {
         foreach (var a in SplitTokenActions)
         {
-            if (_objectBounds.TryGetValue(a.SourceElement.Id!, out var sourceBounds))
+            if (_vars.ObjectBounds.TryGetValue(a.SourceElement.Id!, out var sourceBounds))
             {
                 var newToken = _tokenManager.AddToken(a.SourceElement, sourceBounds);
                 newToken.Parent = a.ParentToken;
                         
-                if (_objectBounds.TryGetValue(a.TargetElement.Id!, out var targetBounds))
+                if (_vars.ObjectBounds.TryGetValue(a.TargetElement.Id!, out var targetBounds))
                 {
                     _tokenManager.MoveToken(
                         newToken,
                         a.TargetElement,
                         a.Flow,
-                        _paths.TryGetValue(a.Flow.Id!, out var path) ? path : null,
+                        _vars.Paths.TryGetValue(a.Flow.Id!, out var path) ? path : null,
                         targetBounds
                     );
                 }
@@ -266,13 +270,13 @@ public class SimulationActionList
     {
         foreach (var a in MoveTokenActions)
         {
-            if (_objectBounds.TryGetValue(a.TargetElement.Id!, out var targetBounds))
+            if (_vars.ObjectBounds.TryGetValue(a.TargetElement.Id!, out var targetBounds))
             {
                 _tokenManager.MoveToken(
                     a.Token,
                     a.TargetElement,
                     a.Flow,
-                    _paths.TryGetValue(a.Flow.Id!, out var path) ? path : null,
+                    _vars.Paths.TryGetValue(a.Flow.Id!, out var path) ? path : null,
                     targetBounds
                 );
             }
@@ -284,13 +288,47 @@ public class SimulationActionList
     {
         foreach (var a in SpawnTokenActions)
         {
-            if (_objectBounds.TryGetValue(a.TargetElement.Id!, out var targetBounds))
+            if (_vars.ObjectBounds.TryGetValue(a.TargetElement.Id!, out var targetBounds))
             {
                 var newToken = _tokenManager.AddToken(a.TargetElement, targetBounds);
                 newToken.Parent = a.ParentToken;
             }
         }
         SpawnTokenActions.Clear();
+    }
+    
+    public void CommitSpawnCollapsedSubProcessActions()
+    {
+        var vars = SharedVariables.Instance;
+
+        foreach (var a in SpawnCollapsedSubProcessActions)
+        {
+            var subDiagram = vars.Model.Definition?.Diagrams
+                .FirstOrDefault(d => d.Plane?.BpmnElement?.Id == a.SubProcess.Id);
+
+            if (subDiagram == null) continue;
+
+            // Reuse existing window or create a new one
+            if (!vars.SubProcessWindows.TryGetValue(a.SubProcess.Id, out var window) || !window.IsLoaded)
+            {
+                window = new SubProcessWindow
+                {
+                    Owner = Application.Current.MainWindow,
+                    Title = $"Sub-Process: {a.SubProcess.Name ?? a.SubProcess.Id}"
+                };
+                window.RenderSubProcess(subDiagram);
+                window.Closed += (_, _) => vars.SubProcessWindows.Remove(a.SubProcess.Id);
+                vars.SubProcessWindows[a.SubProcess.Id] = window;
+            }
+
+            window.StartSimulation(a.SubProcess, a.ParentToken);
+
+            if (!window.IsVisible)
+                window.Show();
+            else
+                window.Activate();
+        }
+        SpawnCollapsedSubProcessActions.Clear();
     }
     
     public void CommitRemoveTokenActions()
@@ -306,7 +344,7 @@ public class SimulationActionList
     {
         foreach (var a in EventDelayActions)
         {
-            var eventPosition = _objectBounds.TryGetValue(a.Event.Id!, out var evtBounds)
+            var eventPosition = _vars.ObjectBounds.TryGetValue(a.Event.Id!, out var evtBounds)
                 ? new Point(evtBounds.X + evtBounds.Width / 2, evtBounds.Y + evtBounds.Height / 2)
                 : new Point(0, 0);
             
@@ -353,12 +391,12 @@ public class SimulationActionList
                             MessageQueue.Clear();
                             foreach(var m in messageList) MessageQueue.Enqueue(m);
                             
-                            _logger.Information("Message {MessageName} consumed by {EventId}", selectedMessage.MessageName, a.Event.Id);
+                            _vars.Logger.Information("Message {MessageName} consumed by {EventId}", selectedMessage.MessageName, a.Event.Id);
                             _eventSimulator.ResolveEventDelay(a.Token, arrow);
                         }
                         else if (dialog.TriggerWithoutSelection)
                         {
-                            _logger.Information("Event {EventId} triggered manually without message", a.Event.Id);
+                            _vars.Logger.Information("Event {EventId} triggered manually without message", a.Event.Id);
                             _eventSimulator.ResolveEventDelay(a.Token, arrow);
                         }
                     }
@@ -380,12 +418,12 @@ public class SimulationActionList
                             SignalQueue.Clear();
                             foreach(var sig in signalList) SignalQueue.Enqueue(sig);
                             
-                            _logger.Information("Signal {SignalName} consumed by {EventId}", selectedSignal.SignalName, a.Event.Id);
+                            _vars.Logger.Information("Signal {SignalName} consumed by {EventId}", selectedSignal.SignalName, a.Event.Id);
                             _eventSimulator.ResolveEventDelay(a.Token, arrow);
                         }
                         else if (dialog.TriggerWithoutSelection)
                         {
-                            _logger.Information("Event {EventId} triggered manually without signal", a.Event.Id);
+                            _vars.Logger.Information("Event {EventId} triggered manually without signal", a.Event.Id);
                             _eventSimulator.ResolveEventDelay(a.Token, arrow);
                         }
                     }
@@ -418,7 +456,7 @@ public class SimulationActionList
                 a.Token.CurrentElement?.Id ?? "Unknown"
             );
             MessageQueue.Enqueue(message);
-            _logger.Information("Message {MessageName} sent from {SourceId}", message.MessageName, message.SourceElementId);
+            _vars.Logger.Information("Message {MessageName} sent from {SourceId}", message.MessageName, message.SourceElementId);
         }
         SendMessageActions.Clear();
     }
@@ -432,8 +470,9 @@ public class SimulationActionList
                 a.Token.CurrentElement?.Id ?? "Unknown"
             );
             SignalQueue.Enqueue(signal);
-            _logger.Information("Signal {SignalName} sent from {SourceId}", signal.SignalName, signal.SourceElementId);
+            _vars.Logger.Information("Signal {SignalName} sent from {SourceId}", signal.SignalName, signal.SourceElementId);
         }
         SendSignalActions.Clear();
     }
 }
+

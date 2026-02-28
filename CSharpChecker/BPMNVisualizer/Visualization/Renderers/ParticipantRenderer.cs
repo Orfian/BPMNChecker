@@ -2,10 +2,8 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using BPMNModel.Model;
-using BPMNVisualizer.Utilities;
 using BPMNVisualizer.Utility;
 using Serilog;
-using Point = System.Windows.Point;
 
 namespace BPMNVisualizer.Visualization.Renderers;
 
@@ -16,9 +14,9 @@ public class ParticipantRenderer : IShapeRenderer
     private readonly BrushManager _brushManager;
     private readonly ShapeManager _shapeManager;
 
-    public ParticipantRenderer(ILogger logger, Canvas canvas, BrushManager brushManager, ShapeManager shapeManager)
+    public ParticipantRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager)
     {
-        _logger = logger;
+        _logger = SharedVariables.Instance.Logger;
         _canvas = canvas;
         _brushManager = brushManager;
         _shapeManager = shapeManager;
