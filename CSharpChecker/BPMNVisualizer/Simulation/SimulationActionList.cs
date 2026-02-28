@@ -309,7 +309,7 @@ public class SimulationActionList
             if (subDiagram == null) continue;
 
             // Reuse existing window or create a new one
-            if (!vars.SubProcessWindows.TryGetValue(a.SubProcess.Id, out var window) || !window.IsLoaded)
+            if (!vars.SubProcessWindows.TryGetValue(a.SubProcess.Id, out var window))
             {
                 window = new SubProcessWindow
                 {
@@ -317,7 +317,6 @@ public class SimulationActionList
                     Title = $"Sub-Process: {a.SubProcess.Name ?? a.SubProcess.Id}"
                 };
                 window.RenderSubProcess(subDiagram);
-                window.Closed += (_, _) => vars.SubProcessWindows.Remove(a.SubProcess.Id);
                 vars.SubProcessWindows[a.SubProcess.Id] = window;
             }
 

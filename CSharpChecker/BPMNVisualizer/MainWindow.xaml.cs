@@ -63,6 +63,12 @@ namespace BPMNVisualizer
             simulator.ClearAllActions();
             simulator.ClearPendingChoices();
             
+            foreach (var window in SharedVariables.Instance.SubProcessWindows.Values.ToList())
+            {
+                window.ForceClose();
+            }
+            SharedVariables.Instance.SubProcessWindows.Clear();
+            
             SimButt.Content = "Simulate";
             SimButt.ToolTip = "Start simulation";
             SimButt.Click -= NextStep_Click;

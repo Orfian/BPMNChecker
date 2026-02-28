@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using BPMNModel.Model;
 using BPMNVisualizer.Simulation;
 using BPMNVisualizer.Utility;
@@ -13,6 +14,30 @@ namespace BPMNVisualizer
         public SubProcessWindow()
         {
             InitializeComponent();
+        }
+
+        private bool _isForceClosing;
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (_isForceClosing)
+            {
+                base.OnClosing(e);
+                return;
+            }
+            
+            // Hide instead of close to preserve token visuals on the canvas
+            e.Cancel = true;
+            Hide();
+        }
+
+        /// <summary>
+        /// Actually closes and destroys the window. Call this when the simulation is reset.
+        /// </summary>
+        public void ForceClose()
+        {
+            _isForceClosing = true;
+            Close();
         }
 
         public void RenderSubProcess(BPMNDiagram diagram)

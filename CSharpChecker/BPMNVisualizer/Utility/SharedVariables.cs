@@ -19,7 +19,7 @@ public class SharedVariables
     public Dictionary<string, IEnumerable<Point>> Paths { get; }
     public Dictionary<string, BPMNShape> Shapes { get; }
     public List<BPMNToken> Tokens { get; }
-    public Dictionary<string, SubProcessWindow> SubProcessWindows { get; } = new();
+    public Dictionary<string, SubProcessWindow> SubProcessWindows { get; }
 
     private SharedVariables(string filePath)
     {
@@ -44,6 +44,8 @@ public class SharedVariables
             .ToDictionary(s => s.BpmnElement!.Id, s => s);    
         
         Tokens = new List<BPMNToken>();
+        
+        SubProcessWindows = new Dictionary<string, SubProcessWindow>();
     }
 
     public static void Initialize(string filePath)

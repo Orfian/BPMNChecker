@@ -601,7 +601,17 @@ public class ActivityRenderer : IShapeRenderer
     {
         if (activity is not SubProcess subProcess) return;
 
-        // Look for a separate BPMNDiagram whose plane references this sub-process
+        var vars = SharedVariables.Instance;
+
+        if (vars.SubProcessWindows.TryGetValue(subProcess.Id, out var existingWindow))
+        {
+            if (!existingWindow.IsVisible)
+                existingWindow.Show();
+            else
+                existingWindow.Activate();
+            return;
+        }
+
         var subDiagram = _vars.Model.Definition?.Diagrams
             .FirstOrDefault(d => d.Plane?.BpmnElement?.Id == subProcess.Id);
 
@@ -613,12 +623,11 @@ public class ActivityRenderer : IShapeRenderer
                 Title = $"Sub-Process: {subProcess.Name ?? subProcess.Id}",
             };
             window.RenderSubProcess(subDiagram);
+            vars.SubProcessWindows[subProcess.Id] = window;
             window.Show();
         }
         else if (subProcess.FlowElements.Any())
         {
-            // No separate diagram exists but the sub-process has flow elements.
-            // Show a message that diagram info is not available.
             MessageBox.Show(
                 $"The sub-process \"{subProcess.Name ?? subProcess.Id}\" contains {subProcess.FlowElements.Count} flow element(s) but has no separate diagram defined for visualization.",
                 "Sub-Process Contents",
