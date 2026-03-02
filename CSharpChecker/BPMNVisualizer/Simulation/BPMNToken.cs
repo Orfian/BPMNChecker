@@ -15,6 +15,8 @@ public class BPMNToken
     
     public BPMNToken? Parent { get; set; }
     
+    public TokenManager? Owner { get; set; }
+    
     public BPMNToken DeepClone()
     {
         return new BPMNToken
@@ -25,7 +27,8 @@ public class BPMNToken
             Visual = null, 
             IsWaiting = this.IsWaiting,
             IsEvaluated = this.IsEvaluated,
-            Parent = this.Parent // Note: This is a reference copy. You may want to clone the parent token if needed.
+            Parent = this.Parent, // Note: This is a reference copy. You may want to clone the parent token if needed.
+            Owner = null // Visual owner is not cloned; will be reassigned when token is recreated
         };
     }
 }

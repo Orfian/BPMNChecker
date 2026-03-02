@@ -1,12 +1,9 @@
 ﻿using System.Windows;
 using System.Collections.ObjectModel;
-using BPMNModel;
 using BPMNModel.Model;
 using BPMNVisualizer.Simulation.History;
 using BPMNVisualizer.Simulation.Simulators;
 using BPMNVisualizer.Utility;
-using Serilog;
-using Point = System.Windows.Point;
 
 namespace BPMNVisualizer.Simulation;
 
@@ -70,7 +67,7 @@ public class Simulator
         {
             if (_vars.ObjectBounds.TryGetValue(startEvent.Id!, out var bounds))
             {
-                _tokenManager.AddToken(startEvent, bounds);
+                Console.WriteLine("Bounds: " + bounds + ", Id: " + _tokenManager.AddToken(startEvent, bounds).Id);
             }
         }
         
@@ -235,29 +232,53 @@ public class Simulator
         foreach(var m in state.MessageQueue) _actions.MessageQueue.Enqueue(m.DeepClone());
         foreach(var s in state.SignalQueue) _actions.SignalQueue.Enqueue(s.DeepClone());
         
-        // 3. Restore Tokens
+        // 3. Build lookup: element ID -> collapsed SubProcess ID
+        var elementToCollapsedSubProcess = new Dictionary<string, SubProcess>();
+        var collapsedSubProcesses = _vars.Model.AllObjectsWithIds.Values
+            .OfType<SubProcess>()
+            .Where(sp => _vars.Shapes.TryGetValue(sp.Id, out var shape) && shape.IsExpanded == false)
+            .ToList();
+
+        foreach (var sp in collapsedSubProcesses)
+        {
+            foreach (var fe in sp.FlowElements)
+            {
+                if (fe.Id != null)
+                    elementToCollapsedSubProcess[fe.Id] = sp;
+            }
+        }
+        
+        // 4. Restore Tokens
         var oldToNew = new Dictionary<string, BPMNToken>();
         
         foreach (var historyToken in state.Tokens)
         {
              if (historyToken.CurrentElement != null && historyToken.Id != null && _vars.ObjectBounds.TryGetValue(historyToken.CurrentElement.Id!, out var bounds))
              {
-                 var newToken = _tokenManager.AddToken(historyToken.CurrentElement, bounds);
-                 newToken.Id = historyToken.Id; // Restore ID
+                 //_vars.ObjectBounds.TryGetValue(startEvent.Id!, out var bounds)
+                 Console.WriteLine("Bounds: " + bounds + ", Id: " + historyToken.Id);
+                 var manager = _tokenManager;
+                 if (historyToken.CurrentElement.Id != null && elementToCollapsedSubProcess.TryGetValue(historyToken.CurrentElement.Id, out var owningSubProcess))
+                 {
+                     manager = GetOrCreateSubProcessWindow(owningSubProcess).TokenManager;
+                 }
+
+                 var newToken = manager.AddToken(historyToken.CurrentElement, bounds);
+                 newToken.Id = historyToken.Id;
                  newToken.IsWaiting = historyToken.IsWaiting;
                  newToken.IsEvaluated = historyToken.IsEvaluated;
                  newToken.CurrentSequenceFlow = historyToken.CurrentSequenceFlow;
-                 
+
                   if (historyToken.CurrentSequenceFlow?.Id != null && _vars.Paths.TryGetValue(historyToken.CurrentSequenceFlow.Id, out var path) && path != null) {
                      var points = path.ToList();
                      if (points.Any()) {
                          var lastPoint = points.Last();
-                         _tokenManager.SetTokenPosition(newToken, lastPoint);
+                         newToken.Owner?.SetTokenPosition(newToken, lastPoint);
                      }
                  }
 
-                 _tokenManager.SetTokenWaiting(newToken, newToken.IsWaiting);
-                 
+                 (newToken.Owner ?? _tokenManager).SetTokenWaiting(newToken, newToken.IsWaiting);
+
                  oldToNew[historyToken.Id] = newToken;
              }
         }
@@ -275,7 +296,7 @@ public class Simulator
             }
         }
 
-        // 4. Restore Pending Gateway Choices
+        // 5. Restore Pending Gateway Choices
         var newPendingChoices = state.PendingGatewayChoices.Select(c => c.DeepClone()).ToList();
         
         foreach (var choice in newPendingChoices)
@@ -289,8 +310,10 @@ public class Simulator
              var preservedSelections = choice.Indicators.Where(i => i.Selected && i.Flow?.Id != null).Select(i => i.Flow!.Id).ToHashSet();
              choice.Indicators.Clear();
              
+             var choiceManager = choice.Token?.Owner ?? _tokenManager;
+             
              // Recreate indicators (visuals + objects)
-             _tokenManager.ShowGatewayChoiceIndicators(choice);
+             choiceManager.ShowGatewayChoiceIndicators(choice);
              
              // Restore selection
              foreach (var ind in choice.Indicators)
@@ -298,7 +321,7 @@ public class Simulator
                  if (ind.Flow?.Id != null && preservedSelections.Contains(ind.Flow.Id) && ind.Visual != null)
                  {
                      ind.Selected = true;
-                     _tokenManager.SetIndicatorColor(ind.Visual, true);
+                     choiceManager.SetIndicatorColor(ind.Visual, true);
                  }
              }
              
@@ -335,5 +358,44 @@ public class Simulator
                 _actions.PendingGatewayChoices.Add(choice);
              }
         }
+    }
+    
+    /// <summary>
+    /// Gets an existing SubProcessWindow or creates and registers a new one for the given subprocess.
+    /// Ensures the window is rendered and visible.
+    /// </summary>
+    private SubProcessWindow GetOrCreateSubProcessWindow(SubProcess subProcess)
+    {
+        var vars = SharedVariables.Instance;
+        
+        if (vars.SubProcessWindows.TryGetValue(subProcess.Id, out var window))
+        {
+            // Ensure it has a TokenManager initialized
+            if (window.TokenManager == null)
+                window.TokenManager = new TokenManager(window.SubProcessCanvas);
+            
+            if (!window.IsVisible)
+                window.Show();
+                
+            return window;
+        }
+
+        var subDiagram = vars.Model.Definition?.Diagrams
+            .FirstOrDefault(d => d.Plane?.BpmnElement?.Id == subProcess.Id);
+
+        window = new SubProcessWindow
+        {
+            Owner = Application.Current.MainWindow,
+            Title = $"Sub-Process: {subProcess.Name ?? subProcess.Id}"
+        };
+
+        if (subDiagram != null)
+            window.RenderSubProcess(subDiagram);
+
+        window.TokenManager = new TokenManager(window.SubProcessCanvas);
+        vars.SubProcessWindows[subProcess.Id] = window;
+        window.Show();
+
+        return window;
     }
 }

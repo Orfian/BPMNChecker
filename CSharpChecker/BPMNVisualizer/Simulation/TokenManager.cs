@@ -15,7 +15,7 @@ public class TokenManager
     private readonly ModelRoot _model;
     private readonly List<BPMNToken> _tokens;
     
-    private readonly Canvas _canvas;
+    internal readonly Canvas _canvas;
 
     public TokenManager(Canvas canvas)
     {
@@ -40,6 +40,7 @@ public class TokenManager
             }
         };
         _tokens.Add(token);
+        token.Owner = this;
         var center = new Point(position.X + position.Width / 2, position.Y + position.Height / 2);
         Canvas.SetLeft(token.Visual, center.X - token.Visual.Width / 2);
         Canvas.SetTop(token.Visual, center.Y - token.Visual.Height / 2);
@@ -72,7 +73,8 @@ public class TokenManager
     
     public void RemoveToken(BPMNToken token)
     {
-        _canvas.Children.Remove(token.Visual);
+        var canvas = token.Owner?._canvas ?? _canvas;
+        canvas.Children.Remove(token.Visual);
         _tokens.Remove(token);
     }
     
@@ -80,7 +82,8 @@ public class TokenManager
     {
         foreach (var token in _tokens)
         {
-            _canvas.Children.Remove(token.Visual);
+            var canvas = token.Owner?._canvas ?? _canvas;
+            canvas.Children.Remove(token.Visual);
         }
         _tokens.Clear();
     }

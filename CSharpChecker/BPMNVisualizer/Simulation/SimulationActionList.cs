@@ -114,6 +114,7 @@ public class SimulationActionList
         SplitTokenActions.Clear();
         MoveTokenActions.Clear();
         SpawnTokenActions.Clear();
+        SpawnCollapsedSubProcessActions.Clear();
         RemoveTokenActions.Clear();
         EventDelayActions.Clear();
         SendMessageActions.Clear();
@@ -124,11 +125,12 @@ public class SimulationActionList
     {
         foreach (var choice in PendingGatewayChoices)
         {
+            var manager = choice.Token?.Owner ?? _tokenManager;
             foreach (var indicator in choice.Indicators)
             {
                 if (indicator.Visual != null)
                 {
-                    _tokenManager.RemoveChoiceIndicator(indicator.Visual);
+                    manager.RemoveChoiceIndicator(indicator.Visual);
                 }
             }
         }
@@ -147,7 +149,8 @@ public class SimulationActionList
     {
         foreach (var a in SetTokenWaitingActions)
         {
-            _tokenManager.SetTokenWaiting(a.Token, a.IsWaiting);
+            var manager = a.Token.Owner ?? _tokenManager;
+            manager.SetTokenWaiting(a.Token, a.IsWaiting);
         }
         SetTokenWaitingActions.Clear();
     }
@@ -157,6 +160,7 @@ public class SimulationActionList
         foreach (var a in ResolveGatewayChoiceActions)
         {
             var choice = a.GatewayChoice;
+            var manager = choice.Token?.Owner ?? _tokenManager;
                 
             var selectedFlows = choice.Indicators
                 .Where(ind => ind.Selected && ind.Flow != null)
@@ -189,7 +193,7 @@ public class SimulationActionList
             {
                 if (indicator.Visual != null)
                 {
-                    _tokenManager.RemoveChoiceIndicator(indicator.Visual);
+                    manager.RemoveChoiceIndicator(indicator.Visual);
                 }
             }
             PendingGatewayChoices.Remove(a.GatewayChoice);
@@ -201,6 +205,8 @@ public class SimulationActionList
     {
         foreach (var a in RequestGatewayChoiceActions)
         {
+            var manager = a.Token.Owner ?? _tokenManager;
+            
             var gatewayChoice = new GatewayChoice
             {
                 Token = a.Token,
@@ -210,7 +216,7 @@ public class SimulationActionList
                 DefaultFlow = a.DefaultFlow
             };
 
-            _tokenManager.ShowGatewayChoiceIndicators(gatewayChoice);
+            manager.ShowGatewayChoiceIndicators(gatewayChoice);
                     
             if (gatewayChoice.DefaultFlow != null)
             {
@@ -219,7 +225,7 @@ public class SimulationActionList
                 if (defaultIndicator != null && defaultIndicator.Visual != null)
                 {
                     defaultIndicator.Selected = true;
-                    _tokenManager.SetIndicatorColor(defaultIndicator.Visual, true);
+                    manager.SetIndicatorColor(defaultIndicator.Visual, true);
                 }
             }
             else
@@ -230,7 +236,7 @@ public class SimulationActionList
                     if (ind != null && ind.Visual != null)
                     {
                         ind.Selected = true;
-                        _tokenManager.SetIndicatorColor(ind.Visual, true);
+                        manager.SetIndicatorColor(ind.Visual, true);
                     }
                 }
             }
@@ -248,12 +254,13 @@ public class SimulationActionList
         {
             if (_vars.ObjectBounds.TryGetValue(a.SourceElement.Id!, out var sourceBounds))
             {
-                var newToken = _tokenManager.AddToken(a.SourceElement, sourceBounds);
+                var manager = a.ParentToken?.Owner ?? _tokenManager;
+                var newToken = manager.AddToken(a.SourceElement, sourceBounds);
                 newToken.Parent = a.ParentToken;
                         
                 if (_vars.ObjectBounds.TryGetValue(a.TargetElement.Id!, out var targetBounds))
                 {
-                    _tokenManager.MoveToken(
+                    manager.MoveToken(
                         newToken,
                         a.TargetElement,
                         a.Flow,
@@ -272,7 +279,8 @@ public class SimulationActionList
         {
             if (_vars.ObjectBounds.TryGetValue(a.TargetElement.Id!, out var targetBounds))
             {
-                _tokenManager.MoveToken(
+                var manager = a.Token.Owner ?? _tokenManager;
+                manager.MoveToken(
                     a.Token,
                     a.TargetElement,
                     a.Flow,
@@ -290,7 +298,8 @@ public class SimulationActionList
         {
             if (_vars.ObjectBounds.TryGetValue(a.TargetElement.Id!, out var targetBounds))
             {
-                var newToken = _tokenManager.AddToken(a.TargetElement, targetBounds);
+                var manager = a.ParentToken?.Owner ?? _tokenManager;
+                var newToken = manager.AddToken(a.TargetElement, targetBounds);
                 newToken.Parent = a.ParentToken;
             }
         }
@@ -334,7 +343,8 @@ public class SimulationActionList
     {
         foreach (var a in RemoveTokenActions)
         {
-            _tokenManager.RemoveToken(a.Token);
+            var manager = a.Token.Owner ?? _tokenManager;
+            manager.RemoveToken(a.Token);
         }
         RemoveTokenActions.Clear();
     }
@@ -343,11 +353,13 @@ public class SimulationActionList
     {
         foreach (var a in EventDelayActions)
         {
+            var manager = a.Token.Owner ?? _tokenManager;
+            
             var eventPosition = _vars.ObjectBounds.TryGetValue(a.Event.Id!, out var evtBounds)
                 ? new Point(evtBounds.X + evtBounds.Width / 2, evtBounds.Y + evtBounds.Height / 2)
                 : new Point(0, 0);
             
-            var arrow= _tokenManager.AddArrowIndicator(eventPosition, new Vector(1, 0));
+            var arrow= manager.AddArrowIndicator(eventPosition, new Vector(1, 0));
             
             arrow.MouseDown += (s, e) =>
             {
@@ -435,12 +447,12 @@ public class SimulationActionList
             
             arrow.MouseEnter += (s, e) =>
             {
-                _tokenManager.SetHoverIndicatorColor(arrow, false, true);
+                manager.SetHoverIndicatorColor(arrow, false, true);
             };
                     
             arrow.MouseLeave += (s, e) =>
             {
-                _tokenManager.SetHoverIndicatorColor(arrow, false, false);
+                manager.SetHoverIndicatorColor(arrow, false, false);
             };
         }
         EventDelayActions.Clear();

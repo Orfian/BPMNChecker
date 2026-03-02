@@ -9,7 +9,7 @@ namespace BPMNVisualizer
 {
     public partial class SubProcessWindow : Window
     {
-        private TokenManager _tokenManager;
+        public TokenManager TokenManager { get; internal set; }
 
         public SubProcessWindow()
         {
@@ -48,13 +48,14 @@ namespace BPMNVisualizer
 
         public void StartSimulation(SubProcess subProcess, BPMNToken parentToken)
         {
-            _tokenManager = new TokenManager(SubProcessCanvas);
+            if (TokenManager == null)
+                TokenManager = new TokenManager(SubProcessCanvas);
 
             foreach (var startEvent in subProcess.FlowElements.OfType<StartEvent>())
             {
                 if (SharedVariables.Instance.ObjectBounds.TryGetValue(startEvent.Id!, out var bounds))
                 {
-                    var token = _tokenManager.AddToken(startEvent, bounds);
+                    var token = TokenManager.AddToken(startEvent, bounds);
                     token.Parent = parentToken;
                 }
             }
