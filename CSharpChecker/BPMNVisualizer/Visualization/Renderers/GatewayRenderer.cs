@@ -21,25 +21,32 @@ public class GatewayRenderer : IShapeRenderer
     private readonly BrushManager _brushManager;
     private readonly ShapeManager _shapeManager;
     private readonly SvgResourceManager _svgResourceManager;
+    
     private readonly Dictionary<string, FrameworkElement> _gatewayNotes = new();
+    
+    private readonly bool _isHistoryMode;
 
-    public GatewayRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager, SvgResourceManager svgResourceManager)
+    public GatewayRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager, SvgResourceManager svgResourceManager, bool isHistoryMode = false)
     {
         _vars = SharedVariables.Instance;
         _canvas = canvas;
         _brushManager = brushManager;
         _shapeManager = shapeManager;
         _svgResourceManager = svgResourceManager;
+        _isHistoryMode = isHistoryMode;
     }
 
     public void RenderShape(BaseElement element, Rect bounds)
     {
         if (element is not Gateway gateway) return;
-        
-        _vars.ObjectBounds[gateway.Id] = bounds;
 
         var shape = DrawElement(gateway, bounds);
-        shape.MouseDown += (s, e) => ShowGatewayDetails(gateway);
+
+        if (!_isHistoryMode)
+        {
+            _vars.ObjectBounds[gateway.Id] = bounds;
+            shape.MouseDown += (s, e) => ShowGatewayDetails(gateway);
+        }
 
         Canvas.SetLeft(shape, bounds.Left);
         Canvas.SetTop(shape, bounds.Top);
@@ -50,7 +57,8 @@ public class GatewayRenderer : IShapeRenderer
         {
             Canvas.SetLeft(icon, bounds.Left + (bounds.Width - icon.Width) / 2);
             Canvas.SetTop(icon, bounds.Top + (bounds.Height - icon.Height) / 2);
-            icon.MouseDown += (s, e) => ShowGatewayDetails(gateway);
+            if (!_isHistoryMode)
+                icon.MouseDown += (s, e) => ShowGatewayDetails(gateway);
             _canvas.Children.Add(icon);
         }
 
@@ -59,9 +67,12 @@ public class GatewayRenderer : IShapeRenderer
         {
             Canvas.SetLeft(label, bounds.Left + (bounds.Width - label.Width) / 2);
             Canvas.SetTop(label, bounds.Top + bounds.Height * 1.1);
-            label.MouseDown += (s, e) => ShowGatewayDetails(gateway);
+            if (!_isHistoryMode)
+                label.MouseDown += (s, e) => ShowGatewayDetails(gateway);
             _canvas.Children.Add(label);
         }
+        
+        if (_isHistoryMode) return;
         
         var note = DrawNote(gateway, bounds);
         if (note != null)

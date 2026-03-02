@@ -23,23 +23,25 @@ public class EventRenderer : IShapeRenderer
     private readonly BrushManager _brushManager;
     private readonly ShapeManager _shapeManager;
     private readonly SvgResourceManager _svgResourceManager;
+    
     private readonly Dictionary<string, FrameworkElement> _eventNotes = new();
+    
+    private readonly bool _isHistoryMode;
 
-    public EventRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager, SvgResourceManager svgResourceManager)
+    public EventRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager, SvgResourceManager svgResourceManager, bool isHistoryMode = false)
     {
         _vars = SharedVariables.Instance;
         _canvas = canvas;
         _brushManager = brushManager;
         _shapeManager = shapeManager;
         _svgResourceManager = svgResourceManager;
+        _isHistoryMode = isHistoryMode;
     }
 
     public void RenderShape(BaseElement element, Rect bounds)
     {
         if (element is not Event evt) return;
         
-        _vars.ObjectBounds[evt.Id] = bounds;
-
         var shape = DrawElement(evt, bounds);
         
         if (Helpers.HasScript(evt))
@@ -53,8 +55,12 @@ public class EventRenderer : IShapeRenderer
                 Opacity = 1
             };
         }
-        
-        shape.MouseDown += (s, e) => ShowEventDetails(evt);
+
+        if (!_isHistoryMode)
+        {
+            _vars.ObjectBounds[evt.Id] = bounds;
+            shape.MouseDown += (s, e) => ShowEventDetails(evt);
+        }
 
         Canvas.SetLeft(shape, bounds.Left);
         Canvas.SetTop(shape, bounds.Top);
@@ -65,7 +71,8 @@ public class EventRenderer : IShapeRenderer
         {
             Canvas.SetLeft(icon, bounds.Left + (bounds.Width - icon.Width) / 2);
             Canvas.SetTop(icon, bounds.Top + (bounds.Height - icon.Height) / 2);
-            icon.MouseDown += (s, e) => ShowEventDetails(evt);
+            if (!_isHistoryMode)
+                icon.MouseDown += (s, e) => ShowEventDetails(evt);
             _canvas.Children.Add(icon);
         }
 
@@ -74,9 +81,12 @@ public class EventRenderer : IShapeRenderer
         {
             Canvas.SetLeft(label, bounds.Left + (bounds.Width - label.Width) / 2);
             Canvas.SetTop(label, bounds.Top + bounds.Height * 1.1);
-            label.MouseDown += (s, e) => ShowEventDetails(evt);
+            if (!_isHistoryMode)
+                label.MouseDown += (s, e) => ShowEventDetails(evt);
             _canvas.Children.Add(label);
         }
+
+        if (_isHistoryMode) return;
         
         var note = DrawNote(evt, bounds);
         if (note != null)

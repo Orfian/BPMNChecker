@@ -110,18 +110,18 @@ namespace BPMNVisualizer.Visualization
 
             switch (element)
             {
-                case Activity activity:
-                    renderer = new ActivityRenderer(canvas, _brushManager, _shapeManager, _svgResourceManager);
+                case Activity:
+                    renderer = new ActivityRenderer(canvas, _brushManager, _shapeManager, _svgResourceManager, true);
                     // Standard bounds for tasks/activities
                     bounds = new Rect(0, 0, 100, 80);
                     break;
-                case Event evt:
-                    renderer = new EventRenderer(canvas, _brushManager, _shapeManager, _svgResourceManager);
+                case Event:
+                    renderer = new EventRenderer(canvas, _brushManager, _shapeManager, _svgResourceManager, true);
                     // Standard bounds for events
                     bounds = new Rect(0, 0, 36, 36);
                     break;
-                case Gateway gateway:
-                    renderer = new GatewayRenderer(canvas, _brushManager, _shapeManager, _svgResourceManager);
+                case Gateway:
+                    renderer = new GatewayRenderer(canvas, _brushManager, _shapeManager, _svgResourceManager, true);
                     // Standard bounds for gateways
                     bounds = new Rect(0, 0, 50, 50);
                     break;

@@ -22,21 +22,22 @@ public class ActivityRenderer : IShapeRenderer
     private readonly SvgResourceManager _svgResourceManager;
     
     private readonly Dictionary<string, FrameworkElement> _activityNotes = new();
+    
+    private readonly bool _isHistoryMode;
 
-    public ActivityRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager, SvgResourceManager svgResourceManager)
+    public ActivityRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager, SvgResourceManager svgResourceManager, bool isHistoryMode = false)
     {
         _vars = SharedVariables.Instance;
         _canvas = canvas;
         _brushManager = brushManager;
         _shapeManager = shapeManager;
         _svgResourceManager = svgResourceManager;
+        _isHistoryMode = isHistoryMode;
     }
     
     public void RenderShape(BaseElement element, Rect bounds)
     {
         if (element is not Activity activity) return;
-        
-        _vars.ObjectBounds[activity.Id] = bounds;
 
         var shape = DrawElement(activity, bounds);
         
@@ -52,18 +53,23 @@ public class ActivityRenderer : IShapeRenderer
             };
         }
         
-        shape.MouseDown += (s, e) =>
+        if (!_isHistoryMode)
         {
-            if (e.RightButton == MouseButtonState.Pressed && IsCollapsedSubProcess(activity))
+            _vars.ObjectBounds[activity.Id] = bounds;
+
+            shape.MouseDown += (s, e) =>
             {
-                OpenCollapsedSubProcess(activity);
-                e.Handled = true;
-            }
-            else
-            {
-                ShowActivityDetails(activity);
-            }
-        };
+                if (e.RightButton == MouseButtonState.Pressed && IsCollapsedSubProcess(activity))
+                {
+                    OpenCollapsedSubProcess(activity);
+                    e.Handled = true;
+                }
+                else
+                {
+                    ShowActivityDetails(activity);
+                }
+            };
+        }
 
         Canvas.SetLeft(shape, bounds.Left);
         Canvas.SetTop(shape, bounds.Top);
@@ -76,7 +82,8 @@ public class ActivityRenderer : IShapeRenderer
             {
                 Canvas.SetLeft(icon, bounds.Left + bounds.Width * 0.05);
                 Canvas.SetTop(icon, bounds.Top + bounds.Height * 0.05);
-                icon.MouseDown += (s, e) => ShowActivityDetails(activity);
+                if (!_isHistoryMode)
+                    icon.MouseDown += (s, e) => ShowActivityDetails(activity);
                 _canvas.Children.Add(icon);
             }
         }
@@ -86,7 +93,8 @@ public class ActivityRenderer : IShapeRenderer
         {
             Canvas.SetLeft(markers, bounds.Left + (bounds.Width - markers.Width) / 2);
             Canvas.SetTop(markers, bounds.Top + bounds.Height * 0.9 - markers.Height);
-            markers.MouseDown += (s, e) => ShowActivityDetails(activity);
+            if (!_isHistoryMode)
+                markers.MouseDown += (s, e) => ShowActivityDetails(activity);
             _canvas.Children.Add(markers);
         }
 
@@ -95,9 +103,12 @@ public class ActivityRenderer : IShapeRenderer
         {
             Canvas.SetLeft(label, bounds.Left + (bounds.Width - label.Width) / 2);
             Canvas.SetTop(label, bounds.Top + (bounds.Height - label.Height) / 2);
-            label.MouseDown += (s, e) => ShowActivityDetails(activity);
+            if (!_isHistoryMode)
+                label.MouseDown += (s, e) => ShowActivityDetails(activity);
             _canvas.Children.Add(label);
         }
+
+        if (_isHistoryMode) return;
         
         var note = DrawNote(activity, bounds);
         if (note != null)
