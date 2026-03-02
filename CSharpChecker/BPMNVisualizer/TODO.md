@@ -5,13 +5,13 @@ MUST:
 - [Done] Complex Gateway
 - [Done] Event Subprocess, Transaction
 - [Done] Fix Expanded Subprocesses
-- Collapsed SubProcesses (Second Image)
+- [Done] Collapsed SubProcesses (Second Image)
 - [Done] Activity Markers
 - [Done] Conditional and Default Connections
 - [Done] Non-Interrupting (Dashed) Events
 - [Done] Cross Pool Connections
 - [Done] Export to PNG
-- [In Progress] Improve Simulation UI (add autoplay, step, restart and cancel)
+- [Done] Improve Simulation UI (add step, restart and cancel)
 - [Done] Learn about multiple start events and implement accordingly
 - [Done] Animation that goes on the flow lines
 - [Done] Look up all Objects that can have a Default Flow and change Inclusive Gateway simulation accordingly
@@ -19,6 +19,11 @@ MUST:
 - [Done] Change pop up window UI in simulation mode into choice arrows
 - [Done] Handle timer, conditional, message, signal events in simulation mode
 - [Done] Handle Message, Signal, Conditional, Timer Start Events in simulation mode
+- Add the same message and signal queue for start events as for intermediate events
+- Don't remove indicators for Message, Signal, Conditional, Timer Start Events when they are triggered in simulation mode
+- Somehow indicate multiple tokens on the same element in simulation mode (e.g. by stacking or numbering tokens)
+- Fix the issue with Gateways
+- Add message, signal, conditional and timer start indicators into history
 
 WORKINGS:
 - [Done] Parallel Gateways join incoming tokens and wait for all the routes
@@ -31,4 +36,3 @@ NICE TO HAVE:
 - Minimap(?)
 - [Deprecated] Add text like "(Event)" or "(Gateway)" and "Default" next to choices in simulation mode
 - Dark mode
-- Find out where the location of connection annotations is saved and move them accordingly
