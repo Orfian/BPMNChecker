@@ -19,8 +19,8 @@ MUST:
 - [Done] Change pop up window UI in simulation mode into choice arrows
 - [Done] Handle timer, conditional, message, signal events in simulation mode
 - [Done] Handle Message, Signal, Conditional, Timer Start Events in simulation mode
-- Add the same message and signal queue for start events as for intermediate events
-- Don't remove indicators for Message, Signal, Conditional, Timer Start Events when they are triggered in simulation mode
+- [Done] Add the same message and signal queue for start events as for intermediate events
+- [Done] Don't remove indicators for Message, Signal, Conditional, Timer Start Events when they are triggered in simulation mode
 - Somehow indicate multiple tokens on the same element in simulation mode (e.g. by stacking or numbering tokens)
 - Fix the issue with Gateways
 - Add message, signal, conditional and timer start indicators into history

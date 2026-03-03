@@ -2,7 +2,6 @@
 using BPMNModel.Model;
 using BPMNVisualizer.Simulation.Simulators;
 using BPMNVisualizer.Utility;
-using Serilog;
 using Point = System.Windows.Point;
 
 namespace BPMNVisualizer.Simulation;

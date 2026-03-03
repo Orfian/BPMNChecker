@@ -8,9 +8,12 @@ namespace BPMNVisualizer.Simulation.Simulators;
 
 public class EventSimulator : BaseSimulator
 {
+    private readonly SharedVariables _vars;
+    
     public EventSimulator(TokenManager tokenManager, SimulationActionList actions)
         : base(tokenManager, actions)
     {
+        _vars = SharedVariables.Instance;
     }
 
     public override void Evaluate(BPMNToken token)
@@ -40,7 +43,7 @@ public class EventSimulator : BaseSimulator
                 break;
 
             default:
-                SharedVariables.Instance.Logger.Warning(
+                _vars.Logger.Warning(
                     "Unhandled event type: {EventType}",
                     evt.GetType().Name);
                 break;
@@ -200,7 +203,7 @@ public class EventSimulator : BaseSimulator
     
     public void SpawnStartEventIndicator(StartEvent startEvent, BPMNToken? parentToken)
     {
-        if (SharedVariables.Instance.ObjectBounds.TryGetValue(startEvent.Id, out var bounds))
+        if (_vars.ObjectBounds.TryGetValue(startEvent.Id, out var bounds))
         {
             var arrow = _tokenManager.AddArrowIndicator(
                 new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2),
@@ -208,9 +211,76 @@ public class EventSimulator : BaseSimulator
                     
             arrow.MouseDown += (s, e) =>
             {
-                var token = _tokenManager.AddToken(startEvent, bounds);
-                token.Parent = parentToken;
-                _tokenManager.RemoveChoiceIndicator(arrow);
+                if (startEvent.EventDefinitions.Any(def => def is MessageEventDefinition))
+                {
+                    var dialog = new QueueDialog("Message Queue", "Trigger Without Message", _actions.MessageQueue);
+                    if (dialog.ShowDialog() == true)
+                    {
+                        if (dialog.SelectedItem is SimulationMessage selectedMessage)
+                        {
+                            // Consume message
+                            var messageList = _actions.MessageQueue.ToList();
+                            
+                            // Find the specific instance to remove
+                            var index = messageList.FindIndex(m => ReferenceEquals(m, selectedMessage));
+                            if (index != -1)
+                            {
+                                messageList.RemoveAt(index);
+                            }
+                            
+                            _actions.MessageQueue.Clear();
+                            foreach(var m in messageList) _actions.MessageQueue.Enqueue(m);
+                            
+                            _vars.Logger.Information("Message {MessageName} consumed by {EventId}", selectedMessage.MessageName, startEvent.Id);
+                            
+                            var token = _tokenManager.AddToken(startEvent, bounds);
+                            token.Parent = parentToken;
+                        }
+                        else if (dialog.TriggerWithoutSelection)
+                        {
+                            _vars.Logger.Information("Event {EventId} triggered manually without message", startEvent.Id);
+                            
+                            var token = _tokenManager.AddToken(startEvent, bounds);
+                            token.Parent = parentToken;
+                        }
+                    }
+                }
+                else if (startEvent.EventDefinitions.Any(def => def is SignalEventDefinition))
+                {
+                    var dialog = new QueueDialog("Signal Queue", "Trigger Without Signal", _actions.SignalQueue);
+                    if (dialog.ShowDialog() == true)
+                    {
+                        if (dialog.SelectedItem is SimulationSignal selectedSignal)
+                        {
+                            var signalList = _actions.SignalQueue.ToList();
+                            var index = signalList.FindIndex(sig => ReferenceEquals(sig, selectedSignal));
+                            if (index != -1)
+                            {
+                                signalList.RemoveAt(index);
+                            }
+                            
+                            _actions.SignalQueue.Clear();
+                            foreach(var sig in signalList) _actions.SignalQueue.Enqueue(sig);
+                            
+                            _vars.Logger.Information("Signal {SignalName} consumed by {EventId}", selectedSignal.SignalName, startEvent.Id);
+                            
+                            var token = _tokenManager.AddToken(startEvent, bounds);
+                            token.Parent = parentToken;
+                        }
+                        else if (dialog.TriggerWithoutSelection)
+                        {
+                            _vars.Logger.Information("Event {EventId} triggered manually without signal", startEvent.Id);
+                            
+                            var token = _tokenManager.AddToken(startEvent, bounds);
+                            token.Parent = parentToken;
+                        }
+                    }
+                }
+                else
+                {
+                    var token = _tokenManager.AddToken(startEvent, bounds);
+                    token.Parent = parentToken;
+                }
             };
                             
             arrow.MouseEnter += (s, e) =>
