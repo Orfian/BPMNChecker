@@ -158,8 +158,11 @@ public class Simulator
             PendingGatewayChoices = _actions.PendingGatewayChoices.Select(c => c.DeepClone()).ToList(),
             MessageQueue = new Queue<SimulationMessage>(_actions.MessageQueue.Select(m => m.DeepClone())),
             SignalQueue = new Queue<SimulationSignal>(_actions.SignalQueue.Select(s => s.DeepClone())),
-            TriggeredCodeElements = GetTriggeredCodeElements(tokens)
+            TriggeredCodeElements = GetTriggeredCodeElements(tokens),
+            EventTriggers = _actions.PendingEventTriggers.ToList()
         };
+        
+        _actions.PendingEventTriggers.Clear();
         
         History.Add(state);
         _currentStepIndex = History.Count - 1;

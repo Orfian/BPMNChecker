@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:vis="clr-namespace:BPMNVisualizer.Visualization"
-        mc:Ignorable="d" Title="Simulation History" Height="450" Width="300">
+        mc:Ignorable="d" Title="Simulation History" Height="450" Width="500">
     <Window.Resources>
         <vis:TokenToVisualConverter x:Key="TokenToVisualConverter"/>
     </Window.Resources>
@@ -20,6 +20,7 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             
@@ -50,7 +51,15 @@
                                 </StackPanel>
                             </StackPanel>
                             
-                            <ItemsControl Grid.Column="1" ItemsSource="{Binding TriggeredCodeElements}" VerticalAlignment="Center" Margin="10,0,0,0">
+                            <ItemsControl Grid.Column="1" ItemsSource="{Binding EventTriggers}" VerticalAlignment="Center" Margin="10,0,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Foreground="DarkGreen" FontStyle="Italic" HorizontalAlignment="Right"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            
+                            <ItemsControl Grid.Column="2" ItemsSource="{Binding TriggeredCodeElements}" VerticalAlignment="Center" Margin="10,0,0,0">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding}" Foreground="DarkBlue" FontStyle="Italic" HorizontalAlignment="Right"/>

@@ -23,7 +23,7 @@ MUST:
 - [Done] Don't remove indicators for Message, Signal, Conditional, Timer Start Events when they are triggered in simulation mode
 - Somehow indicate multiple tokens on the same element in simulation mode (e.g. by stacking or numbering tokens)
 - Fix the issue with Gateways
-- Add message, signal, conditional and timer start indicators into history
+- [Done] Add message, signal, conditional and timer start indicators into history
 
 WORKINGS:
 - [Done] Parallel Gateways join incoming tokens and wait for all the routes

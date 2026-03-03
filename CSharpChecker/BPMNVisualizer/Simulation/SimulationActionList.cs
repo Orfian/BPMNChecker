@@ -21,6 +21,8 @@ public class SimulationActionList
     
     public List<GatewayChoice> PendingGatewayChoices = new();
     
+    public List<string> PendingEventTriggers { get; } = new();
+    
     public List<SetTokenWaitingAction> SetTokenWaitingActions { get; } = new();
     public List<ResolveGatewayChoiceAction> ResolveGatewayChoiceActions { get; } = new();
     public List<RequestGatewayChoiceAction> RequestGatewayChoiceActions { get; } = new();
@@ -142,6 +144,7 @@ public class SimulationActionList
         ClearPendingGatewayChoices();
         MessageQueue.Clear();
         SignalQueue.Clear();
+        PendingEventTriggers.Clear();
     }
     
     public void CommitSetTokenWaitingActions()
@@ -364,6 +367,7 @@ public class SimulationActionList
             {
                 if (a.Event is StartEvent or EndEvent)
                 {
+                     PendingEventTriggers.Add($"Event {a.Event.Id} triggered");
                      _eventSimulator.ResolveEventDelay(a.Token, arrow);
                      return;
                 }
@@ -402,11 +406,13 @@ public class SimulationActionList
                             foreach(var m in messageList) MessageQueue.Enqueue(m);
                             
                             _vars.Logger.Information("Message {MessageName} consumed by {EventId}", selectedMessage.MessageName, a.Event.Id);
+                            PendingEventTriggers.Add($"Message \"{selectedMessage.MessageName}\" consumed by {a.Event.Id}");
                             _eventSimulator.ResolveEventDelay(a.Token, arrow);
                         }
                         else if (dialog.TriggerWithoutSelection)
                         {
                             _vars.Logger.Information("Event {EventId} triggered manually without message", a.Event.Id);
+                            PendingEventTriggers.Add($"Message event {a.Event.Id} triggered manually");
                             _eventSimulator.ResolveEventDelay(a.Token, arrow);
                         }
                     }
@@ -429,17 +435,20 @@ public class SimulationActionList
                             foreach(var sig in signalList) SignalQueue.Enqueue(sig);
                             
                             _vars.Logger.Information("Signal {SignalName} consumed by {EventId}", selectedSignal.SignalName, a.Event.Id);
+                            PendingEventTriggers.Add($"Signal \"{selectedSignal.SignalName}\" consumed by {a.Event.Id}");
                             _eventSimulator.ResolveEventDelay(a.Token, arrow);
                         }
                         else if (dialog.TriggerWithoutSelection)
                         {
                             _vars.Logger.Information("Event {EventId} triggered manually without signal", a.Event.Id);
+                            PendingEventTriggers.Add($"Signal event {a.Event.Id} triggered manually");
                             _eventSimulator.ResolveEventDelay(a.Token, arrow);
                         }
                     }
                 }
                 else
                 {
+                    PendingEventTriggers.Add($"Event {a.Event.Id} triggered");
                     _eventSimulator.ResolveEventDelay(a.Token, arrow);
                 }
             };

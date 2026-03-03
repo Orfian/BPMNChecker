@@ -12,4 +12,6 @@ public class SimulationState
     public Queue<SimulationSignal> SignalQueue { get; set; } = new();
     
     public List<string> TriggeredCodeElements { get; set; } = new();
+    
+    public List<string> EventTriggers { get; set; } = new();
 }
