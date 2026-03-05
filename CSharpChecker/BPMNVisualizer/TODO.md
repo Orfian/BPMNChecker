@@ -1,7 +1,8 @@
 MUST:
 - [Done] Participants (Pools and Lanes)
 - Artifacts (Text Annotations, Groups)
-- Label positions on Sequence Flows
+- [Done] Label positions on Sequence Flows
+- Label positions on elements
 - [Done] Complex Gateway
 - [Done] Event Subprocess, Transaction
 - [Done] Fix Expanded Subprocesses
@@ -24,6 +25,7 @@ MUST:
 - Somehow indicate multiple tokens on the same element in simulation mode (e.g. by stacking or numbering tokens)
 - Fix the issue with Gateways
 - [Done] Add message, signal, conditional and timer start indicators into history
+- Code refactoring and cleanup
 
 WORKINGS:
 - [Done] Parallel Gateways join incoming tokens and wait for all the routes

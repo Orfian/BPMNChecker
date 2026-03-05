@@ -12,7 +12,6 @@ namespace BPMNVisualizer.Visualization
         private readonly ILogger _logger;
         private readonly Canvas _canvas;
         private readonly RendererFactory _rendererFactory;
-        private const double ScaleFactor = 1.0;
 
         public VisualizationPipeline(Canvas canvas, RendererFactory rendererFactory)
         {
@@ -69,7 +68,7 @@ namespace BPMNVisualizer.Visualization
                 .OfType<BPMNShape>()
                 .Select(x=>x.Bounds)
                 .Where(bounds => bounds != null)
-                .Select(b => b!.ToRect(ScaleFactor));
+                .Select(b => b!.ToRect());
 
             if (!allBounds.Any()) return;
 
@@ -85,7 +84,7 @@ namespace BPMNVisualizer.Visualization
                 if (shape.BpmnElement == null || !IsStructuralElement(shape.BpmnElement) || shape.Bounds == null) continue;
                 
                 var renderer = _rendererFactory.GetStructureRenderer(shape.BpmnElement);
-                renderer?.RenderShape(shape.BpmnElement, shape.Bounds.ToRect(ScaleFactor));
+                renderer?.RenderShape(shape.BpmnElement, shape.Bounds.ToRect());
             }
         }
 
@@ -97,7 +96,7 @@ namespace BPMNVisualizer.Visualization
                 if (shape.BpmnElement == null || IsStructuralElement(shape.BpmnElement) || shape.Bounds == null) continue;
 
                 var renderer = _rendererFactory.GetShapeRenderer(shape.BpmnElement);
-                renderer?.RenderShape(shape.BpmnElement, shape.Bounds.ToRect(ScaleFactor));
+                renderer?.RenderShape(shape.BpmnElement, shape.Bounds.ToRect());
             }
         }
 
@@ -111,7 +110,7 @@ namespace BPMNVisualizer.Visualization
                 if (edge.BpmnElement != null)
                 {
                     var renderer = _rendererFactory.GetConnectionRenderer(edge.BpmnElement);
-                    renderer?.RenderConnection(edge.BpmnElement, edge.Waypoint.ToPoints(ScaleFactor));
+                    renderer?.RenderConnection(edge);
                 }
             }
         }
@@ -125,7 +124,7 @@ namespace BPMNVisualizer.Visualization
     // Extension methods for coordinate conversion
     internal static class VisualizationExtensions
     {
-        public static Rect ToRect(this Bounds bounds, double scale)
+        public static Rect ToRect(this Bounds bounds, double scale = 1.0)
         {
             return new Rect(
                 (bounds.X ?? 0) * scale,
@@ -134,9 +133,7 @@ namespace BPMNVisualizer.Visualization
                 (bounds.Height ?? 60) * scale);
         }
 
-        public static IEnumerable<System.Windows.Point> ToPoints(
-            this IEnumerable<BPMNModel.Model.Point> waypoints, 
-            double scale)
+        public static IEnumerable<System.Windows.Point> ToPoints(this IEnumerable<BPMNModel.Model.Point> waypoints, double scale = 1.0)
         {
             return waypoints.Select(wp => new System.Windows.Point(
                 (wp.X ?? 0) * scale,

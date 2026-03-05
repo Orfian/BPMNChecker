@@ -11,15 +11,19 @@ namespace BPMNVisualizer.Visualization.Renderers
     public class ConnectionRenderer
     {
         private readonly Canvas _canvas;
+        private BPMNEdge _edge;
 
         public ConnectionRenderer(Canvas canvas)
         {
             _canvas = canvas;
         }
 
-        public void RenderConnection(BaseElement element, IEnumerable<Point> points)
+        public void RenderConnection(BPMNEdge edge)
         {
-            switch (element)
+            _edge = edge;
+
+            var points = edge.Waypoint.ToPoints();
+            switch (_edge.BpmnElement)
             {
                 case SequenceFlow flow:
                     RenderSequenceFlow(flow, points);
@@ -32,8 +36,9 @@ namespace BPMNVisualizer.Visualization.Renderers
                     break;
             }
             
-            SharedVariables.Instance.Paths[element.Id] = points;
+            SharedVariables.Instance.Paths[_edge.BpmnElement.Id] = points;
         }
+
         
         private void RenderSequenceFlow(SequenceFlow flow, IEnumerable<Point> points)
         {
@@ -191,39 +196,52 @@ namespace BPMNVisualizer.Visualization.Renderers
         
         private void AddFlowLabel(SequenceFlow flow, IEnumerable<Point> points)
         {
-            var labelPos = CalculateLabelPosition(points, 0.3);
+            var labelBounds = _edge?.Label?.Bounds;
+            if (labelBounds == null || labelBounds.X == null || labelBounds.Y == null)
+                labelBounds = CalculateLabelPosition(points);
+            
             var label = new TextBlock
             {
                 Text = flow.Name,
                 FontSize = 11,
+                TextWrapping = TextWrapping.Wrap,
+                TextAlignment = TextAlignment.Center,
+                Width = labelBounds.Width ?? 60
             };
-
-            Canvas.SetLeft(label, labelPos.X);
-            Canvas.SetTop(label, labelPos.Y);
+            
+            Canvas.SetLeft(label, labelBounds.X ?? 0);
+            Canvas.SetTop(label, labelBounds.Y ?? 0);
             _canvas.Children.Add(label);
         }
         
         private void AddMessageLabel(MessageFlow flow, IEnumerable<Point> points)
         {
-            var labelPos = CalculateLabelPosition(points, 0.3);
+            var labelBounds = _edge?.Label?.Bounds;
+            if (labelBounds == null)
+                labelBounds = CalculateLabelPosition(points);
+            
             var label = new TextBlock
             {
                 Text = flow.MessageRef?.Name ?? flow.Name,
                 FontSize = 11,
+                TextWrapping = TextWrapping.Wrap,
+                TextAlignment = TextAlignment.Center,
+                Width = labelBounds.Width ?? 60
             };
 
-            Canvas.SetLeft(label, labelPos.X);
-            Canvas.SetTop(label, labelPos.Y);
+            Canvas.SetLeft(label, labelBounds.X ?? 0);
+            Canvas.SetTop(label, labelBounds.Y ?? 0);
             _canvas.Children.Add(label);
         }
         
-        private Point CalculateLabelPosition(IEnumerable<Point> points, double ratio)
+        private Bounds CalculateLabelPosition(IEnumerable<Point> points, double ratio = 0.3)
         {
             var segment = FindLongestSegment(points);
-            return new Point(
-                segment.Start.X + (segment.End.X - segment.Start.X) * ratio,
-                segment.Start.Y + (segment.End.Y - segment.Start.Y) * ratio
-            );
+            return new Bounds
+            {
+                X = segment.Start.X + (segment.End.X - segment.Start.X) * ratio,
+                Y = segment.Start.Y + (segment.End.Y - segment.Start.Y) * ratio
+            };
         }
         
         private (Point Start, Point End) FindLongestSegment(IEnumerable<Point> points)
