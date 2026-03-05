@@ -7,22 +7,19 @@ using BPMNModel.Camunda;
 using BPMNModel.Model;
 using BPMNVisualizer.Utilities;
 using BPMNVisualizer.Utility;
-using Serilog;
 
 namespace BPMNVisualizer.Visualization.Renderers;
 
 public class EventRenderer : IShapeRenderer
 {
     private readonly SharedVariables _vars;
-
-    /*
-    private readonly ILogger _logger;
-    private readonly Dictionary<string, Rect> _vars.ObjectBounds;
-*/
+    
     private readonly Canvas _canvas;
     private readonly BrushManager _brushManager;
     private readonly ShapeManager _shapeManager;
     private readonly SvgResourceManager _svgResourceManager;
+
+    private BPMNShape _shape;
     
     private readonly Dictionary<string, FrameworkElement> _eventNotes = new();
     
@@ -38,15 +35,19 @@ public class EventRenderer : IShapeRenderer
         _isHistoryMode = isHistoryMode;
     }
 
-    public void RenderShape(BaseElement element, Rect bounds)
+    public void RenderShape(BPMNShape shape)
     {
+        _shape = shape;
+        var element = shape.BpmnElement;
+        var bounds = shape.Bounds.ToRect();
+        
         if (element is not Event evt) return;
         
-        var shape = DrawElement(evt, bounds);
+        var uiElement = DrawElement(evt, bounds);
         
         if (Helpers.HasScript(evt))
         {
-            shape.Effect = new DropShadowEffect
+            uiElement.Effect = new DropShadowEffect
             {
                 Color = Colors.Gold,
                 Direction = 0,
@@ -59,12 +60,12 @@ public class EventRenderer : IShapeRenderer
         if (!_isHistoryMode)
         {
             _vars.ObjectBounds[evt.Id] = bounds;
-            shape.MouseDown += (s, e) => ShowEventDetails(evt);
+            uiElement.MouseDown += (s, e) => ShowEventDetails(evt);
         }
 
-        Canvas.SetLeft(shape, bounds.Left);
-        Canvas.SetTop(shape, bounds.Top);
-        _canvas.Children.Add(shape);
+        Canvas.SetLeft(uiElement, bounds.Left);
+        Canvas.SetTop(uiElement, bounds.Top);
+        _canvas.Children.Add(uiElement);
 
         var icon = DrawIcon(evt, bounds);
         if (icon != null)
@@ -75,7 +76,7 @@ public class EventRenderer : IShapeRenderer
                 icon.MouseDown += (s, e) => ShowEventDetails(evt);
             _canvas.Children.Add(icon);
         }
-
+/*
         var label = DrawLabel(evt, bounds);
         if (label != null)
         {
@@ -85,7 +86,9 @@ public class EventRenderer : IShapeRenderer
                 label.MouseDown += (s, e) => ShowEventDetails(evt);
             _canvas.Children.Add(label);
         }
-
+*/
+        AddLabel(evt);
+        
         if (_isHistoryMode) return;
         
         var note = DrawNote(evt, bounds);
@@ -127,7 +130,7 @@ public class EventRenderer : IShapeRenderer
 
         return _shapeManager.WrapInContainer(icon, bounds, 0.25);
     }
-
+/*
     private Border? DrawLabel(Event evt, Rect bounds)
     {
         var text = evt.Name;
@@ -141,6 +144,30 @@ public class EventRenderer : IShapeRenderer
         var label = _shapeManager.GetLabel(text, bounds);
 
         return _shapeManager.WrapInContainer(label, bounds);
+    }
+    */
+    private void AddLabel(Event evt)
+    {
+        if (string.IsNullOrEmpty(evt.Name)) return;
+        
+        var labelBounds = _shape.Label.Bounds.ToRect();
+        
+        var label = new TextBlock
+        {
+            Text = evt.Name,
+            FontSize = 11,
+            TextWrapping = TextWrapping.Wrap,
+            TextAlignment = TextAlignment.Center,
+            Width = labelBounds.Width
+        };
+        
+        Canvas.SetLeft(label, labelBounds.X);
+        Canvas.SetTop(label, labelBounds.Y);
+        
+        _canvas.Children.Add(label);
+        
+        if (!_isHistoryMode)
+            label.MouseDown += (s, e) => ShowEventDetails(evt);
     }
     
     private Border DrawNote(Event evt, Rect bounds)

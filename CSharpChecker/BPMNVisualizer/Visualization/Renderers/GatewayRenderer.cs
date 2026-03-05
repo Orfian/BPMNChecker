@@ -6,21 +6,19 @@ using BPMNModel.Camunda;
 using BPMNModel.Model;
 using BPMNVisualizer.Utilities;
 using BPMNVisualizer.Utility;
-using Serilog;
 
 namespace BPMNVisualizer.Visualization.Renderers;
 
 public class GatewayRenderer : IShapeRenderer
 {
     private readonly SharedVariables _vars;
-    /*
-    private readonly ILogger _logger;
-    private readonly Dictionary<string, Rect> _vars.ObjectBounds;
-*/
+
     private readonly Canvas _canvas;
     private readonly BrushManager _brushManager;
     private readonly ShapeManager _shapeManager;
     private readonly SvgResourceManager _svgResourceManager;
+    
+    private BPMNShape _shape;
     
     private readonly Dictionary<string, FrameworkElement> _gatewayNotes = new();
     
@@ -36,21 +34,25 @@ public class GatewayRenderer : IShapeRenderer
         _isHistoryMode = isHistoryMode;
     }
 
-    public void RenderShape(BaseElement element, Rect bounds)
+    public void RenderShape(BPMNShape shape)
     {
+        _shape = shape;
+        var element = shape.BpmnElement;
+        var bounds = shape.Bounds.ToRect();
+        
         if (element is not Gateway gateway) return;
 
-        var shape = DrawElement(gateway, bounds);
+        var uiElement = DrawElement(gateway, bounds);
 
         if (!_isHistoryMode)
         {
             _vars.ObjectBounds[gateway.Id] = bounds;
-            shape.MouseDown += (s, e) => ShowGatewayDetails(gateway);
+            uiElement.MouseDown += (s, e) => ShowGatewayDetails(gateway);
         }
 
-        Canvas.SetLeft(shape, bounds.Left);
-        Canvas.SetTop(shape, bounds.Top);
-        _canvas.Children.Add(shape);
+        Canvas.SetLeft(uiElement, bounds.Left);
+        Canvas.SetTop(uiElement, bounds.Top);
+        _canvas.Children.Add(uiElement);
 
         var icon = DrawIcon(gateway, bounds);
         if (icon != null)
@@ -61,7 +63,7 @@ public class GatewayRenderer : IShapeRenderer
                 icon.MouseDown += (s, e) => ShowGatewayDetails(gateway);
             _canvas.Children.Add(icon);
         }
-
+/*
         var label = DrawLabel(gateway, bounds);
         if (label != null)
         {
@@ -71,6 +73,9 @@ public class GatewayRenderer : IShapeRenderer
                 label.MouseDown += (s, e) => ShowGatewayDetails(gateway);
             _canvas.Children.Add(label);
         }
+        */
+
+        AddLabel(gateway);
         
         if (_isHistoryMode) return;
         
@@ -106,11 +111,35 @@ public class GatewayRenderer : IShapeRenderer
             _vars.Logger.Warning("No label found for gateway type: {GatewayType}", gateway.GetType());
             return null;
         }
-
+        
         bounds.Width *= 2;
         var label = _shapeManager.GetLabel(text, bounds);
-
+        
         return _shapeManager.WrapInContainer(label, bounds);
+    }
+    
+    private void AddLabel(Gateway gateway)
+    {
+        if (string.IsNullOrEmpty(gateway.Name)) return;
+        
+        var labelBounds = _shape.Label.Bounds.ToRect();
+        
+        var label = new TextBlock
+        {
+            Text = gateway.Name,
+            FontSize = 11,
+            TextWrapping = TextWrapping.Wrap,
+            TextAlignment = TextAlignment.Center,
+            Width = labelBounds.Width
+        };
+        
+        Canvas.SetLeft(label, labelBounds.X);
+        Canvas.SetTop(label, labelBounds.Y);
+        
+        _canvas.Children.Add(label);
+        
+        if (!_isHistoryMode)
+            label.MouseDown += (s, e) => ShowGatewayDetails(gateway);
     }
     
     private Border DrawNote(Gateway gateway, Rect bounds)

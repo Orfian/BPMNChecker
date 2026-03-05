@@ -98,39 +98,48 @@ namespace BPMNVisualizer.Visualization
 
         private FrameworkElement? GetVisualForElement(BaseElement element)
         {
-            // Instead of just an icon, we render the full element into a Viewbox
             var canvas = new Canvas();
-            var logger = Log.Logger; // Or dummy logger
-            var objectBounds = new Dictionary<string, Rect>();
-            var paths = new Dictionary<string, IEnumerable<Point>>();
-            var shapes = new Dictionary<string, BPMNShape>(); // Empty shapes map
             
             IShapeRenderer? renderer = null;
-            Rect bounds;
+            Bounds bounds = new Bounds();
 
             switch (element)
             {
                 case Activity:
                     renderer = new ActivityRenderer(canvas, _brushManager, _shapeManager, _svgResourceManager, true);
                     // Standard bounds for tasks/activities
-                    bounds = new Rect(0, 0, 100, 80);
+                    bounds.X = 0;
+                    bounds.Y = 0;
+                    bounds.Width = 100;
+                    bounds.Height = 80;
                     break;
                 case Event:
                     renderer = new EventRenderer(canvas, _brushManager, _shapeManager, _svgResourceManager, true);
                     // Standard bounds for events
-                    bounds = new Rect(0, 0, 36, 36);
+                    bounds.X = 0;
+                    bounds.Y = 0;
+                    bounds.Width = 36;
+                    bounds.Height = 36;
                     break;
                 case Gateway:
                     renderer = new GatewayRenderer(canvas, _brushManager, _shapeManager, _svgResourceManager, true);
                     // Standard bounds for gateways
-                    bounds = new Rect(0, 0, 50, 50);
+                    bounds.X = 0;
+                    bounds.Y = 0;
+                    bounds.Width = 50;
+                    bounds.Height = 50;
                     break;
                 default:
                     return null;
             }
 
             // Render the shape onto the canvas
-            renderer.RenderShape(element, bounds);
+            renderer.RenderShape(new BPMNShape
+            {
+                Id = element.Id,
+                BpmnElement = element,
+                Bounds = bounds
+            });
 
             // Wrap in Viewbox to scale down uniformly
             var viewbox = new Viewbox
@@ -142,8 +151,8 @@ namespace BPMNVisualizer.Visualization
             };
             
             // Set canvas size explicitly so Viewbox knows the aspect ratio
-            canvas.Width = bounds.Width;
-            canvas.Height = bounds.Height;
+            canvas.Width = bounds.Width ?? 0;
+            canvas.Height = bounds.Height ?? 0;
 
             return viewbox;
         }

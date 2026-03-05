@@ -4,7 +4,6 @@ using System.Windows.Media;
 using BPMNModel.Model;
 using BPMNVisualizer.Utilities;
 using BPMNVisualizer.Utility;
-using Serilog;
 using DataObject = BPMNModel.Model.DataObject;
 
 namespace BPMNVisualizer.Visualization.Renderers;
@@ -12,14 +11,14 @@ namespace BPMNVisualizer.Visualization.Renderers;
 public class DataRenderer : IShapeRenderer
 {
     private readonly SharedVariables _vars;
-    /*
-    private readonly ILogger _vars.Logger;
-    private readonly Dictionary<string, Rect> _vars.ObjectBounds;
-*/
+
     private readonly Canvas _canvas;
     private readonly BrushManager _brushManager;
     private readonly ShapeManager _shapeManager;
     private readonly SvgResourceManager _svgResourceManager;
+    
+    private BPMNShape _shape;
+    
     private readonly Dictionary<string, FrameworkElement> _dataNotes = new();
 
     public DataRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager, SvgResourceManager svgResourceManager)
@@ -31,19 +30,23 @@ public class DataRenderer : IShapeRenderer
         _svgResourceManager = svgResourceManager;
     }
 
-    public void RenderShape(BaseElement element, Rect bounds)
+    public void RenderShape(BPMNShape shape)
     {
+        _shape = shape;
+        var element = shape.BpmnElement;
+        var bounds = new Rect(shape?.Bounds?.X ?? 0, shape?.Bounds?.Y ?? 0, shape?.Bounds?.Width ?? 0, shape?.Bounds?.Height ?? 0);
+        
         if (element is not DataInput and not DataOutput and not DataStoreReference and not DataObject)
         {
             _vars.Logger.Warning("DataRenderer received unsupported element type: {ElementType}", element.GetType());
             return;
         }
         _vars.ObjectBounds[element.Id] = bounds;
-        var shape = DrawElement(element, bounds);
-        shape.MouseDown += (s, e) => ShowDataDetails(element);
-        Canvas.SetLeft(shape, bounds.Left);
-        Canvas.SetTop(shape, bounds.Top);
-        _canvas.Children.Add(shape);
+        var uiElement = DrawElement(element, bounds);
+        uiElement.MouseDown += (s, e) => ShowDataDetails(element);
+        Canvas.SetLeft(uiElement, bounds.Left);
+        Canvas.SetTop(uiElement, bounds.Top);
+        _canvas.Children.Add(uiElement);
         var note = DrawNote(element, bounds);
         if (note != null)
         {

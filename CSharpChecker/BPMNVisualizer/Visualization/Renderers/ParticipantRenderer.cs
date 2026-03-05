@@ -13,6 +13,8 @@ public class ParticipantRenderer : IShapeRenderer
     private readonly Canvas _canvas;
     private readonly BrushManager _brushManager;
     private readonly ShapeManager _shapeManager;
+    
+    private BPMNShape _shape;
 
     public ParticipantRenderer(Canvas canvas, BrushManager brushManager, ShapeManager shapeManager)
     {
@@ -22,8 +24,11 @@ public class ParticipantRenderer : IShapeRenderer
         _shapeManager = shapeManager;
     }
 
-    public void RenderShape(BaseElement element, Rect bounds)
+    public void RenderShape(BPMNShape shape)
     {
+        _shape = shape;
+        var element = shape.BpmnElement;
+        var bounds = new Rect(shape?.Bounds?.X ?? 0, shape?.Bounds?.Y ?? 0, shape?.Bounds?.Width ?? 0, shape?.Bounds?.Height ?? 0);
         switch (element)
         {
             case Participant participant:

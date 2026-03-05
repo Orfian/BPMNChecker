@@ -84,7 +84,7 @@ namespace BPMNVisualizer.Visualization
                 if (shape.BpmnElement == null || !IsStructuralElement(shape.BpmnElement) || shape.Bounds == null) continue;
                 
                 var renderer = _rendererFactory.GetStructureRenderer(shape.BpmnElement);
-                renderer?.RenderShape(shape.BpmnElement, shape.Bounds.ToRect());
+                renderer?.RenderShape(shape);
             }
         }
 
@@ -96,7 +96,7 @@ namespace BPMNVisualizer.Visualization
                 if (shape.BpmnElement == null || IsStructuralElement(shape.BpmnElement) || shape.Bounds == null) continue;
 
                 var renderer = _rendererFactory.GetShapeRenderer(shape.BpmnElement);
-                renderer?.RenderShape(shape.BpmnElement, shape.Bounds.ToRect());
+                renderer?.RenderShape(shape);
             }
         }
 

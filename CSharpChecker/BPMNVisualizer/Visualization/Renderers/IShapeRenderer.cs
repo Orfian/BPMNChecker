@@ -6,6 +6,6 @@ namespace BPMNVisualizer.Visualization.Renderers
 
     public interface IShapeRenderer
     {
-        void RenderShape(BaseElement element, Rect bounds);
+        void RenderShape(BPMNShape shape);
     }
 }

@@ -21,6 +21,8 @@ public class ActivityRenderer : IShapeRenderer
     private readonly ShapeManager _shapeManager;
     private readonly SvgResourceManager _svgResourceManager;
     
+    private BPMNShape _shape;
+    
     private readonly Dictionary<string, FrameworkElement> _activityNotes = new();
     
     private readonly bool _isHistoryMode;
@@ -35,15 +37,25 @@ public class ActivityRenderer : IShapeRenderer
         _isHistoryMode = isHistoryMode;
     }
     
-    public void RenderShape(BaseElement element, Rect bounds)
+    public void RenderShape(BPMNShape shape)
     {
+        _shape = shape;
+        var element = shape.BpmnElement;
+        var bounds = shape.Bounds.ToRect();
+        
+        if (bounds.Width <= 0 || bounds.Height <= 0)
+        {
+            _vars.Logger.Warning("Invalid bounds for element {ElementId}: {Bounds}", element?.Id, bounds);
+            return;
+        }
+
         if (element is not Activity activity) return;
 
-        var shape = DrawElement(activity, bounds);
+        var uiElement = DrawElement(activity, bounds);
         
         if (Helpers.HasScript(activity))
         {
-            shape.Effect = new DropShadowEffect
+            uiElement.Effect = new DropShadowEffect
             {
                 Color = Colors.Gold,
                 Direction = 0,
@@ -57,7 +69,7 @@ public class ActivityRenderer : IShapeRenderer
         {
             _vars.ObjectBounds[activity.Id] = bounds;
 
-            shape.MouseDown += (s, e) =>
+            uiElement.MouseDown += (s, e) =>
             {
                 if (e.RightButton == MouseButtonState.Pressed && IsCollapsedSubProcess(activity))
                 {
@@ -71,9 +83,9 @@ public class ActivityRenderer : IShapeRenderer
             };
         }
 
-        Canvas.SetLeft(shape, bounds.Left);
-        Canvas.SetTop(shape, bounds.Top);
-        _canvas.Children.Add(shape);
+        Canvas.SetLeft(uiElement, bounds.Left);
+        Canvas.SetTop(uiElement, bounds.Top);
+        _canvas.Children.Add(uiElement);
 
         if (activity is Task task)
         {
