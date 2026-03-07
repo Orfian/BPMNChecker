@@ -5,7 +5,7 @@ namespace BPMNVisualizer.Simulation;
 
 public class ElementTrigger
 {
-    public BPMNToken Token { get; set; }
+    public BPMNToken? Token { get; set; }
     public BaseElement Element { get; set; }
     
     public Indicator Indicator { get; set; }
@@ -14,7 +14,7 @@ public class ElementTrigger
     {
         return new ElementTrigger
         {
-            Token = this.Token.DeepClone(),
+            Token = this.Token?.DeepClone(),
             Element = this.Element, // Note: This is a reference copy. You may want to clone the event if needed.
             Indicator = this.Indicator.DeepClone() // Note: This creates a new indicator and clones the properties.
         };

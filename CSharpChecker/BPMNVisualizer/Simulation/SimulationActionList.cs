@@ -271,6 +271,8 @@ public class SimulationActionList
                         _vars.Paths.TryGetValue(a.Flow.Id!, out var path) ? path : null,
                         targetBounds
                     );
+                    
+                    CheckBoundaryEvents(newToken);
                 }
             }
         }
@@ -291,6 +293,8 @@ public class SimulationActionList
                     _vars.Paths.TryGetValue(a.Flow.Id!, out var path) ? path : null,
                     targetBounds
                 );
+                
+                CheckBoundaryEvents(a.Token);
             }
         }
         MoveTokenActions.Clear();
@@ -503,6 +507,36 @@ public class SimulationActionList
         }
         
         PendingElementTriggers.Remove(trigger);
+    }
+
+    public void CheckBoundaryEvents(BPMNToken token)
+    {
+        var element = token.CurrentElement;
+        if (element == null || element is not Activity activity)
+            return;
+
+        foreach (var boundaryEvent in activity.BoundaryEventRefs)
+        {
+            var manager = token.Owner ?? _tokenManager;
+            
+            var trigger = new ElementTrigger
+            {
+                Element = boundaryEvent
+            };
+            
+            manager.ShowEventTriggerIndicator(trigger);
+            
+            var arrow = trigger.Indicator.Visual;
+            if (arrow == null) continue;
+            
+            arrow.MouseDown += (s, e) =>
+            {
+                trigger.Token = _tokenManager.AddToken(boundaryEvent, _vars.ObjectBounds[boundaryEvent.Id!]);
+                ResolveElementTrigger(trigger);
+            };
+            
+            PendingElementTriggers.Add(trigger);
+        }
     }
 }
 

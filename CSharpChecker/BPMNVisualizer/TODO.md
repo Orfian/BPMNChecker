@@ -27,9 +27,11 @@ MUST:
 - [Done] Add message, signal, conditional and timer start indicators into history
 - [Done] Add delay and start indicators for link events
 - [Done] Add start indicators to history, so they can be retriggered when going back in history
-- [?] Handle multiple instance and loop activities
+- [Learn] Handle multiple instance and loop activities
 - [Done] Handle Receive Tasks similarly to Message Catch Events
-- Handle Boundary Events
+- [Done] Handle Boundary Events
+- [Learn] Handle Association Flows (mainly with Compensation events)
+- [Learn] Handle Call Activities
 - [?] Add state space search and an option to add start and end states to see if it's possible to reach one from the other
 
 REFACTORING & CLEANUP:
@@ -46,12 +48,17 @@ REFACTORING & CLEANUP:
 - Try to remove as many dictionaries as possible and replace them with classes and lists
 - Try to remove as many if statements as possible and replace them with polymorphism (e.g. for different event types and gateways)
 - Make all rendered markers and icons the same size (mainly expanded subprocess)
+- Remove unnecessary functions and variables
+- Remove unnecessary SetWaiting SimulationActions
+- Get rid of all Warnings
 
 WORKINGS:
 - [Done] Parallel Gateways join incoming tokens and wait for all the routes
 - [Done] Inclusive Gateways join incoming tokens and wait for all the possible routes (all that can arrive based on previous decisions)
 - [Done] Learn about and implement ComplexGateways (including joining behavior)
 - Learn how to handle multiple instance and loop activities
+- Learn about and implement Call Activities
+- Learn about and implement Association Flows
 
 NICE TO HAVE:
 - Zoom In/Out
