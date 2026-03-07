@@ -352,7 +352,7 @@ public class TokenManager
         return indicator;
     }
     
-    public void RemoveChoiceIndicator(Polygon indicator)
+    public void RemoveArrowIndicator(Polygon indicator)
     {
         _canvas.Children.Remove(indicator);
     }

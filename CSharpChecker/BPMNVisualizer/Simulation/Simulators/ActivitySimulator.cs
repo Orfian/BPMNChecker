@@ -81,7 +81,7 @@ public class ActivitySimulator : BaseSimulator
     
     public void ResolveElementDelay(ElementTrigger trigger)
     {
-        _tokenManager.RemoveChoiceIndicator(trigger.Indicator.Visual);
+        _tokenManager.RemoveArrowIndicator(trigger.Indicator.Visual);
         base.Evaluate(trigger.Token);
     }
 }

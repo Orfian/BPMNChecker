@@ -131,20 +131,33 @@ public class SimulationActionList
             {
                 if (indicator.Visual != null)
                 {
-                    manager.RemoveChoiceIndicator(indicator.Visual);
+                    manager.RemoveArrowIndicator(indicator.Visual);
                 }
             }
         }
         PendingGatewayChoices.Clear();
     }
     
+    public void ClearPendingElementTriggers()
+    {
+        foreach (var trigger in PendingElementTriggers)
+        {
+            var manager = trigger.Token?.Owner ?? _tokenManager;
+            if (trigger.Indicator.Visual != null)
+            {
+                manager.RemoveArrowIndicator(trigger.Indicator.Visual);
+            }
+        }
+        PendingElementTriggers.Clear();
+    }
+    
     public void ClearAll()
     {
         ClearActions();
         ClearPendingGatewayChoices();
+        ClearPendingElementTriggers();
         MessageQueue.Clear();
         SignalQueue.Clear();
-        PendingElementTriggers.Clear();
         TriggeredElementTriggers.Clear();
     }
     
@@ -196,7 +209,7 @@ public class SimulationActionList
             {
                 if (indicator.Visual != null)
                 {
-                    manager.RemoveChoiceIndicator(indicator.Visual);
+                    manager.RemoveArrowIndicator(indicator.Visual);
                 }
             }
             
