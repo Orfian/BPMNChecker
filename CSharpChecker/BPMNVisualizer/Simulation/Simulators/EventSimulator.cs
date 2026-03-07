@@ -114,6 +114,9 @@ public class EventSimulator : BaseSimulator
             case SignalEventDefinition signalDef:
                 HandleSignalCatchEvent(token, signalDef);
                 break;
+            case LinkEventDefinition linkDef:
+                HandleLinkCatchEvent(token, linkDef);
+                break;
             default:
                 base.Evaluate(token);
                 break;
@@ -136,26 +139,6 @@ public class EventSimulator : BaseSimulator
             _actions.AddAction(new SendSignalAction(token, signalName));
         }
 
-        base.Evaluate(token);
-    }
-    
-    private void HandleMessageStartEvent(BPMNToken token, MessageEventDefinition messageDef)
-    {
-        base.Evaluate(token);
-    }
-    
-    private void HandleTimerStartEvent(BPMNToken token, TimerEventDefinition timerDef)
-    {
-        base.Evaluate(token);
-    }
-    
-    private void HandleConditionalStartEvent(BPMNToken token, ConditionalEventDefinition condDef)
-    {
-        base.Evaluate(token);
-    }
-    
-    private void HandleSignalStartEvent(BPMNToken token, SignalEventDefinition signalDef)
-    {
         base.Evaluate(token);
     }
     
@@ -187,6 +170,15 @@ public class EventSimulator : BaseSimulator
     }
     
     private void HandleSignalCatchEvent(BPMNToken token, SignalEventDefinition signalDef)
+    {
+        if (token.IsWaiting)
+            return;
+        
+        _actions.AddAction(new SetTokenWaitingAction(token, true));
+        _actions.AddAction(new EventDelayAction(token, token.CurrentElement as Event));
+    }
+    
+    private void HandleLinkCatchEvent(BPMNToken token, LinkEventDefinition linkDef)
     {
         if (token.IsWaiting)
             return;
