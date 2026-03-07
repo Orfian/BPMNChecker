@@ -78,6 +78,12 @@ public class ActivitySimulator : BaseSimulator
         _actions.AddAction(new SendMessageAction(token, messageName));
         base.Evaluate(token);
     }
+    
+    public void ResolveElementDelay(ElementTrigger trigger)
+    {
+        _tokenManager.RemoveChoiceIndicator(trigger.Indicator.Visual);
+        base.Evaluate(trigger.Token);
+    }
 }
 
 /*

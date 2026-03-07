@@ -301,9 +301,9 @@ public class TokenManager
         }
     }
     
-    public void ShowEventTriggerIndicator(EventTrigger eventTrigger)
+    public void ShowEventTriggerIndicator(ElementTrigger trigger)
     {
-        var position = Helpers.GetElementCenter(eventTrigger.Event);
+        var position = Helpers.GetElementCenter(trigger.Element);
         var arrow = AddArrowIndicator(position, new Vector(1, 0));
         
         var indicator = new Indicator
@@ -313,22 +313,22 @@ public class TokenManager
             Selected = false
         };
         
-        eventTrigger.Indicator = indicator;
+        trigger.Indicator = indicator;
         
         arrow.MouseDown += (s, e) =>
         {
-            eventTrigger.Indicator.Selected = !eventTrigger.Indicator.Selected;
-            SetIndicatorColor(arrow, eventTrigger.Indicator.Selected);
+            trigger.Indicator.Selected = !trigger.Indicator.Selected;
+            SetIndicatorColor(arrow, trigger.Indicator.Selected);
         };
         
         arrow.MouseEnter += (s, e) =>
         {
-            SetHoverIndicatorColor(arrow, eventTrigger.Indicator.Selected, true);
+            SetHoverIndicatorColor(arrow, trigger.Indicator.Selected, true);
         };
         
         arrow.MouseLeave += (s, e) =>
         {
-            SetHoverIndicatorColor(arrow, eventTrigger.Indicator.Selected, false);
+            SetHoverIndicatorColor(arrow, trigger.Indicator.Selected, false);
         };
     }
     

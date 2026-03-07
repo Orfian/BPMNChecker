@@ -19,9 +19,9 @@ public class SimulationActionList
     public readonly Queue<SimulationSignal> SignalQueue = new();
     
     public List<GatewayChoice> PendingGatewayChoices = new();
-    public List<EventTrigger> PendingEventTriggers = new();
+    public List<ElementTrigger> PendingElementTriggers = new();
     
-    public List<string> TriggeredEventTriggers { get; } = new();
+    public List<string> TriggeredElementTriggers { get; } = new();
     
     public List<SetTokenWaitingAction> SetTokenWaitingActions { get; } = new();
     public List<ResolveGatewayChoiceAction> ResolveGatewayChoiceActions { get; } = new();
@@ -31,7 +31,7 @@ public class SimulationActionList
     public List<SpawnTokenAction> SpawnTokenActions { get; } = new();
     public List<SpawnCollapsedSubProcessAction> SpawnCollapsedSubProcessActions { get; } = new();
     public List<RemoveTokenAction> RemoveTokenActions { get; } = new();
-    public List<EventDelayAction> EventDelayActions { get; } = new();
+    public List<DelayTokenAction> DelayTokenActions { get; } = new();
     public List<SendMessageAction> SendMessageActions { get; } = new();
     public List<SendSignalAction> SendSignalActions { get; } = new();
     
@@ -80,8 +80,8 @@ public class SimulationActionList
             case RemoveTokenAction a:
                 RemoveTokenActions.Add(a);
                 break;
-            case EventDelayAction a:
-                EventDelayActions.Add(a);
+            case DelayTokenAction a:
+                DelayTokenActions.Add(a);
                 break;
             case SendMessageAction a:
                 SendMessageActions.Add(a);
@@ -102,7 +102,7 @@ public class SimulationActionList
         CommitSpawnTokenActions();
         CommitSpawnCollapsedSubProcessActions();
         CommitRemoveTokenActions();
-        CommitEventDelayActions();
+        CommitDelayTokenActions();
         CommitSendMessageActions();
         CommitSendSignalActions();
     }
@@ -117,7 +117,7 @@ public class SimulationActionList
         SpawnTokenActions.Clear();
         SpawnCollapsedSubProcessActions.Clear();
         RemoveTokenActions.Clear();
-        EventDelayActions.Clear();
+        DelayTokenActions.Clear();
         SendMessageActions.Clear();
         SendSignalActions.Clear();
     }
@@ -144,8 +144,8 @@ public class SimulationActionList
         ClearPendingGatewayChoices();
         MessageQueue.Clear();
         SignalQueue.Clear();
-        PendingEventTriggers.Clear();
-        TriggeredEventTriggers.Clear();
+        PendingElementTriggers.Clear();
+        TriggeredElementTriggers.Clear();
     }
     
     public void CommitSetTokenWaitingActions()
@@ -353,31 +353,31 @@ public class SimulationActionList
         RemoveTokenActions.Clear();
     }
     
-    public void CommitEventDelayActions()
+    public void CommitDelayTokenActions()
     {
-        foreach (var a in EventDelayActions)
+        foreach (var a in DelayTokenActions)
         {
             var manager = a.Token.Owner ?? _tokenManager;
             
-            var eventTrigger = new EventTrigger
+            var trigger = new ElementTrigger
             {
                 Token = a.Token,
-                Event = a.Event
+                Element = a.Element
             };
             
-            manager.ShowEventTriggerIndicator(eventTrigger);
+            manager.ShowEventTriggerIndicator(trigger);
             
-            var arrow = eventTrigger.Indicator.Visual;
+            var arrow = trigger.Indicator.Visual;
             if (arrow == null) continue;
             
             arrow.MouseDown += (s, e) =>
             {
-                ResolveEventTrigger(eventTrigger);
+                ResolveElementTrigger(trigger);
             };
             
-            PendingEventTriggers.Add(eventTrigger);
+            PendingElementTriggers.Add(trigger);
         }
-        EventDelayActions.Clear();
+        DelayTokenActions.Clear();
     }
     
     public void CommitSendMessageActions()
@@ -408,29 +408,27 @@ public class SimulationActionList
         SendSignalActions.Clear();
     }
 
-    public void ResolveEventTrigger(EventTrigger trigger)
+    public void ResolveElementTrigger(ElementTrigger trigger)
     {
-        if (trigger.Event is StartEvent or EndEvent)
+        var isMessage = false;
+        var isSignal = false;
+        
+        if (trigger.Element is CatchEvent catchEvent)
         {
-            TriggeredEventTriggers.Add($"Event {trigger.Event.Id} triggered");
-            _eventSimulator.ResolveEventDelay(trigger);
-            return;
+            isMessage = catchEvent.EventDefinitions.Any(def => def is MessageEventDefinition);
+            isSignal = catchEvent.EventDefinitions.Any(def => def is SignalEventDefinition);
         }
-
-        var isMessageEvent = false;
-        var isSignalEvent = false;
-        if (trigger.Event is CatchEvent catchEvent)
+        else if (trigger.Element is BoundaryEvent boundaryEvent)
         {
-            isMessageEvent = catchEvent.EventDefinitions.Any(def => def is MessageEventDefinition);
-            isSignalEvent = catchEvent.EventDefinitions.Any(def => def is SignalEventDefinition);
+            isMessage = boundaryEvent.EventDefinitions.Any(def => def is MessageEventDefinition);
+            isSignal = boundaryEvent.EventDefinitions.Any(def => def is SignalEventDefinition);
         }
-        else if (trigger.Event is ThrowEvent throwEvent)
+        else if (trigger.Element is SendTask sendTask)
         {
-            isMessageEvent = throwEvent.EventDefinitions.Any(def => def is MessageEventDefinition);
-            isSignalEvent = throwEvent.EventDefinitions.Any(def => def is SignalEventDefinition);
+            isMessage = true;
         }
         
-        if (isMessageEvent)
+        if (isMessage)
         {
             var dialog = new QueueDialog("Message Queue", "Trigger Without Message", MessageQueue);
             if (dialog.ShowDialog() == true)
@@ -450,19 +448,26 @@ public class SimulationActionList
                     MessageQueue.Clear();
                     foreach(var m in messageList) MessageQueue.Enqueue(m);
                     
-                    _vars.Logger.Information("Message {MessageName} consumed by {EventId}", selectedMessage.MessageName, trigger.Event.Id);
-                    TriggeredEventTriggers.Add($"Message \"{selectedMessage.MessageName}\" consumed by {trigger.Event.Id}");
-                    _eventSimulator.ResolveEventDelay(trigger);
+                    _vars.Logger.Information("Message {MessageName} consumed by {ElementId}", selectedMessage.MessageName, trigger.Element.Id);
+                    TriggeredElementTriggers.Add($"Message \"{selectedMessage.MessageName}\" consumed by {trigger.Element.Id}");
+                    if (trigger.Element is SendTask)
+                    {
+                        _activitySimulator.ResolveElementDelay(trigger);
+                    }
+                    else
+                    {
+                        _eventSimulator.ResolveElementDelay(trigger);
+                    }
                 }
                 else if (dialog.TriggerWithoutSelection)
                 {
-                    _vars.Logger.Information("Event {EventId} triggered manually without message", trigger.Event.Id);
-                    TriggeredEventTriggers.Add($"Message event {trigger.Event.Id} triggered manually");
-                    _eventSimulator.ResolveEventDelay(trigger);
+                    _vars.Logger.Information("Element {ElementId} triggered manually without message", trigger.Element.Id);
+                    TriggeredElementTriggers.Add($"Element {trigger.Element.Id} triggered manually without message");
+                    _eventSimulator.ResolveElementDelay(trigger);
                 }
             }
         }
-        else if (isSignalEvent)
+        else if (isSignal)
         {
             var dialog = new QueueDialog("Signal Queue", "Trigger Without Signal", SignalQueue);
             if (dialog.ShowDialog() == true)
@@ -479,25 +484,25 @@ public class SimulationActionList
                     SignalQueue.Clear();
                     foreach(var sig in signalList) SignalQueue.Enqueue(sig);
                     
-                    _vars.Logger.Information("Signal {SignalName} consumed by {EventId}", selectedSignal.SignalName, trigger.Event.Id);
-                    TriggeredEventTriggers.Add($"Signal \"{selectedSignal.SignalName}\" consumed by {trigger.Event.Id}");
-                    _eventSimulator.ResolveEventDelay(trigger);
+                    _vars.Logger.Information("Signal {SignalName} consumed by {ElementId}", selectedSignal.SignalName, trigger.Element.Id);
+                    TriggeredElementTriggers.Add($"Signal \"{selectedSignal.SignalName}\" consumed by {trigger.Element.Id}");
+                    _eventSimulator.ResolveElementDelay(trigger);
                 }
                 else if (dialog.TriggerWithoutSelection)
                 {
-                    _vars.Logger.Information("Event {EventId} triggered manually without signal", trigger.Event.Id);
-                    TriggeredEventTriggers.Add($"Signal event {trigger.Event.Id} triggered manually");
-                    _eventSimulator.ResolveEventDelay(trigger);
+                    _vars.Logger.Information("Element {ElementId} triggered manually without signal", trigger.Element.Id);
+                    TriggeredElementTriggers.Add($"Element {trigger.Element.Id} triggered manually without signal");
+                    _eventSimulator.ResolveElementDelay(trigger);
                 }
             }
         }
         else
         {
-            TriggeredEventTriggers.Add($"Event {trigger.Event.Id} triggered");
-            _eventSimulator.ResolveEventDelay(trigger);
+            TriggeredElementTriggers.Add($"Element {trigger.Element.Id} triggered");
+            _eventSimulator.ResolveElementDelay(trigger);
         }
         
-        PendingEventTriggers.Remove(trigger);
+        PendingElementTriggers.Remove(trigger);
     }
 }
 

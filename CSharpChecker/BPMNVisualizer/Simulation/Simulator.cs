@@ -156,14 +156,14 @@ public class Simulator
             StepIndex = History.Count,
             Tokens = tokens.Select(t => t.DeepClone()).ToList(),
             PendingGatewayChoices = _actions.PendingGatewayChoices.Select(c => c.DeepClone()).ToList(),
-            PendingEventTriggers = _actions.PendingEventTriggers.Select(t => t.DeepClone()).ToList(),
+            PendingElementTriggers = _actions.PendingElementTriggers.Select(t => t.DeepClone()).ToList(),
             MessageQueue = new Queue<SimulationMessage>(_actions.MessageQueue.Select(m => m.DeepClone())),
             SignalQueue = new Queue<SimulationSignal>(_actions.SignalQueue.Select(s => s.DeepClone())),
             TriggeredCodeElements = GetTriggeredCodeElements(tokens),
-            TriggeredEventTriggers = _actions.TriggeredEventTriggers.ToList()
+            TriggeredElementTriggers = _actions.TriggeredElementTriggers.ToList()
         };
         
-        _actions.PendingEventTriggers.Clear();
+        _actions.PendingElementTriggers.Clear();
         
         History.Add(state);
         _currentStepIndex = History.Count - 1;
@@ -364,7 +364,7 @@ public class Simulator
         }
         
         // 6. Restore Pending Event Triggers
-        var newPendingTriggers = state.PendingEventTriggers.Select(t => t.DeepClone()).ToList();
+        var newPendingTriggers = state.PendingElementTriggers.Select(t => t.DeepClone()).ToList();
         
         foreach (var trigger in newPendingTriggers)
         {
@@ -379,10 +379,10 @@ public class Simulator
             triggerManager.ShowEventTriggerIndicator(trigger);
             trigger.Indicator.Visual.MouseDown += (s, e) =>
             {
-                _actions.ResolveEventTrigger(trigger);
+                _actions.ResolveElementTrigger(trigger);
             };
             
-            _actions.PendingEventTriggers.Add(trigger);
+            _actions.PendingElementTriggers.Add(trigger);
         }
     }
     

@@ -75,9 +75,9 @@ public record ResolveGatewayChoiceAction(
     public override SimulationAction DeepClone() => this with { GatewayChoice = GatewayChoice.DeepClone() };
 }
 
-public record EventDelayAction(
+public record DelayTokenAction(
     BPMNToken Token,
-    Event Event
+    BaseElement  Element
 ) : SimulationAction
 {
     public override SimulationAction DeepClone() => this with { Token = Token.DeepClone() };
