@@ -2,7 +2,6 @@
 using BPMNModel.Model;
 using BPMNVisualizer.Simulation.Simulators;
 using BPMNVisualizer.Utility;
-using Point = System.Windows.Point;
 
 namespace BPMNVisualizer.Simulation;
 
@@ -20,8 +19,9 @@ public class SimulationActionList
     public readonly Queue<SimulationSignal> SignalQueue = new();
     
     public List<GatewayChoice> PendingGatewayChoices = new();
+    public List<EventTrigger> PendingEventTriggers = new();
     
-    public List<string> PendingEventTriggers { get; } = new();
+    public List<string> TriggeredEventTriggers { get; } = new();
     
     public List<SetTokenWaitingAction> SetTokenWaitingActions { get; } = new();
     public List<ResolveGatewayChoiceAction> ResolveGatewayChoiceActions { get; } = new();
@@ -145,6 +145,7 @@ public class SimulationActionList
         MessageQueue.Clear();
         SignalQueue.Clear();
         PendingEventTriggers.Clear();
+        TriggeredEventTriggers.Clear();
     }
     
     public void CommitSetTokenWaitingActions()
@@ -198,6 +199,7 @@ public class SimulationActionList
                     manager.RemoveChoiceIndicator(indicator.Visual);
                 }
             }
+            
             PendingGatewayChoices.Remove(a.GatewayChoice);
         }
         ResolveGatewayChoiceActions.Clear();
@@ -357,111 +359,23 @@ public class SimulationActionList
         {
             var manager = a.Token.Owner ?? _tokenManager;
             
-            var eventPosition = _vars.ObjectBounds.TryGetValue(a.Event.Id!, out var evtBounds)
-                ? new Point(evtBounds.X + evtBounds.Width / 2, evtBounds.Y + evtBounds.Height / 2)
-                : new Point(0, 0);
+            var eventTrigger = new EventTrigger
+            {
+                Token = a.Token,
+                Event = a.Event
+            };
             
-            var arrow= manager.AddArrowIndicator(eventPosition, new Vector(1, 0));
+            manager.ShowEventTriggerIndicator(eventTrigger);
+            
+            var arrow = eventTrigger.Indicator.Visual;
+            if (arrow == null) continue;
             
             arrow.MouseDown += (s, e) =>
             {
-                if (a.Event is StartEvent or EndEvent)
-                {
-                     PendingEventTriggers.Add($"Event {a.Event.Id} triggered");
-                     _eventSimulator.ResolveEventDelay(a.Token, arrow);
-                     return;
-                }
-
-                var isMessageEvent = false;
-                var isSignalEvent = false;
-                if (a.Event is CatchEvent catchEvent)
-                {
-                    isMessageEvent = catchEvent.EventDefinitions.Any(def => def is MessageEventDefinition);
-                    isSignalEvent = catchEvent.EventDefinitions.Any(def => def is SignalEventDefinition);
-                }
-                else if (a.Event is ThrowEvent throwEvent)
-                {
-                    isMessageEvent = throwEvent.EventDefinitions.Any(def => def is MessageEventDefinition);
-                    isSignalEvent = throwEvent.EventDefinitions.Any(def => def is SignalEventDefinition);
-                }
-                
-                if (isMessageEvent)
-                {
-                    var dialog = new QueueDialog("Message Queue", "Trigger Without Message", MessageQueue);
-                    if (dialog.ShowDialog() == true)
-                    {
-                        if (dialog.SelectedItem is SimulationMessage selectedMessage)
-                        {
-                            // Consume message
-                            var messageList = MessageQueue.ToList();
-                            
-                            // Find the specific instance to remove
-                            var index = messageList.FindIndex(m => ReferenceEquals(m, selectedMessage));
-                            if (index != -1)
-                            {
-                                messageList.RemoveAt(index);
-                            }
-                            
-                            MessageQueue.Clear();
-                            foreach(var m in messageList) MessageQueue.Enqueue(m);
-                            
-                            _vars.Logger.Information("Message {MessageName} consumed by {EventId}", selectedMessage.MessageName, a.Event.Id);
-                            PendingEventTriggers.Add($"Message \"{selectedMessage.MessageName}\" consumed by {a.Event.Id}");
-                            _eventSimulator.ResolveEventDelay(a.Token, arrow);
-                        }
-                        else if (dialog.TriggerWithoutSelection)
-                        {
-                            _vars.Logger.Information("Event {EventId} triggered manually without message", a.Event.Id);
-                            PendingEventTriggers.Add($"Message event {a.Event.Id} triggered manually");
-                            _eventSimulator.ResolveEventDelay(a.Token, arrow);
-                        }
-                    }
-                }
-                else if (isSignalEvent)
-                {
-                    var dialog = new QueueDialog("Signal Queue", "Trigger Without Signal", SignalQueue);
-                    if (dialog.ShowDialog() == true)
-                    {
-                        if (dialog.SelectedItem is SimulationSignal selectedSignal)
-                        {
-                            var signalList = SignalQueue.ToList();
-                            var index = signalList.FindIndex(sig => ReferenceEquals(sig, selectedSignal));
-                            if (index != -1)
-                            {
-                                signalList.RemoveAt(index);
-                            }
-                            
-                            SignalQueue.Clear();
-                            foreach(var sig in signalList) SignalQueue.Enqueue(sig);
-                            
-                            _vars.Logger.Information("Signal {SignalName} consumed by {EventId}", selectedSignal.SignalName, a.Event.Id);
-                            PendingEventTriggers.Add($"Signal \"{selectedSignal.SignalName}\" consumed by {a.Event.Id}");
-                            _eventSimulator.ResolveEventDelay(a.Token, arrow);
-                        }
-                        else if (dialog.TriggerWithoutSelection)
-                        {
-                            _vars.Logger.Information("Event {EventId} triggered manually without signal", a.Event.Id);
-                            PendingEventTriggers.Add($"Signal event {a.Event.Id} triggered manually");
-                            _eventSimulator.ResolveEventDelay(a.Token, arrow);
-                        }
-                    }
-                }
-                else
-                {
-                    PendingEventTriggers.Add($"Event {a.Event.Id} triggered");
-                    _eventSimulator.ResolveEventDelay(a.Token, arrow);
-                }
+                ResolveEventTrigger(eventTrigger);
             };
             
-            arrow.MouseEnter += (s, e) =>
-            {
-                manager.SetHoverIndicatorColor(arrow, false, true);
-            };
-                    
-            arrow.MouseLeave += (s, e) =>
-            {
-                manager.SetHoverIndicatorColor(arrow, false, false);
-            };
+            PendingEventTriggers.Add(eventTrigger);
         }
         EventDelayActions.Clear();
     }
@@ -492,6 +406,98 @@ public class SimulationActionList
             _vars.Logger.Information("Signal {SignalName} sent from {SourceId}", signal.SignalName, signal.SourceElementId);
         }
         SendSignalActions.Clear();
+    }
+
+    public void ResolveEventTrigger(EventTrigger trigger)
+    {
+        if (trigger.Event is StartEvent or EndEvent)
+        {
+            TriggeredEventTriggers.Add($"Event {trigger.Event.Id} triggered");
+            _eventSimulator.ResolveEventDelay(trigger);
+            return;
+        }
+
+        var isMessageEvent = false;
+        var isSignalEvent = false;
+        if (trigger.Event is CatchEvent catchEvent)
+        {
+            isMessageEvent = catchEvent.EventDefinitions.Any(def => def is MessageEventDefinition);
+            isSignalEvent = catchEvent.EventDefinitions.Any(def => def is SignalEventDefinition);
+        }
+        else if (trigger.Event is ThrowEvent throwEvent)
+        {
+            isMessageEvent = throwEvent.EventDefinitions.Any(def => def is MessageEventDefinition);
+            isSignalEvent = throwEvent.EventDefinitions.Any(def => def is SignalEventDefinition);
+        }
+        
+        if (isMessageEvent)
+        {
+            var dialog = new QueueDialog("Message Queue", "Trigger Without Message", MessageQueue);
+            if (dialog.ShowDialog() == true)
+            {
+                if (dialog.SelectedItem is SimulationMessage selectedMessage)
+                {
+                    // Consume message
+                    var messageList = MessageQueue.ToList();
+                    
+                    // Find the specific instance to remove
+                    var index = messageList.FindIndex(m => ReferenceEquals(m, selectedMessage));
+                    if (index != -1)
+                    {
+                        messageList.RemoveAt(index);
+                    }
+                    
+                    MessageQueue.Clear();
+                    foreach(var m in messageList) MessageQueue.Enqueue(m);
+                    
+                    _vars.Logger.Information("Message {MessageName} consumed by {EventId}", selectedMessage.MessageName, trigger.Event.Id);
+                    TriggeredEventTriggers.Add($"Message \"{selectedMessage.MessageName}\" consumed by {trigger.Event.Id}");
+                    _eventSimulator.ResolveEventDelay(trigger);
+                }
+                else if (dialog.TriggerWithoutSelection)
+                {
+                    _vars.Logger.Information("Event {EventId} triggered manually without message", trigger.Event.Id);
+                    TriggeredEventTriggers.Add($"Message event {trigger.Event.Id} triggered manually");
+                    _eventSimulator.ResolveEventDelay(trigger);
+                }
+            }
+        }
+        else if (isSignalEvent)
+        {
+            var dialog = new QueueDialog("Signal Queue", "Trigger Without Signal", SignalQueue);
+            if (dialog.ShowDialog() == true)
+            {
+                if (dialog.SelectedItem is SimulationSignal selectedSignal)
+                {
+                    var signalList = SignalQueue.ToList();
+                    var index = signalList.FindIndex(sig => ReferenceEquals(sig, selectedSignal));
+                    if (index != -1)
+                    {
+                        signalList.RemoveAt(index);
+                    }
+                    
+                    SignalQueue.Clear();
+                    foreach(var sig in signalList) SignalQueue.Enqueue(sig);
+                    
+                    _vars.Logger.Information("Signal {SignalName} consumed by {EventId}", selectedSignal.SignalName, trigger.Event.Id);
+                    TriggeredEventTriggers.Add($"Signal \"{selectedSignal.SignalName}\" consumed by {trigger.Event.Id}");
+                    _eventSimulator.ResolveEventDelay(trigger);
+                }
+                else if (dialog.TriggerWithoutSelection)
+                {
+                    _vars.Logger.Information("Event {EventId} triggered manually without signal", trigger.Event.Id);
+                    TriggeredEventTriggers.Add($"Signal event {trigger.Event.Id} triggered manually");
+                    _eventSimulator.ResolveEventDelay(trigger);
+                }
+            }
+        }
+        else
+        {
+            TriggeredEventTriggers.Add($"Event {trigger.Event.Id} triggered");
+            _eventSimulator.ResolveEventDelay(trigger);
+        }
+        
+        PendingEventTriggers.Remove(trigger);
     }
 }
 

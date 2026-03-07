@@ -58,6 +58,13 @@ public static class Helpers
         return Math.Sqrt(dx * dx + dy * dy);
     }
     
+    public static Point GetElementCenter(BaseElement element)
+    {
+        return SharedVariables.Instance.ObjectBounds.TryGetValue(element.Id, out var b)
+            ? new Point(b.X + b.Width / 2, b.Y + b.Height / 2)
+            : new Point(0, 0);
+    }
+    
     public static bool IsUserStart(StartEvent startEvent)
     {
         if (startEvent?.EventDefinitions == null || !startEvent.EventDefinitions.Any())

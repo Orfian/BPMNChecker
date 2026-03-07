@@ -187,10 +187,10 @@ public class EventSimulator : BaseSimulator
         _actions.AddAction(new EventDelayAction(token, token.CurrentElement as Event));
     }
     
-    public void ResolveEventDelay(BPMNToken token, Polygon indicator)
+    public void ResolveEventDelay(EventTrigger eventTrigger)
     {
-        _tokenManager.RemoveChoiceIndicator(indicator);
-        base.Evaluate(token);
+        _tokenManager.RemoveChoiceIndicator(eventTrigger.Indicator.Visual);
+        base.Evaluate(eventTrigger.Token);
     }
     
     public void SpawnStartEventIndicator(StartEvent startEvent, BPMNToken? parentToken)
@@ -224,7 +224,7 @@ public class EventSimulator : BaseSimulator
                             foreach(var m in messageList) _actions.MessageQueue.Enqueue(m);
                             
                             _vars.Logger.Information("Message {MessageName} consumed by {EventId}", selectedMessage.MessageName, startEvent.Id);
-                            _actions.PendingEventTriggers.Add($"Message \"{selectedMessage.MessageName}\" consumed by Start Event {startEvent.Id}");
+                            _actions.TriggeredEventTriggers.Add($"Message \"{selectedMessage.MessageName}\" consumed by Start Event {startEvent.Id}");
                             
                             var token = _tokenManager.AddToken(startEvent, bounds);
                             token.Parent = parentToken;
@@ -232,7 +232,7 @@ public class EventSimulator : BaseSimulator
                         else if (dialog.TriggerWithoutSelection)
                         {
                             _vars.Logger.Information("Event {EventId} triggered manually without message", startEvent.Id);
-                            _actions.PendingEventTriggers.Add($"Message Start Event {startEvent.Id} triggered manually");
+                            _actions.TriggeredEventTriggers.Add($"Message Start Event {startEvent.Id} triggered manually");
                             
                             var token = _tokenManager.AddToken(startEvent, bounds);
                             token.Parent = parentToken;
@@ -257,7 +257,7 @@ public class EventSimulator : BaseSimulator
                             foreach(var sig in signalList) _actions.SignalQueue.Enqueue(sig);
                             
                             _vars.Logger.Information("Signal {SignalName} consumed by {EventId}", selectedSignal.SignalName, startEvent.Id);
-                            _actions.PendingEventTriggers.Add($"Signal \"{selectedSignal.SignalName}\" consumed by Start Event {startEvent.Id}");
+                            _actions.TriggeredEventTriggers.Add($"Signal \"{selectedSignal.SignalName}\" consumed by Start Event {startEvent.Id}");
                             
                             var token = _tokenManager.AddToken(startEvent, bounds);
                             token.Parent = parentToken;
@@ -265,7 +265,7 @@ public class EventSimulator : BaseSimulator
                         else if (dialog.TriggerWithoutSelection)
                         {
                             _vars.Logger.Information("Event {EventId} triggered manually without signal", startEvent.Id);
-                            _actions.PendingEventTriggers.Add($"Signal Start Event {startEvent.Id} triggered manually");
+                            _actions.TriggeredEventTriggers.Add($"Signal Start Event {startEvent.Id} triggered manually");
                             
                             var token = _tokenManager.AddToken(startEvent, bounds);
                             token.Parent = parentToken;
@@ -274,7 +274,7 @@ public class EventSimulator : BaseSimulator
                 }
                 else
                 {
-                    _actions.PendingEventTriggers.Add($"Start Event {startEvent.Id} triggered");
+                    _actions.TriggeredEventTriggers.Add($"Start Event {startEvent.Id} triggered");
                     var token = _tokenManager.AddToken(startEvent, bounds);
                     token.Parent = parentToken;
                 }

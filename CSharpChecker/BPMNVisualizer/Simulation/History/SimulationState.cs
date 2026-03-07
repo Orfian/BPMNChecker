@@ -7,11 +7,11 @@ public class SimulationState
     public List<BPMNToken> Tokens { get; set; } = new();
 
     public List<GatewayChoice> PendingGatewayChoices { get; set; } = new();
+    public List<EventTrigger> PendingEventTriggers { get; set; } = new();
 
     public Queue<SimulationMessage> MessageQueue { get; set; } = new();
     public Queue<SimulationSignal> SignalQueue { get; set; } = new();
     
     public List<string> TriggeredCodeElements { get; set; } = new();
-    
-    public List<string> EventTriggers { get; set; } = new();
+    public List<string> TriggeredEventTriggers { get; set; } = new();
 }

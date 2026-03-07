@@ -156,10 +156,11 @@ public class Simulator
             StepIndex = History.Count,
             Tokens = tokens.Select(t => t.DeepClone()).ToList(),
             PendingGatewayChoices = _actions.PendingGatewayChoices.Select(c => c.DeepClone()).ToList(),
+            PendingEventTriggers = _actions.PendingEventTriggers.Select(t => t.DeepClone()).ToList(),
             MessageQueue = new Queue<SimulationMessage>(_actions.MessageQueue.Select(m => m.DeepClone())),
             SignalQueue = new Queue<SimulationSignal>(_actions.SignalQueue.Select(s => s.DeepClone())),
             TriggeredCodeElements = GetTriggeredCodeElements(tokens),
-            EventTriggers = _actions.PendingEventTriggers.ToList()
+            TriggeredEventTriggers = _actions.TriggeredEventTriggers.ToList()
         };
         
         _actions.PendingEventTriggers.Clear();
@@ -360,6 +361,28 @@ public class Simulator
              {
                 _actions.PendingGatewayChoices.Add(choice);
              }
+        }
+        
+        // 6. Restore Pending Event Triggers
+        var newPendingTriggers = state.PendingEventTriggers.Select(t => t.DeepClone()).ToList();
+        
+        foreach (var trigger in newPendingTriggers)
+        {
+            // Fix token reference
+            if (trigger.Token?.Id != null && oldToNew.TryGetValue(trigger.Token.Id, out var newToken))
+            {
+                trigger.Token = newToken;
+            }
+            
+            var triggerManager = trigger.Token?.Owner ?? _tokenManager;
+
+            triggerManager.ShowEventTriggerIndicator(trigger);
+            trigger.Indicator.Visual.MouseDown += (s, e) =>
+            {
+                _actions.ResolveEventTrigger(trigger);
+            };
+            
+            _actions.PendingEventTriggers.Add(trigger);
         }
     }
     

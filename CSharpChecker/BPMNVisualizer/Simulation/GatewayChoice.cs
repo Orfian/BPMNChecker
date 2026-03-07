@@ -1,5 +1,5 @@
-﻿using System.Windows.Shapes;
-using BPMNModel.Model;
+﻿using BPMNModel.Model;
+using BPMNVisualizer.Utility;
 
 namespace BPMNVisualizer.Simulation;
 
@@ -23,23 +23,6 @@ public class GatewayChoice
             MultiSelect = this.MultiSelect,
             DefaultFlow = this.DefaultFlow, // Note: This is a reference copy. You may want to clone the default flow if needed.
             Indicators = this.Indicators.Select(i => i.DeepClone()).ToList() // Note: This creates a new list and clones the indicators.
-        };
-    }
-}
-
-public class Indicator
-{
-    public Polygon? Visual { get; set; }
-    public SequenceFlow Flow { get; set; }
-    public bool Selected { get; set; }
-
-    public Indicator DeepClone()
-    {
-        return new Indicator
-        {
-            Visual = null, 
-            Flow = this.Flow,
-            Selected = this.Selected
         };
     }
 }

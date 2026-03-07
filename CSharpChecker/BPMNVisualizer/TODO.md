@@ -26,7 +26,7 @@ MUST:
 - Fix the issue with Gateways
 - [Done] Add message, signal, conditional and timer start indicators into history
 - [Done] Add delay and start indicators for link events
-- Add start indicators to history, so they can be retriggered when going back in history
+- [Done] Add start indicators to history, so they can be retriggered when going back in history
 - Handle Boundary Events
 - [?] Add state space search and an option to add start and end states to see if it's possible to reach one from the other
 

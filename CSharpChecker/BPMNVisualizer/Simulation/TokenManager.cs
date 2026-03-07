@@ -240,7 +240,7 @@ public class TokenManager
     {
         Vector orthogonal = new Vector(-direction.Y, direction.X);
 
-        var triangle = new Polygon
+        var arrow = new Polygon
         {
             Points = new PointCollection
             {
@@ -253,9 +253,9 @@ public class TokenManager
             Fill = Brushes.Yellow,
         };
 
-        _canvas.Children.Add(triangle);
+        _canvas.Children.Add(arrow);
     
-        return triangle;
+        return arrow;
     }
     
     public void ShowGatewayChoiceIndicators(GatewayChoice gatewayChoice)
@@ -273,32 +273,63 @@ public class TokenManager
             var first = points.First();
             var second = points.Skip(1).FirstOrDefault();
             var direction = Helpers.GetDirection(first, second);
-            var triangle = AddArrowIndicator(first, direction);
+            var arrow = AddArrowIndicator(first, direction);
             
             var indicator = new Indicator
             {
-                Visual = triangle,
+                Visual = arrow,
                 Flow = flow,
                 Selected = false
             };
             
             gatewayChoice.Indicators.Add(indicator);
             
-            triangle.MouseDown += (s, e) =>
+            arrow.MouseDown += (s, e) =>
             {
-                UpdatePendingChoices(indicator, gatewayChoice);
+                UpdatePendingGatewayChoices(indicator, gatewayChoice);
             };
             
-            triangle.MouseEnter += (s, e) =>
+            arrow.MouseEnter += (s, e) =>
             {
-                SetHoverIndicatorColor(triangle, indicator.Selected, true);
+                SetHoverIndicatorColor(arrow, indicator.Selected, true);
             };
             
-            triangle.MouseLeave += (s, e) =>
+            arrow.MouseLeave += (s, e) =>
             {
-                SetHoverIndicatorColor(triangle, indicator.Selected, false);
+                SetHoverIndicatorColor(arrow, indicator.Selected, false);
             };
         }
+    }
+    
+    public void ShowEventTriggerIndicator(EventTrigger eventTrigger)
+    {
+        var position = Helpers.GetElementCenter(eventTrigger.Event);
+        var arrow = AddArrowIndicator(position, new Vector(1, 0));
+        
+        var indicator = new Indicator
+        {
+            Visual = arrow,
+            Flow = null,
+            Selected = false
+        };
+        
+        eventTrigger.Indicator = indicator;
+        
+        arrow.MouseDown += (s, e) =>
+        {
+            eventTrigger.Indicator.Selected = !eventTrigger.Indicator.Selected;
+            SetIndicatorColor(arrow, eventTrigger.Indicator.Selected);
+        };
+        
+        arrow.MouseEnter += (s, e) =>
+        {
+            SetHoverIndicatorColor(arrow, eventTrigger.Indicator.Selected, true);
+        };
+        
+        arrow.MouseLeave += (s, e) =>
+        {
+            SetHoverIndicatorColor(arrow, eventTrigger.Indicator.Selected, false);
+        };
     }
     
     public Polygon SetIndicatorColor(Polygon indicator, bool selected)
@@ -326,7 +357,7 @@ public class TokenManager
         _canvas.Children.Remove(indicator);
     }
     
-    public void UpdatePendingChoices(Indicator triggerIndicator, GatewayChoice gatewayChoice)
+    public void UpdatePendingGatewayChoices(Indicator triggerIndicator, GatewayChoice gatewayChoice)
     {
         if (triggerIndicator.Selected && gatewayChoice.Gateway is not ComplexGateway && gatewayChoice.Gateway is not EventBasedGateway)
         {
