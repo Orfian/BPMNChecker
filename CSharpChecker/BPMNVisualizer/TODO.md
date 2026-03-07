@@ -28,8 +28,21 @@ MUST:
 - [Done] Add delay and start indicators for link events
 - Add start indicators to history, so they can be retriggered when going back in history
 - Handle Boundary Events
-- Code refactoring and cleanup
 - [?] Add state space search and an option to add start and end states to see if it's possible to reach one from the other
+
+REFACTORING & CLEANUP:
+- Merge similar functions in simulators and renderers
+- In TokenManager change AddArrowIndicator from returning Polygon to Indicator and add onHover and onLeave color changes
+- Add comprehensive and concise comments to all functions and classes
+- Add comprehensive and concise logging to all functions
+- Move all functions related to token movement and triggering into TokenManager
+- Move all functions related to rendering into Renderer
+- Move all functions related to simulation into Simulator
+- Move all functions related to certain classes into those classes (e.g. GatewayChoices from TokenManager)
+- Move all functions related to history into HistoryManager
+- Message and Signal Queues to lists
+- Try to remove as many dictionaries as possible and replace them with classes and lists
+- Try to remove as many if statements as possible and replace them with polymorphism (e.g. for different event types and gateways)
 
 WORKINGS:
 - [Done] Parallel Gateways join incoming tokens and wait for all the routes
