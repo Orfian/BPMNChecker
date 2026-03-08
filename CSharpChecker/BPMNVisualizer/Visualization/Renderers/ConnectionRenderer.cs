@@ -85,19 +85,56 @@ namespace BPMNVisualizer.Visualization.Renderers
             AddOpenArrowhead(points.Last(), Helpers.GetDirection(points.ElementAt(points.Count() - 2), points.Last()));
         }
         
-        private Polyline CreateBaseConnection(IEnumerable<Point> points, DoubleCollection dashArray)
+        private const double CornerRadius = 10.0;
+
+        private Path CreateBaseConnection(IEnumerable<Point> points, DoubleCollection dashArray)
         {
-            var polyline = new Polyline
+            var pts = points.ToList();
+            var figure = new PathFigure { StartPoint = pts[0], IsClosed = false };
+
+            for (int i = 1; i < pts.Count; i++)
+            {
+                var prev = pts[i - 1];
+                var curr = pts[i];
+
+                if (i < pts.Count - 1)
+                {
+                    // Shorten the line segment before the corner
+                    var next = pts[i + 1];
+                    var inDir = curr - prev;
+                    var outDir = next - curr;
+                    var inLen = inDir.Length;
+                    var outLen = outDir.Length;
+                    var r = Math.Min(CornerRadius, Math.Min(inLen / 2, outLen / 2));
+
+                    inDir.Normalize();
+                    outDir.Normalize();
+
+                    var lineEnd = curr - inDir * r;
+                    var bezierEnd = curr + outDir * r;
+
+                    figure.Segments.Add(new LineSegment(lineEnd, true));
+                    figure.Segments.Add(new QuadraticBezierSegment(curr, bezierEnd, true));
+                }
+                else
+                {
+                    // Last segment: draw straight to the end
+                    figure.Segments.Add(new LineSegment(curr, true));
+                }
+            }
+
+            var geometry = new PathGeometry([figure]);
+            var path = new Path
             {
                 Stroke = Brushes.Black,
                 StrokeThickness = 1.5,
                 StrokeDashArray = dashArray,
-                Points = new PointCollection(points)
+                Data = geometry
             };
 
-            _canvas.Children.Add(polyline);
-            
-            return polyline;
+            _canvas.Children.Add(path);
+
+            return path;
         }
         
         private void AddDefaultFlowMarker(Point start, Point end)
