@@ -60,8 +60,7 @@ namespace BPMNVisualizer
         private void Reset_Click(object sender, RoutedEventArgs e)
         {
             tokenManager.ClearAllTokens();
-            simulator.ClearAllActions();
-            simulator.ClearPendingChoices();
+            simulator.Reset();
             
             foreach (var window in SharedVariables.Instance.SubProcessWindows.Values.ToList())
             {

@@ -129,16 +129,6 @@ public class Simulator
                 $"No simulator available for element type: {element.GetType().Name}")
         };
     }
-    
-    public void ClearAllActions()
-    {
-        _actions.ClearActions();
-    }
-    
-    public void ClearPendingChoices()
-    {
-        _actions.ClearPendingGatewayChoices();
-    }
 
     public void SaveState(IEnumerable<BPMNToken> tokens)
     {
@@ -162,8 +152,6 @@ public class Simulator
             TriggeredCodeElements = GetTriggeredCodeElements(tokens),
             TriggeredElementTriggers = _actions.TriggeredElementTriggers.ToList()
         };
-        
-        _actions.PendingElementTriggers.Clear();
         
         History.Add(state);
         _currentStepIndex = History.Count - 1;
@@ -212,12 +200,6 @@ public class Simulator
 
         return elements.OrderBy(x => x).ToList();
     }
-    
-    public void ClearHistory()
-    {
-        History.Clear();
-        _currentStepIndex = -1;
-    }
 
     public void LoadState(int stepIndex)
     {
@@ -229,7 +211,6 @@ public class Simulator
 
         // 1. Clear current state
         _tokenManager.ClearAllTokens();
-        ClearPendingChoices();
         _actions.ClearAll();
         
         // 2. Restore Queues
@@ -384,6 +365,13 @@ public class Simulator
             
             _actions.PendingElementTriggers.Add(trigger);
         }
+    }
+    
+    public void Reset()
+    {
+        _actions.ClearAll();
+        History.Clear();
+        _currentStepIndex = -1;
     }
     
     /// <summary>

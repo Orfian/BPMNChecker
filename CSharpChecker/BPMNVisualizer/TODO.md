@@ -29,6 +29,7 @@ MUST:
 - [Done] Add start indicators to history, so they can be retriggered when going back in history
 - [Done] Handle Receive Tasks similarly to Message Catch Events
 - [Done] Handle Boundary Events
+- [Done] Remove triggers and history between resets
 - [Learn] Handle multiple instance and loop activities
 - [Learn] Handle Association Flows (mainly with Compensation events)
 - [Learn] Handle Call Activities
@@ -51,6 +52,8 @@ REFACTORING & CLEANUP:
 - Remove unnecessary functions and variables
 - Remove unnecessary SetWaiting SimulationActions
 - Get rid of all Warnings
+- Polish the visuals (mainly pop up windows and indicators)
+- Better folder structure
 
 WORKINGS:
 - [Done] Parallel Gateways join incoming tokens and wait for all the routes
