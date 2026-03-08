@@ -316,6 +316,9 @@ public class GatewaySimulator : BaseSimulator
         SplitChoices(token, outgoingFlows, selectedChoices);
         */
         
+        if (token.IsWaiting)
+            return;
+        
         if (outgoingFlows.Count() == 1)
         {
             base.Evaluate(token);

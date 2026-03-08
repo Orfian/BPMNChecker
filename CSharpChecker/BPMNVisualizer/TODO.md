@@ -23,7 +23,8 @@ MUST:
 - [Done] Add the same message and signal queue for start events as for intermediate events
 - [Done] Don't remove indicators for Message, Signal, Conditional, Timer Start Events when they are triggered in simulation mode
 - Somehow indicate multiple tokens on the same element in simulation mode (e.g. by stacking or numbering tokens)
-- Fix the issue with Gateways
+- Fix the issue with Inclusive Gateways
+- Fix Message Source and name
 - [Done] Add message, signal, conditional and timer start indicators into history
 - [Done] Add delay and start indicators for link events
 - [Done] Add start indicators to history, so they can be retriggered when going back in history
