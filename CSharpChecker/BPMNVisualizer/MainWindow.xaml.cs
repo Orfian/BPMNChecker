@@ -18,6 +18,7 @@ namespace BPMNVisualizer
         
         private TokenManager tokenManager;
         private Simulator simulator;
+        private HistoryWindow? _historyWindow;
 
         public MainWindow()
         {
@@ -62,6 +63,9 @@ namespace BPMNVisualizer
             tokenManager.ClearAllTokens();
             simulator.Reset();
             
+            _historyWindow?.Close();
+            _historyWindow = null;
+            
             foreach (var window in SharedVariables.Instance.SubProcessWindows.Values.ToList())
             {
                 window.ForceClose();
@@ -85,9 +89,16 @@ namespace BPMNVisualizer
                 return;
             }
             
-            var historyWindow = new HistoryWindow(simulator);
-            historyWindow.Owner = this;
-            historyWindow.Show();
+            if (_historyWindow != null && _historyWindow.IsVisible)
+            {
+                _historyWindow.Activate();
+                return;
+            }
+            
+            _historyWindow = new HistoryWindow(simulator);
+            _historyWindow.Owner = this;
+            _historyWindow.Closed += (s, _) => _historyWindow = null;
+            _historyWindow.Show();
         }
 
         private void ExportButton_Click(object sender, RoutedEventArgs e)
