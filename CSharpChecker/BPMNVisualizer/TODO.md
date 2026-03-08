@@ -1,6 +1,6 @@
 MUST:
 - [Done] Participants (Pools and Lanes)
-- Artifacts (Text Annotations, Groups)
+- [Done] Artifacts (Text Annotations, Groups)
 - [Done] Label positions on Sequence Flows
 - [Done] Label positions on elements
 - [Done] Complex Gateway
@@ -27,9 +27,9 @@ MUST:
 - [Done] Add message, signal, conditional and timer start indicators into history
 - [Done] Add delay and start indicators for link events
 - [Done] Add start indicators to history, so they can be retriggered when going back in history
-- [Learn] Handle multiple instance and loop activities
 - [Done] Handle Receive Tasks similarly to Message Catch Events
 - [Done] Handle Boundary Events
+- [Learn] Handle multiple instance and loop activities
 - [Learn] Handle Association Flows (mainly with Compensation events)
 - [Learn] Handle Call Activities
 - [?] Add state space search and an option to add start and end states to see if it's possible to reach one from the other

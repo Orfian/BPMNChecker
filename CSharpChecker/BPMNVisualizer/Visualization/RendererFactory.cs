@@ -78,11 +78,16 @@ namespace BPMNVisualizer.Visualization
                     return _eventRenderer;
                 case Gateway:
                     return _gatewayRenderer;
-                case DataObject:
                 case DataStoreReference:
                 case DataInput:
                 case DataOutput:
+                case DataObjectReference:
                     return _dataRenderer;
+                case Participant:
+                case Lane:
+                case Group:
+                case TextAnnotation:
+                    return _participantRenderer;
                 default:
                     SharedVariables.Instance.Logger.Warning("No renderer found for element type: {ElementType}", element.GetType());
                     return null;

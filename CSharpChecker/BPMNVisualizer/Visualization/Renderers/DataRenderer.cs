@@ -36,7 +36,7 @@ public class DataRenderer : IShapeRenderer
         var element = shape.BpmnElement;
         var bounds = new Rect(shape?.Bounds?.X ?? 0, shape?.Bounds?.Y ?? 0, shape?.Bounds?.Width ?? 0, shape?.Bounds?.Height ?? 0);
         
-        if (element is not DataInput and not DataOutput and not DataStoreReference and not DataObject)
+        if (element is not DataInput and not DataOutput and not DataStoreReference and not DataObjectReference)
         {
             _vars.Logger.Warning("DataRenderer received unsupported element type: {ElementType}", element.GetType());
             return;

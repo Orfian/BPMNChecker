@@ -34,6 +34,9 @@ namespace BPMNVisualizer.Visualization.Renderers
                 case Association association:
                     RenderAssociation(association, points);
                     break;
+                case DataAssociation dataAssociation:
+                    RenderDataAssociation(dataAssociation, points);
+                    break;
             }
             
             SharedVariables.Instance.Paths[_edge.BpmnElement.Id] = points;
@@ -56,23 +59,30 @@ namespace BPMNVisualizer.Visualization.Renderers
 
         private void RenderMessageFlow(MessageFlow messageFlow, IEnumerable<Point> points)
         {
-            var visual = CreateBaseConnection(points, [4.0, 2.0]);
+            var visual = CreateBaseConnection(points, [7.5, 5.0]);
             
-            AddOpenArrowhead(points.Last(), Helpers.GetDirection(points.ElementAt(points.Count() - 2), points.Last()));
+            AddCircleMarker(points.First());
+            
+            AddBlankArrowhead(points.Last(), Helpers.GetDirection(points.ElementAt(points.Count() - 2), points.Last()));
             AddMessageLabel(messageFlow, points);
         }
 
         private void RenderAssociation(Association association, IEnumerable<Point> points)
         {
-            var visual = CreateBaseConnection(points, [4.0, 2.0]);
+            var visual = CreateBaseConnection(points, [1.0, 2.0]);
             
-            AddDottedCircleMarker(points.First());
-        
             if (association.AssociationDirection == AssociationDirection.One ||
                 association.AssociationDirection == AssociationDirection.Both)
             {
-                AddArrowhead(points.Last(), Helpers.GetDirection(points.ElementAt(points.Count() - 2), points.Last()));
+                AddOpenArrowhead(points.Last(), Helpers.GetDirection(points.ElementAt(points.Count() - 2), points.Last()));
             }
+        }
+
+        private void RenderDataAssociation(DataAssociation dataAssociation, IEnumerable<Point> points)
+        {
+            var visual = CreateBaseConnection(points, [1.0, 2.0]);
+            
+            AddOpenArrowhead(points.Last(), Helpers.GetDirection(points.ElementAt(points.Count() - 2), points.Last()));
         }
         
         private Polyline CreateBaseConnection(IEnumerable<Point> points, DoubleCollection dashArray)
@@ -158,7 +168,7 @@ namespace BPMNVisualizer.Visualization.Renderers
             _canvas.Children.Add(arrow);
         }
         
-        private void AddOpenArrowhead(Point endPoint, Vector direction)
+        private void AddBlankArrowhead(Point endPoint, Vector direction)
         {
             var arrow = new Polyline
             {
@@ -177,20 +187,36 @@ namespace BPMNVisualizer.Visualization.Renderers
             _canvas.Children.Add(arrow);
         }
         
-        private void AddDottedCircleMarker(Point position)
+        private void AddOpenArrowhead(Point endPoint, Vector direction)
+        {
+            var arrow = new Polyline
+            {
+                Stroke = Brushes.Black,
+                StrokeThickness = 2,
+                Points = new PointCollection
+                {
+                    endPoint - direction * 10 + new Vector(-direction.Y, direction.X) * 5,
+                    endPoint,
+                    endPoint - direction * 10 + new Vector(direction.Y, -direction.X) * 5
+                }
+            };
+
+            _canvas.Children.Add(arrow);
+        }
+        
+        private void AddCircleMarker(Point position)
         {
             var marker = new Ellipse
             {
-                Width = 6,
-                Height = 6,
+                Width = 12,
+                Height = 12,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2,
-                StrokeDashArray = [2, 2],
                 Fill = Brushes.White
             };
 
-            Canvas.SetLeft(marker, position.X - 3);
-            Canvas.SetTop(marker, position.Y - 3);
+            Canvas.SetLeft(marker, position.X - 6);
+            Canvas.SetTop(marker, position.Y - 6);
             _canvas.Children.Add(marker);
         }
         

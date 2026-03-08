@@ -129,10 +129,10 @@ namespace BPMNVisualizer.Utilities
         {
             var fileName = elementType switch
             {
-                DataObject => "data-object",
-                DataStoreReference => "data-store",
                 DataInput => "data-input",
                 DataOutput => "data-output",
+                DataStoreReference => "data-store",
+                DataObjectReference => "data-object",
                 _ => throw new BPMNCheckerExceptions($"No icon found for data element type: {elementType}")
             };
 

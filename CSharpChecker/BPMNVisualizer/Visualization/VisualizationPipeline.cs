@@ -117,7 +117,7 @@ namespace BPMNVisualizer.Visualization
 
         private bool IsStructuralElement(BaseElement element)
         {
-            return element is Participant || element is Lane;
+            return element is Participant || element is Lane || element is Group;
         }
     }
 

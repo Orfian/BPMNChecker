@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using BPMNModel.Model;
 using BPMNVisualizer.Utility;
 using Serilog;
@@ -36,6 +37,12 @@ public class ParticipantRenderer : IShapeRenderer
                 break;
             case Lane lane:
                 RenderLane(lane, bounds);
+                break;
+            case Group group:
+                RenderGroup(group, bounds);
+                break;
+            case TextAnnotation textAnnotation:
+                RenderTextAnnotation(textAnnotation, bounds);
                 break;
             default:
                 _logger.Warning("Unsupported participant type: {ElementType}", element.GetType());
@@ -111,5 +118,77 @@ public class ParticipantRenderer : IShapeRenderer
         var label = _shapeManager.GetLabel(text, new Rect(bounds.Left, bounds.Top, bounds.Height, 20));
         
         return _shapeManager.WrapInContainer(label, new Rect(bounds.Left, bounds.Top, bounds.Height, 20));
+    }
+
+    private void RenderGroup(Group group, Rect bounds)
+    {
+        // Dashed rounded rectangle — no fill, just a border
+        var rect = new Rectangle
+        {
+            Width = bounds.Width,
+            Height = bounds.Height,
+            Stroke = Brushes.DarkGray,
+            StrokeThickness = 2,
+            StrokeDashArray = new DoubleCollection([7.5, 2.4, 1, 2.4]),
+            RadiusX = 8,
+            RadiusY = 8,
+            Fill = Brushes.Transparent
+        };
+        Canvas.SetLeft(rect, bounds.Left);
+        Canvas.SetTop(rect, bounds.Top);
+        _canvas.Children.Add(rect);
+
+        // Label from the CategoryValue name (top-left corner)
+        var labelText = group.CategoryValueRef?.Value;
+        if (!string.IsNullOrEmpty(labelText))
+        {
+            var label = new TextBlock
+            {
+                Text = labelText,
+                FontSize = 11,
+                Foreground = Brushes.Gray,
+                Background = Brushes.White,
+                Padding = new Thickness(2, 0, 2, 0)
+            };
+            Canvas.SetLeft(label, bounds.Left + 8);
+            Canvas.SetTop(label, bounds.Top - 8);
+            _canvas.Children.Add(label);
+        }
+    }
+
+    private void RenderTextAnnotation(TextAnnotation annotation, Rect bounds)
+    {
+        // Open bracket shape: left vertical line + top + bottom horizontal ticks
+        var bracket = new Polyline
+        {
+            Stroke = Brushes.Black,
+            StrokeThickness = 1.5,
+            Points = new PointCollection
+            {
+                new(bounds.Left + 12, bounds.Top),
+                new(bounds.Left, bounds.Top),
+                new(bounds.Left, bounds.Bottom),
+                new(bounds.Left + 12, bounds.Bottom)
+            }
+        };
+        Canvas.SetLeft(bracket, 0);
+        Canvas.SetTop(bracket, 0);
+        _canvas.Children.Add(bracket);
+
+        // Text label inside
+        if (!string.IsNullOrEmpty(annotation.Text))
+        {
+            var label = new TextBlock
+            {
+                Text = annotation.Text,
+                FontSize = 11,
+                TextWrapping = TextWrapping.Wrap,
+                Width = bounds.Width - 16,
+                Foreground = Brushes.Black
+            };
+            Canvas.SetLeft(label, bounds.Left + 16);
+            Canvas.SetTop(label, bounds.Top + 2);
+            _canvas.Children.Add(label);
+        }
     }
 }
