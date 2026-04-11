@@ -2,8 +2,7 @@
 
 public record SimulationMessage(
     string MessageName,
-    string SourceElementId,
-    string? TargetElementId = null
+    string SourceElementId
 ) : ISimulationQueueItem
 {
     public string DisplayName => MessageName;
