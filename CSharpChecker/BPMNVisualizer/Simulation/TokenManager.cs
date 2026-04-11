@@ -6,6 +6,7 @@ using System.Windows.Shapes;
 using BPMNModel;
 using BPMNModel.Model;
 using BPMNVisualizer.Utility;
+using Serilog;
 using Point = System.Windows.Point;
 
 namespace BPMNVisualizer.Simulation;
@@ -14,6 +15,7 @@ public class TokenManager
 {
     private readonly ModelRoot _model;
     private readonly List<BPMNToken> _tokens;
+    private readonly ILogger _logger;
     
     internal readonly Canvas _canvas;
 
@@ -22,9 +24,10 @@ public class TokenManager
         _canvas = canvas;
         _model = SharedVariables.Instance.Model;
         _tokens = SharedVariables.Instance.Tokens;
+        _logger = SharedVariables.Instance.Logger;
     }
 
-    public BPMNToken AddToken(BaseElement startElement, Rect position)
+    public BPMNToken AddToken(FlowNode startElement, Rect position)
     {
         var token = new BPMNToken
         {
@@ -49,11 +52,12 @@ public class TokenManager
         return token;
     }
 
-    public void MoveToken(BPMNToken token, BaseElement target, SequenceFlow currentFlow, IEnumerable<Point>? path, Rect position)
+    public void MoveToken(BPMNToken token, FlowNode target, SequenceFlow currentFlow, IEnumerable<Point>? path, Rect position)
     {
         var points = path.ToList();
         if (path == null || points.Count < 2)
         {
+            _logger.Warning("Token movement from {Source} to {Target} has no path or insufficient points, placing token directly at target position.", token.CurrentElement?.Id, target.Id);
             token.CurrentElement = target;
             token.CurrentSequenceFlow = currentFlow;
             var center = new Point(position.X + position.Width / 2, position.Y + position.Height / 2);
@@ -102,33 +106,7 @@ public class TokenManager
         Canvas.SetTop(token.Visual, position.Y - token.Visual.Height / 2);
     }
     
-    public IEnumerable<SequenceFlow> GetOutgoingFlows(BaseElement element)
-    {
-        return _model.AllObjectsWithIds.Values
-            .OfType<SequenceFlow>()
-            .Where(flow => flow.SourceRef?.Id == element.Id);
-    }
-
-    public IEnumerable<SequenceFlow> GetIncomingFlows(BaseElement element)
-    {
-        return  _model.AllObjectsWithIds.Values
-            .OfType<SequenceFlow>()
-            .Where(flow => flow.TargetRef?.Id == element.Id);
-    }
-    
-    public BaseElement? GetTargetElement(SequenceFlow flow)
-    {
-        var targetRef = flow.TargetRef;
-        if (targetRef == null)
-            return null;
-        
-        if (_model.AllObjectsWithIds.TryGetValue(targetRef.Id, out var target))
-            return target as BaseElement;
-        
-        return null;
-    }
-    
-    public bool IsReachable(BaseElement start, BaseElement target)
+    public bool IsReachable(FlowNode start, FlowNode target)
     {
         if (start == null || target == null)
             return false;
@@ -137,7 +115,7 @@ public class TokenManager
             return true;
 
         var visited = new HashSet<string>();
-        var queue = new Queue<BaseElement>();
+        var queue = new Queue<FlowNode>();
         queue.Enqueue(start);
 
         while (queue.Count > 0)
@@ -149,13 +127,13 @@ public class TokenManager
 
             visited.Add(current.Id);
 
-            var outgoingFlows = GetOutgoingFlows(current);
+            var outgoingFlows = current.Outgoing;
             if (outgoingFlows == null || !outgoingFlows.Any())
                 continue;
 
             foreach (var flow in outgoingFlows)
             {
-                var next = GetTargetElement(flow);
+                var next = flow.TargetRef;
                 if (next == null) continue;
 
                 if (next.Id == target.Id)
@@ -169,20 +147,19 @@ public class TokenManager
         return false;
     }
     
-    public void AnimateToken(BPMNToken token, BaseElement target, SequenceFlow currentFlow, List<Point> points)
+    public void AnimateToken(BPMNToken token, FlowNode target, SequenceFlow currentFlow, List<Point> points)
     {
         var first = points[0];
         Canvas.SetLeft(token.Visual, first.X - token.Visual.Width / 2);
         Canvas.SetTop(token.Visual, first.Y - token.Visual.Height / 2);
 
-        // compute path length to determine duration (pixels per second)
         double totalLength = 0.0;
         for (int i = 1; i < points.Count; i++)
         {
             totalLength += (points[i] - points[i - 1]).Length;
         }
 
-        const double pixelsPerSecond = 300.0; // tune this for speed
+        const double pixelsPerSecond = 300.0;
         double seconds = Math.Max(0.2, totalLength / pixelsPerSecond);
 
         var xFrames = new DoubleAnimationUsingKeyFrames();
@@ -190,7 +167,6 @@ public class TokenManager
         var totalDuration = TimeSpan.FromSeconds(seconds);
         xFrames.Duration = yFrames.Duration = new Duration(totalDuration);
 
-        // Build cumulative lengths to compute proportional key times (makes speed uniform)
         var cumulative = new double[points.Count];
         cumulative[0] = 0;
         for (int i = 1; i < points.Count; i++)
@@ -202,10 +178,9 @@ public class TokenManager
             double x = p.X - token.Visual.Width / 2;
             double y = p.Y - token.Visual.Height / 2;
 
-            double t = cumulative[i] / cumulative[^1]; // 0..1
+            double t = cumulative[i] / cumulative[^1];
             var keyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(seconds * t));
 
-            // linear frames — replace with SplineDoubleKeyFrame + KeySpline if you want easing
             var xKey = new LinearDoubleKeyFrame(x, keyTime);
             var yKey = new LinearDoubleKeyFrame(y, keyTime);
 
@@ -213,7 +188,6 @@ public class TokenManager
             yFrames.KeyFrames.Add(yKey);
         }
 
-        // Storyboard so we can handle Completed
         var sb = new Storyboard { Duration = xFrames.Duration };
         Storyboard.SetTarget(xFrames, token.Visual);
         Storyboard.SetTargetProperty(xFrames, new PropertyPath("(Canvas.Left)"));
@@ -225,7 +199,6 @@ public class TokenManager
 
         sb.Completed += (s, e) =>
         {
-            // ensure final snap to last point
             var last = points[^1];
             Canvas.SetLeft(token.Visual, last.X - token.Visual.Width / 2);
             Canvas.SetTop(token.Visual, last.Y - token.Visual.Height / 2);

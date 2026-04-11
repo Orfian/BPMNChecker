@@ -9,7 +9,7 @@ public abstract record SimulationAction
 
 public record MoveTokenAction(
     BPMNToken Token,
-    BaseElement TargetElement,
+    FlowNode TargetElement,
     SequenceFlow Flow
 ) : SimulationAction
 {
@@ -17,8 +17,8 @@ public record MoveTokenAction(
 }
 
 public record SplitTokenAction( //for parallel gateways, multiple flows, etc.
-    BaseElement SourceElement,
-    BaseElement TargetElement,
+    FlowNode SourceElement,
+    FlowNode TargetElement,
     SequenceFlow Flow,
     BPMNToken? ParentToken = null
 ) : SimulationAction
@@ -27,7 +27,7 @@ public record SplitTokenAction( //for parallel gateways, multiple flows, etc.
 }
 
 public record SpawnTokenAction( //for subprocesses, call activities, etc.
-    BaseElement TargetElement,
+    FlowNode TargetElement,
     BPMNToken ParentToken
 ) : SimulationAction
 {
@@ -77,7 +77,7 @@ public record ResolveGatewayChoiceAction(
 
 public record DelayTokenAction(
     BPMNToken Token,
-    BaseElement  Element
+    FlowNode Element
 ) : SimulationAction
 {
     public override SimulationAction DeepClone() => this with { Token = Token.DeepClone() };

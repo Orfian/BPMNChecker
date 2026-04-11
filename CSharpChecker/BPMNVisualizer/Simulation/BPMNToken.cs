@@ -7,7 +7,7 @@ public class BPMNToken
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    public BaseElement CurrentElement { get; set; }
+    public FlowNode CurrentElement { get; set; }
     public SequenceFlow CurrentSequenceFlow { get; set; }
     public Ellipse? Visual { get; set; }
     public bool IsWaiting { get; set; } = false;

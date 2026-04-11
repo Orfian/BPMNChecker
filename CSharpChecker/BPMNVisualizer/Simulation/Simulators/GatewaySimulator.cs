@@ -20,7 +20,7 @@ public class GatewaySimulator : BaseSimulator
             return;
         }
 
-        var outgoingFlows = _tokenManager.GetOutgoingFlows(gateway);
+        var outgoingFlows = gateway.Outgoing;
         if (!outgoingFlows.Any())
         {
             SharedVariables.Instance.Logger.Information($"Gateway {gateway.Id} has no outgoing flows.");
@@ -57,7 +57,7 @@ public class GatewaySimulator : BaseSimulator
 
     private void HandleParallelGateway(BPMNToken token, ParallelGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
-        var incomingFlows = _tokenManager.GetIncomingFlows(gateway);
+        var incomingFlows = gateway.Outgoing;
         bool joining = incomingFlows.Count() > 1;
 
         if (!joining)
@@ -128,7 +128,7 @@ public class GatewaySimulator : BaseSimulator
         var selectedFlow = outgoingFlows.FirstOrDefault(f => (f.Name ?? f.Id) == choice);
         if (selectedFlow == null) return;
 
-        var targetElement = _tokenManager.GetTargetElement(selectedFlow);
+        var targetElement = selectedFlow.TargetRef;
         if (targetElement == null) return;
         
         _actions.AddAction(new MoveTokenAction(token, targetElement, selectedFlow));
@@ -156,7 +156,7 @@ public class GatewaySimulator : BaseSimulator
 
     private void HandleInclusiveGateway(BPMNToken token, InclusiveGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
-        var incomingFlows = _tokenManager.GetIncomingFlows(gateway);
+        var incomingFlows = gateway.Outgoing;
         bool joining = incomingFlows.Count() > 1;
 
         if (!joining)
@@ -350,7 +350,7 @@ public class GatewaySimulator : BaseSimulator
             return;
         }
 
-        var targetElement = _tokenManager.GetTargetElement(selectedFlow);
+        var targetElement = selectedFlow.TargetRef;
         if (targetElement == null) return;
 
         _actions.AddAction(new SetTokenWaitingAction(token, false));
@@ -411,7 +411,7 @@ public class GatewaySimulator : BaseSimulator
             var flow = outgoingFlows.FirstOrDefault(f => (f.Name ?? f.Id) == name);
             if (flow == null) continue;
 
-            var target = _tokenManager.GetTargetElement(flow);
+            var target = flow.TargetRef;
             if (target == null) continue;
 
             if (first)
@@ -493,7 +493,7 @@ public class GatewaySimulator : BaseSimulator
 
     private void HandleParallelGateway(BPMNToken token, ParallelGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
-        var incomingFlows = _tokenManager.GetIncomingFlows(gateway);
+        var incomingFlows = gateway.Outgoing;
         bool joining = incomingFlows.Count() > 1;
         
         if (!joining)
@@ -585,7 +585,7 @@ public class GatewaySimulator : BaseSimulator
     
     private void HandleInclusiveGateway(BPMNToken token, InclusiveGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
-        var incomingFlows = _tokenManager.GetIncomingFlows(gateway);
+        var incomingFlows = gateway.Outgoing;
         bool joining = incomingFlows.Count() > 1;
         
         if (!joining)
@@ -708,7 +708,7 @@ public class GatewaySimulator : BaseSimulator
             var flow = outgoingFlows.FirstOrDefault(f => (f.Name ?? f.Id) == choice);
             if (flow == null) continue;
 
-            var next = _tokenManager.GetTargetElement(flow);
+            var next = flow.TargetRef;
             if (next == null) continue;
 
             if (_objectBounds.TryGetValue(next.Id, out var bounds))
@@ -749,7 +749,7 @@ public class GatewaySimulator : BaseSimulator
             var flow = outgoingFlows.FirstOrDefault(f => (f.Name ?? f.Id) == choice);
             if (flow == null) continue;
 
-            var next = _tokenManager.GetTargetElement(flow);
+            var next = flow.TargetRef;
             if (next == null) continue;
 
             if (_objectBounds.TryGetValue(next.Id, out var bounds))

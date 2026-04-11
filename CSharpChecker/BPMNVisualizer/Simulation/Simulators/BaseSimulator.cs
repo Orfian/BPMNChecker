@@ -24,9 +24,7 @@ public class BaseSimulator : IElementSimulator
             return;
         }
 
-        var outgoingFlows = _tokenManager
-            .GetOutgoingFlows(token.CurrentElement)
-            .ToList();
+        var outgoingFlows = token.CurrentElement.Outgoing;
 
         if (!outgoingFlows.Any())
             return;
@@ -34,7 +32,7 @@ public class BaseSimulator : IElementSimulator
         if (outgoingFlows.Count == 1)
         {
             var flow = outgoingFlows[0];
-            var target = _tokenManager.GetTargetElement(flow);
+            var target = flow.TargetRef;
             if (target == null)
                 return;
 
@@ -47,7 +45,7 @@ public class BaseSimulator : IElementSimulator
 
         foreach (var flow in outgoingFlows)
         {
-            var target = _tokenManager.GetTargetElement(flow);
+            var target = flow.TargetRef;
             if (target == null)
                 continue;
 
