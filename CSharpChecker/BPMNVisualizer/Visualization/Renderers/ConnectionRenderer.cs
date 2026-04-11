@@ -266,7 +266,7 @@ namespace BPMNVisualizer.Visualization.Renderers
             var label = new TextBlock
             {
                 Text = flow.Name,
-                FontSize = 11,
+                FontSize = 10,
                 TextWrapping = TextWrapping.Wrap,
                 TextAlignment = TextAlignment.Center,
                 Width = labelBounds.Width ?? 60
