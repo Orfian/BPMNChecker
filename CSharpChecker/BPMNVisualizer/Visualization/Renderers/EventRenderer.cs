@@ -150,6 +150,8 @@ public class EventRenderer : IShapeRenderer
     {
         if (string.IsNullOrEmpty(evt.Name)) return;
         
+        if (_shape.Label == null) return;
+        
         var labelBounds = _shape.Label.Bounds.ToRect();
         
         var label = new TextBlock

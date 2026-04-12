@@ -122,6 +122,8 @@ public class GatewayRenderer : IShapeRenderer
     {
         if (string.IsNullOrEmpty(gateway.Name)) return;
         
+        if (_shape.Label == null) return;
+        
         var labelBounds = _shape.Label.Bounds.ToRect();
         
         var label = new TextBlock
