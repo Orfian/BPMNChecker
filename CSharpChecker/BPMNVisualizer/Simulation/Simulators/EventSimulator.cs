@@ -76,6 +76,19 @@ public class EventSimulator : BaseSimulator
         _actions.AddAction(new RemoveTokenAction(token));
         
         var allTokens = _tokenManager.GetAllTokens();
+        
+        var terminateDef = end.EventDefinitions.OfType<TerminateEventDefinition>().FirstOrDefault();
+        if (terminateDef != null)
+        {
+            var tokensToRemove = parent == null
+                ? allTokens
+                : allTokens.Where(t => t.Parent == parent).ToList();
+
+            foreach (var t in tokensToRemove)
+            {
+                _actions.AddAction(new RemoveTokenAction(t));
+            }
+        }
 
         if (parent != null)
         {
