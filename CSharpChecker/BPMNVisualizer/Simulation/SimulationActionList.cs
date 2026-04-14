@@ -177,7 +177,7 @@ public class SimulationActionList
         {
             var choice = a.GatewayChoice;
             var manager = choice.Token?.Owner ?? _tokenManager;
-                
+            
             var selectedFlows = choice.Indicators
                 .Where(ind => ind.Selected && ind.Flow != null)
                 .Select(ind => ind.Flow!)
@@ -214,6 +214,10 @@ public class SimulationActionList
             }
             
             PendingGatewayChoices.Remove(a.GatewayChoice);
+            
+            var requestAction = RequestGatewayChoiceActions.FirstOrDefault(ra => ra.Token == choice.Token);
+            if (requestAction != null)
+                RequestGatewayChoiceActions.Remove(requestAction);
         }
         ResolveGatewayChoiceActions.Clear();
     }

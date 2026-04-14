@@ -182,10 +182,7 @@ public class GatewaySimulator : BaseSimulator
         }
 
         bool allTokensArrived = incomingFlows.All(flow => buffer.ContainsKey(flow.Id) && buffer[flow.Id].Count > 0);
-        /*
-        if (token.IsWaiting)
-            return;
-        */
+
         if (!allTokensArrived)
         {
             allTokensArrived = true;
@@ -315,9 +312,6 @@ public class GatewaySimulator : BaseSimulator
 
         SplitChoices(token, outgoingFlows, selectedChoices);
         */
-        
-        if (token.IsWaiting)
-            return;
         
         if (outgoingFlows.Count() == 1)
         {
