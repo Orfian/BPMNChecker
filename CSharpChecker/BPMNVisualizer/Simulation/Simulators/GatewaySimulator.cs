@@ -57,7 +57,7 @@ public class GatewaySimulator : BaseSimulator
 
     private void HandleParallelGateway(BPMNToken token, ParallelGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
-        var incomingFlows = gateway.Outgoing;
+        var incomingFlows = gateway.Incoming;
         bool joining = incomingFlows.Count() > 1;
 
         if (!joining)
@@ -156,7 +156,7 @@ public class GatewaySimulator : BaseSimulator
 
     private void HandleInclusiveGateway(BPMNToken token, InclusiveGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
-        var incomingFlows = gateway.Outgoing;
+        var incomingFlows = gateway.Incoming;
         bool joining = incomingFlows.Count() > 1;
 
         if (!joining)
@@ -493,7 +493,7 @@ public class GatewaySimulator : BaseSimulator
 
     private void HandleParallelGateway(BPMNToken token, ParallelGateway gateway, IEnumerable<SequenceFlow> outgoingFlows)
     {
-        var incomingFlows = gateway.Outgoing;
+        var incomingFlows = gateway.Incoming;
         bool joining = incomingFlows.Count() > 1;
         
         if (!joining)
