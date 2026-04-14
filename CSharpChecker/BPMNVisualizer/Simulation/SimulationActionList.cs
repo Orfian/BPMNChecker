@@ -96,6 +96,8 @@ public class SimulationActionList
     {
         CommitResolveGatewayChoiceActions();
         CommitRequestGatewayChoiceActions();
+        CommitSendMessageActions();
+        CommitSendSignalActions();
         CommitSetTokenWaitingActions();
         CommitSplitTokenActions();
         CommitMoveTokenActions();
@@ -103,8 +105,6 @@ public class SimulationActionList
         CommitSpawnCollapsedSubProcessActions();
         CommitRemoveTokenActions();
         CommitDelayTokenActions();
-        CommitSendMessageActions();
-        CommitSendSignalActions();
     }
     
     public void ClearActions()
