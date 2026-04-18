@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using BPMNModel.Model;
+﻿using BPMNModel.Model;
 using BPMNVisualizer.Simulation.Simulators;
 using BPMNVisualizer.Utility;
 
@@ -165,8 +164,7 @@ public class SimulationActionList
     {
         foreach (var a in SetTokenWaitingActions)
         {
-            var manager = a.Token.Owner ?? _tokenManager;
-            manager.SetTokenWaiting(a.Token, a.IsWaiting);
+            a.Commit(this, _tokenManager, _activitySimulator, _eventSimulator, _gatewaySimulator);
         }
         SetTokenWaitingActions.Clear();
     }
@@ -175,49 +173,7 @@ public class SimulationActionList
     {
         foreach (var a in ResolveGatewayChoiceActions)
         {
-            var choice = a.GatewayChoice;
-            var manager = choice.Token?.Owner ?? _tokenManager;
-            
-            var selectedFlows = choice.Indicators
-                .Where(ind => ind.Selected && ind.Flow != null)
-                .Select(ind => ind.Flow!)
-                .ToList();
-                
-            switch (choice.Gateway)
-            {
-                case ParallelGateway pg:
-                    _vars.Logger.Warning("Unexpected gateway action: {ActionType}", choice.Gateway.GetType().Name);
-                    break;
-                case ExclusiveGateway eg:
-                    _gatewaySimulator.ResolveExclusiveGateway(choice.Token, eg, selectedFlows);
-                    break;
-                case InclusiveGateway ig:
-                    _gatewaySimulator.ResolveInclusiveGateway(choice.Token, ig, selectedFlows);
-                    break;
-                case ComplexGateway cg:
-                    _gatewaySimulator.ResolveComplexGateway(choice.Token, cg, selectedFlows);
-                    break;
-                case EventBasedGateway ebg:
-                    _gatewaySimulator.ResolveEventBasedGateway(choice.Token, ebg, selectedFlows);
-                    break;
-                default:
-                    _vars.Logger.Warning("Unknown gateway action: {ActionType}", choice.Gateway.GetType().Name);
-                    break;
-            }
-
-            foreach (var indicator in a.GatewayChoice.Indicators)
-            {
-                if (indicator.Visual != null)
-                {
-                    manager.RemoveArrowIndicator(indicator.Visual);
-                }
-            }
-            
-            PendingGatewayChoices.Remove(a.GatewayChoice);
-            
-            var requestAction = RequestGatewayChoiceActions.FirstOrDefault(ra => ra.Token == choice.Token);
-            if (requestAction != null)
-                RequestGatewayChoiceActions.Remove(requestAction);
+            a.Commit(this, _tokenManager, _activitySimulator, _eventSimulator, _gatewaySimulator);
         }
         ResolveGatewayChoiceActions.Clear();
     }
@@ -226,45 +182,7 @@ public class SimulationActionList
     {
         foreach (var a in RequestGatewayChoiceActions)
         {
-            var manager = a.Token.Owner ?? _tokenManager;
-            
-            var gatewayChoice = new GatewayChoice
-            {
-                Token = a.Token,
-                Gateway = a.Gateway,
-                OutgoingFlows = a.OutgoingFlows,
-                MultiSelect = a.MultiSelect,
-                DefaultFlow = a.DefaultFlow
-            };
-
-            manager.ShowGatewayChoiceIndicators(gatewayChoice);
-                    
-            if (gatewayChoice.DefaultFlow != null)
-            {
-                var defaultIndicator = gatewayChoice.Indicators
-                    .FirstOrDefault(ind => ind.Flow == gatewayChoice.DefaultFlow);
-                if (defaultIndicator != null && defaultIndicator.Visual != null)
-                {
-                    defaultIndicator.Selected = true;
-                    manager.SetIndicatorColor(defaultIndicator.Visual, true);
-                }
-            }
-            else
-            {
-                if (gatewayChoice.Gateway is not ComplexGateway && gatewayChoice.Gateway is not EventBasedGateway)
-                {
-                    var ind = gatewayChoice.Indicators.FirstOrDefault();
-                    if (ind != null && ind.Visual != null)
-                    {
-                        ind.Selected = true;
-                        manager.SetIndicatorColor(ind.Visual, true);
-                    }
-                }
-            }
-                    
-            PendingGatewayChoices.Add(gatewayChoice);
-
-            ResolveGatewayChoiceActions.Add(new ResolveGatewayChoiceAction(gatewayChoice));
+            a.Commit(this, _tokenManager, _activitySimulator, _eventSimulator, _gatewaySimulator);
         }
         RequestGatewayChoiceActions.Clear();
     }
@@ -273,25 +191,7 @@ public class SimulationActionList
     {
         foreach (var a in SplitTokenActions)
         {
-            if (_vars.ObjectBounds.TryGetValue(a.SourceElement.Id!, out var sourceBounds))
-            {
-                var manager = a.ParentToken?.Owner ?? _tokenManager;
-                var newToken = manager.AddToken(a.SourceElement, sourceBounds);
-                newToken.Parent = a.ParentToken;
-                        
-                if (_vars.ObjectBounds.TryGetValue(a.TargetElement.Id!, out var targetBounds))
-                {
-                    manager.MoveToken(
-                        newToken,
-                        a.TargetElement,
-                        a.Flow,
-                        _vars.Paths.TryGetValue(a.Flow.Id!, out var path) ? path : null,
-                        targetBounds
-                    );
-                    
-                    CheckBoundaryEvents(newToken);
-                }
-            }
+            a.Commit(this, _tokenManager, _activitySimulator, _eventSimulator, _gatewaySimulator);
         }
         SplitTokenActions.Clear();
     }
@@ -300,19 +200,7 @@ public class SimulationActionList
     {
         foreach (var a in MoveTokenActions)
         {
-            if (_vars.ObjectBounds.TryGetValue(a.TargetElement.Id!, out var targetBounds))
-            {
-                var manager = a.Token.Owner ?? _tokenManager;
-                manager.MoveToken(
-                    a.Token,
-                    a.TargetElement,
-                    a.Flow,
-                    _vars.Paths.TryGetValue(a.Flow.Id!, out var path) ? path : null,
-                    targetBounds
-                );
-                
-                CheckBoundaryEvents(a.Token);
-            }
+            a.Commit(this, _tokenManager, _activitySimulator, _eventSimulator, _gatewaySimulator);
         }
         MoveTokenActions.Clear();
     }
@@ -321,45 +209,16 @@ public class SimulationActionList
     {
         foreach (var a in SpawnTokenActions)
         {
-            if (_vars.ObjectBounds.TryGetValue(a.TargetElement.Id!, out var targetBounds))
-            {
-                var manager = a.ParentToken?.Owner ?? _tokenManager;
-                var newToken = manager.AddToken(a.TargetElement, targetBounds);
-                newToken.Parent = a.ParentToken;
-            }
+            a.Commit(this, _tokenManager, _activitySimulator, _eventSimulator, _gatewaySimulator);
         }
         SpawnTokenActions.Clear();
     }
     
     public void CommitSpawnCollapsedSubProcessActions()
     {
-        var vars = SharedVariables.Instance;
-
         foreach (var a in SpawnCollapsedSubProcessActions)
         {
-            var subDiagram = vars.Model.Definition?.Diagrams
-                .FirstOrDefault(d => d.Plane?.BpmnElement?.Id == a.SubProcess.Id);
-
-            if (subDiagram == null) continue;
-
-            // Reuse existing window or create a new one
-            if (!vars.SubProcessWindows.TryGetValue(a.SubProcess.Id, out var window))
-            {
-                window = new SubProcessWindow
-                {
-                    Owner = Application.Current.MainWindow,
-                    Title = $"Sub-Process: {a.SubProcess.Name ?? a.SubProcess.Id}"
-                };
-                window.RenderSubProcess(subDiagram);
-                vars.SubProcessWindows[a.SubProcess.Id] = window;
-            }
-
-            window.StartSimulation(a.SubProcess, a.ParentToken);
-
-            if (!window.IsVisible)
-                window.Show();
-            else
-                window.Activate();
+            a.Commit(this, _tokenManager, _activitySimulator, _eventSimulator, _gatewaySimulator);
         }
         SpawnCollapsedSubProcessActions.Clear();
     }
@@ -368,8 +227,7 @@ public class SimulationActionList
     {
         foreach (var a in RemoveTokenActions)
         {
-            var manager = a.Token.Owner ?? _tokenManager;
-            manager.RemoveToken(a.Token);
+            a.Commit(this, _tokenManager, _activitySimulator, _eventSimulator, _gatewaySimulator);
         }
         RemoveTokenActions.Clear();
     }
@@ -378,25 +236,7 @@ public class SimulationActionList
     {
         foreach (var a in DelayTokenActions)
         {
-            var manager = a.Token.Owner ?? _tokenManager;
-            
-            var trigger = new ElementTrigger
-            {
-                Token = a.Token,
-                Element = a.Element
-            };
-            
-            manager.ShowEventTriggerIndicator(trigger);
-            
-            var arrow = trigger.Indicator.Visual;
-            if (arrow == null) continue;
-            
-            arrow.MouseDown += (s, e) =>
-            {
-                ResolveElementTrigger(trigger);
-            };
-            
-            PendingElementTriggers.Add(trigger);
+            a.Commit(this, _tokenManager, _activitySimulator, _eventSimulator, _gatewaySimulator);
         }
         DelayTokenActions.Clear();
     }
@@ -405,12 +245,7 @@ public class SimulationActionList
     {
         foreach (var a in SendMessageActions)
         {
-            var message = new SimulationMessage(
-                a.MessageName,
-                a.Token.CurrentElement?.Id ?? "Unknown"
-            );
-            MessageQueue.Enqueue(message);
-            _vars.Logger.Information("Message {MessageName} sent from {SourceId}", message.MessageName, message.SourceElementId);
+            a.Commit(this, _tokenManager, _activitySimulator, _eventSimulator, _gatewaySimulator);
         }
         SendMessageActions.Clear();
     }
@@ -419,12 +254,7 @@ public class SimulationActionList
     {
         foreach (var a in SendSignalActions)
         {
-            var signal = new SimulationSignal(
-                a.SignalName,
-                a.Token.CurrentElement?.Id ?? "Unknown"
-            );
-            SignalQueue.Enqueue(signal);
-            _vars.Logger.Information("Signal {SignalName} sent from {SourceId}", signal.SignalName, signal.SourceElementId);
+            a.Commit(this, _tokenManager, _activitySimulator, _eventSimulator, _gatewaySimulator);
         }
         SendSignalActions.Clear();
     }
@@ -556,4 +386,3 @@ public class SimulationActionList
         }
     }
 }
-
